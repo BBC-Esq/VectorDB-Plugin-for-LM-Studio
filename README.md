@@ -39,7 +39,7 @@ python gui.py
 ```
 * **Step 2**: Click the "Choose Documents" button and choose one or more documents to include in the vector database.
   * **Note**: Only PDFs with OCR done on them will work as of Version 1. A folder named "Docs_to_DB" will be created and populated.
-* **Step 3**: Click the "Create ChromaDB" button. A folder named "Vector_DB" will be created if it doesn't already exist.
+* **Step 3**: Click the "Create ChromaDB" button. A folder named "Vector_DB" will be created if it doesn't already exist and the DB will be created in there (see notes below).
   * **Note**: A message will appear with instructions on how to monitor CUDA usage. Please follow them.
   * **Note**: The embedding model will be downloaded to your cache folder if it's not downloaded already. Once downloaded, the vector database will automatically be created. Watch your CUDA usage to verify that it's working - pretty awesome! The database is created when CUDA usage drops to zero.
 * **Step 4**: Open LM Studio, select a model, and click "Start Server."
