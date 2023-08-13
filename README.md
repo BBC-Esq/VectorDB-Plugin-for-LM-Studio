@@ -1,6 +1,6 @@
 # ChromaDB Plugin for LM Studio
 
-The ChromaDB Plugin for LM Studio enables bootstrapping a ChromaDB vector database to work with LM Studio while running in server mode. Here's how you can get started and what you need to know:
+The ChromaDB Plugin for LM Studio adds a vector database to LM Studio utilizing ChromaDB!
 
 ## Table of Contents
 1. [Installation Instructions](#installation-instructions)
@@ -11,7 +11,9 @@ The ChromaDB Plugin for LM Studio enables bootstrapping a ChromaDB vector databa
 
 ## Installation Instructions
 * **Step 1**: Download the `.exe` and run it.
-  * **NOTE**: You must have CUDA 11.8 already installed, as the program was created using PyTorch tailored to work with CUDA 11.8.
+  * **NOTE**: You must have [CUDA 11.8 already installed](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+  * **NOTE**: Before running the .exe, you must run the following command:
+  * `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
 
 ## Usage Guide
 * **Step 2**: Choose a document to ingest into your database (only PDFs with OCR already done on them as of Version 1). A folder named "Docs_to_DB" will be created and populated if it doesn't already exist.
