@@ -12,13 +12,28 @@ The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database
 ## Installation Instructions
 * **Step 1**: Download all the files in this repository and put them into a directory.
 * **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) if it's not already installed.
-* **Step 3**: Go to the folder where my repository is located, open a command prompt and run: `python -m venv .`
-* **Step 4**: Then run: `.\Scripts\activate`
-* **Step 5**: Then run: `pip install -r requirements.txt`
-* **Step 6**: Then run: `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
+* **Step 3**: Go to the folder where my repository is located, open a command prompt and run:
+```bash
+python -m venv .
+```
+* **Step 4**: Then run:
+```bash
+.\Scripts\activate
+```
+* **Step 5**: Then run:
+```bash
+pip install -r requirements.txt
+```
+* **Step 6**: Then run:
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
 
 ## Usage Guide
-* **Step 1**: In the same command prompt, run: `python gui.py`
+* **Step 1**: In the same command prompt run:
+```bash
+python gui.py
+```
 * **Step 2**: Click the "Choose Documents" button and choose one or more documents to include in the vector database.
   * **Note**: Only PDFs with OCR done on them will work as of Version 1. A folder named "Docs_to_DB" will be created and populated.
 * **Step 3**: Click the "Create ChromaDB" button. A folder named "Vector_DB" will be created if it doesn't already exist.
@@ -41,4 +56,5 @@ My motivation to improve this beyond what I personally use it for is directly re
 * **Note**: I only tested this on Windows 10 but can possibly expand on this in later versions.
 * **Note**: Please be aware that when you click "Create Database" as well as "Submit Query" the GUI will hang. Just wait...it'll resume. This is a minor characteristic of the scripts that can easily be fixed in future versions.
 * **Note**: Everytime you want to use the program again, enter the folder, activate the virtual enviroment using `.\Scripts\activate` and run `python gui.py`.
+
 ![Example Image](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example.png)
