@@ -46,7 +46,7 @@ python gui.py
   * **Note**: The formatting of the prompt in my scripts is specifically geared to work with any Llama2 "chat" models. Any others might not work if they provide an intelligible response at all.  This can be addressed in future versions.
 * **Step 5**: Enter your query and click the "Submit Query" button and be amazed at the response you get.
   * **Note**: If will give an error if you don't start the server before clicking "Submit Query."
-  * **Note**: For [extra entertainment](https://www.youtube.com/watch?v=BoXu6QmxpJE), watch LM Studio server's log window to watch it interact with the vector database!
+  * **Note**: For [extra entertainment](https://www.youtube.com/watch?v=5IsSpAOD6K8), watch LM Studio server's log window to watch it interact with the vector database!
 
 [Back to top](#top)
 
