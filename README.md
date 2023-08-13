@@ -41,7 +41,7 @@ python gui.py
   * **Note**: Only PDFs with OCR done on them will work as of Version 1. A folder named "Docs_to_DB" will be created and populated.
 * **Step 3**: Click the "Create ChromaDB" button. A folder named "Vector_DB" will be created if it doesn't already exist and the DB will be created in there (see notes below).
   * **Note**: A message will appear with instructions on how to monitor CUDA usage. Please follow them.
-  * **Note**: The embedding model will be downloaded to your cache folder if it's not downloaded already. Once downloaded, the vector database will automatically be created. Watch your CUDA usage to verify that it's working - pretty awesome! The database is created when CUDA usage drops to zero.
+  * **Note**: The embedding model will be downloaded to your cache folder if it's not downloaded already. Once downloaded, the vector database will automatically be created. Watch your CUDA usage to verify that it's working - pretty awesome! The database is fully-created when CUDA usage drops to zero.
 * **Step 4**: Open LM Studio, select a model, and click "Start Server."
   * **Note**: The formatting of the prompt in my scripts is specifically geared to work with any Llama2 "chat" models. Any others likely won't work as well or even return an intelligible response. This will be addressed in future versions.
   * **Note**: If you don't start the server before entering your query and clicking "Submit Query," it will give an error.
