@@ -1,3 +1,5 @@
+<a name="top"></a>
+
 # ChromaDB Plugin for LM Studio
 
 The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database to LM Studio utilizing ChromaDB! Tested on a 1000 page legal treatise.
@@ -9,7 +11,7 @@ The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database
 4. [Feedback](#feedback)
 5. [Final Notes](#final-notes)
 
-## Installation Instructions
+## [Installation Instructions](#top)
 * **Step 1**: Download all the files in this repository and put them into a directory.
 * **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) if it's not already installed.
 * **Step 3**: Go to the folder where my repository is located, open a command prompt and run:
@@ -29,7 +31,7 @@ pip install -r requirements.txt
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
 
-## Usage Guide
+## [Usage Guide](#top)
 * **Step 1**: In the same command prompt run:
 ```bash
 python gui.py
@@ -45,14 +47,14 @@ python gui.py
 * **Step 5**: Enter your query and click the "Submit Query" button and be amazed at the response you get.
   * **Note**: For extra fun, have the LM Studio window visible to see its log, which shows interactions with the vector database!
 
-## Important Notes
+## [Important Notes](#top)
 * **Compatibility**: This is a personal project and was specifically tested using CUDA 11.8 and the related PyTorch installation.
 * **Embedding Model**: This plugin uses "hkunlp/instructor-large" as the embedding model. Look [here](https://huggingface.co/spaces/mteb/leaderboard) for more details. If people express an interest, I'll likely include other embedding models in future versions!
 
-## Feedback
+## [Feedback](#top)
 My motivation to improve this beyond what I personally use it for is directly related to people's interest and suggestions. All feedback, positive and negative, is welcome! I can be reached at the LM Studio discord server or "bbc@chintellalaw.com".
 
-## Final Notes
+## [Final Notes](#top)
 * **Note**: I only tested this on Windows 10 but can possibly expand on this in later versions.
 * **Note**: Please be aware that when you click "Create Database" as well as "Submit Query" the GUI will hang. Just wait...it'll resume. This is a minor characteristic of the scripts that can easily be fixed in future versions.
 * **Note**: Everytime you want to use the program again, enter the folder, activate the virtual enviroment using `.\Scripts\activate` and run `python gui.py`.
