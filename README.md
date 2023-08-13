@@ -15,7 +15,7 @@ The ChromaDB Plugin for LM Studio enables bootstrapping a ChromaDB vector databa
 
 ## Usage Guide
 * **Step 2**: Choose a document to ingest into your database (only PDFs with OCR already done on them as of Version 1). A folder named "Docs_to_DB" will be created and populated if it doesn't already exist.
-* **Step 3**: Click the "Create ChromaDB" button. Another folder named "Vector_DB" will be created (if it doesn't already exist) to store the vector database. 
+* **Step 3**: Click the "Create ChromaDB" button. Another folder named "Vector_DB" will be created (if it doesn't already exist) to store the vector database.  If it's the first time runnin the program, it'll create a "Model" folder and download the actual embedding model as well.
   * **Warning**: A message will appear prior to this. It's recommended to follow the warning and monitor your CUDA usage when running the program for the first time to verify compatibility.
 * **Step 4**: After the vector database is created, your CUDA usage will drop to zero. Before typing in a query and clicking "Submit Query," you **MUST FIRST** open LM Studio, select a model, and click "Start Server."
 * **Step 5**: Type your query and click "Submit Query" for an amazing response.  ALSO, view the LM Studio log while it's running to see how interestingy the vector database interacts with the LLM!
