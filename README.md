@@ -29,3 +29,4 @@ Your feedback is essential. If you'd like to see compatibility with other models
 
 ## Final Notes
 Please be aware that when you click "Create Database" the GUI will hanguntil the database is created and it will also hang when you submit a query until a response is received. These issues will be addressed in future versions. Also, I'm leaving the command prompt showing so people can see any error messages to troubleshoot and give me feedback as well.  Futher versions will likely omit this.
+![ChromaDB Plugin Example](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/blob/main/example.png)
