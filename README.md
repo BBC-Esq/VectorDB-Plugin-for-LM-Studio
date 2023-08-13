@@ -1,6 +1,6 @@
 # ChromaDB Plugin for LM Studio
 
-The ChromaDB Plugin for LM Studio adds a vector database to LM Studio utilizing ChromaDB!
+The ChromaDB Plugin for LM Studio adds a vector database to LM Studio utilizing ChromaDB!  Tested on a 1000 page page legal treatise.
 
 ## Table of Contents
 1. [Installation Instructions](#installation-instructions)
