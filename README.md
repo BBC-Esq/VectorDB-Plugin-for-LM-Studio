@@ -43,10 +43,10 @@ python gui.py
   * **Note**: A message will appear with instructions on how to monitor CUDA usage. Please follow them.
   * **Note**: The embedding model will be downloaded to your cache folder if it's not downloaded already. Once downloaded, the vector database will automatically be created. Watch your CUDA usage to verify that it's working - pretty awesome! The database is fully-created when CUDA usage drops to zero.
 * **Step 4**: Open LM Studio, select a model, and click "Start Server."
-  * **Note**: The formatting of the prompt in my scripts is specifically geared to work with any Llama2 "chat" models. Any others likely won't work as well or even return an intelligible response. This will be addressed in future versions.
-  * **Note**: If you don't start the server before entering your query and clicking "Submit Query," it will give an error.
+  * **Note**: The formatting of the prompt in my scripts is specifically geared to work with any Llama2 "chat" models. Any others might not work if they provide an intelligible response at all.  This can be addressed in future versions.
 * **Step 5**: Enter your query and click the "Submit Query" button and be amazed at the response you get.
-  * **Note**: For extra fun, have the LM Studio window visible to see its log, which shows interactions with the vector database!
+  * **Note**: If will give an error if you don't start the server before clicking "Submit Query."
+  * **Note**: For [extra entertainment](https://www.youtube.com/watch?v=BoXu6QmxpJE), watch LM Studio server's log window to watch it interact with the vector database!
 
 [Back to top](#top)
 
