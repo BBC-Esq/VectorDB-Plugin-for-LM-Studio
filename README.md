@@ -41,3 +41,4 @@ My motivation to improve this beyond what I personally use it for is directly re
 * **Note**: I only tested this on Windows 10 but can possibly expand on this in later versions.
 * **Note**: Please be aware that when you click "Create Database" as well as "Submit Query" the GUI will hang. Just wait...it'll resume. This is a minor characteristic of the scripts that can easily be fixed in future versions.
 * **Note**: Everytime you want to use the program again, enter the folder, activate the virtual enviroment using `.\Scripts\activate` and run `python gui.py`.
+![Example Image](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example.png)
