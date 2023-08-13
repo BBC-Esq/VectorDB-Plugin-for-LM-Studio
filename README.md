@@ -1,35 +1,41 @@
 # ChromaDB Plugin for LM Studio
 
-The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database to LM Studio utilizing ChromaDB!  Tested on a 1000 page page legal treatise.
+The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database to LM Studio utilizing ChromaDB! Tested on a 1000 page legal treatise.
 
 ## Table of Contents
 1. [Installation Instructions](#installation-instructions)
 2. [Usage Guide](#usage-guide)
 3. [Important Notes](#important-notes)
-4. [Compatibility and Feedback](#compatibility-and-feedback)
-5. [Final Note](#final-note)
+4. [Feedback](#feedback)
+5. [Final Notes](#final-notes)
 
 ## Installation Instructions
-* **Step 1**: Download the `.exe` and run it.
-  * **NOTE**: You must have [CUDA 11.8 already installed](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-  * * **NOTE**: You must run `pip install tqdm`
-  * **NOTE**: Before running the .exe, you must run the following command:
-  * `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
+* **Step 1**: Download all the files in this repository and put them into a directory.
+* **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) if it's not already installed.
+* **Step 3**: Go to the folder where my repository is located, open a command prompt and run: `python -m venv .`
+* **Step 4**: Then run: `.\Scripts\activate`
+* **Step 5**: Then run: `pip install -r requirements.txt`
+* **Step 6**: Then run: `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
 
 ## Usage Guide
-* **Step 2**: Choose a document to ingest into your database (only PDFs with OCR already done on them as of Version 1). A folder named "Docs_to_DB" will be created and populated if it doesn't already exist.
-* **Step 3**: Click the "Create ChromaDB" button. Another folder named "Vector_DB" will be created (if it doesn't already exist) to store the vector database.  If it's the first time runnin the program, it'll create a "Model" folder and download the actual embedding model as well.
-  * **Warning**: A message will appear prior to this. It's recommended to follow the warning and monitor your CUDA usage when running the program for the first time to verify compatibility.
-* **Step 4**: After the vector database is created, your CUDA usage will drop to zero. Before typing in a query and clicking "Submit Query," you **MUST FIRST** open LM Studio, select a model, and click "Start Server."
-* **Step 5**: Type your query and click "Submit Query" for an amazing response.  ALSO, view the LM Studio log while it's running to see how interestingy the vector database interacts with the LLM!
+* **Step 1**: In the same command prompt, run: `python gui.py`
+* **Step 2**: Click the "Choose Documents" button and choose one or more documents to include in the vector database.
+  * **Note**: Only PDFs with OCR done on them will work as of Version 1. A folder named "Docs_to_DB" will be created and populated.
+* **Step 3**: Click the "Create ChromaDB" button. A folder named "Vector_DB" will be created if it doesn't already exist.
+  * **Note**: A message will appear with instructions on how to monitor CUDA usage. Please follow them.
+  * **Note**: The embedding model will be downloaded to your cache folder if it's not downloaded already. Once downloaded, the vector database will automatically be created. Watch your CUDA usage to verify that it's working - pretty awesome! The database is created when CUDA usage drops to zero.
+* **Step 4**: Open LM Studio, select a model, and click "Start Server."
+  * **Note**: The formatting of the prompt in my scripts is specifically geared to work with any Llama2 "chat" models. Any others likely won't work as well or even return an intelligible response. This will be addressed in future versions.
+  * **Note**: If you don't start the server before entering your query and clicking "Submit Query," it will give an error.
+* **Step 5**: Enter your query and click the "Submit Query" button and be amazed at the response you get.
+  * **Note**: For extra fun, have the LM Studio window visible to see its log, which shows interactions with the vector database!
 
 ## Important Notes
-* **Compatibility**: This is a personal project and will work best with a Llama2 "chat" model (e.g. 7B or 13b) due to varying prompting styles. Other models like Orca mini (3b) may work sometimes.
-* **Embedding Model**: The plugin uses "hkunlp/instructor-large." More details can be found [here](https://huggingface.co/spaces/mteb/leaderboard). Interested in other embedding model options? Please provide feedback.
+* **Compatibility**: This is a personal project and was specifically tested using CUDA 11.8 and the related PyTorch installation.
+* **Embedding Model**: This plugin uses "hkunlp/instructor-large" as the embedding model. Look [here](https://huggingface.co/spaces/mteb/leaderboard) for more details. If people express an interest, I'll likely include other embedding models in future versions!
 
-## Compatibility and Feedback
-Your feedback is essential. If you'd like to see compatibility with other models or have any other requests, please reach out. The community's input drives this project, so don't hesitate to share your thoughts via the LM Studio discord.
+## Feedback
+My motivation to improve this beyond what I personally use it for is directly related to people's interest and suggestions. All feedback, positive and negative, is welcome! I can be reached at the LM Studio discord server or "bbc@chintellalaw.com".
 
 ## Final Notes
-Please be aware that when you click "Create Database" the GUI will hanguntil the database is created and it will also hang when you submit a query until a response is received. These issues will be addressed in future versions. Also, I'm leaving the command prompt showing so people can see any error messages to troubleshoot and give me feedback as well.  Futher versions will likely omit this.
-![ChromaDB Plugin Example](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/blob/main/example.png)
+Please be aware that when you click "Create Database" as well as "Submit Query" the GUI will hang. Just wait...it'll resume. This is a minor characteristic of the scripts that can easily be fixed in future versions.
