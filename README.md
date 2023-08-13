@@ -12,6 +12,7 @@ The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database
 ## Installation Instructions
 * **Step 1**: Download the `.exe` and run it.
   * **NOTE**: You must have [CUDA 11.8 already installed](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+  * * **NOTE**: You must run `pip install tqdm`
   * **NOTE**: Before running the .exe, you must run the following command:
   * `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
 
