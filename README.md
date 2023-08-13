@@ -27,5 +27,5 @@ The ChromaDB Plugin for LM Studio enables bootstrapping a ChromaDB vector databa
 ## Compatibility and Feedback
 Your feedback is essential. If you'd like to see compatibility with other models or have any other requests, please reach out. The community's input drives this project, so don't hesitate to share your thoughts via the LM Studio discord.
 
-## Final Note
-Please be aware that when you click "Create Database," the GUI will hang. This is normal until the database is created. The same may occur when you submit a query. These issues will be addressed in future versions!
+## Final Notes
+Please be aware that when you click "Create Database" the GUI will hanguntil the database is created and it will also hang when you submit a query until a response is received. These issues will be addressed in future versions. Also, I'm leaving the command prompt showing so people can see any error messages to troubleshoot and give me feedback as well.  Futher versions will likely omit this.
