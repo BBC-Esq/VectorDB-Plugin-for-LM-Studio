@@ -18,7 +18,7 @@ The ChromaDB Plugin for LM Studio enables bootstrapping a ChromaDB vector databa
 * **Step 3**: Click the "Create ChromaDB" button. Another folder named "Vector_DB" will be created (if it doesn't already exist) to store the vector database. 
   * **Warning**: A message will appear prior to this. It's recommended to follow the warning and monitor your CUDA usage when running the program for the first time to verify compatibility.
 * **Step 4**: After the vector database is created, your CUDA usage will drop to zero. Before typing in a query and clicking "Submit Query," you **MUST FIRST** open LM Studio, select a model, and click "Start Server."
-* **Step 5**: Type your query and click "Submit Query" for an amazing response.
+* **Step 5**: Type your query and click "Submit Query" for an amazing response.  ALSO, view the LM Studio log while it's running to see how interestingy the vector database interacts with the LLM!
 
 ## Important Notes
 * **Compatibility**: This is a personal project and will work best with a Llama2 "chat" model (e.g. 7B or 13b) due to varying prompting styles. Other models like Orca mini (3b) may work sometimes.
