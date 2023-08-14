@@ -27,11 +27,15 @@ python -m venv .
 ```
 * **Step 5**: Then run:
 ```bash
-pip install -r requirements.txt
+python -m pip install --upgrade pip
 ```
 * **Step 6**: Then run:
 ```bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+* **Step 7**: Then run:
+```bash
+pip install -r requirements.txt
 ```
 [Back to top](#top)
 
