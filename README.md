@@ -1,6 +1,6 @@
 <a name="top"></a>
 
-# **URGENT - The readme has been updated as of August 13, 2023 at 9:10 p.m.  Apparently, the prior instructions instaled requirements first, which overrode some of the packages that PyTorch + CUDA needed...so follow the new instructions.**
+# **URGENT - The readme has been updated as of August 13, 2023 at 9:10 p.m.  Apparently, the prior instructions installed requirements first, which overrode some of the packages that PyTorch + CUDA needed...so follow the new instructions.**
 
 # ChromaDB Plugin for LM Studio
 
