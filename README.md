@@ -4,7 +4,7 @@
 
 The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database to LM Studio utilizing ChromaDB! Tested on a 1000 page legal treatise
 
-**COMPATIBLE with Python 3.10.**
+**COMPATIBLE with [Python 3.10.](https://www.python.org/downloads/release/python-31011/)**
 
 ## Table of Contents
 1. [Installation Instructions](#installation-instructions)
