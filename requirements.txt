@@ -1,6 +1,6 @@
 openai
-langchain
+langchain==0.0.191
 chromadb==0.3.22
-pdfminer.six
+pdfminer.six==20221105
 InstructorEmbedding
 sentence-transformers
