@@ -70,8 +70,7 @@ My motivation to improve this beyond what I personally use it for is directly re
 * **Note**: Everytime you want to use the program again, enter the folder, activate the virtual enviroment using `.\Scripts\activate` and run `python gui.py`.
 
 ## Clearing Database
-
-* **Simply delete all the files in the "Docs_to_DB" and "Vector_DB" folders.
+* **Simply delete all the files in the "Docs_to_DB" and "Vector_DB" folders.**
 
 [Back to top](#top)
 
