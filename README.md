@@ -71,6 +71,8 @@ My motivation to improve this beyond what I personally use it for is directly re
 
 ## Clearing Database
 
+* **Simply delete all the files in the "Docs_to_DB" and "Vector_DB" folders.
+
 [Back to top](#top)
 
 ![Example Image](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example.png)
