@@ -1,6 +1,6 @@
 <a name="top"></a>
 
-# **URGENT - The readme has been updated as of August 13, 2023 at 9:10 p.m Eastern Standard Time.  Apparently, the prior instructions didn't upgrade "pip" first and, moreover, installed requirements.txt first, which overrode some of the packages that PyTorch + CUDA needed...follow the new instructions.**
+# **URGENT - The readme has been updated as of August 13, 2023 at 9:10 p.m Eastern Standard Time...FOLLOW THE NEW INSTRUCTIONS.**
 
 # ChromaDB Plugin for LM Studio
 
