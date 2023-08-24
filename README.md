@@ -1,6 +1,6 @@
 <a name="top"></a>
 
-# **URGENT - The readme has been updated as of August 13, 2023 at 9:10 p.m E.S.T.  FOLLOW THE NEW INSTRUCTIONS.**
+# **The most recent version's instructions are here.  If you have an older version find the appropriate instructions in the User Manual folder.**
 
 # ChromaDB Plugin for LM Studio
 
