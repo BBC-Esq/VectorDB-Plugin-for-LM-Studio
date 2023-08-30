@@ -13,10 +13,9 @@ The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database
 ## Table of Contents
 1. [Installation Instructions](#installation-instructions)
 2. [Usage Guide](#usage-guide)
-3. [Important Notes](#important-notes)
-4. [Feedback](#feedback)
-5. [Final Notes](#final-notes)
-6. [Clearing Database](#clearing-database)
+3. [Feedback](#feedback)
+4. [Final Notes](#final-notes)
+5. [Clearing Database](#clearing-database)
 
 ## Installation Instructions
 * **Step 1**: Download all the files in this repository and put them into a directory.
@@ -59,12 +58,6 @@ python gui.py
 * **Step 6**: Open up LM Studio and load a model.  Remember, only Llama2-based models work with the vector database currently.
 * **Step 7**: Click "Start Server" within LM Studio, enter your question, and click "Submit Question."
   * **Note**: It's really cool to watch the LM Studio window showing the embedding model feeding the LLM in LM Studio!"
-
-[Back to top](#top)
-
-## Important Notes
-* **Compatibility**: This is a personal project and was specifically tested using CUDA 11.8 and the related PyTorch installation.
-* **Embedding Model**: This plugin uses "hkunlp/instructor-large" as the embedding model. Look [here](https://huggingface.co/spaces/mteb/leaderboard) for more details. If people express an interest, I'll likely include other embedding models in future versions!
 
 [Back to top](#top)
 
