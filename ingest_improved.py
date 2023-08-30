@@ -1,35 +1,45 @@
 import logging
 import os
+import sys
+import shutil
+import tkinter as tk
+from tkinter import messagebox
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 
-import click
 import torch
 from langchain.docstore.document import Document
-from langchain.embeddings import HuggingFaceInstructEmbeddings
+from langchain.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
-from langchain.document_loaders import CSVLoader, PDFMinerLoader, TextLoader, UnstructuredExcelLoader, Docx2txtLoader
+from langchain.document_loaders import PDFMinerLoader
 from chromadb.config import Settings
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 PERSIST_DIRECTORY = f"{ROOT_DIRECTORY}/Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
-EMBEDDING_MODEL_NAME = "hkunlp/instructor-large"
+
+
+def show_error_dialog(message):
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    messagebox.showerror("Error", message)
+    root.destroy()
+    
+# Read the embedding model name from the command line argument
+if len(sys.argv) > 1:
+    EMBEDDING_MODEL_NAME = sys.argv[1]
+else:
+    error_msg = "You must select a valid folder that holds the embedding model you want to use."
+    show_error_dialog(error_msg)
+    raise ValueError(error_msg)
 
 CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
 )
 
 DOCUMENT_MAP = {
-    ".txt": TextLoader,
-    ".py": TextLoader,
     ".pdf": PDFMinerLoader,
-    ".csv": CSVLoader,
-    ".xls": UnstructuredExcelLoader,
-    ".xlsx": UnstructuredExcelLoader,
-    ".docx": Docx2txtLoader,
-    ".doc": Docx2txtLoader,
 }
 
 def load_single_document(file_path: str) -> Document:
@@ -50,23 +60,13 @@ def load_document_batch(filepaths):
 
 def load_documents(source_dir: str) -> list[Document]:
     all_files = os.listdir(source_dir)
-    paths = []
-    for file_path in all_files:
-        file_extension = os.path.splitext(file_path)[1]
-        source_file_path = os.path.join(source_dir, file_path)
-        if file_extension in DOCUMENT_MAP.keys():
-            paths.append(source_file_path)
+    paths = [os.path.join(source_dir, file_path) for file_path in all_files if os.path.splitext(file_path)[1] in DOCUMENT_MAP.keys()]
 
     n_workers = min(INGEST_THREADS, max(len(paths), 1))
     chunksize = round(len(paths) / n_workers)
     docs = []
     with ProcessPoolExecutor(n_workers) as executor:
-        futures = []
-        for i in range(0, len(paths), chunksize):
-            filepaths = paths[i : (i + chunksize)]
-            future = executor.submit(load_document_batch, filepaths)
-            futures.append(future)
-
+        futures = [executor.submit(load_document_batch, paths[i : (i + chunksize)]) for i in range(0, len(paths), chunksize)]
         for future in as_completed(futures):
             contents, _ = future.result()
             docs.extend(contents)
@@ -74,42 +74,33 @@ def load_documents(source_dir: str) -> list[Document]:
     return docs
 
 def split_documents(documents: list[Document]) -> tuple[list[Document], list[Document]]:
-    text_docs, python_docs = [], []
-    for doc in documents:
-        file_extension = os.path.splitext(doc.metadata["source"])[1]
-        if file_extension == ".py":
-            python_docs.append(doc)
-        else:
-            text_docs.append(doc)
+    return documents, []  # We're only processing PDFs now, no more split based on extensions
 
-    return text_docs, python_docs
+def main():
+    device_type = "cuda"  # Change to 'cpu' if needed
 
-@click.command()
-@click.option(
-    "--device_type",
-    default="cuda" if torch.cuda.is_available() else "cpu",
-    type=click.Choice(["cpu", "cuda"]),
-    help="Device to run on. (Default is cuda if available, otherwise cpu)",
-)
-
-def main(device_type):
     logging.info(f"Loading documents from {SOURCE_DIRECTORY}")
     documents = load_documents(SOURCE_DIRECTORY)
-    text_documents, python_documents = split_documents(documents)
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    python_splitter = RecursiveCharacterTextSplitter.from_language(
-        language=Language.PYTHON, chunk_size=1000, chunk_overlap=200
-    )
+    text_documents, _ = split_documents(documents)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=500)
     texts = text_splitter.split_documents(text_documents)
-    texts.extend(python_splitter.split_documents(python_documents))
+    
     logging.info(f"Loaded {len(documents)} documents from {SOURCE_DIRECTORY}")
     logging.info(f"Split into {len(texts)} chunks of text")
-
-    embeddings = HuggingFaceInstructEmbeddings(
-        model_name=EMBEDDING_MODEL_NAME,
-        model_kwargs={"device": device_type},
-    )
-
+    
+    if "instructor" in EMBEDDING_MODEL_NAME:
+        embeddings = HuggingFaceInstructEmbeddings(
+            model_name=EMBEDDING_MODEL_NAME,
+            model_kwargs={"device": device_type},
+        )
+    else:
+        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+    
+    # Delete contents of the PERSIST_DIRECTORY before creating the vector database
+    if os.path.exists(PERSIST_DIRECTORY):
+        shutil.rmtree(PERSIST_DIRECTORY)
+        os.makedirs(PERSIST_DIRECTORY)
+    
     db = Chroma.from_documents(
         texts,
         embeddings,

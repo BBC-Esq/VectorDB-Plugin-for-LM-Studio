@@ -1,15 +1,15 @@
 import os
 import openai
 from langchain.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceInstructEmbeddings
+from langchain.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings
 from chromadb.config import Settings
-from langchain.document_loaders import CSVLoader, PDFMinerLoader, TextLoader, UnstructuredExcelLoader, Docx2txtLoader
+from langchain.document_loaders import PDFMinerLoader
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 PERSIST_DIRECTORY = f"{ROOT_DIRECTORY}/Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
-EMBEDDING_MODEL_NAME = "hkunlp/instructor-large"
+EMBEDDING_MODEL_NAME = r""
 
 CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
@@ -22,14 +22,7 @@ prefix = "[INST]"
 suffix = "[/INST]"
 
 DOCUMENT_MAP = {
-    ".txt": TextLoader,
-    ".py": TextLoader,
     ".pdf": PDFMinerLoader,
-    ".csv": CSVLoader,
-    ".xls": UnstructuredExcelLoader,
-    ".xlsx": UnstructuredExcelLoader,
-    ".docx": Docx2txtLoader,
-    ".doc": Docx2txtLoader,
 }
 
 # Variable to store the last response
@@ -39,13 +32,26 @@ def connect_to_local_chatgpt(prompt):
     formatted_prompt = f"{prefix}{prompt}{suffix}"
     response = openai.ChatCompletion.create(
         model="local model",
-        temperature=0.7,
+        temperature=0.1,
         messages=[{"role": "user", "content": formatted_prompt}]
     )
     return response.choices[0].message["content"]
 
 def ask_local_chatgpt(query, embed_model_name=EMBEDDING_MODEL_NAME, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
-    embeddings = HuggingFaceInstructEmbeddings(model_name=embed_model_name)
+
+    if "instructor" in EMBEDDING_MODEL_NAME:
+        embeddings = HuggingFaceInstructEmbeddings(
+            model_name=EMBEDDING_MODEL_NAME,
+            model_kwargs={"device": "cuda"},
+            encode_kwargs={'normalize_embeddings': True}
+        )
+    else:
+        embeddings = HuggingFaceEmbeddings(
+            model_name=EMBEDDING_MODEL_NAME,
+            model_kwargs={'device': "cuda"},
+            encode_kwargs={'normalize_embeddings': True}
+        )
+
     db = Chroma(
         persist_directory=persist_directory,
         embedding_function=embeddings,
