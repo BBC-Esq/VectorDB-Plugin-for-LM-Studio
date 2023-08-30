@@ -1,6 +1,6 @@
 <a name="top"></a>
 
-# **The most recent version's instructions are here.  If you have an older version find the appropriate instructions in the User Manual folder.**
+# **The most recent version's instructions are here (v1.1).  If you have an older version, find the appropriate instructions in the User Manual folder.**
 
 # ChromaDB Plugin for LM Studio
 
@@ -21,43 +21,44 @@ The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database
 ## Installation Instructions
 * **Step 1**: Download all the files in this repository and put them into a directory.
 * **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) if it's not already installed.
-* **Step 3**: Go to the folder where my repository is located, open a command prompt and run to create a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
+* **Step 3**: Go to the folder where my repository is located, open a command prompt, and create a virtual environment by running:
 ```bash
 python -m venv .
 ```
-* **Step 4**: Then run to activate the virtual environment:
+* **Step 4**: Activate the virtual environment:
 ```bash
 .\Scripts\activate
 ```
-* **Step 5**: Then run to make sure ["pip"](https://pip.pypa.io/en/stable/index.html) is updated.  If you don't, it might not install the subsequent libraries:
+* **Step 5**: Make sure ["pip"](https://pip.pypa.io/en/stable/index.html) is updated:
 ```bash
 python -m pip install --upgrade pip
 ```
-* **Step 6**: Then run to install PyTorth with CUDA support:
+* **Step 6**: Install PyTorch with CUDA support:
 ```bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-* **Step 7**: Then run to install the rest of the Python libraries via the [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
+* **Step 7**: Install the rest of the dependencies in the [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
 ```bash
 pip install -r requirements.txt
 ```
+* **Step 8**: You MUST the appropriate version of [Git](https://git-scm.com/downloads) if it's not already installed.
+
 [Back to top](#top)
 
 ## Usage Guide
-* **Step 1**: In the same command prompt run:
+* **Step 1**: In the same command prompt, run:
 ```bash
 python gui.py
 ```
-* **Step 2**: Click the "Choose Documents" button and choose one or more documents to include in the vector database.
+* **Step 2**: Click "Download Embedding Model" and download a model.  The GUI will hang.  Wait, then proceed to next step.
   * **Note**: Only PDFs with OCR done on them will work as of Version 1. A folder named "Docs_to_DB" will be created and populated.
-* **Step 3**: Click the "Create ChromaDB" button. A folder named "Vector_DB" will be created if it doesn't already exist and the DB will be created in there (see notes below).
-  * **Note**: A message will appear with instructions on how to monitor CUDA usage. Please follow them.
-  * **Note**: The embedding model will be downloaded to your cache folder if it's not downloaded already. Once downloaded, the vector database will automatically be created. Watch your CUDA usage to verify that it's working - pretty awesome! The database is fully-created when CUDA usage drops to zero.
-* **Step 4**: Open LM Studio, select a model, and click "Start Server."
-  * **Note**: The formatting of the prompt in my scripts is specifically geared to work with any Llama2 "chat" models. Any others might not work if they provide an intelligible response at all.  This can be addressed in future versions.
-* **Step 5**: Enter your query and click the "Submit Query" button and be amazed at the response you get.
-  * **Note**: If will give an error if you don't start the server before clicking "Submit Query."
-  * **Note**: For [extra entertainment](https://www.youtube.com/watch?v=5IsSpAOD6K8), watch LM Studio server's log window to watch it interact with the vector database!
+* **Step 3**: Click "Select Embedding Model Directory" and select the directory of the model you want to use.
+* **Step 4**: Click "Choose Documents for Database" and choose one or more PDF files to put into the database.
+  * **Note**: The PDFs must have had OCR done on them or have text in them already. Additional file types will be added in thefuture.
+* **Step 5**: Click "Create Vector Database.  The GUI will hang.  Watch "CUDA" usage and wait.  When CUDA drops to zero, proceed to the next step.
+* **Step 6**: Open up LM Studio and load a model.  Remember, only Llama2-based models work with the vector database currently.
+* **Step 7**: Click "Start Server" within LM Studio, enter your question, and click "Submit Question."
+  * **Note**: It's really cool to watch the LM Studio window showing the embedding model feeding the LLM in LM Studio!"
 
 [Back to top](#top)
 
