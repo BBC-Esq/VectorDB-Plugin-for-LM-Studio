@@ -19,7 +19,7 @@ The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database
 
 ## Installation Instructions
 * **Step 1**: Download all the files in this repository and put them into a directory.
-* **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) if it's not already installed.
+* **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-toolkit-archive) if it's not already installed.
 * **Step 3**: In the folder where the files located, open a command prompt, and create a virtual environment by running: ```python -m venv .```
 * **Step 4**: Run to activate virtual environment: ```.\Scripts\activate```
 * **Step 5**: Run to update ["pip"](https://pip.pypa.io/en/stable/index.html): ```python -m pip install --upgrade pip```
