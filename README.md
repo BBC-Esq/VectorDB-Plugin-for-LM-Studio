@@ -22,11 +22,10 @@
   <a href="#installation-instructions">Installation</a> | 
   <a href="#usage-guide">Usage</a> | 
   <a href="#feedback">Feedback</a> | 
-  <a href="#final-notes">Final Notes</a> | 
-  <a href="#clearing-database">Clearing Database</a>
+  <a href="#final-notes">Final Notes</a>
 </div>
 
-## Installation Instructions (check the User Manual for older versions' instructions)
+## Installation Instructions
 
 * **Step 1**: Download all the files in this repository and put them into a directory.
 * **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-toolkit-archive) if it's not already installed.
@@ -64,10 +63,6 @@ My motivation to improve this beyond what I personally use it for is directly re
 
 * **Note**: I only tested this on Windows 10 but can possibly expand on this in later versions.
 * **Note**: Every time you want to use the program again, enter the folder, activate the virtual environment using `.\Scripts\activate` and run `python gui.py`.
-
-## Clearing Database
-
-* **Delete all the files in the "Vector_DB" folder or, it automatically clears every time you create a new database.**
 
 [Back to top](#top)
 
