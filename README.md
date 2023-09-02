@@ -58,11 +58,12 @@
 
 ## Installation
 
-* **Step 1**: Install the appropriate framework if you intend to use GPU-acceleration:
+* **Step 1**: Install the appropriate software if you intend to use GPU-acceleration:
 
-  * **For NVIDIA GPUs** install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
-  * **For AMD GPUs**: Unfortunately, gpu-accleration using PyTorch is [only available on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  If you use Linux, you must install [ROCm](https://en.wikipedia.org/wiki/ROCm) version 5.4.2.  Instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
-  * **For Apple/Metal/MPS:**  You must install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+  * **For NVIDIA GPUs** ➜➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
+  * **For AMD GPUs** ➔➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
+    * Unfortunately, gpu-accleration will [only work on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  
+  * **For Apple/Metal/MPS** ➔➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 * **Step 2**: Download or clone this repository to a directory on your computer.
 * **Step 3**: Open a command prompt from within the directory and create a virtual environment:
 ```
@@ -86,7 +87,7 @@ python -m pip install --upgrade pip
   * **Linux/ROCm 5.4.2:** ```install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2```
   * **Linux/CPU-only:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu```
   * **Apple/Metal/MPS:** ```pip pip install torch torchvision torchaudio```
-    * **Metal/MPS** [speedup comparison](https://explosion.ai/blog/metal-performance-shaders)
+    * **Metal/MPS** [speedup comparison](https://explosion.ai/blog/metal-performance-shaders) to a 5950x and RTX 3090.
 
 * **Step 7**: Install the dependencies listed in [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
 ```
