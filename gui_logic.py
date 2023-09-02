@@ -32,9 +32,9 @@ class DownloadModelDialog(simpledialog.Dialog):
 class DocQA_Logic:
     def __init__(self, gui: DocQA_GUI):
         self.gui = gui
-        self.embed_model_name = ""  # Store the selected embedding model name
+        self.embed_model_name = ""
 
-        # Connect the buttons to their respective actions
+        # Connecting the GUI buttons to their logic
         self.gui.download_embedding_model_button.config(command=self.download_embedding_model)
         self.gui.select_embedding_model_button.config(command=self.select_embedding_model_directory)
         self.gui.choose_documents_button.config(command=self.choose_documents)
@@ -48,27 +48,27 @@ class DocQA_Logic:
     
         # Opening the dialog window
         dialog = DownloadModelDialog(self.gui.root)
-        selected_model = dialog.model_var.get()  # this gets the selected model's name
+        selected_model = dialog.model_var.get()
         
         if selected_model:
             # Construct the URL for the Hugging Face model repository
             model_url = f"https://huggingface.co/{selected_model}"
             
-            # Define the target directory for the download
+            # Define the directory to download the model to
             target_directory = os.path.join("Embedding_Models", selected_model.replace("/", "--"))
             
-            # Clone the repository using the subprocess module
+            # Clone the repository to the directory
             subprocess.run(["git", "clone", model_url, target_directory])
 
     def select_embedding_model_directory(self):
         initial_dir = 'Embedding_Models' if os.path.exists('Embedding_Models') else os.path.expanduser("~")
         chosen_directory = filedialog.askdirectory(initialdir=initial_dir, title="Select Embedding Model Directory")
     
-        # Store the chosen directory locally
+        # Choose the model directory to use
         if chosen_directory:
             self.embedding_model_directory = chosen_directory
 
-            # Also update the global variable in server_connector.py
+            # Update the global variable in server_connector.py
             server_connector.EMBEDDING_MODEL_NAME = chosen_directory
         
             # Optionally, you can print or display a confirmation to the user
@@ -85,13 +85,12 @@ class DocQA_Logic:
 
             for file_path in file_paths:
                 shutil.copy(file_path, docs_folder)
-                # Add any additional logic to handle the selected files
 
     def create_chromadb(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         vector_db_folder = os.path.join(current_dir, "Vector_DB")
 
-        # Check if the "Vector_DB" folder exists, and create it if not
+        # Create the "Vector_DB" folder if it doesn't exist
         if not os.path.exists(vector_db_folder):
             os.mkdir(vector_db_folder)
 

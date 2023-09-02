@@ -77,7 +77,15 @@ def split_documents(documents: list[Document]) -> tuple[list[Document], list[Doc
     return documents, []  # We're only processing PDFs now, no more split based on extensions
 
 def main():
-    device_type = "cuda"  # Change to 'cpu' if needed
+# Determine the appropriate compute device
+    if torch.cuda.is_available() and torch.version.cuda:
+        device_type = "cuda"
+    elif torch.backends.mps.is_available():
+        device_type = "mps"
+    elif torch.cuda.is_available() and torch.version.hip:
+        device_type = "cuda"
+    else:
+        device_type = "cpu"
 
     logging.info(f"Loading documents from {SOURCE_DIRECTORY}")
     documents = load_documents(SOURCE_DIRECTORY)
@@ -92,9 +100,13 @@ def main():
         embeddings = HuggingFaceInstructEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": device_type},
+            query_instruction="Represent the legal treatise for retrieval."
         )
     else:
-        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+        embeddings = HuggingFaceEmbeddings(
+            model_name=EMBEDDING_MODEL_NAME,
+            model_kwargs={"device": device_type},
+        )
     
     # Delete contents of the PERSIST_DIRECTORY before creating the vector database
     if os.path.exists(PERSIST_DIRECTORY):
