@@ -27,17 +27,17 @@
     <tbody>
       <tr>
         <td>Nvidia</td>
-        <td>Yes (requires CUDA 11.7 or 11.8)</td>
-        <td>Yes (requires CUDA 11.7 or 11.8)</td>
+        <td>✅ (requires CUDA 11.7 or 11.8)</td>
+        <td>✅ (requires CUDA 11.7 or 11.8)</td>
       </tr>
       <tr>
         <td>AMD</td>
-        <td>No</td>
-        <td>Yes (requires ROCm 5.4.2)</td>
+        <td>❌</td>
+        <td>✅ (requires ROCm 5.4.2)</td>
       </tr>
       <tr>
-        <td>Apple</td>
-        <td colspan="2" align="center">n/a</td>
+        <td>Apple/Metal</td>
+        <td colspan="2" align="center"> ✅ MPS acceleration is automatically installed in MacOS 12.3+</td>
       </tr>
     </tbody>
   </table>
@@ -53,8 +53,7 @@
 <div align="center">
   <a href="#installation">Installation</a> | 
   <a href="#usage-guide">Usage</a> | 
-  <a href="#feedback">Feedback</a> | 
-  <a href="#final-notes">Final Notes</a>
+  <a href="#contact">Contact Me</a>
 </div>
 
 ## Installation
@@ -97,7 +96,10 @@ pip install -r requirements.txt
 
 ## Usage Guide
 
-* **Step 1**: In the same command prompt, run:```python gui.py```
+* **Step 1**: Open a command prompt in the directory of my scripts, activate the virtual environment, and run:
+```
+python gui.py
+```
 * **Step 2**: Click "Download Embedding Model" and download a model. The GUI will hang. Wait, then proceed to the next step.
   * **Note**: Git clone is used to download. Feel free to message me if you're wondering why I didn't use the normal "cache" folder method.
 * **Step 3**: Click "Select Embedding Model Directory" and select the directory containing the model you want to use.
@@ -106,20 +108,13 @@ pip install -r requirements.txt
 * **Step 5**: Click "Create Vector Database." The GUI will hang. Watch "CUDA" usage. When CUDA drops to zero, proceed to the next step.
 * **Step 6**: Open up LM Studio and load a model (remember, only Llama2-based models currently work with the vector database).
 * **Step 7**: Click "Start Server" within LM Studio, enter your question, and click "Submit Question."
-  * **Note**: It's really cool to watch the LM Studio window showing the embedding model feeding the LLM in LM Studio!"
+
 
 [Back to top](#top)
 
-## Feedback
+## Contact
 
-My motivation to improve this beyond what I personally use it for is directly related to people's interest and suggestions. All feedback, positive and negative, is welcome! I can be reached at the LM Studio discord server or "bbc@chintellalaw.com".
-
-[Back to top](#top)
-
-## Final Notes
-
-* **Note**: I only tested this on Windows 10 but can possibly expand on this in later versions.
-* **Note**: Every time you want to use the program again, enter the folder, activate the virtual environment using `.\Scripts\activate` and run `python gui.py`.
+All suggestions (positive and negative) are welcome.  I can be reached at "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
 
 [Back to top](#top)
 
