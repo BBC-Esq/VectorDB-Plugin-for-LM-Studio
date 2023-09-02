@@ -12,6 +12,42 @@
   <a href="https://medium.com/@vici0549/chromadb-plugin-for-lm-studio-5b3e2097154f">Link to Medium article</a>
 </div>
 
+<!-- GPU Acceleration Support Table -->
+
+<div align="center">
+  <h2>GPU Acceleration Support</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>GPU Brand</th>
+        <th>Windows Support</th>
+        <th>Linux Support</th>
+        <th>PyTorch Build</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Nvidia</td>
+        <td>Yes (requires CUDA 11.7 or 11.8)</td>
+        <td>Yes (requires CUDA 11.7 or 11.8)</td>
+        <td>2.0.1</td>
+      </tr>
+      <tr>
+        <td>AMD</td>
+        <td>No</td>
+        <td>Yes</td>
+        <td>2.0.1</td>
+      </tr>
+      <tr>
+        <td>Apple</td>
+        <td>n/a</td>
+        <td>n/a</td>
+        <td>2.0.1</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 <!-- Table of Contents -->
 
 <div align="center">
