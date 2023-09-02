@@ -89,11 +89,16 @@ python -m pip install --upgrade pip
   * **Apple/Metal/MPS:** ```pip pip install torch torchvision torchaudio```
     * **Metal/MPS** [speedup comparison](https://explosion.ai/blog/metal-performance-shaders) to a 5950x and RTX 3090.
 
-* **Step 7**: Install the dependencies listed in [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
+* **Step 7:** Doublecheck that you installed gpu-acceleration properly:
+```
+python check_gpu.py
+```
+
+* **Step 8**: Install the dependencies listed in [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
 ```
 pip install -r requirements.txt
 ```
-* **Step 8**:
+* **Step 9**:
   * Lastly, you must install the appropriate version of Git (https://git-scm.com/downloads).
 
 [Back to top](#top)
@@ -104,13 +109,12 @@ pip install -r requirements.txt
 ```
 python gui.py
 ```
-* **Step 2**: Click "Download Embedding Model" and download a model. The GUI will hang. Wait, then proceed to the next step.
-  * **Note**: Git clone is used to download. Feel free to message me if you're wondering why I didn't use the normal "cache" folder method.
-* **Step 3**: Click "Select Embedding Model Directory" and select the directory containing the model you want to use.
-* **Step 4**: Click "Choose Documents for Database" and choose one or more PDF files to put into the database.
-  * **Note**: The PDFs must have had OCR done on them or have text in them already. Additional file types will be added in the future.
+* **Step 2**: Click "Download Embedding Model" and download a model. The GUI will hang. Wait.  Proceed to the next step.
+* **Step 3**: Click "Select Embedding Model Directory" and select the DIRECTORY containing the model you want to use.
+* **Step 4**: Click "Choose Documents for Database" and choose one or more PDF files to put in the database.
+  * Must have had OCR done on them or have text in them already. If you can select the text when viewing it, you're good.
 * **Step 5**: Click "Create Vector Database." The GUI will hang. Watch "CUDA" usage. When CUDA drops to zero, proceed to the next step.
-* **Step 6**: Open up LM Studio and load a model (remember, only Llama2-based models currently work with the vector database).
+* **Step 6**: Open up LM Studio and load a model (only Llama2-based models currently work).
 * **Step 7**: Click "Start Server" within LM Studio, enter your question, and click "Submit Question."
 
 
