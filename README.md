@@ -22,7 +22,6 @@
         <th>GPU Brand</th>
         <th>Windows Support</th>
         <th>Linux Support</th>
-        <th>PyTorch Build</th>
       </tr>
     </thead>
     <tbody>
@@ -30,19 +29,16 @@
         <td>Nvidia</td>
         <td>Yes (requires CUDA 11.7 or 11.8)</td>
         <td>Yes (requires CUDA 11.7 or 11.8)</td>
-        <td>2.0.1</td>
       </tr>
       <tr>
         <td>AMD</td>
         <td>No</td>
-        <td>Yes</td>
-        <td>2.0.1</td>
+        <td>Yes (requires ROCm 5.4.2)</td>
       </tr>
       <tr>
         <td>Apple</td>
         <td>n/a</td>
         <td>n/a</td>
-        <td>2.0.1</td>
       </tr>
     </tbody>
   </table>
@@ -63,13 +59,32 @@
 
 ## Installation
 
-* **Step 1**: Download all the files in this repository and put them into a directory.
-* **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-toolkit-archive) if it's not already installed.
-* **Step 3**: In the folder where the files located, open a command prompt, and create a virtual environment by running: ```python -m venv .```
-* **Step 4**: Run to activate the virtual environment: ```.\Scripts\activate```
-* **Step 5**: Run to update ["pip"](https://pip.pypa.io/en/stable/index.html): ```python -m pip install --upgrade pip```
-* **Step 6**: Run to install PyTorch with CUDA support: ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
-* **Step 7**: Install the rest of the dependencies in the [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md): ```pip install -r requirements.txt```
+* **Step 1**: If not already installed, install the appropriate "AI Framework:"
+  * **For NVIDIA GPUs** install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
+  * **For AMD GPUs**: Unfortunately, gpu-accleration using PyTorch is [only available on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  If you are running Linus, you can install ROCm version 5.4.2 (basically the same thing as CUDA).  Quickstart is [here](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) but also check the instructions beginning [here](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html) as well as the instructions in table of contents to the left.
+* **Step 2**: Download or clone this repository to a directory on your computer.
+* **Step 3**: Open a command prompt in the download folder and create a virtual environment by running:
+```
+python -m venv .
+```
+* **Step 4**: Run to activate the virtual environment:
+```
+.\Scripts\activate
+```
+* **Step 5**: Run the following to update ["pip"](https://pip.pypa.io/en/stable/index.html):
+```
+python -m pip install --upgrade pip
+```
+* **Step 6**: Install PyTorch with the appropriate Operating/AI Framework that you installed previously:
+  * **Windows/CUDA 11.8:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
+  * **Windows/CUDA 11.7:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117```
+  * **Linux/CUDA 11.8:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
+  * **Linux/CUDA 11.7:** ```pip install torch torchvision torchaudio```
+  * **Linux/ROCm 5.4.2:** ```install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2```
+* **Step 7**: Install the dependencies listed in [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
+```
+pip install -r requirements.txt
+```
 * **Step 8**: You MUST install the appropriate version of [Git](https://git-scm.com/downloads) if it's not already installed.
 
 [Back to top](#top)
