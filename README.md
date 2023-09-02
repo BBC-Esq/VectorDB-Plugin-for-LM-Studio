@@ -37,7 +37,7 @@
       </tr>
       <tr>
         <td>Apple/Metal</td>
-        <td colspan="2" align="center"> ✅ (must install "Xcode Command Line Tools")</td>
+        <td colspan="2" align="center"> ✅ (requires "Xcode Command Line Tools")</td>
       </tr>
     </tbody>
   </table>
