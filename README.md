@@ -1,23 +1,21 @@
 <a name="top"></a>
 
-# **The most recent version's instructions are here (v1.1).  If you have an older version, find the appropriate instructions in the User Manual folder.**
 
-# ChromaDB Plugin for LM Studio
 
-The ChromaDB Plugin for [LM Studio](https://lmstudio.ai/) adds a vector database to LM Studio utilizing ChromaDB! Tested on a 1000 page legal treatise
+# Adds a chromadb vector database to [LM Studio](https://lmstudio.ai/)!
 
 **COMPATIBLE with [Python 3.10.](https://www.python.org/downloads/release/python-31011/)**
 
 **Link to [Medium article](https://medium.com/@vici0549/chromadb-plugin-for-lm-studio-5b3e2097154f)**
 
 ## Table of Contents
-1. [Installation Instructions](#installation-instructions)
-2. [Usage Guide](#usage-guide)
+1. [Installation](#installation)
+2. [Usage](#usage-guide)
 3. [Feedback](#feedback)
 4. [Final Notes](#final-notes)
 5. [Clearing Database](#clearing-database)
 
-## Installation Instructions
+## Installation
 * **Step 1**: Download all the files in this repository and put them into a directory.
 * **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-toolkit-archive) if it's not already installed.
 * **Step 3**: In the folder where the files located, open a command prompt, and create a virtual environment by running: ```python -m venv .```
