@@ -59,9 +59,10 @@
 
 ## Installation
 
-* **Step 1**: If not already installed, install the appropriate "AI Framework:"
+* **Step 1**: Install the appropriate "AI Framework" (skip if you only intend to use CPU):
+
   * **For NVIDIA GPUs** install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
-  * **For AMD GPUs**: Unfortunately, gpu-accleration using PyTorch is [only available on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  If you use Linux, you must install [ROCm](https://en.wikipedia.org/wiki/ROCm) version 5.4.2.  Installation instructions are [here](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [here](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).  I do not have an AMD GPU so I can't verify the installation instructions.
+  * **For AMD GPUs**: Unfortunately, gpu-accleration using PyTorch is [only available on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  If you use Linux, you must install [ROCm](https://en.wikipedia.org/wiki/ROCm) version 5.4.2.  Instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
 * **Step 2**: Download or clone this repository to a directory on your computer.
 * **Step 3**: Open a command prompt from within the directory and create a virtual environment:
 ```
@@ -71,17 +72,20 @@ python -m venv .
 ```
 .\Scripts\activate
 ```
-* **Step 5**: Update ["pip"](https://pip.pypa.io/en/stable/index.html):
+* **Step 5**: Update [PIP](https://pip.pypa.io/en/stable/index.html):
 ```
 python -m pip install --upgrade pip
 ```
-* **Step 6**: Install PyTorch with the appropriate Operating/AI Framework that you installed previously:
+* **Step 6**: Install PyTorch with the appropriate "build:"
 
   * **Windows/CUDA 11.8:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
   * **Windows/CUDA 11.7:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117```
+  * **Windows/CPU-only:** ```pip install torch torchvision torchaudio```
   * **Linux/CUDA 11.8:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
   * **Linux/CUDA 11.7:** ```pip install torch torchvision torchaudio```
   * **Linux/ROCm 5.4.2:** ```install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2```
+  * **Linux/CPU-only:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu```
+
 * **Step 7**: Install the dependencies listed in [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
 ```
 pip install -r requirements.txt
