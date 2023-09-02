@@ -19,13 +19,13 @@
 </div>
 
 <div align="center">
-  <a href="#installation-instructions">Installation</a> | 
+  <a href="#installation">Installation</a> | 
   <a href="#usage-guide">Usage</a> | 
   <a href="#feedback">Feedback</a> | 
   <a href="#final-notes">Final Notes</a>
 </div>
 
-## Installation Instructions
+## Installation
 
 * **Step 1**: Download all the files in this repository and put them into a directory.
 * **Step 2**: Install [CUDA 11.8](https://developer.nvidia.com/cuda-toolkit-archive) if it's not already installed.
