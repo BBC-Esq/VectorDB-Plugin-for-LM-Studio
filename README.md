@@ -60,10 +60,10 @@
 
 * **Step 1**: Install the appropriate software if you intend to use GPU-acceleration:
 
-  * **For NVIDIA GPUs** ➜➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
-  * **For AMD GPUs** ➔➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
+  * **For NVIDIA GPUs** ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
+  * **For AMD GPUs** ➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
     * Unfortunately, gpu-accleration will [only work on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  
-  * **For Apple/Metal/MPS** ➔➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+  * **For Apple/Metal/MPS** ➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 * **Step 2**: Download or clone this repository to a directory on your computer.
 * **Step 3**: Open a command prompt from within the directory and create a virtual environment:
 ```
