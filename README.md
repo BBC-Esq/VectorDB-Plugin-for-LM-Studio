@@ -37,12 +37,12 @@
       </tr>
       <tr>
         <td>Apple</td>
-        <td>n/a</td>
-        <td>n/a</td>
+        <td colspan="2" align="center">n/a</td>
       </tr>
     </tbody>
   </table>
 </div>
+
 
 <!-- Table of Contents -->
 
@@ -61,21 +61,22 @@
 
 * **Step 1**: If not already installed, install the appropriate "AI Framework:"
   * **For NVIDIA GPUs** install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
-  * **For AMD GPUs**: Unfortunately, gpu-accleration using PyTorch is [only available on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  If you are running Linus, you can install ROCm version 5.4.2 (basically the same thing as CUDA).  Quickstart is [here](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) but also check the instructions beginning [here](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html) as well as the instructions in table of contents to the left.
+  * **For AMD GPUs**: Unfortunately, gpu-accleration using PyTorch is [only available on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  If you use Linux, you must install [ROCm](https://en.wikipedia.org/wiki/ROCm) version 5.4.2.  Installation instructions are [here](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [here](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).  I do not have an AMD GPU so I can't verify the installation instructions.
 * **Step 2**: Download or clone this repository to a directory on your computer.
-* **Step 3**: Open a command prompt in the download folder and create a virtual environment by running:
+* **Step 3**: Open a command prompt from within the directory and create a virtual environment:
 ```
 python -m venv .
 ```
-* **Step 4**: Run to activate the virtual environment:
+* **Step 4**: Activate the virtual environment:
 ```
 .\Scripts\activate
 ```
-* **Step 5**: Run the following to update ["pip"](https://pip.pypa.io/en/stable/index.html):
+* **Step 5**: Update ["pip"](https://pip.pypa.io/en/stable/index.html):
 ```
 python -m pip install --upgrade pip
 ```
 * **Step 6**: Install PyTorch with the appropriate Operating/AI Framework that you installed previously:
+
   * **Windows/CUDA 11.8:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
   * **Windows/CUDA 11.7:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117```
   * **Linux/CUDA 11.8:** ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
@@ -85,7 +86,8 @@ python -m pip install --upgrade pip
 ```
 pip install -r requirements.txt
 ```
-* **Step 8**: You MUST install the appropriate version of [Git](https://git-scm.com/downloads) if it's not already installed.
+* **Step 8**:
+  * Lastly, you must install the appropriate version of Git (https://git-scm.com/downloads).
 
 [Back to top](#top)
 
