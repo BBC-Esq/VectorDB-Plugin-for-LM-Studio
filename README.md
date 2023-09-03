@@ -47,7 +47,7 @@
 </div>
 
 <!-- Table of Contents -->
-
+<div align="center"> (PyTorch does not support ROCm on Windows systems)</div>
 <div align="center">
   <h2>Table of Contents</h2>
 </div>
