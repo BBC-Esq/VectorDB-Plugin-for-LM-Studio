@@ -11,14 +11,22 @@ from langchain.docstore.document import Document
 from langchain.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
-from langchain.document_loaders import PDFMinerLoader
+from langchain.document_loaders import (
+    PDFMinerLoader,
+    Docx2txtLoader,
+    TextLoader,
+    JSONLoader,
+    EverNoteLoader,
+    UnstructuredEmailLoader,
+    UnstructuredCSVLoader,
+    UnstructuredExcelLoader
+)
 from chromadb.config import Settings
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 PERSIST_DIRECTORY = f"{ROOT_DIRECTORY}/Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
-
 
 def show_error_dialog(message):
     root = tk.Tk()
@@ -40,6 +48,15 @@ CHROMA_SETTINGS = Settings(
 
 DOCUMENT_MAP = {
     ".pdf": PDFMinerLoader,
+    ".docx": Docx2txtLoader,
+    ".txt": TextLoader,
+    ".json": JSONLoader,
+    ".enex": EverNoteLoader,
+    ".eml": UnstructuredEmailLoader,
+    ".msg": UnstructuredEmailLoader,
+    ".csv": UnstructuredCSVLoader,
+    ".xls": UnstructuredExcelLoader,
+    ".xlsx": UnstructuredExcelLoader,
 }
 
 def load_single_document(file_path: str) -> Document:
@@ -74,23 +91,21 @@ def load_documents(source_dir: str) -> list[Document]:
     return docs
 
 def split_documents(documents: list[Document]) -> tuple[list[Document], list[Document]]:
-    return documents, []  # We're only processing PDFs now, no more split based on extensions
+    return documents, []  # We're only processing PDFs now, no more split based on extensions.  Save incase support is added for other file types.
 
 def main():
 # Determine the appropriate compute device
-    if torch.cuda.is_available() and torch.version.cuda:
+    if torch.cuda.is_available():
         device_type = "cuda"
     elif torch.backends.mps.is_available():
         device_type = "mps"
-    elif torch.cuda.is_available() and torch.version.hip:
-        device_type = "cuda"
     else:
         device_type = "cpu"
 
     logging.info(f"Loading documents from {SOURCE_DIRECTORY}")
     documents = load_documents(SOURCE_DIRECTORY)
     text_documents, _ = split_documents(documents)
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=500)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=500)    
     texts = text_splitter.split_documents(text_documents)
     
     logging.info(f"Loaded {len(documents)} documents from {SOURCE_DIRECTORY}")

@@ -40,7 +40,6 @@ class DocQA_GUI:
         self.text_input = tk.Text(middle_frame, wrap=tk.WORD, height=5)
         self.text_input.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         self.text_input.configure(font=("Segoe UI Historic", 10))
-        self.set_placeholder()  # Set the initial placeholder text
 
         scroll1 = tk.Scrollbar(middle_frame, command=self.text_input.yview)
         scroll1.pack(side=tk.RIGHT, fill=tk.Y)
@@ -64,9 +63,6 @@ class DocQA_GUI:
 
         # Center the window and display it
         self.center_window(root)
-
-    def set_placeholder(self):
-        self.text_input.insert(tk.END, 'Enter question here...')
 
     def center_window(self, root):
         root.withdraw()  # Hide the window

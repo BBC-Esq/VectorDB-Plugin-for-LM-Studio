@@ -3,7 +3,16 @@ import openai
 from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings
 from chromadb.config import Settings
-from langchain.document_loaders import PDFMinerLoader
+from langchain.document_loaders import (
+    PDFMinerLoader,
+    Docx2txtLoader,
+    TextLoader,
+    JSONLoader,
+    EverNoteLoader,
+    UnstructuredEmailLoader,
+    UnstructuredCSVLoader,
+    UnstructuredExcelLoader
+)
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
@@ -23,6 +32,15 @@ suffix = "[/INST]"
 
 DOCUMENT_MAP = {
     ".pdf": PDFMinerLoader,
+    ".docx": Docx2txtLoader,
+    ".txt": TextLoader,
+    ".json": JSONLoader,
+    ".enex": EverNoteLoader,
+    ".eml": UnstructuredEmailLoader,
+    ".msg": UnstructuredEmailLoader,
+    ".csv": UnstructuredCSVLoader,
+    ".xls": UnstructuredExcelLoader,
+    ".xlsx": UnstructuredExcelLoader,
 }
 
 # Variable to store the last response
@@ -62,6 +80,12 @@ def ask_local_chatgpt(query, embed_model_name=EMBEDDING_MODEL_NAME, persist_dire
     contexts = [document.page_content for document in relevant_contexts]
     augmented_query = "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
     response_json = connect_to_local_chatgpt(augmented_query)
+    
+    # Save the relevant_contexts to a text file
+    with open("relevant_contexts.txt", "w", encoding="utf-8") as f:
+        for content in contexts:
+            f.write(content + "\n\n---\n\n")
+        
     return {"answer": response_json, "sources": relevant_contexts}
 
 def interact_with_chat(user_input):

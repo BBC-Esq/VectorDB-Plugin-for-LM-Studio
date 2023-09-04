@@ -114,9 +114,12 @@ class DocQA_Logic:
         vector_db_folder = os.path.join(current_dir, "Vector_DB")
         docs_folder = os.path.join(current_dir, "Docs_for_DB")
 
+        valid_extensions = ['.pdf', '.docx', '.txt', '.json', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx']
+        files_present = any(glob(os.path.join(docs_folder, f'*{ext}')) for ext in valid_extensions)
+
         if (not os.path.exists(vector_db_folder) or
             not os.path.exists(docs_folder) or
-            not glob(os.path.join(docs_folder, '*.pdf')) or
+            not files_present or
             len(glob(os.path.join(vector_db_folder, '*.parquet'))) < 2):
 
             messagebox.showerror("Error", "Must choose documents and create the database first!")
@@ -128,3 +131,4 @@ class DocQA_Logic:
         self.gui.read_only_text.delete("1.0", tk.END)
         self.gui.read_only_text.insert(tk.END, answer)
         self.gui.read_only_text.config(state=tk.DISABLED)
+
