@@ -1,7 +1,7 @@
 <a name="top"></a>
 
 <div align="center">
-  <h1>Adds a chromadb vector database to <a href="https://lmstudio.ai/">LM Studio</a>!</h1>
+  <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a>! with a Vector Database!</h1>
 </div>
 
 <div align="center">
@@ -9,13 +9,13 @@
 </div>
 
 <div align="center">
-  <a href="https://medium.com/@vici0549/chromadb-plugin-for-lm-studio-5b3e2097154f">Link to Medium article</a>
+  <a href="https://medium.com/@vici0549/chromadb-plugin-for-lm-studio-5b3e2097154f">📖 Link to Medium article</a>
 </div>
 
 <!-- GPU Acceleration Support Table -->
 
 <div align="center">
-  <h2>GPU Acceleration Support</h2>
+  <h2>⚡ GPU Acceleration Support⚡</h2>
   <table>
     <thead>
       <tr>
@@ -53,9 +53,9 @@
 </div>
 
 <div align="center">
-  <a href="#installation">Installation</a> | 
-  <a href="#usage">Usage</a> | 
-  <a href="#contact">Contact Me</a>
+  <a href="#installation">🛠️ Installation</a> | 
+  <a href="#usage">🔍 Usage</a> | 
+  <a href="#contact">💌 Contact Me</a>
 </div>
 
 ## Installation
@@ -64,7 +64,7 @@
   * **For NVIDIA GPUs** ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
   * **For AMD GPUs** ➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
     * Unfortunately, gpu-accleration will [only work on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  
-  * **For Apple/Metal/MPS** ➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+  * **For 🍎 Apple/Metal/MPS** ➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 * **Step 2** ➜ Download or clone this repository to a directory on your computer.
 * **Step 3** ➜ Open a command prompt from within the directory and create a virtual environment:
 ```
