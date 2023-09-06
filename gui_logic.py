@@ -3,20 +3,23 @@ from tkinter import filedialog, messagebox, simpledialog, Radiobutton, Button
 import os
 import shutil
 from glob import glob
+import yaml
 from gui import DocQA_GUI
 from server_connector import interact_with_chat
 import subprocess
 import server_connector
 
+def load_config():
+    with open("config.yaml", 'r') as stream:
+        return yaml.safe_load(stream)
+
 class DownloadModelDialog(simpledialog.Dialog):
     def body(self, master):
         self.model_var = tk.StringVar(value="none_selected")
-        self.models = [
-            "BAAI/bge-large-en", "BAAI/bge-base-en", "BAAI/bge-small-en", "thenlper/gte-large",
-            "thenlper/gte-base", "thenlper/gte-small", "intfloat/e5-large-v2", "intfloat/e5-base-v2",
-            "intfloat/e5-small-v2", "hkunlp/instructor-xl", "hkunlp/instructor-large", "hkunlp/instructor-base",
-            "sentence-transformers/all-mpnet-base-v2", "sentence-transformers/all-MiniLM-L12-v2", "sentence-transformers/all-MiniLM-L6-v2"
-]
+        
+        config_data = load_config()
+        self.models = config_data["AVAILABLE_MODELS"]
+        
         downloaded_models = [f for f in os.listdir('Embedding_Models') if os.path.isdir(os.path.join('Embedding_Models', f))]
         
         for model in self.models:
@@ -32,9 +35,10 @@ class DownloadModelDialog(simpledialog.Dialog):
 class DocQA_Logic:
     def __init__(self, gui: DocQA_GUI):
         self.gui = gui
-        self.embed_model_name = ""
-
-        # Connecting the GUI buttons to their logic
+        
+        config_data = load_config()
+        self.embed_model_name = config_data.get("EMBEDDING_MODEL_NAME", "")
+        
         self.gui.download_embedding_model_button.config(command=self.download_embedding_model)
         self.gui.select_embedding_model_button.config(command=self.select_embedding_model_directory)
         self.gui.choose_documents_button.config(command=self.choose_documents)
@@ -42,36 +46,33 @@ class DocQA_Logic:
         self.gui.submit_query_button.config(command=self.submit_query)
 
     def download_embedding_model(self):
-        # Creating the "Embedding_Models" folder if it doesn't exist
         if not os.path.exists('Embedding_Models'):
             os.makedirs('Embedding_Models')
     
-        # Opening the dialog window
         dialog = DownloadModelDialog(self.gui.root)
         selected_model = dialog.model_var.get()
         
         if selected_model:
-            # Construct the URL for the Hugging Face model repository
             model_url = f"https://huggingface.co/{selected_model}"
             
-            # Define the directory to download the model to
             target_directory = os.path.join("Embedding_Models", selected_model.replace("/", "--"))
             
-            # Clone the repository to the directory
             subprocess.run(["git", "clone", model_url, target_directory])
 
     def select_embedding_model_directory(self):
         initial_dir = 'Embedding_Models' if os.path.exists('Embedding_Models') else os.path.expanduser("~")
         chosen_directory = filedialog.askdirectory(initialdir=initial_dir, title="Select Embedding Model Directory")
     
-        # Choose the model directory to use
         if chosen_directory:
             self.embedding_model_directory = chosen_directory
+            self.embed_model_name = chosen_directory
+            
+            # Update the config.yaml file with the chosen model directory
+            config_data = load_config()
+            config_data["EMBEDDING_MODEL_NAME"] = chosen_directory
+            with open("config.yaml", 'w') as file:
+                yaml.dump(config_data, file)
 
-            # Update the global variable in server_connector.py
-            server_connector.EMBEDDING_MODEL_NAME = chosen_directory
-        
-            # Optionally, you can print or display a confirmation to the user
             print(f"Selected directory: {chosen_directory}")
 
     def choose_documents(self):
@@ -90,19 +91,12 @@ class DocQA_Logic:
         current_dir = os.path.dirname(os.path.realpath(__file__))
         vector_db_folder = os.path.join(current_dir, "Vector_DB")
 
-        # Create the "Vector_DB" folder if it doesn't exist
         if not os.path.exists(vector_db_folder):
             os.mkdir(vector_db_folder)
 
         response = messagebox.askokcancel(
-            "Create New Vector Database?",
-            "Proceeding will:\n\n" 
-            "(1) Delete the current database\n"
-            "(2) Create a new ChromaDB vector database.\n\n"
-            "If GPU acceleration is properly set up, you will see CUDA being utilized when the database is created. "
-            "Check CUDA usage by going to Task Manager, select your GPU, and choosing "
-            "the 'CUDA' graph from one of the pull-down menus.\n\n"
-            "CUDA usage stops once the vector database is created and then you can ask questions of your docs!"
+            "Create Vector Database?",
+            "This will overwrite any current databases!"
         )
         
         if response:
@@ -132,3 +126,8 @@ class DocQA_Logic:
         self.gui.read_only_text.insert(tk.END, answer)
         self.gui.read_only_text.config(state=tk.DISABLED)
 
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = DocQA_GUI(root)
+    logic = DocQA_Logic(app)
+    root.mainloop()

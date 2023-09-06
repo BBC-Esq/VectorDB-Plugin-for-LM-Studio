@@ -11,3 +11,4 @@ msg-parser==1.2.0
 xlrd==2.0.1
 openpyxl==3.1.2
 unstructured==0.10.12
+nvidia-ml-py==12.535.108

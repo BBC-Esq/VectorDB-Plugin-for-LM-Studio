@@ -13,12 +13,13 @@ from langchain.document_loaders import (
     UnstructuredCSVLoader,
     UnstructuredExcelLoader
 )
+import yaml
+import torch
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 PERSIST_DIRECTORY = f"{ROOT_DIRECTORY}/Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
-EMBEDDING_MODEL_NAME = r""
 
 CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
@@ -30,20 +31,6 @@ openai.api_key = ''
 prefix = "[INST]"
 suffix = "[/INST]"
 
-DOCUMENT_MAP = {
-    ".pdf": PDFMinerLoader,
-    ".docx": Docx2txtLoader,
-    ".txt": TextLoader,
-    ".json": JSONLoader,
-    ".enex": EverNoteLoader,
-    ".eml": UnstructuredEmailLoader,
-    ".msg": UnstructuredEmailLoader,
-    ".csv": UnstructuredCSVLoader,
-    ".xls": UnstructuredExcelLoader,
-    ".xlsx": UnstructuredExcelLoader,
-}
-
-# Variable to store the last response
 last_response = None
 
 def connect_to_local_chatgpt(prompt):
@@ -55,18 +42,23 @@ def connect_to_local_chatgpt(prompt):
     )
     return response.choices[0].message["content"]
 
-def ask_local_chatgpt(query, embed_model_name=EMBEDDING_MODEL_NAME, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
+def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
+
+    with open('config.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+        EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
+        COMPUTE_DEVICE = config.get("COMPUTE_DEVICE", "cpu")
 
     if "instructor" in EMBEDDING_MODEL_NAME:
         embeddings = HuggingFaceInstructEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
-            model_kwargs={"device": "cuda"},
+            model_kwargs={"device": COMPUTE_DEVICE},
             encode_kwargs={'normalize_embeddings': True}
         )
     else:
         embeddings = HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
-            model_kwargs={'device': "cuda"},
+            model_kwargs={'device': COMPUTE_DEVICE},
             encode_kwargs={'normalize_embeddings': True}
         )
 
