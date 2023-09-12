@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 import shutil
 import torch
 import yaml
@@ -45,7 +44,7 @@ def main():
             model_kwargs={"device": COMPUTE_DEVICE},
         )
     
-    # Delete current vector database before creating new one
+    # Delete the current vector database before creating a new one
     if os.path.exists(PERSIST_DIRECTORY):
         shutil.rmtree(PERSIST_DIRECTORY)
         os.makedirs(PERSIST_DIRECTORY)
@@ -63,4 +62,5 @@ if __name__ == "__main__":
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s", level=logging.INFO
     )
+    
     main()

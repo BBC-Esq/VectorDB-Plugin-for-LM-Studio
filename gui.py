@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import font as tkfont
 from gui_table import create_table
 import threading
 from nvml import CudaVramLogic
@@ -41,9 +42,17 @@ class DocQA_GUI:
         self.create_chromadb_button.pack(pady=5)
 
         create_table(left_frame)
+        
+        # GPU label
+        self.gpu_info_label = tk.Label(left_frame, font=("Segoe UI Semibold", 16), foreground='green')
+        self.gpu_info_label.pack(pady=1)
+        
+        # VRAM label
+        self.vram_info_label = tk.Label(left_frame, font=("Segoe UI Semibold", 16), foreground='blue')
+        self.vram_info_label.pack(pady=1)
 
-        self.cuda_info_label = tk.Label(left_frame, text="CUDA & VRAM Info", font=("Segoe UI Historic", 10))
-        self.cuda_info_label.pack(pady=5)
+        # Adjust CudaVramLogic initialization:
+        self.cuda_logic = CudaVramLogic(self.vram_info_label, self.gpu_info_label, self.root)
 
         main_pane.add(left_frame)
 
@@ -74,8 +83,6 @@ class DocQA_GUI:
         scroll2 = tk.Scrollbar(bottom_frame, command=self.read_only_text.yview)
         scroll2.pack(side=tk.RIGHT, fill=tk.Y)
         self.read_only_text.config(yscrollcommand=scroll2.set)
-
-        self.cuda_logic = CudaVramLogic(self.cuda_info_label, self.root)
 
         self.center_window(root)
 

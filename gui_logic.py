@@ -8,6 +8,7 @@ from gui import DocQA_GUI
 from server_connector import interact_with_chat
 import subprocess
 import server_connector
+import threading
 
 def load_config():
     with open("config.yaml", 'r') as stream:
@@ -54,10 +55,13 @@ class DocQA_Logic:
         
         if selected_model:
             model_url = f"https://huggingface.co/{selected_model}"
-            
             target_directory = os.path.join("Embedding_Models", selected_model.replace("/", "--"))
             
-            subprocess.run(["git", "clone", model_url, target_directory])
+            def download_model():
+                subprocess.run(["git", "clone", model_url, target_directory])
+                
+            download_thread = threading.Thread(target=download_model)
+            download_thread.start()
 
     def select_embedding_model_directory(self):
         initial_dir = 'Embedding_Models' if os.path.exists('Embedding_Models') else os.path.expanduser("~")
@@ -101,7 +105,12 @@ class DocQA_Logic:
         
         if response:
             embedding_model_path = getattr(self, "embedding_model_directory", "")
-            os.system(f'python ingest_improved.py "{embedding_model_path}"')
+            
+            def run_create_chromadb(embedding_model_path):
+                os.system(f'python ingest_improved.py "{embedding_model_path}"')
+            
+            create_chromadb_thread = threading.Thread(target=run_create_chromadb, args=(embedding_model_path,))
+            create_chromadb_thread.start()
 
     def submit_query(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -120,11 +129,18 @@ class DocQA_Logic:
             return
 
         query = self.gui.text_input.get("1.0", tk.END).strip()
-        answer = interact_with_chat(query)
-        self.gui.read_only_text.config(state=tk.NORMAL)
-        self.gui.read_only_text.delete("1.0", tk.END)
-        self.gui.read_only_text.insert(tk.END, answer)
-        self.gui.read_only_text.config(state=tk.DISABLED)
+
+        # Move the chat interaction logic to a separate function
+        def interact_with_chat_and_update_gui(query):
+            answer = interact_with_chat(query)
+            self.gui.read_only_text.config(state=tk.NORMAL)
+            self.gui.read_only_text.delete("1.0", tk.END)
+            self.gui.read_only_text.insert(tk.END, answer)
+            self.gui.read_only_text.config(state=tk.DISABLED)
+
+        # Create a thread for chat interaction and GUI update
+        chat_thread = threading.Thread(target=interact_with_chat_and_update_gui, args=(query,))
+        chat_thread.start()
 
 if __name__ == "__main__":
     root = tk.Tk()

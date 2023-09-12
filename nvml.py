@@ -1,7 +1,6 @@
 from pynvml import *
 from multiprocessing import Process, Pipe, Event
 import time
-import tkinter as tk
 
 def monitor_nvml(pipe, stop_event):
     nvmlInit()
@@ -35,23 +34,20 @@ def stop_monitoring(p, stop_event):
     p.join()
 
 class CudaVramLogic:
-    def __init__(self, label, root):
-        self.cuda_info_label = label
+    def __init__(self, vram_label, gpu_label, root):
+        self.vram_label = vram_label
+        self.gpu_label = gpu_label
         self.root = root
         self.parent_conn, self.process, self.stop_event = start_monitoring()
-        self.update_cuda_info()
+        self.update_info()
 
-    def update_cuda_info(self):
+    def update_info(self):
         if self.parent_conn.poll():
             memory_used_str, gpu_utilization = self.parent_conn.recv()
-            info_text = f"Memory Used: {memory_used_str} | GPU Utilization: {gpu_utilization}"
-            self.cuda_info_label.config(text=info_text)
-        self.root.after(500, self.update_cuda_info)
+            self.vram_label.config(text=f"VRAM: {memory_used_str}")
+            self.gpu_label.config(text=f"GPU: {gpu_utilization}")
+        self.root.after(500, self.update_info)
 
     def stop_and_exit(self):
         stop_monitoring(self.process, self.stop_event)
         self.root.quit()
-
-# If the script is executed directly, it will just run without outputting any metrics.
-if __name__ == "__main__":
-    pass
