@@ -58,64 +58,69 @@
   <a href="#contact">💌 Contact Me</a>
 </div>
 
-## Installation
+# Installation
+**Step 1** ➜ Install the appropriate software if you intend to use GPU-acceleration:
+  * **NVIDIA GPUs** ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
+  * **AMD GPUs** ➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
+    * Unfortunately, gpu-accleration will only work on Linux systems.  This is a PyTorch limitation.
+  * **🍎 Apple/Metal/MPS** ➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 
-* **Step 1** ➜ Install the appropriate software if you intend to use GPU-acceleration:
-  * **For NVIDIA GPUs** ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
-  * **For AMD GPUs** ➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
-    * Unfortunately, gpu-accleration will [only work on Linux systems](https://github.com/RadeonOpenCompute/ROCm/blob/develop/docs/rocm.md).  
-  * **For 🍎 Apple/Metal/MPS** ➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
-* **Step 2** ➜ Download or clone this repository to a directory on your computer.
-* **Step 3** ➜ Open a command prompt from within the directory and create a virtual environment:
+**Step 2** ➜ Download or clone this repository to a directory on your computer.
+
+**Step 3** ➜ Open a command prompt from within the directory and create a virtual environment:
 ```
 python -m venv .
 ```
-* **Step 4** ➜ Activate the virtual environment:
+**Step 4** ➜ Activate the virtual environment:
 ```
 .\Scripts\activate
 ```
-* **Step 5** ➜ Update [PIP](https://pip.pypa.io/en/stable/index.html):
+**Step 5** ➜ Update [PIP](https://pip.pypa.io/en/stable/index.html):
 ```
 python -m pip install --upgrade pip
 ```
-* **Step 6** ➜ Install PyTorch with the appropriate "build:"
+**Step 6** ➜ Install PyTorch with the appropriate "build:"
 
   * **🪟Windows + CUDA 11.8** ➜ ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
-  * **🪟Windows + CUDA 11.7** ➜ ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117```
-  * **🪟Windows + CPU-only** ➜ ```pip install torch torchvision torchaudio```
-  * **🐧Linux + CUDA 11.8** ➜ ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
-  * **🐧Linux + CUDA 11.7** ➜ ```pip install torch torchvision torchaudio```
-  * **🐧Linux + ROCm 5.4.2** ➜ ```install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2```
-  * **🐧Linux + CPU-only** ➜ ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu```
-  * **🍎Apple + Metal** ➜ ```pip install torch torchvision torchaudio```
-    * **Metal/MPS** [speedup comparison](https://explosion.ai/blog/metal-performance-shaders) to a 5950x and RTX 3090.
+  * **🪟Windows + CUDA 11.7** ➜```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117```
+  * **🪟Windows + CPU-only** ➜```pip install torch torchvision torchaudio```
+  * **🐧Linux + CUDA 11.8** ➜```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
+  * **🐧Linux + CUDA 11.7** ➜```pip install torch torchvision torchaudio```
+  * **🐧Linux + ROCm 5.4.2** ➜```install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2```
+  * **🐧Linux + CPU-only** ➜```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu```
+  * **🍎Apple + Metal** ➜ ([speedup comparison](https://explosion.ai/blog/metal-performance-shaders) to a 5950x and RTX 3090)```pip install torch torchvision torchaudio```
 
-* **Step 7** ➜ Doublecheck that you installed gpu-acceleration properly:
+**Step 7** ➜ Doublecheck that you installed gpu-acceleration properly:
 ```
 python check_gpu.py
 ```
 
-* **Step 8** ➜ Install the dependencies listed in [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
+**Step 8** ➜ Install the dependencies listed in [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
 ```
 pip install -r requirements.txt
 ```
-* **Step 9** ➜ Lastly, you must install the appropriate version of Git (https://git-scm.com/downloads).
+**Step 9** ➜ Lastly, you must install the appropriate version of Git (https://git-scm.com/downloads).
 
 [Back to top](#top)
 
 ## Usage
 
-* **Step 1**: Open a command prompt in the directory of my scripts, activate the virtual environment, and run:
+**Step 1** ➜ Open a command prompt in the directory of my scripts, activate the virtual environment, and run:
 ```
 python gui.py
 ```
-* **Step 2** ➜ "Download Embedding Model." Must wait until the download is complete and unpacked before creating the vector database.
-* **Step 3** ➜ "Select Embedding Model Directory" so select the directory containing the model you want to use.
-* **Step 4** ➜ "Choose Documents for Database" to choose one or more files to put in the database.
+**Step 2** ➜ "Download Embedding Model." Must wait until the download is complete and unpacked before creating the vector database.
+
+**Step 3** ➜ "Select Embedding Model Directory" so select the directory containing the model you want to use.
+
+**Step 4** ➜ "Choose Documents for Database" to choose one or more files to put in the database.
   * Current supported file extensions are: pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx.
-* **Step 5** ➜ "Create Vector Database." When CUDA drops to zero, proceed to the next step.
-* **Step 6** ➜ Open LM Studio and load a model (only Llama2-based models currently work).
-* **Step 7** ➜ Click "Start Server" within LM Studio, enter your question, and click "Submit Question."
+
+**Step 5** ➜ "Create Vector Database." When CUDA drops to zero, proceed to the next step.
+
+**Step 6** ➜ Open LM Studio and load a model (only Llama2-based models currently work).
+
+**Step 7** ➜ Click "Start Server" within LM Studio, enter your question, and click "Submit Question."
 
 [Back to top](#top)
 
