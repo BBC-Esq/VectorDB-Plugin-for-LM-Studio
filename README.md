@@ -87,7 +87,7 @@ python -m pip install --upgrade pip
   * **🐧Linux + CUDA 11.7** ➜ ```pip install torch torchvision torchaudio```
   * **🐧Linux + ROCm 5.4.2** ➜ ```install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2```
   * **🐧Linux + CPU-only** ➜ ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu```
-  * **🍎Apple + Metal** ➜ ```pip pip install torch torchvision torchaudio```
+  * **🍎Apple + Metal** ➜ ```pip install torch torchvision torchaudio```
     * **Metal/MPS** [speedup comparison](https://explosion.ai/blog/metal-performance-shaders) to a 5950x and RTX 3090.
 
 * **Step 7** ➜ Doublecheck that you installed gpu-acceleration properly:
