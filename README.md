@@ -5,7 +5,7 @@
 </div>
 
 <div align="center">
-  <strong>Tested with <a href="https://www.python.org/downloads/release/python-31011/">Python 3.10.</a></strong>
+  <strong>Tested with <a href="https://www.python.org/downloads/release/python-31011/">Python 3.10</a></strong>
 </div>
 
 <div align="center">
