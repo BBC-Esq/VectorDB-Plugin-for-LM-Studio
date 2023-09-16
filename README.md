@@ -59,7 +59,7 @@
 </div>
 
 # Installation
-# Make sure you're running Python 3.10+ For example, [download](https://www.python.org/downloads/release/python-31011/)
+# Make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/).
 **Step 1** ➜ Install the appropriate software if you intend to use GPU-acceleration:
   * **NVIDIA GPUs** ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
   * **AMD GPUs** ➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
