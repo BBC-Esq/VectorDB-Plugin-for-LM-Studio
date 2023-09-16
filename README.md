@@ -67,7 +67,7 @@
 
 **Step 2** ➜ Download the latest ["release"](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases) and unzip it to your chosen directory.
 
-**Step 3** ➜ Open a command prompt from within the directory and create a virtual environment:
+**Step 3** ➜ Open the "ChromaDB-Plugin-for-LM-Studio[version#]" that you extracted from the ZIP file, and create a virtual environment:
 ```
 python -m venv .
 ```
