@@ -72,9 +72,17 @@
 ```
 python -m venv .
 ```
+* For Macs the preferred command is:
+```
+python3 -m venv .
+```
 **Step 4** ➜ Activate the virtual environment:
 ```
 .\Scripts\activate
+```
+* For Macs the command is:
+```
+source bin/activate
 ```
 **Step 5** ➜ Update [PIP](https://pip.pypa.io/en/stable/index.html):
 ```
