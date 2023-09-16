@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floating-Point Formats</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 0;
+			background-color: #333; /* Dark grey background */
+			color: #f0f0f0; /* Off-white text color */
+		}
+
+		header {
+			text-align: center;
+			background-color: #3498db;
+			color: #fff;
+			padding: 20px;
+			position: sticky;
+			top: 0;
+			z-index: 999;
+		}
+
+		main {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+
+		img {
+			display: block;
+			margin: 0 auto;
+			max-width: 100%;
+			height: auto;
+		}
+
+		h1, h2 {
+			color: #333;
+		}
+
+		p {
+			text-indent: 35px; /* Indent paragraphs */
+		}
+
+		table {
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		th, td {
+			text-align: left;
+			padding: 8px;
+			border-bottom: 1px solid #ddd;
+		}
+
+		th {
+			background-color: #f2f2f2;
+			color: #000;
+		}
+
+		footer {
+			text-align: center;
+			background-color: #333;
+			color: #fff;
+			padding: 10px;
+		}
+	</style>
+
+</head>
+
+<body>
+    <header>
+        <h1>Floating-Point Formats</h1>
+    </header>
+
+    <main>
+        <section>
+            <img src="float.png" alt="Floating Point">
+        </section>
+
+        <section>
+        <h2 style="color: #f0f0f0;">Introduction to Floating-Point Formats</h2>
+        <p>Using a neural network requires a lot of math calculatoins.  Computers don't understand decimals like you and I (e.g. 1,2,3).
+		Instead, they use "binary" to represent a number, which is a series of ones and zeros.  Each 1 or 0 is called a "bit."
+		A "floating-point format" is basically defined by the number of bits it has and what each can do (e.g. "exponent" versus
+		"fraction" bits).  The above picture represents the most common floating point formats for neural networks.  You can see floating
+		point format used for the various models used by this program in the "config.json" file in a particular model's folder.</p>
+
+        <p>The type of floating-point format determines how well your model performs, but also how much memory and computational power
+		is required.  In general, more "bits" equals higher quality but more memory and computational power is needed.</p>
+
+        <p>The "exponent" portion of a floating point format basically establishes the "range" of possible numbers that a model can
+		choose from when performing math calculations - i.e., the highest and lowest  possible numbers.  The number of "fraction" bits
+		determines the total unique/discrete numbers that can be chosen within that range at a given time.</p>
+
+        <p>For example, if hypothetically the "range" is 1-100 for float32 and bfloat16 (since they have the same number of bits), bfloat16
+		can use 50 numbers within the range at a given time whereas float32 can use all 100 numbers.  This is because it has more "fraction"
+		bits, and more fraction bits means a higher quality response from the model.</p>
+
+        <p>However, "range" is also affects the quality of a model's response and it's important to strike a balance between the
+		range and precision of a model based on the type of task you want to perform.  "Google Brain," which created bfloat16, found that
+		bfloat16 is better for neural networks that float16, whereas float16 is better for narrower scientific calculations.  This is
+		illustrated in the below table showing the range and precision of each floating point format.</p>
+		
+            <table border="1">
+                <tr>
+                    <th>Floating Point Format</th>
+                    <th>Range (Based on Exponent)</th>
+                    <th>Discrete Values (Based on Fraction)</th>
+                </tr>
+                <tr>
+                    <td>float32</td>
+                    <td>~3.4×10<sup>38</sup></td>
+                    <td>8,388,608</td>
+                </tr>
+                <tr>
+                    <td>float16</td>
+                    <td>±65,504</td>
+                    <td>1,024</td>
+                </tr>
+                <tr>
+                    <td>bfloat16</td>
+                    <td>~3.4×10<sup>38</sup></td>
+                    <td>128</td>
+                </tr>
+            </table>
+			
+        </section>
+
+        <section>
+            <h2 style="color: #f0f0f0;">What is Quantization?</h2>
+			
+            <p>"Quantization" refers to reducing a model from its original floating point format, whatever that may be. Most
+			(but not all) models are originally created using float32.</p>
+
+			<p>Projects like Llama.cpp and AutoGPTQ quantize models and they use different algorithyms but when it comes to
+			reducing memory and computational requirements, a model quantized with ggml/gguf using "int8" requires basically
+			the same memory and computational resources as the same model quantized with GPTQ using int8.  Ggml/gguf uses
+			"Q8_0" to represent int8 quantization while GPTQ uses "8-bit." Also, both frameworks offer quantizations below int8
+			with a corresponding decrease in quality.</p>
+
+			<p>For example:</p>
+
+            <table border="1">
+                <tr>
+                    <th>Floating Point Format</th>
+                    <th>Range (Based on Exponent)</th>
+                    <th>Discrete Values (Based on Fraction)</th>
+                </tr>
+                <tr>
+                    <td>int8</td>
+                    <td>-128 to 127</td>
+                    <td>±127 (within integer range)</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2 style="color: #f0f0f0;">Ctranslate2 is Awesome</h2>
+			
+            <p>Ctranslate2 is a C++/Python library that is extremely powerful and supports numerous quantizations:</p>
+            
+			<table border="1">
+                <tr>
+                    <th>Floating Point Format</th>
+                    <th>Quantized Model Size</th>
+                    <th>Summary</th>
+                </tr>
+                <tr>
+                    <td>float32</td>
+                    <td>100%</td>
+                    <td>Original</td>
+                </tr>
+                <tr>
+                    <td>int16</td>
+                    <td>51.37%</td>
+                    <td>Not used for neural networks.</td>
+                </tr>
+                <tr>
+                    <td>float16</td>
+                    <td>50.00%</td>
+                    <td>"Old school," not suited for neural networks.</td>
+                </tr>
+                <tr>
+                    <td>bfloat16</td>
+                    <td>50.00%</td>
+                    <td>Best for neural networks except for float32.</td>
+                </tr>
+                <tr>
+                    <td>int8_float32</td>
+                    <td>27.47%</td>
+                    <td>Good for neural networks despite low quantization.</td>
+                </tr>
+				<tr>
+                    <td>int8_bfloat16</td>
+                    <td>26.10%</td>
+                    <td>Good for neural networks despite low quantization, but not as good as int8_float32.</td>
+                </tr>
+                <tr>
+                    <td>int8_float16</td>
+                    <td>26.10%</td>
+                    <td>Slightly better than int8.</td>
+                </tr>
+                <tr>
+                    <td>int8</td>
+                    <td>25%</td>
+                    <td>Mediocre</td>
+                </tr>
+            </table>
+			
+            <p>Quantzations like int8_float32 are called "mixed precision" becuase they allow for 99% of the benefit
+			of having more "fraction" bits while at the same time keeping the memory and compute requirements low.</p>
+			
+			<p>And if this wasn't enough, the Ctranslate2 library itself is faster, uses less resources, and produces a higher
+			quality output than a comparable ggml/gguf/gptq quantized model.  In other words, even with identical quantizations
+			(int8), Ctranslate2's model will perform faster, use less resources, and produce a higher quality result...this in
+			addition to offering better floating formats to choose from.</p>
+
+            <p>For example, here's a comparison of memory usage based on different quantizations of the identical 7 billion
+			parameter Llama2-based model:</p>
+            <table border="1">
+                <tr>
+                    <th>Floating Point Format</th>
+                    <th>Backend Tech</th>
+                    <th>VRAM/RAM Needed</th>
+                </tr>
+                <tr>
+                    <td>float16</td>
+                    <td>ctranslate2</td>
+                    <td>15.5 GB</td>
+                </tr>
+                <tr>
+                    <td>bfloat16</td>
+                    <td>ctranslate2</td>
+                    <td>15.4 GB</td>
+                </tr>
+                <tr>
+                    <td>int8 ("Q8_0")</td>
+                    <td>ggml/gguf</td>
+                    <td>12.4 GB</td>
+                </tr>
+                <tr>
+                    <td>"Q6_0"</td>
+                    <td>ggml/gguf</td>
+                    <td>11.6 GB</td>
+                </tr>
+                <tr>
+                    <td>"Q5_k_m"</td>
+                    <td>ggml/gguf</td>
+                    <td>11.4 GB</td>
+                </tr>
+                <tr>
+                    <td>"Q4_k_m"</td>
+                    <td>ggml/gguf</td>
+                    <td>11.3 GB</td>
+                </tr>
+                <tr>
+                    <td>"Q3_k_l"</td>
+                    <td>ggml/gguf</td>
+                    <td>10.5 GB</td>
+                </tr>
+                <tr>
+                    <td>"Q3_k_m"</td>
+                    <td>ggml/gguf</td>
+                    <td>10.3 GB</td>
+                </tr>
+                <tr>
+                    <td>"Q3_k_s"</td>
+                    <td>ggml/gguf</td>
+                    <td>10 GB</td>
+                </tr>
+                <tr>
+                    <td>int8_float32</td>
+                    <td>ctranslate2</td>
+                    <td>9.4 GB</td>
+                </tr>
+                <tr>
+                    <td>int8_float16</td>
+                    <td>ctranslate2</td>
+                    <td>9.0 GB</td>
+                </tr>
+                <tr>
+                    <td>int8_bfloat16</td>
+                    <td>ctranslate2</td>
+                    <td>9.0 GB</td>
+                </tr>
+                <tr>
+                    <td>int8</td>
+                    <td>ctranslate2</td>
+                    <td>9.0 GB</td>
+                </tr>
+            </table>
+			
+            <p>Notice that ctranslate2 with the much higher-quality int8_float32 quantization setting uses even less memory
+			than the much lower quality Q3_k_s ggml/gguf. It's also worth mentioning that there's only a 3 GB
+			difference between using ctranslate2 and the high quality bfloat16 versus the inferior int8 ggml/gguf version!</p>
+            
+	<ul>
+		<li>Ctranslate2 has numerous other benefits as well, including but not limited to:</li>
+		<ul>
+			<li>Automatically choosing the next best quantization level if what you choose isn't supported by
+			your CPU/GPU</li>
+			<li>Having built-in CPU acceleration in the form of MKL (Intel's Math Kernel Library)</li>
+			<li>Allowing a user to download a single model and then switching between whatever quantizations
+			you want at runtime. GGML/GGUF/GPTQ all require you to download a separate model for each quantization.</li>
+		</ul>
+	</ul>
+
+        </section>
+		
+		<section>
+            <h2 style="color: #f0f0f0;">But is the Quality Loss Noticeable?</h2>
+			
+            <p>Yes.  Anyone who's played with LLMs or embedding models knows that there's a significant loss in quality
+			between, say, a Q8_0 and Q3_k_m model.  But this can also be measured by analyzing the "perplexity" of a model
+			after quantization.</p>
+		</section>
+		
+            <img src="perplexity_loss.png" alt="Perplexity Loss">
+		<section>
+            <h2 style="color: #f0f0f0;">So Why isn't Everybody using Ctranslate2?</h2>
+			
+			<p>This is only my opinion, but the primary reason is because the documentation for Ctranslate2 documentation
+			is written "by programmers for programmers" and can be difficult to understand.  Also, Ctranslate2 does not
+			support as many model "architectures" as ggml/gguf/gptq, for example.</p>
+    </main>
+
+    <footer>
+        <nav><a href="http://www.chintellalaw.com" target="_blank">www.chintellalaw.com</a></nav>
+    </footer>
+</body>
+</html>
