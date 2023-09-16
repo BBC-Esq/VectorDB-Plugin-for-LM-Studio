@@ -65,7 +65,7 @@
     * Unfortunately, gpu-accleration will only work on Linux systems.  This is a PyTorch limitation.
   * **🍎 Apple/Metal/MPS** ➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 
-**Step 2** ➜ Download the latest "release" and unzip it to your chosen directory.
+**Step 2** ➜ Download the latest ["release"](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases) and unzip it to your chosen directory.
 
 **Step 3** ➜ Open a command prompt from within the directory and create a virtual environment:
 ```
