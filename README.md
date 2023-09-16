@@ -72,7 +72,7 @@
 ```
 python -m venv .
 ```
-* For Macs the preferred command is:
+* For 🍎 Macs the preferred command is:
 ```
 python3 -m venv .
 ```
@@ -80,7 +80,7 @@ python3 -m venv .
 ```
 .\Scripts\activate
 ```
-* For Macs the command is:
+* For 🍎 Macs the command is:
 ```
 source bin/activate
 ```
