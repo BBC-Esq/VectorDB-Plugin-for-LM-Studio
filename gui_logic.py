@@ -9,6 +9,7 @@ from server_connector import interact_with_chat
 import subprocess
 import server_connector
 import threading
+import multiprocessing
 
 def load_config():
     with open("config.yaml", 'r') as stream:
@@ -32,6 +33,9 @@ class DownloadModelDialog(simpledialog.Dialog):
     def buttons(self):
         Button(self, text="Download", command=self.ok).pack(side=tk.LEFT)
         Button(self, text="Cancel", command=self.cancel).pack(side=tk.RIGHT)
+            
+def run_create_chromadb(embedding_model_path):
+    os.system(f'python ingest_improved.py "{embedding_model_path}"')
 
 class DocQA_Logic:
     def __init__(self, gui: DocQA_GUI):
@@ -106,11 +110,8 @@ class DocQA_Logic:
         if response:
             embedding_model_path = getattr(self, "embedding_model_directory", "")
             
-            def run_create_chromadb(embedding_model_path):
-                os.system(f'python ingest_improved.py "{embedding_model_path}"')
-            
-            create_chromadb_thread = threading.Thread(target=run_create_chromadb, args=(embedding_model_path,))
-            create_chromadb_thread.start()
+            create_chromadb_process = multiprocessing.Process(target=run_create_chromadb, args=(embedding_model_path,))
+            create_chromadb_process.start()
 
     def submit_query(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -130,7 +131,6 @@ class DocQA_Logic:
 
         query = self.gui.text_input.get("1.0", tk.END).strip()
 
-        # Move the chat interaction logic to a separate function
         def interact_with_chat_and_update_gui(query):
             answer = interact_with_chat(query)
             self.gui.read_only_text.config(state=tk.NORMAL)
@@ -138,7 +138,6 @@ class DocQA_Logic:
             self.gui.read_only_text.insert(tk.END, answer)
             self.gui.read_only_text.config(state=tk.DISABLED)
 
-        # Create a thread for chat interaction and GUI update
         chat_thread = threading.Thread(target=interact_with_chat_and_update_gui, args=(query,))
         chat_thread.start()
 

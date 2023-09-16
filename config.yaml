@@ -26,4 +26,4 @@ DOCUMENT_MAP:
   .txt: TextLoader
   .xls: UnstructuredExcelLoader
   .xlsx: UnstructuredExcelLoader
-EMBEDDING_MODEL_NAME: C:/PATH/Scripts/LM Search Vector Database_v1_4 - working/Embedding_Models/hkunlp--instructor-large
+EMBEDDING_MODEL_NAME: C:/PATH/Scripts/LM Search Vector Database_v1_4_2/Embedding_Models/BAAI--bge-large-en

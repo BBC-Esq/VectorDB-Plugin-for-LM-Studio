@@ -1,10 +1,14 @@
 import tkinter as tk
 from tkinter import font as tkfont
-from gui_table import create_table
 import threading
-from nvml import CudaVramLogic
 import torch
 import yaml
+
+from gui_table import create_table, create_pro_tip
+from nvml import CudaVramLogic  
+from system_metrics import SystemMonitor
+
+LABEL_FONT = ("Segoe UI Semibold", 12)
 
 def determine_compute_device():
     if torch.cuda.is_available():
@@ -13,11 +17,13 @@ def determine_compute_device():
         COMPUTE_DEVICE = "mps"
     else:
         COMPUTE_DEVICE = "cpu"
-    
+
     with open("config.yaml", 'r') as stream:
         config_data = yaml.safe_load(stream)
+
     config_data['COMPUTE_DEVICE'] = COMPUTE_DEVICE
-    with open("config.yaml", 'w') as stream:
+
+    with open("config.yaml", 'w') as stream:  
         yaml.safe_dump(config_data, stream)
 
 class DocQA_GUI:
@@ -27,8 +33,10 @@ class DocQA_GUI:
         main_pane = tk.PanedWindow(root, orient=tk.HORIZONTAL)
         main_pane.pack(fill=tk.BOTH, expand=1)
 
+        # LEFT FRAME
         left_frame = tk.Frame(main_pane)
-
+        
+        # 1. BUTTONS
         self.download_embedding_model_button = tk.Button(left_frame, text="Download Embedding Model", width=26)
         self.download_embedding_model_button.pack(pady=5)
 
@@ -41,21 +49,34 @@ class DocQA_GUI:
         self.create_chromadb_button = tk.Button(left_frame, text="Create Vector Database", width=26)
         self.create_chromadb_button.pack(pady=5)
 
+        # 2. TABLE
         create_table(left_frame)
-        
-        # GPU label
-        self.gpu_info_label = tk.Label(left_frame, font=("Segoe UI Semibold", 16), foreground='green')
-        self.gpu_info_label.pack(pady=1)
-        
-        # VRAM label
-        self.vram_info_label = tk.Label(left_frame, font=("Segoe UI Semibold", 16), foreground='blue')
-        self.vram_info_label.pack(pady=1)
 
-        # Adjust CudaVramLogic initialization:
+        # 3. PRO TIP
+        create_pro_tip(left_frame)
+
+        # 4. METRICS
+        self.gpu_info_label = tk.Label(left_frame, font=LABEL_FONT, foreground='green')
+        self.gpu_info_label.pack(pady=0, padx=1)
+
+        self.vram_info_label = tk.Label(left_frame, font=LABEL_FONT, foreground='green')
+        self.vram_info_label.pack(pady=0, padx=1)
+
+        self.ram_usage_label = tk.Label(left_frame, font=LABEL_FONT, foreground='medium blue')
+        self.ram_usage_label.pack(pady=0, padx=1)
+
+        self.ram_used_label = tk.Label(left_frame, font=LABEL_FONT, foreground='medium blue') 
+        self.ram_used_label.pack(pady=0, padx=1)
+
+        self.cpu_usage_label = tk.Label(left_frame, font=LABEL_FONT, foreground='violet red')
+        self.cpu_usage_label.pack(pady=0, padx=1)
+
         self.cuda_logic = CudaVramLogic(self.vram_info_label, self.gpu_info_label, self.root)
+        self.system_monitor = SystemMonitor(self.cpu_usage_label, self.ram_used_label, self.ram_usage_label, self.root)
 
         main_pane.add(left_frame)
 
+        # RIGHT FRAME
         right_frame = tk.Frame(main_pane)
         main_pane.add(right_frame)
 
@@ -84,25 +105,36 @@ class DocQA_GUI:
         scroll2.pack(side=tk.RIGHT, fill=tk.Y)
         self.read_only_text.config(yscrollcommand=scroll2.set)
 
-        self.center_window(root)
-
     def center_window(self, root):
         root.withdraw()
         root.update_idletasks()
+
         width = root.winfo_width()
         height = root.winfo_height()
         x = (root.winfo_screenwidth() // 2) - (width // 2)
         y = (root.winfo_screenheight() // 2) - (height // 2)
+
         root.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         root.deiconify()
+  
+    def stop_and_exit(self):
+        self.cuda_logic.stop_and_exit()
+        self.system_monitor.stop_and_exit()
+        self.root.quit()
+        self.root.destroy()
+
+    def start_up(self):
+        self.center_window(self.root)
+        self.root.protocol("WM_DELETE_WINDOW", self.stop_and_exit)
+        self.root.mainloop()
 
 if __name__ == "__main__":
-    determine_compute_device()
-    root = tk.Tk()
-    root.title("Welcome to the LM Studio ChromaDB Plugin!")
-    root.geometry("800x800")
-    app = DocQA_GUI(root)
     from gui_logic import DocQA_Logic
+    root = tk.Tk()
+    root.title("Doc-QA")
+    root.geometry("825x870")
+    root.minsize(825, 870)
+
+    app = DocQA_GUI(root)
     logic = DocQA_Logic(app)
-    root.protocol("WM_DELETE_WINDOW", app.cuda_logic.stop_and_exit)
-    root.mainloop()
+    app.start_up()

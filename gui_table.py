@@ -26,18 +26,19 @@ def create_table(parent_frame):
     table_frame.grid_columnconfigure(0, weight=1)
     table_frame.grid_columnconfigure(1, weight=1)
 
+def create_pro_tip(parent_frame):
     pro_tip_label = tk.Label(parent_frame, text="Pro tip:", font=("Segoe UI Historic", 12, "bold"))
     pro_tip_label.pack(pady=(20, 0), anchor="w", padx=5, side=tk.TOP)
 
     pro_tip_text = (
         "DO NOT have LM Studio running when creating the vector database. The VRAM numbers above refer to when creating "
         "the database, which attempts to use multithreading, hence more VRAM used. After it's created, run LM Studio and "
-        " load your LLM (remember only Llama2-based models work currently when querying the database). To query the database, "
-        " the embedding model uses much less VRAM.  Use the LARGEST embedding model you can possibly fit into VRAM while the "
-        " LLM is loaded into LM Studio. The quality of the embedding model is ACTUALLY MORE important than the size of the LLM. "
-        " Experiment with low-quality LLMs and high-quality embedding models. For example, q3_k_3 model + instructor-xl worked "
-        " just fine together.  If your text has a lot of technical jargon, a larger LLM might be better, but for everyday usage, "
-        " strive to use as large of an embedding model as possible with as large of an LLM with the remaining VRAM."
+        "load your LLM (remember only Llama2-based models work currently when querying the database). To query the database, "
+        "the embedding model uses much less VRAM. Use the LARGEST embedding model you can possibly fit into VRAM while the "
+        "LLM is loaded into LM Studio. The quality of the embedding model is ACTUALLY MORE important than the size of the LLM. "
+        "Experiment with low-quality LLMs and high-quality embedding models. For example, q3_k_3 model + instructor-xl worked "
+        "just fine together. If your text has a lot of technical jargon, a larger LLM might be better, but for everyday usage, "
+        "strive to use as large of an embedding model as possible with as large of an LLM with the remaining VRAM."
     )
 
     pro_tip_description = tk.Label(parent_frame, text=pro_tip_text, wraplength=400, justify="left")

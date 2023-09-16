@@ -7,7 +7,6 @@ def monitor_nvml(pipe, stop_event):
     handle = nvmlDeviceGetHandleByIndex(0)
 
     while not stop_event.is_set():
-        # Get the memory information and GPU utilization
         memory_info = nvmlDeviceGetMemoryInfo(handle)
         utilization_rates = nvmlDeviceGetUtilizationRates(handle)
 
@@ -17,7 +16,6 @@ def monitor_nvml(pipe, stop_event):
         data = (memory_used_str, gpu_utilization)
         pipe.send(data)
 
-        # Sleep for a bit to simulate a periodic update
         time.sleep(0.5)
 
     nvmlShutdown()
