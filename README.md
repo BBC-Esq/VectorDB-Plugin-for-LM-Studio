@@ -38,86 +38,178 @@
   </table></h3>
 </div>
 
-<div align="center">
-  <h2>Installation</h2>
-</div>
+# Installation
 
-> Make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/).
+> First, make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/) and already have [Git](https://git-scm.com/downloads) installed.
+<details>
+  <summary>🪟 Windows</summary>
+  
+### Step 1 - GPU Acceleration Software
+* Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+* AMD GPUs
+    > Unfortuantely, PyTorch does not currently support AMD GPUs on Windows (only Linux).
 
-**Step 1** ➜ Install the appropriate software if you intend to use GPU-acceleration:
-  * **NVIDIA GPUs** ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
-  * **AMD GPUs** ➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
-    > Unfortunately, gpu-accleration will only work on Linux systems.  This is a PyTorch limitation.
-  * **🍎 Apple/Metal/MPS** ➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+### Step 2 - Obtain Repository
+* Download the ZIP file containing the latest release for my repository.
+* Unzip and place this folder anywhere you want on your computer.
 
-**Step 2** ➜ Download the latest ["release"](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases) and unzip it to your chosen directory.
-
-**Step 3** ➜ Open the "ChromaDB-Plugin-for-LM-Studio[version#]" folder that you extracted from the ZIP file, and create a virtual environment:
+### Step 3 - Virtual Environment
+* Open the folder containing my repository files
+* Create a command prompt and create a virtual environment with this command:
 ```
 python -m venv .
 ```
-> For 🍎 Macs the preferred command is:```python3 -m venv .```
-
-**Step 4** ➜ Activate the virtual environment:
+* Then "activate" the virtual environment:
 ```
 .\Scripts\activate
 ```
-* For 🍎 Macs the command is: ```source bin/activate```
 
-**Step 5** ➜ Update [PIP](https://pip.pypa.io/en/stable/index.html):
+### Step 4 - Upgrade pip
 ```
 python -m pip install --upgrade pip
 ```
-**Step 6** ➜ Install PyTorch with the appropriate "build:"
 
-  * **🪟Windows + CUDA 11.8** ➜ ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
-  * **🪟Windows + CUDA 11.7** ➜```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117```
-  * **🪟Windows + CPU-only** ➜```pip install torch torchvision torchaudio```
-  * **🐧Linux + CUDA 11.8** ➜```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118```
-  * **🐧Linux + CUDA 11.7** ➜```pip install torch torchvision torchaudio```
-  * **🐧Linux + ROCm 5.4.2** ➜```install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2```
-  * **🐧Linux + CPU-only** ➜```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu```
-  * **🍎Apple + Metal** ➜ ([speedup comparison](https://explosion.ai/blog/metal-performance-shaders) to a 5950x and RTX 3090)```pip install torch torchvision torchaudio```
+### Step 5 - Install PyTorch
+> If you're NOT using GPU acceleration use this instead: ```pip install torch torchvision torchaudio```
+* Nvidia GPUs:
+```
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+> PyTorch does not currently support AMD GPUs on Windows (only Linux).
 
-**Step 7** ➜ Doublecheck that you installed gpu-acceleration properly:
+### Step 6 - Doublecheck GPU-Acceleration
 ```
 python check_gpu.py
 ```
 
-**Step 8** ➜ Install the dependencies listed in [requirements.txt](https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/python/managing-required-packages-with-requirements-txt.md):
+### Step 7 - Install Dependencies
 ```
 pip install -r requirements.txt
 ```
-**Step 9** ➜ Lastly, you must install the appropriate version of Git (https://git-scm.com/downloads).
+</details>
 
-[Back to top](#top)
+<details>
+  <summary>🐧 Linux</summary>
+
+### Step 1 - GPU Acceleration Software
+  * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+  * AMD GPUs ➜ install ROCm version 5.4.2 according to the instructions [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html)
+  * 
+### Step 2 - Obtain Repository
+* Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
+
+### Step 3 - Virtual Environment
+* Open the folder containing my repository files
+* Create a command prompt and create a virtual environment with this command:
+```
+python -m venv .
+```
+* Then activate the virtual environment:
+```
+.\Scripts\activate
+```
+
+### Step 4 - Update Pip
+```
+python -m pip install --upgrade pip
+```
+### Step 5 - Install PyTorch
+> If you're NOT using GPU acceleration: ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu```
+* For Nvidia GPUs:
+```
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+* For AMD GPUs:
+```
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2
+```
+
+### Step 6 - Doublecheck GPU-acceleration
+```
+python check_gpu.py
+```
+### Step 7 - Install Dependencies
+```
+pip install -r requirements.txt
+```
+</details>
+
+<details>
+  <summary>🍎 Apple</summary>
+
+### Step 1 - GPU Acceleration Software
+* Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+* Macs ship with Metal/MPS as part of the OS, so no need to install CUDA or ROCm like with Nvidia and AMD GPUs, respectively ([comparison to a 5950x and RTX 3090](https://explosion.ai/blog/metal-performance-shaders)).
+* 
+### Step 2 - Obtain Repository
+* Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
+
+### Step 3 - Virtual Environment
+* Open the folder containing my repository files
+* Create a terminal window and create a virtual environment with this command:
+```
+python3 -m venv .
+```
+* Then activate the virtual environment:
+```
+source bin/activate
+```
+### Step 5 - Update Pip
+```
+python3 -m pip install --upgrade pip
+```
+### Step 6 - Install PyTorch
+```
+pip3 install torch torchvision torchaudio
+```
+### Step 7 - Doublecheck Metal/MPS-acceleration
+```
+python3 check_gpu.py
+```
+### Step 8 - Install Dependencies
+```
+pip3 install -r requirements.txt
+```
+</details>
 
 ## Usage
-
-**Step 1** ➜ Open a command prompt in the directory of my scripts, activate the virtual environment, and run:
+<details>
+  <summary>Instructions</summary>
+  
+### Step 1 - Virtual Environment
+> For Macs the preferred command is ```python3 gui.py```
+* Open a command prompt within my repository folder and activate the virtual environment:
 ```
 python gui.py
 ```
-**Step 2** ➜ "Download Embedding Model." Must wait until the download is complete and unpacked before creating the vector database.
+### Step 2 "Download Embedding Model"
+* Choose a model to download using "Git."
+    > You must wait until the download is complete AND unpacked before trying to create the database.
 
-**Step 3** ➜ "Select Embedding Model Directory" so select the directory containing the model you want to use.
+### Step 3 - "Select Embedding Model Directory"
+* Selects the directory containing the model you want to use.
+    > After you've downloaded more than one model you can test out different embedding models by clicking this again.
 
-**Step 4** ➜ "Choose Documents for Database" to choose one or more files to put in the database.
-  * Current supported file extensions are: pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx.
+### Step 4 - "Choose Documents for Database"
+* Select one or more files to include in the database.
+> Current supported file types: pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx.<BR><BR>
+> NOTE: You can always remove files from the "Docs_for_DB" folder, but you must recreate the vector database if you don't want them included in the new database.
 
-**Step 5** ➜ "Create Vector Database." When CUDA drops to zero, proceed to the next step.
+### Step 5 - "Create Vector Database."
+* You should see GPU usage spike.  After the spike, the program still needs to save the database to disk ("persist").  You must wait for this to complete before attempt to query the database.
+    >You can look at the command prompt window to see exactly when the database is successfully "persisted."
 
-**Step 6** ➜ Open LM Studio and load a model (only Llama2-based models currently work).
-
-**Step 7** ➜ Click "Start Server" within LM Studio, enter your question, and click "Submit Question."
-
-[Back to top](#top)
+### Step 6 - LM Studio
+* Open LM Studio and load a model
+    > Only Llama2-based models are currently supported.
+* Click "Start Server" in the server tab.
+* Within my program, type your question in the box and submit.
+    >If you don't minimize LM Studio in this process you can actually see it being fed your question and the database results!
+</details>
 
 ## Contact
 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
-
-[Back to top](#top)
 
 <div align="center">
   <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example.png" alt="Example Image">
