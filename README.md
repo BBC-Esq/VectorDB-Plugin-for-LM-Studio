@@ -7,7 +7,7 @@
 <!-- GPU Acceleration Support Table -->
 
 <div align="center">
-  <h3>⚡ GPU Acceleration Support⚡
+  <h4>⚡ GPU Acceleration Support⚡
   <table>
     <thead>
       <tr>
@@ -35,7 +35,7 @@
         <td colspan="3" align="center"> ✅ </td>
       </tr>
     </tbody>
-  </table></h3>
+  </table></h4>
 </div>
 
 # Installation
