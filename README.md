@@ -172,7 +172,7 @@ pip3 install -r requirements.txt
 ```
 </details>
 
-## Usage
+# Usage
 <details>
   <summary>Instructions</summary>
   
@@ -207,7 +207,7 @@ python gui.py
     >If you don't minimize LM Studio in this process you can actually see it being fed your question and the database results!
 </details>
 
-## Contact
+# Contact
 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
 
