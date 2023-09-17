@@ -94,7 +94,7 @@ pip install -r requirements.txt
 ### Step 1 - GPU Acceleration Software
   * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
   * AMD GPUs ➜ install ROCm version 5.4.2 according to the instructions [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html)
-  * 
+
 ### Step 2 - Obtain Repository
 * Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
 
@@ -138,9 +138,9 @@ pip install -r requirements.txt
   <summary>🍎 Apple</summary>
 
 ### Step 1 - GPU Acceleration Software
-* Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
-* Macs ship with Metal/MPS as part of the OS, so no need to install CUDA or ROCm like with Nvidia and AMD GPUs, respectively ([comparison to a 5950x and RTX 3090](https://explosion.ai/blog/metal-performance-shaders)).
-* 
+* All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA and ROCm for Nvidia and AMD, respectively.
+* However, you do need to have [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+
 ### Step 2 - Obtain Repository
 * Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
 
@@ -182,7 +182,7 @@ pip3 install -r requirements.txt
 ```
 python gui.py
 ```
-### Step 2 "Download Embedding Model"
+### Step 2 - "Download Embedding Model"
 * Choose a model to download using "Git."
     > You must wait until the download is complete AND unpacked before trying to create the database.
 
