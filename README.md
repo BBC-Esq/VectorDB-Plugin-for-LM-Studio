@@ -7,7 +7,7 @@
 <!-- GPU Acceleration Support Table -->
 
 <div align="center">
-  <h4>⚡ GPU Acceleration Support⚡
+  <h4>⚡GPU Acceleration Support⚡
   <table>
     <thead>
       <tr>
