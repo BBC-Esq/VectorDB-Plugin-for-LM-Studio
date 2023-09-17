@@ -4,18 +4,10 @@
   <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a>! with a Vector Database!</h1>
 </div>
 
-<div align="center">
-  <strong>Tested with <a href="https://www.python.org/downloads/release/python-31011/">Python 3.10</a></strong>
-</div>
-
-<div align="center">
-  <a href="https://medium.com/@vici0549/chromadb-plugin-for-lm-studio-5b3e2097154f">📖 Link to Medium article</a>
-</div>
-
 <!-- GPU Acceleration Support Table -->
 
 <div align="center">
-  <h2>⚡ GPU Acceleration Support⚡</h2>
+  <h3>⚡ GPU Acceleration Support⚡
   <table>
     <thead>
       <tr>
@@ -40,30 +32,22 @@
       </tr>
       <tr>
         <td>Apple/Metal</td>
-        <td colspan="3" align="center"> ✅ ("Xcode Command Line Tools")</td>
+        <td colspan="3" align="center"> ✅ </td>
       </tr>
     </tbody>
-  </table>
-</div>
-
-<!-- Table of Contents -->
-<div align="center"> (PyTorch does not support ROCm on Windows systems)</div>
-<div align="center">
-  <h2>Table of Contents</h2>
+  </table></h3>
 </div>
 
 <div align="center">
-  <a href="#installation">🛠️ Installation</a> | 
-  <a href="#usage">🔍 Usage</a> | 
-  <a href="#contact">💌 Contact Me</a>
+  <h2>Installation</h2>
 </div>
 
-# Installation
-# Make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/).
+> Make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/).
+
 **Step 1** ➜ Install the appropriate software if you intend to use GPU-acceleration:
   * **NVIDIA GPUs** ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) or [CUDA 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive) for your specific operating system.
   * **AMD GPUs** ➜ install ROCm version 5.4.2; instructions are [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html).
-    * Unfortunately, gpu-accleration will only work on Linux systems.  This is a PyTorch limitation.
+    > Unfortunately, gpu-accleration will only work on Linux systems.  This is a PyTorch limitation.
   * **🍎 Apple/Metal/MPS** ➜ install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 
 **Step 2** ➜ Download the latest ["release"](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases) and unzip it to your chosen directory.
@@ -72,13 +56,13 @@
 ```
 python -m venv .
 ```
-* For 🍎 Macs the preferred command is:```python3 -m venv .```
+> For 🍎 Macs the preferred command is:```python3 -m venv .```
 
 **Step 4** ➜ Activate the virtual environment:
 ```
 .\Scripts\activate
 ```
-* For 🍎 Macs the command is:```source bin/activate```
+* For 🍎 Macs the command is: ```source bin/activate```
 
 **Step 5** ➜ Update [PIP](https://pip.pypa.io/en/stable/index.html):
 ```
