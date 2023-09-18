@@ -15,6 +15,7 @@ from langchain.document_loaders import (
 )
 import yaml
 import torch
+import gc
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"

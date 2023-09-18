@@ -5,8 +5,10 @@ import torch
 import yaml
 
 from gui_table import create_table, create_pro_tip
-from nvml import CudaVramLogic  
-from system_metrics import SystemMonitor
+from metrics_gpu import GPU_Monitor
+from metrics_system import SystemMonitor
+
+import platform
 
 LABEL_FONT = ("Segoe UI Semibold", 12)
 
@@ -25,6 +27,14 @@ def determine_compute_device():
 
     with open("config.yaml", 'w') as stream:  
         yaml.safe_dump(config_data, stream)
+    
+    return COMPUTE_DEVICE
+
+def is_nvidia_gpu():
+    if torch.cuda.is_available():
+        gpu_name = torch.cuda.get_device_name(0)
+        return "nvidia" in gpu_name.lower()
+    return False
 
 class DocQA_GUI:
     def __init__(self, root):
@@ -70,9 +80,16 @@ class DocQA_GUI:
 
         self.cpu_usage_label = tk.Label(left_frame, font=LABEL_FONT, foreground='violet red')
         self.cpu_usage_label.pack(pady=0, padx=1)
+        
+        compute_device = determine_compute_device()
+        os_name = platform.system().lower()
 
-        self.cuda_logic = CudaVramLogic(self.vram_info_label, self.gpu_info_label, self.root)
-        self.system_monitor = SystemMonitor(self.cpu_usage_label, self.ram_used_label, self.ram_usage_label, self.root)
+        if compute_device != "mps" and os_name == "windows" and is_nvidia_gpu():
+            self.cuda_logic = GPU_Monitor(self.vram_info_label, self.gpu_info_label, self.root)
+            self.system_monitor = SystemMonitor(self.cpu_usage_label, self.ram_used_label, self.ram_usage_label, self.root)
+        else:
+            self.cuda_logic = None
+            self.system_monitor = None
 
         main_pane.add(left_frame)
 
@@ -118,8 +135,10 @@ class DocQA_GUI:
         root.deiconify()
   
     def stop_and_exit(self):
-        self.cuda_logic.stop_and_exit()
-        self.system_monitor.stop_and_exit()
+        if self.cuda_logic:
+            self.cuda_logic.stop_and_exit_gpu_monitor()
+        if self.system_monitor:
+            self.system_monitor.stop_and_exit_system_monitor()
         self.root.quit()
         self.root.destroy()
 
@@ -131,7 +150,7 @@ class DocQA_GUI:
 if __name__ == "__main__":
     from gui_logic import DocQA_Logic
     root = tk.Tk()
-    root.title("Doc-QA")
+    root.title("Version 1.4.2 - www.chintellalaw.com")
     root.geometry("825x870")
     root.minsize(825, 870)
 

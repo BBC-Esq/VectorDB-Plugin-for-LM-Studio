@@ -9,6 +9,7 @@ from langchain.vectorstores import Chroma
 from chromadb.config import Settings
 from document_loader import load_documents
 from document_chunker import split_documents
+import gc
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
@@ -44,7 +45,6 @@ def main():
             model_kwargs={"device": COMPUTE_DEVICE},
         )
     
-    # Delete the current vector database before creating a new one
     if os.path.exists(PERSIST_DIRECTORY):
         shutil.rmtree(PERSIST_DIRECTORY)
         os.makedirs(PERSIST_DIRECTORY)
@@ -56,7 +56,10 @@ def main():
         client_settings=CHROMA_SETTINGS,
     )
     db.persist()
+
+    embeddings = None
     db = None
+    gc.collect()
 
 if __name__ == "__main__":
     logging.basicConfig(
