@@ -114,7 +114,6 @@ python -m venv .
 python -m pip install --upgrade pip
 ```
 ### Step 5 - Install PyTorch
-> If you're NOT using GPU acceleration: ```pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu```
 * For Nvidia GPUs:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
@@ -179,8 +178,8 @@ pip3 install -r requirements.txt
   <summary>Instructions</summary>
   
 ### Step 1 - Virtual Environment
-> Open a command prompt within my repository folder and activate the virtual environment:
-> For Macs the preferred command is ```source bin/activate```
+> Open a command prompt within my repository folder and activate the virtual environment:<br>
+> NOTE: For Macs the preferred command is ```source bin/activate```
 ```
 .\Scripts\activate
 ```
