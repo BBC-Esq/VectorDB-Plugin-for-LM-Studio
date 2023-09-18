@@ -50,12 +50,10 @@
     > Unfortuantely, PyTorch does not currently support AMD GPUs on Windows (only Linux).
 
 ### Step 2 - Obtain Repository
-* Download the ZIP file containing the latest release for my repository.
-* Unzip and place this folder anywhere you want on your computer.
+* Download the ZIP file containing the latest release for my repository.  Unzip and place this folder anywhere you want on your computer.
 
 ### Step 3 - Virtual Environment
-* Open the folder containing my repository files
-* Create a command prompt and create a virtual environment with this command:
+* Open the folder containing my repository files.  Create a command prompt and create a virtual environment with this command:
 ```
 python -m venv .
 ```
@@ -70,12 +68,15 @@ python -m pip install --upgrade pip
 ```
 
 ### Step 5 - Install PyTorch
-> If you're NOT using GPU acceleration use this instead: ```pip install torch torchvision torchaudio```
 * Nvidia GPUs:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
 > PyTorch does not currently support AMD GPUs on Windows (only Linux).
+* If you're NOT using GPU acceleration:
+```
+pip install torch torchvision torchaudio
+```
 
 ### Step 6 - Doublecheck GPU-Acceleration
 ```
@@ -99,8 +100,7 @@ pip install -r requirements.txt
 * Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
 
 ### Step 3 - Virtual Environment
-* Open the folder containing my repository files
-* Create a command prompt and create a virtual environment with this command:
+* Open the folder containing my repository files.  Create a command prompt and create a virtual environment with this command:
 ```
 python -m venv .
 ```
@@ -122,6 +122,10 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 * For AMD GPUs:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2
+```
+* If you're NOT using GPU acceleration:
+```
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
 
 ### Step 6 - Doublecheck GPU-acceleration
