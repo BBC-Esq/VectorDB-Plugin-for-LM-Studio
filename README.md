@@ -138,15 +138,13 @@ pip install -r requirements.txt
   <summary>🍎 Apple</summary>
 
 ### Step 1 - GPU Acceleration Software
-* All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA and ROCm for Nvidia and AMD, respectively.
-* However, you do need to have [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+* All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA and ROCm for Nvidia and AMD, respectively.  However, you do need to have [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 
 ### Step 2 - Obtain Repository
 * Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
 
 ### Step 3 - Virtual Environment
-* Open the folder containing my repository files
-* Create a terminal window and create a virtual environment with this command:
+* Open the folder containing my repository files.  Create a terminal window and create a virtual environment with this command:
 ```
 python3 -m venv .
 ```
@@ -177,34 +175,31 @@ pip3 install -r requirements.txt
   <summary>Instructions</summary>
   
 ### Step 1 - Virtual Environment
-> For Macs the preferred command is ```python3 gui.py```
-* Open a command prompt within my repository folder and activate the virtual environment:
+> Open a command prompt within my repository folder and activate the virtual environment:
+> For Macs the preferred command is ```source bin/activate```
+```
+.\Scripts\activate
+```
+
+### Step 2 - Run Program
 ```
 python gui.py
 ```
-### Step 2 - "Download Embedding Model"
-* Choose a model to download using "Git."
-    > You must wait until the download is complete AND unpacked before trying to create the database.
 
-### Step 3 - "Select Embedding Model Directory"
-* Selects the directory containing the model you want to use.
-    > After you've downloaded more than one model you can test out different embedding models by clicking this again.
+### Step 3 - "Download Embedding Model"
+> You must wait until the download is complete AND unpacked before trying to create the database.
 
-### Step 4 - "Choose Documents for Database"
-* Select one or more files to include in the database.
-> Current supported file types: pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx.<BR><BR>
-> NOTE: You can always remove files from the "Docs_for_DB" folder, but you must recreate the vector database if you don't want them included in the new database.
+### Step 4 - "Select Embedding Model Directory"
+> Selects the directory containing the model you want to use.
 
-### Step 5 - "Create Vector Database."
-* You should see GPU usage spike.  After the spike, the program still needs to save the database to disk ("persist").  You must wait for this to complete before attempt to query the database.
-    >You can look at the command prompt window to see exactly when the database is successfully "persisted."
+### Step 5 - "Choose Documents for Database"
+> Select one or more files. Currently supports pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx.  NOTE: You can always remove files from the "Docs_for_DB" folder, but you must recreate the vector database if you don't want them included in the new database.
 
-### Step 6 - LM Studio
-* Open LM Studio and load a model
-    > Only Llama2-based models are currently supported.
-* Click "Start Server" in the server tab.
-* Within my program, type your question in the box and submit.
-    >If you don't minimize LM Studio in this process you can actually see it being fed your question and the database results!
+### Step 6 - "Create Vector Database."
+> You should see GPU usage spike.  After the spike, the program still needs to "persist" the database to disk .  You must wait for this to complete before trying to query the database.  You can look at the command prompt window to see exactly when the database is "persisted."
+
+### Step 7 - LM Studio
+> Open LM Studio and load a model.  Only Llama2-based models are currently supported.  Click "Start Server" in the server tab.  Within my program, type your question in the box and submit.  If you don't minimize LM Studio in this process you can actually see it being fed your question and the database results!
 </details>
 
 # Contact
