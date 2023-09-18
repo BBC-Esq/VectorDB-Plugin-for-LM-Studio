@@ -188,6 +188,7 @@ pip3 install -r requirements.txt
 ```
 python gui.py
 ```
+* NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Will fix later so hold tight.
 
 ### Step 3 - "Download Embedding Model"
 > You must wait until the download is complete AND unpacked before trying to create the database.
