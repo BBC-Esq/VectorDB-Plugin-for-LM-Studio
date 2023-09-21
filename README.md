@@ -191,19 +191,20 @@ python gui.py
 * NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Will fix later so hold tight.
 
 ### Step 3 - "Download Embedding Model"
-> You must wait until the download is complete AND unpacked before trying to create the database.
+You must wait until the download is complete AND unpacked before trying to create the database.
 
 ### Step 4 - "Select Embedding Model Directory"
-> Selects the directory containing the model you want to use.
+Selects the directory containing the model you want to use.
 
 ### Step 5 - "Choose Documents for Database"
-> Select one or more files. Currently supports pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx.  NOTE: You can always remove files from the "Docs_for_DB" folder, but you must recreate the vector database if you don't want them included in the new database.
+Select one or more files. Currently supports pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx.  NOTE: You can always remove files from the "Docs_for_DB" folder, but you must recreate the vector database if you don't want them included in the new database.
 
 ### Step 6 - "Create Vector Database."
-> You should see GPU usage spike.  After the spike, the program still needs to "persist" the database to disk .  You must wait for this to complete before trying to query the database.  You can look at the command prompt window to see exactly when the database is "persisted."
+You should see GPU usage spike.  After the spike, the program still needs to "persist" the database to disk .  You must wait for this to complete before trying to query the database.  You can look at the command prompt window to see exactly when the database is "persisted."
 
 ### Step 7 - LM Studio
-> Open LM Studio and load a model.  Only Llama2-based models are currently supported.  Click "Start Server" in the server tab.  Within my program, type your question in the box and submit.  If you don't minimize LM Studio in this process you can actually see it being fed your question and the database results!
+Open LM Studio and load a model.  Only Llama2-based models are currently supported.  Click "Start Server" in the server tab.  Within my program, type your question in the box and submit.  If you don't minimize LM Studio in this process you can actually see it being fed your question and the database results!
+> IMPORTANT: You must use the "Default LM Studio Windows" preset and a Llama2 model.  Other models and/or presents might (but not always) prevent it from working.
 </details>
 
 # Contact
