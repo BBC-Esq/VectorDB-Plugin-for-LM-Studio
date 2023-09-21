@@ -31,15 +31,13 @@ def create_pro_tip(parent_frame):
     pro_tip_label.pack(pady=(10, 0), anchor="w", padx=5, side=tk.TOP)
 
     pro_tip_text = (
-        "DO NOT have LM Studio running when creating the vector database. The VRAM numbers above refer to when creating "
-        "the database, hence more VRAM used. After it's created, run LM Studio and "
-        "load your LLM . To query the database, "
-        "the embedding model uses much less VRAM. Use the LARGEST embedding model you can possibly fit into VRAM while the "
-        "LLM is loaded into LM Studio. The quality of the embedding model is ACTUALLY MORE important than the size of the LLM. "
-        "Experiment with low-quality LLMs and high-quality embedding models. For example, q3_k_3 model + instructor-xl worked "
-        "just fine together. If your text has a lot of technical jargon, a larger LLM might be better, but for everyday usage, "
-        "strive to use as large of an embedding model as possible with as large of an LLM with the remaining VRAM."
+        "DON'T have LM Studio running when creating the vector database. Creating the database ues more VRAM than simply "
+        "submitting a question.  Also, use the LARGEST embedding model you can possibly fit into VRAM when the LLM is loaded "
+        "into LM Studio.  The quality of the embedding model is actually MORE important than the size of the LLM. "
+        "For example, q3_k_3 model + instructor-xl worked just fine together. However, if your text has a lot of technical "
+        "jargon, a larger LLM with a larger voculabulary is beneficial.  Overall, strive to use as large an embedding model "
+        "as possible with an LLM size suitable for the complexity of your text."
     )
 
-    pro_tip_description = tk.Label(parent_frame, text=pro_tip_text, wraplength=400, justify="left", font=("Segoe UI Historic", 10), bg="#202123", fg="light gray")
+    pro_tip_description = tk.Label(parent_frame, text=pro_tip_text, wraplength=400, justify="left", font=("Segoe UI Historic", 11), bg="#202123", fg="light gray")
     pro_tip_description.pack(anchor="w", padx=5, side=tk.TOP)

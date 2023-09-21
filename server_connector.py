@@ -1,18 +1,8 @@
 import os
 import openai
 from langchain.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings
-from chromadb.config import Settings
-from langchain.document_loaders import (
-    PDFMinerLoader,
-    Docx2txtLoader,
-    TextLoader,
-    JSONLoader,
-    EverNoteLoader,
-    UnstructuredEmailLoader,
-    UnstructuredCSVLoader,
-    UnstructuredExcelLoader
-)
+from langchain.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings, HuggingFaceBgeEmbeddings
+import chromadb
 import yaml
 import torch
 import gc
@@ -21,10 +11,6 @@ ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 PERSIST_DIRECTORY = f"{ROOT_DIRECTORY}/Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
-
-CHROMA_SETTINGS = Settings(
-    chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
-)
 
 openai.api_base = 'http://localhost:1234/v1'
 openai.api_key = ''
@@ -43,7 +29,7 @@ def connect_to_local_chatgpt(prompt):
     )
     return response.choices[0].message["content"]
 
-def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
+def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY):
 
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
@@ -56,6 +42,12 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
             model_kwargs={"device": COMPUTE_DEVICE},
             encode_kwargs={'normalize_embeddings': True}
         )
+    elif "bge" in EMBEDDING_MODEL_NAME and "large-en-v1.5" not in EMBEDDING_MODEL_NAME:
+        embeddings = HuggingFaceBgeEmbeddings(
+            model_name=EMBEDDING_MODEL_NAME,
+            model_kwargs={"device": COMPUTE_DEVICE},
+            encode_kwargs={'normalize_embeddings': True}
+        )
     else:
         embeddings = HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
@@ -63,18 +55,18 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
             encode_kwargs={'normalize_embeddings': True}
         )
 
+    client = chromadb.PersistentClient(path=persist_directory, settings=chromadb.Settings(anonymized_telemetry=False))
     db = Chroma(
-        persist_directory=persist_directory,
         embedding_function=embeddings,
-        client_settings=client_settings,
+        client=client,
     )
     retriever = db.as_retriever()
     relevant_contexts = retriever.get_relevant_documents(query)
     contexts = [document.page_content for document in relevant_contexts]
+    prepend_string = "Only base your answer to the following question on the provided context.  If the provided context does not provide an answer, simply state that is the case."
     augmented_query = "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
     response_json = connect_to_local_chatgpt(augmented_query)
     
-    # Save the relevant_contexts to a text file
     with open("relevant_contexts.txt", "w", encoding="utf-8") as f:
         for content in contexts:
             f.write(content + "\n\n---\n\n")

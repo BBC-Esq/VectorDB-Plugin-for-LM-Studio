@@ -124,7 +124,7 @@ class DocQA_Logic:
         if (not os.path.exists(vector_db_folder) or
             not os.path.exists(docs_folder) or
             not files_present or
-            len(glob(os.path.join(vector_db_folder, '*.parquet'))) < 2):
+            not os.path.exists(os.path.join(vector_db_folder, 'chroma.sqlite3'))):
 
             messagebox.showerror("Error", "Must choose documents and create the database first!")
             return
