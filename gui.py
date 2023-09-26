@@ -14,8 +14,8 @@ METRICS_STYLE = {
 }
 BUTTON_STYLE = {
     'width': 29,
-    'bg': "#323842",
-    'fg': "light gray",
+    'bg': "#2a2b2e",
+    'fg': "blue",
     'font': ("Segoe UI Historic", 10)
 }
 FRAME_STYLE = {
@@ -140,16 +140,25 @@ class DocQA_GUI:
 
         self.text_input = tk.Text(bottom_frame, wrap=tk.WORD, height=5, bg="#2a2b2e", fg="light gray")
         self.text_input.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        self.text_input.configure(font=("Segoe UI Historic", 13))
+        self.text_input.configure(font=("Segoe UI Historic", 13),insertwidth=3, insertofftime=700, insertbackground="white")
+        self.text_input.bind("<Return>", self.submit_question)
+        self.text_input.focus()
 
         scroll1 = tk.Scrollbar(bottom_frame, command=self.text_input.yview)
         scroll1.pack(side=tk.RIGHT, fill=tk.Y)
         self.text_input.config(yscrollcommand=scroll1.set)
 
         self.submit_query_button = tk.Button(
-            right_frame, text="Submit Question", width=29, bg="#323842", fg="light gray", font=("Segoe UI Historic", 10))
+            right_frame, text="Submit Question", width=29, bg="#323842", fg="blue", font=("Segoe UI Historic", 10))
         self.submit_query_button.pack(pady=5, side=tk.TOP)
+        
+        # bind the Enter key to the submit_question function
+        #self.text_input.bind("<Return>", self.submit_question)
 
+        #root.focus_force()
+    def submit_question(self, event=None):
+          question = self.text_input.get("1.0", tk.END).strip()# code to submit the question goes here. 
+    
     def center_window(self, root):
         root.withdraw()
         root.update_idletasks()
