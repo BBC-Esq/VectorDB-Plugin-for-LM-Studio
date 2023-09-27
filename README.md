@@ -40,9 +40,7 @@ A vector database lets you convert your documents to vectors and search through 
 
 # Installation
 
-> First, make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/) and already have [Git](https://git-scm.com/downloads) installed.<br>
->Additionally, someone reported installing [git-lfs](https://git-lfs.com/) helped them on a mac-installation, but I was unable to verify since I don't have a mac.
-<details>
+> First, make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
   <summary>🪟 Windows</summary>
   
 ### Step 1 - GPU Acceleration Software
