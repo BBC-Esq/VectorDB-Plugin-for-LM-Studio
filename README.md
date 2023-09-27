@@ -40,7 +40,7 @@ A vector database lets you convert your documents to vectors and search through 
 
 # Installation
 
-> First, make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/) and already have [Git](https://git-scm.com/downloads) installed.
+> First, make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
 <details>
   <summary>🪟 Windows</summary>
   
