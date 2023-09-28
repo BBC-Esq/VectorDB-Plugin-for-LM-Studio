@@ -2,7 +2,6 @@
   <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
 </div>
 A vector database lets you convert your documents to vectors and search through them using natural language.  For example, you can search with something like "Where in this 1000 page PDF does it discuss something," and the vector database easily pulls the results.  The vector database is connected to the large langauge model in LM Studio, which is responsible for providing a nice summary of the results from the vector database.
-<!-- GPU Acceleration Support Table -->
 
 <div align="center">
   <h4>⚡GPU Acceleration Support⚡
