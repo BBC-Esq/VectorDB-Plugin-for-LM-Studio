@@ -1,5 +1,3 @@
-<a name="top"></a>
-
 <div align="center">
   <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
 </div>
