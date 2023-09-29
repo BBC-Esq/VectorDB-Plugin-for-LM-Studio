@@ -1,6 +1,7 @@
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures import ProcessPoolExecutor
+from loguru import logger  # Import Loguru logger
 
 from langchain.docstore.document import Document
 from langchain.document_loaders import (
@@ -35,7 +36,11 @@ def load_single_document(file_path: str) -> Document:
     file_extension = os.path.splitext(file_path)[1]
     loader_class = DOCUMENT_MAP.get(file_extension)
     if loader_class:
-        loader = loader_class(file_path)
+        if file_extension == ".txt":
+            # Use 'utf-8' encoding for text files
+            loader = loader_class(file_path, encoding='utf-8')
+        else:
+            loader = loader_class(file_path)
     else:
         raise ValueError("Document type is undefined")
     return loader.load()[0]
@@ -49,6 +54,7 @@ def load_document_batch(filepaths):
     return (data_list, filepaths)
 
 def load_documents(source_dir: str) -> list[Document]:
+    logger.info(f"Loading documents from {source_dir}")
     
     all_files = os.listdir(source_dir)
     paths = [os.path.join(source_dir, file_path) for file_path in all_files if os.path.splitext(file_path)[1] in DOCUMENT_MAP.keys()]
@@ -63,7 +69,10 @@ def load_documents(source_dir: str) -> list[Document]:
             contents, _ = future.result()
             docs.extend(contents)
     
+    logger.info(f"Loaded {len(docs)} documents")
     return docs
 
 if __name__ == "__main__":
+    logger.remove()  # Remove the default logger output
+    logger.add("app.log", rotation="10 MB", level="INFO")  # Log to a file
     load_documents(SOURCE_DIRECTORY)
