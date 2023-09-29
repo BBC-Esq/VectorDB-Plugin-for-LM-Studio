@@ -92,6 +92,7 @@ pip install -r requirements.txt
 ### Step 1 - GPU Acceleration Software
   * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
   * AMD GPUs ➜ install ROCm version 5.4.2 according to the instructions [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html)
+  * Additionally, [this repo](https://github.com/nktice/AMD-AI) might help but I can't verify since I don't have an AMD GPU nor Linux.
 
 ### Step 2 - Obtain Repository
 * Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
