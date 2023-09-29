@@ -36,11 +36,7 @@ def load_single_document(file_path: str) -> Document:
     file_extension = os.path.splitext(file_path)[1]
     loader_class = DOCUMENT_MAP.get(file_extension)
     if loader_class:
-        if file_extension == ".txt":
-            # Use 'utf-8' encoding for text files
-            loader = loader_class(file_path, encoding='utf-8')
-        else:
-            loader = loader_class(file_path)
+        loader = loader_class(file_path, encoding='utf-8')  # Use 'utf-8' encoding for all document types
     else:
         raise ValueError("Document type is undefined")
     return loader.load()[0]
