@@ -7,6 +7,7 @@ from gui_table import create_table, create_pro_tip
 from metrics_gpu import GPU_Monitor
 from metrics_system import SystemMonitor
 import platform
+from compute_utils import determine_compute_device, is_nvidia_gpu
 
 METRICS_STYLE = {
     'font': ("Segoe UI Semibold", 12),
@@ -14,8 +15,8 @@ METRICS_STYLE = {
 }
 BUTTON_STYLE = {
     'width': 29,
-    'bg': "#2a2b2e",
-    'fg': "blue",
+    'bg': "#323842",
+    'fg': "light gray",
     'font': ("Segoe UI Historic", 10)
 }
 FRAME_STYLE = {
@@ -23,31 +24,6 @@ FRAME_STYLE = {
     'relief': 'flat',
     'borderwidth': 0
 }
-
-def determine_compute_device():
-    if torch.cuda.is_available():
-        COMPUTE_DEVICE = "cuda"
-    elif torch.backends.mps.is_available():
-        COMPUTE_DEVICE = "mps"
-    else:
-        COMPUTE_DEVICE = "cpu"
-
-    with open("config.yaml", 'r') as stream:
-        config_data = yaml.safe_load(stream)
-
-    config_data['COMPUTE_DEVICE'] = COMPUTE_DEVICE
-
-    with open("config.yaml", 'w') as stream:
-        yaml.safe_dump(config_data, stream)
-
-    return COMPUTE_DEVICE
-
-def is_nvidia_gpu():
-    if torch.cuda.is_available():
-        gpu_name = torch.cuda.get_device_name(0)
-        return "nvidia" in gpu_name.lower()
-    return False
-
 
 class DocQA_GUI:
     def __init__(self, root):
@@ -120,7 +96,7 @@ class DocQA_GUI:
         right_frame = tk.Frame(main_pane, bg="#202123", **FRAME_STYLE)
         main_pane.add(right_frame)
 
-        # For displaying the answer
+        # Display Answer
         middle_frame = tk.Frame(right_frame, bg="#1e263c", **FRAME_STYLE)
         middle_frame.pack(pady=5, fill=tk.BOTH, expand=1)
 
@@ -134,30 +110,21 @@ class DocQA_GUI:
         scroll2.pack(side=tk.RIGHT, fill=tk.Y)
         self.read_only_text.config(yscrollcommand=scroll2.set)
 
-        # For inputting the question
+        # Input Question
         bottom_frame = tk.Frame(right_frame)
         bottom_frame.pack(pady=5, fill=tk.BOTH, expand=1)
 
         self.text_input = tk.Text(bottom_frame, wrap=tk.WORD, height=5, bg="#2a2b2e", fg="light gray")
         self.text_input.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        self.text_input.configure(font=("Segoe UI Historic", 13),insertwidth=3, insertofftime=700, insertbackground="white")
-        self.text_input.bind("<Return>", self.submit_question)
-        self.text_input.focus()
+        self.text_input.configure(font=("Segoe UI Historic", 13), insertbackground="white")
 
         scroll1 = tk.Scrollbar(bottom_frame, command=self.text_input.yview)
         scroll1.pack(side=tk.RIGHT, fill=tk.Y)
         self.text_input.config(yscrollcommand=scroll1.set)
 
         self.submit_query_button = tk.Button(
-            right_frame, text="Submit Question", width=29, bg="#323842", fg="blue", font=("Segoe UI Historic", 10))
+            right_frame, text="Submit Question", width=29, bg="#323842", fg="light gray", font=("Segoe UI Historic", 10))
         self.submit_query_button.pack(pady=5, side=tk.TOP)
-        
-        # bind the Enter key to the submit_question function
-        #self.text_input.bind("<Return>", self.submit_question)
-
-        #root.focus_force()
-    def submit_question(self, event=None):
-          question = self.text_input.get("1.0", tk.END).strip()# code to submit the question goes here. 
     
     def center_window(self, root):
         root.withdraw()
