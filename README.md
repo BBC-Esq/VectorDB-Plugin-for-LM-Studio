@@ -47,7 +47,7 @@ A vector database lets you convert your documents to vectors and search through 
     > Unfortuantely, PyTorch does not currently support AMD GPUs on Windows (only Linux).
 
 ### Step 2 - Obtain Repository
-* Download the ZIP file containing the latest release for my repository.  Unzip and place this folder anywhere you want on your computer.
+* Download the ZIP file containing the latest "release" and unzip and place anywhere on your computer.
 
 ### Step 3 - Virtual Environment
 * Open the folder containing my repository files.  Create a command prompt and create a virtual environment with this command:
