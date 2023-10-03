@@ -4,11 +4,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QThread, Signal, QUrl
 from PySide6.QtWebEngineWidgets import QWebEngineView
-
 import yaml
 import server_connector
-import torch
-import platform
 import os
 from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
@@ -16,6 +13,7 @@ from choose_documents import choose_documents_directory
 import create_database
 from metrics_gpu import GPU_Monitor
 from metrics_system import SystemMonitor
+from initialize import determine_compute_device, is_nvidia_gpu, get_os_name
 
 styles = {
     "button": 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic"; width: 29;',
@@ -48,41 +46,17 @@ class DocQA_GUI(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.compute_device = self.determine_compute_device()
-        os_name = platform.system().lower()
+        self.compute_device = determine_compute_device()
+        os_name = get_os_name()
 
         self.init_ui()
 
-        if self.compute_device != "mps" and os_name == "windows" and self.is_nvidia_gpu():
+        if self.compute_device != "mps" and os_name == "windows" and is_nvidia_gpu():
             self.gpu_monitor = GPU_Monitor(self.gpu_vram_label, self.gpu_util_label, self)
             self.system_monitor = SystemMonitor(self.cpu_label, self.ram_label, self.ram_usage_label, self)
         else:
             self.gpu_monitor = None
             self.system_monitor = None
-
-    def determine_compute_device(self):
-        if torch.cuda.is_available():
-            compute_device = 'cuda'
-        elif torch.backends.mps.is_available():
-            compute_device = 'mps'
-        else:
-            compute_device = 'cpu'
-
-        with open('config.yaml', 'r') as stream:
-            config_data = yaml.safe_load(stream)
-
-        config_data['COMPUTE_DEVICE'] = compute_device
-
-        with open('config.yaml', 'w') as stream:
-            yaml.safe_dump(config_data, stream)
-
-        return compute_device
-
-    def is_nvidia_gpu(self):
-        if torch.cuda.is_available():
-            gpu_name = torch.cuda.get_device_name(0)
-            return "nvidia" in gpu_name.lower()
-        return False
 
     def init_ui(self):
         main_splitter = QSplitter(Qt.Horizontal)
@@ -90,7 +64,7 @@ class DocQA_GUI(QWidget):
         self.setGeometry(300, 300, 850, 910)
         self.setMinimumSize(550, 610)
 
-        left_frame = QFrame()
+        self.left_frame = QFrame()  # Changed here
         left_vbox = QVBoxLayout()
         tab_widget = QTabWidget()
         tab_widget.setTabPosition(QTabWidget.South)
@@ -118,9 +92,9 @@ class DocQA_GUI(QWidget):
             button.clicked.connect(handler)
             left_vbox.addWidget(button)
 
-        left_frame.setLayout(left_vbox)
-        left_frame.setStyleSheet(styles.get('frame', ''))
-        main_splitter.addWidget(left_frame)
+        self.left_frame.setLayout(left_vbox)
+        self.left_frame.setStyleSheet(styles.get('frame', ''))
+        main_splitter.addWidget(self.left_frame)
 
         right_frame = QFrame()
         right_vbox = QVBoxLayout()
@@ -161,6 +135,11 @@ class DocQA_GUI(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(main_splitter)
         main_layout.addWidget(metrics_frame)
+
+    def resizeEvent(self, event):
+        self.left_frame.setMaximumWidth(self.width() * 0.5)
+        super().resizeEvent(event)
+
 
     def on_create_button_clicked(self):
         self.create_database_thread = CreateDatabaseThread(self)
