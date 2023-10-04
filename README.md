@@ -75,14 +75,15 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install torch torchvision torchaudio
 ```
 
-### Step 6 - Doublecheck GPU-Acceleration
-```
-python check_gpu.py
-```
 
 ### Step 7 - Install Dependencies
 ```
 pip install -r requirements.txt
+```
+
+### Step 6 - Doublecheck GPU-Acceleration
+```
+python check_gpu.py
 ```
 </details>
 
@@ -125,13 +126,14 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
 
-### Step 6 - Doublecheck GPU-acceleration
-```
-python check_gpu.py
-```
-### Step 7 - Install Dependencies
+### Step 6 - Install Dependencies
 ```
 pip install -r requirements.txt
+```
+
+### Step 7 - Doublecheck GPU-acceleration
+```
+python check_gpu.py
 ```
 </details>
 
@@ -161,14 +163,17 @@ python3 -m pip install --upgrade pip
 ```
 pip3 install torch torchvision torchaudio
 ```
-### Step 7 - Doublecheck Metal/MPS-acceleration
-```
-python3 check_gpu.py
-```
+
 ### Step 8 - Install Dependencies
 ```
 pip3 install -r requirements.txt
 ```
+
+### Step 7 - Doublecheck Metal/MPS-acceleration
+```
+python3 check_gpu.py
+```
+
 </details>
 
 # Usage
