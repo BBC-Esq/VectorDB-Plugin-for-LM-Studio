@@ -1,7 +1,9 @@
 <div align="center">
   <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
 </div>
-A vector database lets you ask questions about your documents using natural language!
+<div align="center">
+  <h2>Ask questions about your documents and get an answer from an LLM!</h2>
+</div>
 
 <div align="center">
   <h4>⚡GPU Acceleration Support⚡
