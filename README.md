@@ -35,10 +35,12 @@ A vector database lets you convert your documents to vectors and search through 
   </table></h4>
 </div>
 
+## IMPORTANT: As of release 2.1+, please read the "Transcription Instructions" first before installing.
+
 # Installation
 
 > First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
-> IMPORTANT: As of release 2.1+, please read the "Transcription Instructions" first before installing.
+
 <details>
   <summary>🪟 Windows</summary>
   
@@ -184,15 +186,37 @@ python3 check_gpu.py
 
 As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Read these instructions carefully first before installing this repository:
 
+### Step 1 - Faster-Whisper Compatibility
+
 <details>
    <summary>I have an Intel CPU</summary>
-  Ctranslate2's documentation clearly states that it supports acceleration using an Intel CPU as well as NVIDIA GPU acceleration.  However, it is unclear whether it supports AMD GPU acceleration.  Ctranslate2 should default to CPU, however, if it doesn't support AMD GPU acceleration.  Also, if you find that it's not fast enough on CPU (perhaps you have an old CPU), you should download a release prior to 2.1 and simply following the above installation instructions.
+  
+* Ctranslate2 supports acceleration using an Intel CPU or NVIDIA GPU.  However, it is not clear whether it supports acceleration on AMD GPUs and I can't test since I don't have one.  Regardless, Ctranslate2 should default to using the CPU if it doesn't in-fact support AMD GPU acceleration.
+
+  > If you find that it's not fast enough on CPU, try a smaller model or download a release prior to 2.1 and simply follow the above installation instructions.
 </details>
 
 <details>
   <summary>I have an AMD CPU</summary>
-  Ctranslate2's user guide is unclear whether it supports CPU-acceleration on AMD CPUs.  However, it does clearly support gpu-acceleration on NVIDIA GPUs and it should default to gpu-acceleration for NVIDIA GPUs.  The documentation is unclear (yet again) whether it supports gpu-acceleration on AMD GPUs.  Therefore, if you have an AMD CPU and GPU and encounter problems, please install a release prior to 2.1 and following the above installation instructions.  Also, even if it does work (I haven't been able to test it), if you find that it's not fast enough you can, again, download a release prior to 2.1 and simply follow the above installation instructions.
+
+* Ctranslate2's documentation is not clear whether it supports acceleration on AMD CPUs.  However, it does support acceleration on NVIDIA GPUs and it will default to this if you have one.  The documentation is yet again unclear whether it supports acceleration on AMD GPU's, however.  Therefore, if you have both an AMD CPU and GPU and encounter problems, please install a release prior to 2.1 and follow the above installation instructions.
+
+  > If you find that it's not fast enough on CPU, try a smaller model or download a release prior to 2.1 and simply follow the above installation instructions.
 </details>
+
+### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
+In addition to my repository, you must download one or more models that are in ZIP files in Release 2.1 specifically.  I don't currentlyk plan on uploading the models for each new release unless the technology changes.  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
+* tiny/tiny.en
+* base/base.en
+* small/small.en
+* medium/medium.en.
+> Contact me if you want the large-v2 model, as it's too large to upload to Github.  Moreover, if you're super-savvy and want other quantizations for even higher quality or more customizability, contact me, I have the following additional quants for each size:
+> * float32
+> * bfloat16
+> * float16
+> * Int8_bfloat16
+> * int8_float16
+> * int8
 
 # Usage
 <details>
