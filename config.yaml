@@ -29,7 +29,13 @@ AVAILABLE_MODELS:
 - sentence-transformers/gtr-t5-large
 - sentence-transformers/gtr-t5-base
 COMPUTE_DEVICE: cuda
-EMBEDDING_MODEL_NAME: C:/PATH/Scripts/LM Search Vector Database/v1_7 - working/Embedding_Models/sentence-transformers--all-mpnet-base-v2
+EMBEDDING_MODEL_NAME: C:/PATH/Scripts/LM Search Vector Database/v2_0_1 - working/Embedding_Models/hkunlp--instructor-xl
+styles:
+  button: 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic";
+    width: 29;'
+  frame: 'background-color: #161b22;'
+  input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
+  text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
 tabs:
 - name: Settings
   placeholder: Placeholder text for Settings tab.

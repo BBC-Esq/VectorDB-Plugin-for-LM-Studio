@@ -14,33 +14,15 @@ import create_database
 from metrics_gpu import GPU_Monitor
 from metrics_system import SystemMonitor
 from initialize import determine_compute_device, is_nvidia_gpu, get_os_name
-
-styles = {
-    "button": 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic"; width: 29;',
-    "frame": 'background-color: #161b22;',
-    "input": 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";',
-    "text": 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
-}
+from voice_recorder_module import VoiceRecorder
+from gui_tabs import create_tabs
+from gui_threads import CreateDatabaseThread, SubmitButtonThread
 
 with open('config.yaml', 'r') as config_file:
     config = yaml.safe_load(config_file)
 
 tabs_config = config.get('tabs', [])
-
-class CreateDatabaseThread(QThread):
-    def run(self):
-        create_database.main()
-
-class SubmitButtonThread(QThread):
-    responseSignal = Signal(str)
-
-    def __init__(self, user_question, parent=None):
-        super(SubmitButtonThread, self).__init__(parent)
-        self.user_question = user_question
-
-    def run(self):
-        response = server_connector.ask_local_chatgpt(self.user_question)
-        self.responseSignal.emit(response['answer'])
+styles = config.get('styles', {})
 
 class DocQA_GUI(QWidget):
     def __init__(self):
@@ -64,20 +46,10 @@ class DocQA_GUI(QWidget):
         self.setGeometry(300, 300, 850, 910)
         self.setMinimumSize(550, 610)
 
-        self.left_frame = QFrame()  # Changed here
+        self.left_frame = QFrame()
         left_vbox = QVBoxLayout()
-        tab_widget = QTabWidget()
-        tab_widget.setTabPosition(QTabWidget.South)
 
-        tab_widgets = [QTextEdit(tab.get('placeholder', '')) for tab in tabs_config]
-        for i, tab in enumerate(tabs_config):
-            tab_widget.addTab(tab_widgets[i], tab.get('name', ''))
-
-        tutorial_tab = QWebEngineView()
-        tab_widget.addTab(tutorial_tab, 'Tutorial')
-        user_manual_folder = os.path.join(os.path.dirname(__file__), 'User_Manual')
-        html_file_path = os.path.join(user_manual_folder, 'number_format.html')
-        tutorial_tab.setUrl(QUrl.fromLocalFile(html_file_path))
+        tab_widget = create_tabs(tabs_config)
         left_vbox.addWidget(tab_widget)
 
         button_data = [
@@ -108,9 +80,21 @@ class DocQA_GUI(QWidget):
         submit_button.setStyleSheet(styles.get('button', ''))
         submit_button.clicked.connect(self.on_submit_button_clicked)
 
-        right_vbox.addWidget(self.read_only_text, 5)
+        right_vbox.addWidget(self.read_only_text, 4)
         right_vbox.addWidget(self.text_input, 1)
         right_vbox.addWidget(submit_button)
+        
+        self.recorder = VoiceRecorder()
+
+        self.start_button = QPushButton("Start Recording")
+        self.start_button.setStyleSheet(styles.get('button', ''))
+        self.start_button.clicked.connect(self.start_recording)
+        right_vbox.addWidget(self.start_button)
+
+        self.stop_button = QPushButton("Stop Recording")
+        self.stop_button.setStyleSheet(styles.get('button', ''))
+        self.stop_button.clicked.connect(self.stop_recording)
+        right_vbox.addWidget(self.stop_button)
 
         right_frame.setLayout(right_vbox)
         right_frame.setStyleSheet(styles.get('frame', ''))
@@ -140,7 +124,6 @@ class DocQA_GUI(QWidget):
         self.left_frame.setMaximumWidth(self.width() * 0.5)
         super().resizeEvent(event)
 
-
     def on_create_button_clicked(self):
         self.create_database_thread = CreateDatabaseThread(self)
         self.create_database_thread.start()
@@ -150,6 +133,12 @@ class DocQA_GUI(QWidget):
         self.submit_button_thread = SubmitButtonThread(user_question, self)
         self.submit_button_thread.responseSignal.connect(self.update_response)
         self.submit_button_thread.start()
+
+    def start_recording(self):
+        self.recorder.start_recording()
+
+    def stop_recording(self):
+        self.recorder.stop_recording()
 
     def update_response(self, response):
         self.read_only_text.setPlainText(response)

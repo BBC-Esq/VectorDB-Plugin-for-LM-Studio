@@ -2,12 +2,13 @@ import psutil
 import time
 from multiprocessing import Process, Pipe, Event
 from PySide6.QtCore import QTimer
+import humanize
 
 def monitor_system(pipe, stop_event):
     while not stop_event.is_set():
         cpu_percent = collect_cpu_metrics()
-        ram_percent, ram_used_mib = collect_ram_metrics()
-        data = (cpu_percent, ram_percent, ram_used_mib)
+        ram_percent, ram_used = collect_ram_metrics()
+        data = (cpu_percent, ram_percent, ram_used)
         pipe.send(data)
         time.sleep(0.5)
 
@@ -17,8 +18,8 @@ def collect_cpu_metrics():
 
 def collect_ram_metrics():
     ram = psutil.virtual_memory()
-    ram_used_mib = round(ram.used / (1024 ** 2), 2)
-    return round(ram.percent, 2), ram_used_mib
+    ram_used = humanize.naturalsize(ram.used, binary=True)
+    return round(ram.percent, 2), ram_used
 
 def start_monitoring_system():
     stop_event = Event()
@@ -44,10 +45,10 @@ class SystemMonitor:
 
     def update_system_info(self):
         if self.parent_conn.poll():
-            cpu_percent, ram_percent, ram_used_mib = self.parent_conn.recv()
+            cpu_percent, ram_percent, ram_used = self.parent_conn.recv()
             self.cpu_label.setText(f"CPU: {cpu_percent}%")
             self.ram_label.setText(f"RAM: {ram_percent}%")
-            self.ram_usage_label.setText(f"RAM: {ram_used_mib:.2f} MiB")
+            self.ram_usage_label.setText(f"RAM: {ram_used}")
 
     def stop_and_exit_system_monitor(self):
         self.timer.stop()

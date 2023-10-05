@@ -2,6 +2,7 @@ from pynvml import *
 from multiprocessing import Process, Pipe, Event
 import time
 from PySide6.QtCore import QTimer
+import humanize
 
 def monitor_nvml(pipe, stop_event):
     nvmlInit()
@@ -11,7 +12,7 @@ def monitor_nvml(pipe, stop_event):
         memory_info = nvmlDeviceGetMemoryInfo(handle)
         utilization_rates = nvmlDeviceGetUtilizationRates(handle)
 
-        memory_used_str = f"{memory_info.used / (1024 * 1024):.2f} MiB"
+        memory_used_str = humanize.naturalsize(memory_info.used, binary=True)
         gpu_utilization = f"{utilization_rates.gpu}%"
 
         data = (memory_used_str, gpu_utilization)

@@ -1,3 +1,5 @@
+# determine OS compute device for gui and save to config and determine whether to display metrics
+
 import torch
 import yaml
 import platform

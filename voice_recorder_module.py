@@ -10,7 +10,19 @@ class VoiceRecorder:
     def __init__(self, format=pyaudio.paInt16, channels=1, rate=44100, chunk=1024):
         self.format, self.channels, self.rate, self.chunk = format, channels, rate, chunk
         self.is_recording, self.frames = False, []
-        self.model = WhisperModel(r"C:\PATH\Scripts\ctranslate2-faster-whisper-transcriber\whisper-small.en-ct2-int8_float32", device="auto", compute_type="int8_float32")
+                
+        current_directory = os.getcwd()
+
+        model_folder_path = os.path.join(
+            current_directory,
+            "whisper-small.en-ct2-int8_float32"
+        )
+
+        self.model = WhisperModel(
+            model_folder_path,
+            device="auto",
+            compute_type="int8_float32"
+        )
 
     def transcribe_audio(self, audio_file):
         segments, _ = self.model.transcribe(audio_file)

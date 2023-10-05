@@ -63,7 +63,7 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     retriever = db.as_retriever()
     relevant_contexts = retriever.get_relevant_documents(query)
     contexts = [document.page_content for document in relevant_contexts]
-    prepend_string = "Only base your answer to the following question on the provided context.  If the provided context does not provide an answer, simply state that is the case."
+    prepend_string = "Only base your answer to the following question on the provided context."
     augmented_query = "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
     response_json = connect_to_local_chatgpt(augmented_query)
     
