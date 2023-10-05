@@ -189,7 +189,7 @@ As of release 2.1+, my program includes a transcription feature that allows you 
 ### Step 1 - Faster-Whisper Compatibility
 
 <details>
-   <summary>I have an Intel CPU</summary>
+   <summary>🔵 I have an Intel CPU</summary>
   
 * Ctranslate2 supports acceleration using an Intel CPU or NVIDIA GPU.  However, it is not clear whether it supports acceleration on AMD GPUs and I can't test since I don't have one.  Regardless, Ctranslate2 should default to using the CPU if it doesn't in-fact support AMD GPU acceleration.
 
@@ -197,7 +197,7 @@ As of release 2.1+, my program includes a transcription feature that allows you 
 </details>
 
 <details>
-  <summary>I have an AMD CPU</summary>
+  <summary>🔴 I have an AMD CPU</summary>
 
 * Ctranslate2's documentation is not clear whether it supports acceleration on AMD CPUs.  However, it does support acceleration on NVIDIA GPUs and it will default to this if you have one.  The documentation is yet again unclear whether it supports acceleration on AMD GPU's, however.  Therefore, if you have both an AMD CPU and GPU and encounter problems, please install a release prior to 2.1 and follow the above installation instructions.
 
