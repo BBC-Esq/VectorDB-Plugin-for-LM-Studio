@@ -184,7 +184,7 @@ python3 check_gpu.py
 
 # Transcription Instructions
 
-As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Read these instructions carefully first before installing this repository:
+> As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Read these instructions carefully first before installing this repository:
 
 ### Step 1 - Faster-Whisper Compatibility
 
