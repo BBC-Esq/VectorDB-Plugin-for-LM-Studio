@@ -261,7 +261,7 @@ In addition to my repository, you must download one or more models that are in Z
   > Feel free to try other models!  Simply change ```line 18``` of the ```voice_recorder_module.py``` script to match another model's exact folder name.
 
 ### Step 2 - Virtual Environment
-> Open a command prompt within my repository folder and activate the virtual environment:<br>
+Open a command prompt within my repository folder and activate the virtual environment:<br>
 > NOTE: For Macs the preferred command is ```source bin/activate```
 ```
 .\Scripts\activate
