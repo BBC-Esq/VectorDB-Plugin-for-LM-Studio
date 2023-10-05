@@ -6,7 +6,7 @@
 </div>
 
 <div align="center">
-  <h4>⚡GPU Acceleration Support⚡
+  <h4>⚡GPU Acceleration⚡
   <table>
     <thead>
       <tr>
@@ -37,14 +37,14 @@
   </table></h4>
 </div>
 
-## IMPORTANT: As of release 2.1+, please read the "Transcription Instructions" first before installing.
+## IMPORTANT: Please read the "Transcription Instructions" first before installing.
 
 # Installation
 
 > First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
 
 <details>
-  <summary>🪟 Windows</summary>
+  <summary>🪟 WINDOWS INSTRUCTIONS</summary>
   
 ### Step 1 - Install GPU Acceleration Software
 * Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
@@ -92,7 +92,7 @@ python check_gpu.py
 </details>
 
 <details>
-  <summary>🐧 Linux</summary>
+  <summary>🐧LINUX INSTRUCTIONS</summary>
 
 ### Step 1 - GPU Acceleration Software
   * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
@@ -144,7 +144,7 @@ python check_gpu.py
 </details>
 
 <details>
-  <summary>🍎 Apple</summary>
+  <summary>🍎APPLE INSTRUCTIONS</summary>
 
 ### Step 1 - GPU Acceleration Software
 * All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA (NVIDIA) and ROCm (AMD).  However, you still need to install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
@@ -186,39 +186,74 @@ python3 check_gpu.py
 
 # Transcription Instructions
 
-> As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Read these instructions carefully first before installing this repository:
+> As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
 
 ### Step 1 - Faster-Whisper Compatibility
 
 <details>
-   <summary>🔵 I have an Intel CPU</summary>
-  
-* Ctranslate2 supports acceleration using an Intel CPU or NVIDIA GPU.  However, it is not clear whether it supports acceleration on AMD GPUs and I can't test since I don't have one.  Regardless, Ctranslate2 should default to using the CPU if it doesn't in-fact support AMD GPU acceleration.
+  <summary>TRANSCRIPTION INSTRUCTIONS</summary>
 
-  > If you find that it's not fast enough on CPU, try a smaller model or download a release prior to 2.1 and simply follow the above installation instructions.
-</details>
+<div align="center">
+  <h4>⚡Transcription Acceleration⚡</h4>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Acceleration Support</th>
+        <th>Requirements</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Intel CPU</td>
+        <td>✅</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>AMD CPU</td>
+        <td>✅</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Nvidia GPU</td>
+        <td>✅</td>
+        <td>CUDA</td>
+      </tr>
+      <tr>
+        <td>AMD GPU</td>
+        <td>❌</td>
+        <td> Will default to CPU</td>
+      </tr>
+      <tr>
+        <td>Apple CPU</td>
+        <td>✅</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Apple Metal/MPS</td>
+        <td>❌</td>
+        <td>Will default to CPU</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-<details>
-  <summary>🔴 I have an AMD CPU</summary>
-
-* Ctranslate2's documentation is not clear whether it supports acceleration on AMD CPUs.  However, it does support acceleration on NVIDIA GPUs and it will default to this if you have one.  The documentation is yet again unclear whether it supports acceleration on AMD GPU's, however.  Therefore, if you have both an AMD CPU and GPU and encounter problems, please install a release prior to 2.1 and follow the above installation instructions.
-
-  > If you find that it's not fast enough on CPU, try a smaller model or download a release prior to 2.1 and simply follow the above installation instructions.
-</details>
+The faster-whisper documentation is sometimes not clear.  For example, Ctranslate2's documentation states one thing but faster-whisper (which relies on Ctranslate2) simply doesn't discuss it.  Therefore, if you encounter any problems with the transcription functionality causing the entire program to ```fail```, simply install a release prior to 2.1 and follow the normal installation instructions.
 
 ### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
-In addition to my repository, you must download one or more models that are in ZIP files in Release 2.1 specifically.  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
+In addition to my repository, you must download one or more models that are in ZIP files in [Release 2.1 specifically](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1).  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
 * ```tiny/tiny.en```
 * ```base/base.en```
 * ```small/small.en```
 * ```medium/medium.en```
 
-  > Contact me if you want the large-v2 model - it's too large to upload.  Moreover, if you're super-tech-savvy and want other [quantizations](https://opennmt.net/CTranslate2/quantization.html) for even higher quality or more customizability, contact me, I have the following additional quants for each size:
+  > Contact me if you want the ```large-v2``` model - it's too large to upload.  Moreover, if you're super-tech-savvy and want other [quantizations](https://opennmt.net/CTranslate2/quantization.html) for even higher quality or more customizability, contact me, I have the following additional quants for each size:
     > * ```float32```, ```bfloat16```, ```float16```, ```Int8_bfloat16```, ```int8_float16```, and ```int8```
+</details>
 
 # Usage
 <details>
-  <summary>Instructions</summary>
+  <summary>USAGE INSTRUCTIONS</summary>
   
 ### Step 1 - Download Transctiption Model
 > Only do this if you've read the transcription instructions and are using release 2.1+.
