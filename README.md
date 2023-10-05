@@ -190,6 +190,7 @@ python3 check_gpu.py
 
 <details>
   <summary>TRANSCRIPTION INSTRUCTIONS</summary>
+  
 ### Step 1 - Faster-Whisper Compatibility
 
 <div align="center">
