@@ -188,10 +188,9 @@ python3 check_gpu.py
 
 > As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
 
-### Step 1 - Faster-Whisper Compatibility
-
 <details>
   <summary>TRANSCRIPTION INSTRUCTIONS</summary>
+### Step 1 - Faster-Whisper Compatibility
 
 <div align="center">
   <h4>⚡Transcription Acceleration⚡</h4>
