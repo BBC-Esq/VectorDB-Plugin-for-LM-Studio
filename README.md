@@ -205,18 +205,14 @@ As of release 2.1+, my program includes a transcription feature that allows you 
 </details>
 
 ### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
-In addition to my repository, you must download one or more models that are in ZIP files in Release 2.1 specifically.  I don't currentlyk plan on uploading the models for each new release unless the technology changes.  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
-* tiny/tiny.en
-* base/base.en
-* small/small.en
-* medium/medium.en.
-> Contact me if you want the large-v2 model, as it's too large to upload to Github.  Moreover, if you're super-savvy and want other quantizations for even higher quality or more customizability, contact me, I have the following additional quants for each size:
-> * float32
-> * bfloat16
-> * float16
-> * Int8_bfloat16
-> * int8_float16
-> * int8
+In addition to my repository, you must download one or more models that are in ZIP files in Release 2.1 specifically.  Currently, I don't plan on uploading the models again within each new release unless the technology changes somehow.  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
+* ```tiny/tiny.en```
+* ```base/base.en```
+* ```small/small.en```
+* ```medium/medium.en```
+
+  > Contact me if you want the large-v2 model - it's too large to upload.  Moreover, if you're super-tech-savvy and want other [quantizations](https://opennmt.net/CTranslate2/quantization.html) for even higher quality or more customizability, contact me, I have the following additional quants for each size:
+    > * ```float32```, ```bfloat16```, ```float16```, ```Int8_bfloat16```, ```int8_float16```, and ```int8```
 
 # Usage
 <details>
