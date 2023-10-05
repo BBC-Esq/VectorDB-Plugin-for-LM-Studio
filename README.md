@@ -205,7 +205,7 @@ As of release 2.1+, my program includes a transcription feature that allows you 
 </details>
 
 ### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
-In addition to my repository, you must download one or more models that are in ZIP files in Release 2.1 specifically.  Currently, I don't plan on uploading the models again within each new release unless the technology changes somehow.  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
+In addition to my repository, you must download one or more models that are in ZIP files in Release 2.1 specifically.  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
 * ```tiny/tiny.en```
 * ```base/base.en```
 * ```small/small.en```
