@@ -218,37 +218,43 @@ In addition to my repository, you must download one or more models that are in Z
 <details>
   <summary>Instructions</summary>
   
-### Step 1 - Virtual Environment
+### Step 1 - Download Transctiption Model
+> Only do this if you've read the transcription instructions and are using release 2.1+.
+
+* Download one or more of the ZIP files [HERE](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1) and put the folder within the ZIP file in my repository folder.  It must be within the repository folder otherwise I won't work.  My program defaults to the ```small.en``` model so try that first.
+  > Feel free to try other models!  Simply change ```line 18``` of the ```voice_recorder_module.py``` script to match another model's exact folder name.
+
+### Step 2 - Virtual Environment
 > Open a command prompt within my repository folder and activate the virtual environment:<br>
 > NOTE: For Macs the preferred command is ```source bin/activate```
 ```
 .\Scripts\activate
 ```
 
-### Step 2 - Run Program
+### Step 3 - Run Program
 ```
 python gui.py
 ```
 * NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Working on a fix.
 
-### Step 3 - "Download Embedding Model"
+### Step 4 - "Download Embedding Model"
 The efficacy of an embedding model depends on both the type of text and type of questions you intend to ask.  Do some research on the different models in my program, but I've selected ones that are overall good.  Experiment with different ones.
 > You must wait until the download is complete AND unpacked before trying to create the database.
 
-### Step 4 - "Select Embedding Model Directory"
+### Step 5 - "Select Embedding Model Directory"
 Selects the directory of the model you want to use.
 
-### Step 5 - "Choose Documents for Database"
+### Step 6 - "Choose Documents for Database"
 Select one or more files (pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx).
 
-### Step 6 - "Create Vector Database."
+### Step 7 - "Create Vector Database."
 GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
 
-### Step 7 - LM Studio
+### Step 8 - LM Studio
 Open LM Studio and load a model.  Click the server tab on the lefhand side.  Click "Start Server" in the server tab.
 > Only Llama2-based models are currently supported due to their prompt format.
 
-### Step8 - "Submit Question"
+### Step 9 - "Submit Question"
 Enter a question and click "submit question."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
 > If you're curious, within the repository folder you a file named "relevant_context.txt" will be created if you want to see exactly what the vector database produced.  This is useful to test different embedding models.
 </details>
