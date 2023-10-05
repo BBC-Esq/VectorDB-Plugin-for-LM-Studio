@@ -38,6 +38,7 @@ A vector database lets you convert your documents to vectors and search through 
 # Installation
 
 > First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
+> IMPORTANT: As of release 2.1+, please read the "Additional Instructions" first before installing.
 <details>
   <summary>🪟 Windows</summary>
   
@@ -177,6 +178,20 @@ pip3 install -r requirements.txt
 python3 check_gpu.py
 ```
 
+</details>
+
+# Transcription Instructions
+
+As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library state-of-the-art "Whisper" models for highly accurate transcription.  Read these instructions carefully first before installing this repository:
+
+<details>
+   <summary>I have an Intel CPU</summary>
+  Ctranslate2's documentation clearly states that it supports acceleration using an Intel CPU as well as NVIDIA GPU acceleration.  However, it is unclear whether it supports AMD GPU acceleration.  Ctranslate2 should default to CPU, however, if it doesn't support AMD GPU acceleration.  Also, if you find that it's not fast enough on CPU (perhaps you have an old CPU), you should download a release prior to 2.1 and simply following the above installation instructions.
+</details>
+
+<details>
+  <summary>I have an AMD CPU</summary>
+  Ctranslate2's user guide is unclear whether it supports CPU-acceleration on AMD CPUs.  However, it does clearly support gpu-acceleration on NVIDIA GPUs and it should default to gpu-acceleration for NVIDIA GPUs.  The documentation is unclear (yet again) whether it supports gpu-acceleration on AMD GPUs.  Therefore, if you have an AMD CPU and GPU and encounter problems, please install a release prior to 2.1 and following the above installation instructions.  Also, even if it does work (I haven't been able to test it), if you find that it's not fast enough you can, again, download a release prior to 2.1 and simply follow the above installation instructions.
 </details>
 
 # Usage
