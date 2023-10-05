@@ -37,24 +37,24 @@ A vector database lets you convert your documents to vectors and search through 
 
 # Installation
 
-> First, make sure you're running [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
+> First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
 <details>
   <summary>🪟 Windows</summary>
   
-### Step 1 - GPU Acceleration Software
-* Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-* AMD GPUs
-    > Unfortuantely, PyTorch does not currently support AMD GPUs on Windows (only Linux).
+### Step 1 - Install GPU Acceleration Software
+* Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+    > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
+* AMD GPU - Unfortuantely, PyTorch does not currently support AMD GPUs on Windows (only Linux).
 
 ### Step 2 - Obtain Repository
-* Download the ZIP file containing the latest "release" and unzip and place anywhere on your computer.
+* Download the latest "release" and unzip anywhere on your computer.
 
 ### Step 3 - Virtual Environment
-* Open the folder containing my repository files.  Create a command prompt and create a virtual environment with this command:
+* Open the folder containing my repository files.  Open a command prompt.  Create a virtual environment:
 ```
 python -m venv .
 ```
-* Then "activate" the virtual environment:
+* Activate the virtual environment:
 ```
 .\Scripts\activate
 ```
@@ -69,12 +69,11 @@ python -m pip install --upgrade pip
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-> PyTorch does not currently support AMD GPUs on Windows (only Linux).
-* If you're NOT using GPU acceleration:
+> Unfortunately, PyTorch only currently supports AMD GPU's on Linux system.
+* CPU Only command:
 ```
 pip install torch torchvision torchaudio
 ```
-
 
 ### Step 7 - Install Dependencies
 ```
@@ -92,18 +91,19 @@ python check_gpu.py
 
 ### Step 1 - GPU Acceleration Software
   * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+      > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
   * AMD GPUs ➜ install ROCm version 5.4.2 according to the instructions [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html)
-  * Additionally, [this repo](https://github.com/nktice/AMD-AI) might help but I can't verify since I don't have an AMD GPU nor Linux.
+  * Additionally, [this repo](https://github.com/nktice/AMD-AI) might help, but I can't verify since I don't have an AMD GPU nor Linux.
 
 ### Step 2 - Obtain Repository
-* Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
+* Download the latest "release" and unzip anywhere on your computer.
 
 ### Step 3 - Virtual Environment
-* Open the folder containing my repository files.  Create a command prompt and create a virtual environment with this command:
+* Open the folder containing my repository files.  Open a command prompt.  Create a virtual environment:
 ```
 python -m venv .
 ```
-* Then activate the virtual environment:
+* Activate the virtual environment:
 ```
 .\Scripts\activate
 ```
@@ -112,16 +112,17 @@ python -m venv .
 ```
 python -m pip install --upgrade pip
 ```
+
 ### Step 5 - Install PyTorch
-* For Nvidia GPUs:
+* Nvidia GPU:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-* For AMD GPUs:
+* AMD GPU:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2
 ```
-* If you're NOT using GPU acceleration:
+* CPU Only command:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
@@ -141,35 +142,37 @@ python check_gpu.py
   <summary>🍎 Apple</summary>
 
 ### Step 1 - GPU Acceleration Software
-* All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA and ROCm for Nvidia and AMD, respectively.  However, you do need to have [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+* All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA (NVIDIA) and ROCm (AMD).  However, you still need to install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 
 ### Step 2 - Obtain Repository
 * Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
 
 ### Step 3 - Virtual Environment
-* Open the folder containing my repository files.  Create a terminal window and create a virtual environment with this command:
+* Open the folder containing my repository files.  Open a command prompt.  Create a virtual environment:
 ```
 python3 -m venv .
 ```
-* Then activate the virtual environment:
+* Activate the virtual environment:
 ```
 source bin/activate
 ```
-### Step 5 - Update Pip
+
+### Step 4 - Update Pip
 ```
 python3 -m pip install --upgrade pip
 ```
-### Step 6 - Install PyTorch
+
+### Step 5 - Install PyTorch
 ```
 pip3 install torch torchvision torchaudio
 ```
 
-### Step 8 - Install Dependencies
+### Step 7 - Install Dependencies
 ```
 pip3 install -r requirements.txt
 ```
 
-### Step 7 - Doublecheck Metal/MPS-acceleration
+### Step 8 - Doublecheck Metal/MPS-acceleration
 ```
 python3 check_gpu.py
 ```
@@ -191,23 +194,28 @@ python3 check_gpu.py
 ```
 python gui.py
 ```
-* NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Will fix later so hold tight.
+* NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Working on a fix.
 
 ### Step 3 - "Download Embedding Model"
-You must wait until the download is complete AND unpacked before trying to create the database.
+The efficacy of an embedding model depends on both the type of text and type of questions you intend to ask.  Do some research on the different models in my program, but I've selected ones that are overall good.  Experiment with different ones.
+> You must wait until the download is complete AND unpacked before trying to create the database.
 
 ### Step 4 - "Select Embedding Model Directory"
-Selects the directory containing the model you want to use.
+Selects the directory of the model you want to use.
 
 ### Step 5 - "Choose Documents for Database"
-Select one or more files. Currently supports pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx.  NOTE: You can always remove files from the "Docs_for_DB" folder, but you must recreate the vector database if you don't want them included in the new database.
+Select one or more files (pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx).
 
 ### Step 6 - "Create Vector Database."
-You should see GPU usage spike.  After the spike, the program still needs to "persist" the database to disk .  You must wait for this to complete before trying to query the database.  You can look at the command prompt window to see exactly when the database is "persisted."
+GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
 
 ### Step 7 - LM Studio
-Open LM Studio and load a model.  Only Llama2-based models are currently supported.  Click "Start Server" in the server tab.  Within my program, type your question in the box and submit.  If you don't minimize LM Studio in this process you can actually see it being fed your question and the database results!
-> IMPORTANT: You must use the "Default LM Studio Windows" preset and a Llama2 model.  Other models and/or presents might (but not always) prevent it from working.
+Open LM Studio and load a model.  Click the server tab on the lefhand side.  Click "Start Server" in the server tab.
+> Only Llama2-based models are currently supported due to their prompt format.
+
+### Step8 - "Submit Question"
+Enter a question and click "submit question."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
+> If you're curious, within the repository folder you a file named "relevant_context.txt" will be created if you want to see exactly what the vector database produced.  This is useful to test different embedding models.
 </details>
 
 # Contact
