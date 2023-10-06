@@ -186,7 +186,7 @@ python3 check_gpu.py
 
 # Transcription Instructions
 
-> As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
+> As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Ctranslate2 supports both CPU and GPU acceleration as follows:
 
 <details>
   <summary>TRANSCRIPTION INSTRUCTIONS</summary>
@@ -238,7 +238,7 @@ python3 check_gpu.py
   </table>
 </div>
 
-The faster-whisper documentation is sometimes not clear.  For example, Ctranslate2's documentation states one thing but faster-whisper (which relies on Ctranslate2) simply doesn't discuss it.  Therefore, if you encounter any problems with the transcription functionality causing the entire program to ```fail```, simply install a release prior to 2.1 and follow the normal installation instructions.
+The faster-whisper documentation is sometimes not clear, however.  Therefore, if you encounter any problems with the transcription functionality causing the entire program to ```fail```, simply install a release prior to 2.1 and follow the normal installation instructions.
 
 ### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
 In addition to my repository, you must download one or more models that are in ZIP files in [Release 2.1 specifically](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1).  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
