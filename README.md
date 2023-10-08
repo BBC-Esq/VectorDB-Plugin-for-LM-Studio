@@ -44,7 +44,7 @@
 > First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
 
 <details>
-  <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
+  <summary>🪟 WINDOWS INSTRUCTIONS 🪟</summary>
   
 ### Step 1 - Install GPU Acceleration Software
 * Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
@@ -144,7 +144,7 @@ python check_gpu.py
 </details>
 
 <details>
-  <summary>🍎APPLE INSTRUCTIONS🍎</summary>
+  <summary>🍎 APPLE INSTRUCTIONS 🍎</summary>
 
 ### Step 1 - GPU Acceleration Software
 * All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA (NVIDIA) and ROCm (AMD).  However, you still need to install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
