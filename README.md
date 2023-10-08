@@ -239,7 +239,7 @@ python3 check_gpu.py
 </div>
 
 
-Ctranslate2 has a great fallback mechanism, but I don't have the hardware to test this.  Therefore, if you encounter problems simply install a release prior to 2.1 and follow the normal installation instructions.
+  > Ctranslate2 has a great fallback mechanism, but I don't have the hardware to test this.  Therefore, if you encounter problems simply install a release prior to 2.1 and follow the normal installation instructions.
 
 ### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
 Download one or more whisper models converted to Ctranslate2 format.  They are located in multiple ZIP files in [Release 2.1 specifically](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1).  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
