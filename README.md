@@ -259,7 +259,8 @@ Download one or more whisper models converted to Ctranslate2 format.  They are l
 ### Step 1 - Download Transctiption Model
 > Only do this if you've read the transcription instructions and are using release 2.1+.
 
-* Download one or more of the ZIP files [HERE](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1) containing Whisper models converted to the Ctranslate2 format.  Extract the folder within the ZIP file to my repository folder.  It must be within the repository folder or I won't work.  My program defaults to the ```small.en``` model so TRY THIS FIRST.
+* Download one or more of the ZIP files [HERE](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1) containing Whisper models converted to the Ctranslate2 format.
+* Extract the folder within the ZIP file to my repository folder.  It must be within the repository folder or it won't work.  Also, my program defaults to the ```small.en``` model so TRY THIS FIRST.
   > However, feel free to try other models!  Simply download and extract a different model and then change ```line 18``` of ```voice_recorder_module.py``` to match another model's exact folder name.
 
 ### Step 2 - Virtual Environment
