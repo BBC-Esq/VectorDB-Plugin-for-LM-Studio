@@ -189,7 +189,7 @@ python3 check_gpu.py
 > As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Ctranslate2 supports both CPU and GPU acceleration as follows:
 
 <details>
-  <summary>🛠️TRANSCRIPTION INSTRUCTIONS🛠️</summary>
+  <summary>🔥TRANSCRIPTION INSTRUCTIONS</summary>
   
 ### Step 1 - Faster-Whisper Compatibility
 
@@ -254,7 +254,7 @@ Download one or more whisper models converted to Ctranslate2 format.  They are l
 
 # Usage
 <details>
-  <summary>🛠️USAGE INSTRUCTIONS🛠️</summary>
+  <summary>🔥USAGE INSTRUCTIONS</summary>
   
 ### Step 1 - Download Transctiption Model
 > Only do this if you've read the transcription instructions and are using release 2.1+.
