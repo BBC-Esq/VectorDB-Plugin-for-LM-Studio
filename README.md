@@ -241,7 +241,7 @@ python3 check_gpu.py
 Ctranslate2 has a great fallback mechanism, but I don't have the hardware to test this.  Therefore, if you encounter problems that cause the entire program to fail, simply install a release prior to 2.1 and follow the normal installation instructions.
 
 ### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
-In addition to my repository, you must download one or more models that are in ZIP files in [Release 2.1 specifically](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1).  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
+Download one or more whisper models converted to Ctranslate2 format.  They are located in multiple ZIP files in [Release 2.1 specifically](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1).  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
 * ```tiny/tiny.en```
 * ```base/base.en```
 * ```small/small.en```
