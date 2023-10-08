@@ -44,7 +44,7 @@
 > First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
 
 <details>
-  <summary>🪟 WINDOWS INSTRUCTIONS</summary>
+  <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
   
 ### Step 1 - Install GPU Acceleration Software
 * Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
@@ -92,7 +92,7 @@ python check_gpu.py
 </details>
 
 <details>
-  <summary>🐧LINUX INSTRUCTIONS</summary>
+  <summary>🐧LINUX INSTRUCTIONS🐧</summary>
 
 ### Step 1 - GPU Acceleration Software
   * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
@@ -144,7 +144,7 @@ python check_gpu.py
 </details>
 
 <details>
-  <summary>🍎APPLE INSTRUCTIONS</summary>
+  <summary>🍎APPLE INSTRUCTIONS🍎</summary>
 
 ### Step 1 - GPU Acceleration Software
 * All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA (NVIDIA) and ROCm (AMD).  However, you still need to install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
@@ -189,7 +189,7 @@ python3 check_gpu.py
 > As of release 2.1+, my program includes a transcription feature that allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box - thus saving time.  This is based on the "faster-whisper" library, which, in-turn, relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Ctranslate2 supports both CPU and GPU acceleration as follows:
 
 <details>
-  <summary>TRANSCRIPTION INSTRUCTIONS</summary>
+  <summary>🛠️TRANSCRIPTION INSTRUCTIONS🛠️</summary>
   
 ### Step 1 - Faster-Whisper Compatibility
 
@@ -238,7 +238,7 @@ python3 check_gpu.py
   </table>
 </div>
 
-The faster-whisper documentation is sometimes not clear, however.  Therefore, if you encounter any problems with the transcription functionality causing the entire program to ```fail```, simply install a release prior to 2.1 and follow the normal installation instructions.
+Ctranslate2 has a great fallback mechanism, but I don't have the hardware to test this.  Therefore, if you encounter problems that cause the entire program to fail, simply install a release prior to 2.1 and follow the normal installation instructions.
 
 ### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
 In addition to my repository, you must download one or more models that are in ZIP files in [Release 2.1 specifically](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1).  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
@@ -253,13 +253,13 @@ In addition to my repository, you must download one or more models that are in Z
 
 # Usage
 <details>
-  <summary>USAGE INSTRUCTIONS</summary>
+  <summary>🛠️USAGE INSTRUCTIONS🛠️</summary>
   
 ### Step 1 - Download Transctiption Model
 > Only do this if you've read the transcription instructions and are using release 2.1+.
 
 * Download one or more of the ZIP files [HERE](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1) and put the folder within the ZIP file in my repository folder.  It must be within the repository folder otherwise I won't work.  My program defaults to the ```small.en``` model so try that first.
-  > Feel free to try other models!  Simply change ```line 18``` of the ```voice_recorder_module.py``` script to match another model's exact folder name.
+  > Feel free to try other models!  Simply change ```line 18``` of ```voice_recorder_module.py``` to match another model's exact folder name.
 
 ### Step 2 - Virtual Environment
 Open a command prompt within my repository folder and activate the virtual environment:<br>
