@@ -204,32 +204,32 @@ python3 check_gpu.py
       </tr>
     </thead>
     <tbody>
-      <tr>
+      <tr style="background-color: blue;"> <!-- Blue for Intel -->
         <td>Intel CPU</td>
         <td>✅</td>
         <td></td>
       </tr>
-      <tr>
+      <tr style="background-color: red;"> <!-- Red for AMD -->
         <td>AMD CPU</td>
         <td>✅</td>
         <td></td>
       </tr>
-      <tr>
+      <tr style="background-color: green;"> <!-- Green for Nvidia -->
         <td>Nvidia GPU</td>
         <td>✅</td>
         <td>CUDA</td>
       </tr>
-      <tr>
+      <tr style="background-color: silver;"> <!-- Silver/Gray for Apple -->
         <td>AMD GPU</td>
         <td>❌</td>
-        <td> Will default to CPU</td>
+        <td>Will default to CPU</td>
       </tr>
-      <tr>
+      <tr style="background-color: silver;"> <!-- Silver/Gray for Apple -->
         <td>Apple CPU</td>
         <td>✅</td>
         <td></td>
       </tr>
-      <tr>
+      <tr style="background-color: silver;"> <!-- Silver/Gray for Apple -->
         <td>Apple Metal/MPS</td>
         <td>❌</td>
         <td>Will default to CPU</td>
@@ -237,6 +237,7 @@ python3 check_gpu.py
     </tbody>
   </table>
 </div>
+
 
 Ctranslate2 has a great fallback mechanism, but I don't have the hardware to test this.  Therefore, if you encounter problems that cause the entire program to fail, simply install a release prior to 2.1 and follow the normal installation instructions.
 
