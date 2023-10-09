@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #333; /* Dark grey background */
+            color: #f5f5f5; /* Off-white text color */
+        }
+		
+		header {
+			text-align: center;
+			background-color: #3498db;
+			color: #fff;
+			padding: 20px;
+			position: sticky;
+			top: 0;
+			z-index: 999;
+		}
+		
+		table {
+            color: black;
+			border-collapse: collapse;
+            width: 80%;
+            margin: 50px auto;
+        }
+		
+		thead th {
+			background-color: #f69784;
+		}
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px 12px;
+        }
+
+        .tiny {
+            background-color: #e6f7ff; /* light blue */
+        }
+
+        .base {
+            background-color: #b3e0ff; /* medium blue */
+        }
+
+        .small {
+            background-color: #66c2ff; /* darker blue */
+        }
+
+        .medium {
+            background-color: #3399ff; /* even darker blue */
+        }
+
+        .large {
+            background-color: #0073e6; /* darkest blue */
+        }
+		
+		code {
+			background-color: #f9f9f9; /* light gray background */
+			border-radius: 3px;
+			padding: 2px 3px;
+			font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+			color: #333;
+		}
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Whisper Ctranslate2 Quantizations</h1>
+    </header>
+	
+	
+	<p>The "small" model is used by default and will automatically download.</p>
+	
+	<p>To use different models, simply modify <code>line 13</code> of <code>voice_recorder_module.py</code>.  For example, to use
+	the "medium.en" model with "bfloat16 quantization change it to:</p>
+	
+	<p><code>("ctranslate2-4you/whisper-medium.en-ct2-bfloat16", device="auto", compute_type="bfloat16")</code></p>
+	
+	<p>Remember, you must restart <code>gui.py</code> afterwards.
+	
+	<p>Tips:</p>
+	
+	<p>If you speak English, use models ending in <code>.en</code> since they specialize in English.</p>
+	
+	<p>Generally, the size of the model is most important followed by the quantizations in the following order:</p>
+	
+	<p><code>float32</code>, <code>bfloat16</code>, <code>float16</code>, <code>int8_float32</code>, <code>int8_bfloat16</code>, <code>int8_float16</code>, <code>int8</code>.</p>
+	
+	<table>
+        <thead>
+            <tr>
+                <th>Quantization</th>
+                <th>Size on Disk</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-int8_bfloat16</td>
+                <td>42.7 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-int8_float16</td>
+                <td>42.7 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-int8_bfloat16</td>
+                <td>43.1 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-int8_float16</td>
+                <td>43.1 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-int8</td>
+                <td>45.4 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-int8_float32</td>
+                <td>45.4 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-int8</td>
+                <td>45.7 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-int8_float32</td>
+                <td>45.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-int8_bfloat16</td>
+                <td>78.4 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-int8_float16</td>
+                <td>78.4 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-int8_bfloat16</td>
+                <td>78.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-int8_float16</td>
+                <td>78.7 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-bfloat16</td>
+                <td>78.8 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-float16</td>
+                <td>78.8 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-bfloat16</td>
+                <td>79.1 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-float16</td>
+                <td>79.1 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-int8</td>
+                <td>82.4 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-int8_float32</td>
+                <td>82.4 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-int8</td>
+                <td>82.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-int8_float32</td>
+                <td>82.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-bfloat16</td>
+                <td>148.5 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-float16</td>
+                <td>148.5 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-bfloat16</td>
+                <td>148.8 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-float16</td>
+                <td>148.8 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-float32</td>
+                <td>154.4 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-float32</td>
+                <td>154.7 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-int8_bfloat16</td>
+                <td>249.8 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-int8_float16</td>
+                <td>249.8 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-int8_bfloat16</td>
+                <td>250.2 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-int8_float16</td>
+                <td>250.2 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-int8</td>
+                <td>257.3 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-int8_float32</td>
+                <td>257.3 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-int8</td>
+                <td>257.7 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-int8_float32</td>
+                <td>257.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-float32</td>
+                <td>293.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-float32</td>
+                <td>294.0 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-bfloat16</td>
+                <td>486.8 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-float16</td>
+                <td>486.8 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-bfloat16</td>
+                <td>487.1 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-float16</td>
+                <td>487.1 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-int8_bfloat16</td>
+                <td>775.8 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-int8_float16</td>
+                <td>775.8 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-int8_bfloat16</td>
+                <td>776.1 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-int8_float16</td>
+                <td>776.1 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-int8</td>
+                <td>788.2 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-int8_float32</td>
+                <td>788.2 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-int8</td>
+                <td>788.5 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-int8_float32</td>
+                <td>788.5 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-float32</td>
+                <td>970.4 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-float32</td>
+                <td>970.7 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-bfloat16</td>
+                <td>1.5 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-float16</td>
+                <td>1.5 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-bfloat16</td>
+                <td>1.5 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-float16</td>
+                <td>1.5 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-int8_bfloat16</td>
+                <td>1.6 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-int8_float16</td>
+                <td>1.6 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-int8</td>
+                <td>1.6 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-int8_float32</td>
+                <td>1.6 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-float32</td>
+                <td>3.1 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-float32</td>
+                <td>3.1 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-bfloat16</td>
+                <td>3.1 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-float16</td>
+                <td>3.1 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-float32</td>
+                <td>6.2 GB</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
