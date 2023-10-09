@@ -37,8 +37,6 @@
   </table></h4>
 </div>
 
-## IMPORTANT: Please read the "Transcription Instructions" first before installing.
-
 # Installation
 
 > First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
@@ -238,66 +236,52 @@ python3 check_gpu.py
   </table>
 </div>
 
+  > Ctranslate2 will use the best acceleration method available.  However, if you encounter any problems with the voice transcript that prevents the program from working simply install a release prior to 2.1 and follow the normal installation instructions.
 
-  > Ctranslate2 has a great fallback mechanism, but I don't have the hardware to test this.  Therefore, if you encounter problems simply install a release prior to 2.1 and follow the normal installation instructions.
+### Step 2 - Ctranslate2 Whisper Models
+The program automatically downloads and uses the ```small``` Ctranslate2 Whisper by default.  To use more/less powerful models, change ```line 13``` of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
 
-### Step 2 - Obtain Quantized Ctranslate2 Whisper Models
-Download one or more whisper models converted to Ctranslate2 format.  They are located in multiple ZIP files in [Release 2.1 specifically](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1).  Feel free to test different models out!  Smallest (lesser quality) to bigger (higher quality) are as follows:
-* ```tiny/tiny.en```
-* ```base/base.en```
-* ```small/small.en```
-* ```medium/medium.en```
-
-  > Contact me if you want the ```large-v2``` model - it's too large to upload.  Moreover, if you're super-tech-savvy and want other [quantizations](https://opennmt.net/CTranslate2/quantization.html) for even higher quality or more customizability, contact me, I have the following additional quants for each size:
-    > * ```float32```, ```bfloat16```, ```float16```, ```Int8_bfloat16```, ```int8_float16```, and ```int8```
 </details>
 
 # Usage
 <details>
   <summary>🔥USAGE INSTRUCTIONS</summary>
-  
-### Step 1 - Download Transcription Model
-> Only do this if you've read the transcription instructions and are using release 2.1+.
 
-* Download one or more of the ZIP files [HERE](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1) containing Whisper models converted to the Ctranslate2 format.
-* Extract the folder within the ZIP file to my repository folder.  It must be within the repository folder or it won't work.  Also, my program defaults to the ```small.en``` model so TRY THIS FIRST.
-  > However, feel free to try other models!  Simply download and extract a different model and then change ```line 18``` of ```voice_recorder_module.py``` to match another model's exact folder name.
-
-### Step 2 - Virtual Environment
+### Step 1 - Virtual Environment
 Open a command prompt within my repository folder and activate the virtual environment:<br>
 > NOTE: For Macs the preferred command is ```source bin/activate```
 ```
 .\Scripts\activate
 ```
 
-### Step 3 - Run Program
+### Step 2 - Run Program
 ```
 python gui.py
 ```
 * NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Working on a fix.
 
-### Step 4 - "Download Embedding Model"
-The efficacy of an embedding model depends on both the type of text and type of questions you intend to ask.  Do some research on the different models in my program, but I've selected ones that are overall good.  Experiment with different ones.
+### Step 3 - Download Embedding Model
+The efficacy of an embedding model depends on both the type of text and type of questions you intend to ask.  Do some research on the different models, but I've selected ones that are overall good.
 > You must wait until the download is complete AND unpacked before trying to create the database.
 
-### Step 5 - "Select Embedding Model Directory"
-Selects the directory of the model you want to use.
+### Step 4 - Select Embedding Model Directory
+Selects the directory of the embedding model you want to use.
 
-### Step 6 - "Choose Documents for Database"
+### Step 5 - Choose Documents for Database
 Select one or more files (pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx).
 
-### Step 7 - "Create Vector Database."
+### Step 6 - Create Vector Database
 GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
 
-### Step 8 - LM Studio
+### Step 7 - Start LM Studio
 Open LM Studio and load a model.  Click the server tab on the lefhand side.  Click "Start Server" in the server tab.
 > Only Llama2-based models are currently supported due to their prompt format.
 
-### Step 9 - "Submit Question"
+### Step 8 - Submit Question
 Enter a question and click "submit question."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
 > If you're curious, within the repository folder you'll find a file named "relevant_context.txt," which shows you exactly what the vector database produced.  This is useful to test different embedding models.
 
-### Step 10 - Transcribe Question Instead
+### Step 9 - Transcribe Question Instead
 Click start record button.  Talk.  Click stop button.  Paste transcription into question box.  Click Submit Question.
 
 </details>
