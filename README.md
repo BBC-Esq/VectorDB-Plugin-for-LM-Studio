@@ -256,7 +256,7 @@ Download one or more whisper models converted to Ctranslate2 format.  They are l
 <details>
   <summary>🔥USAGE INSTRUCTIONS</summary>
   
-### Step 1 - Download Transctiption Model
+### Step 1 - Download Transcription Model
 > Only do this if you've read the transcription instructions and are using release 2.1+.
 
 * Download one or more of the ZIP files [HERE](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/tag/v2.1) containing Whisper models converted to the Ctranslate2 format.
