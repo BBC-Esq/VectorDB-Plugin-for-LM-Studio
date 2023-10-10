@@ -95,8 +95,8 @@ python check_gpu.py
 ### Step 1 - GPU Acceleration Software
   * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
       > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
-  * AMD GPUs ➜ install ROCm version 5.6 according to the instructions [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html) and [HERE](https://rocmdocs.amd.com/en/latest/deploy/linux/index.html)
-  * Additionally, [this repo](https://github.com/nktice/AMD-AI) might help, but I can't verify since I don't have an AMD GPU nor Linux.
+  * AMD GPUs ➜ install ROCm version 5.6 according to the instructions https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html](https://rocm.docs.amd.com/en/docs-5.6.1/.
+    > Additionally, [this repo](https://github.com/nktice/AMD-AI) might help, but I can't verify since I don't have an AMD GPU nor Linux.
 
 ### Step 2 - Obtain Repository
 * Download the latest "release" and unzip anywhere on your computer.
