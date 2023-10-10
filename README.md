@@ -283,7 +283,6 @@ Open LM Studio and load a model.  Click the server tab on the lefhand side.  Cli
 
 ### Step 8 - Submit Question
 Enter a question and click "submit question."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
-> If you're curious, within the repository folder you'll find a file named "relevant_context.txt," which shows you exactly what the vector database produced.  This is useful to test different embedding models.
 
 ### Step 9 - Transcribe Question Instead
 Click start record button.  Talk.  Click stop button.  Paste transcription into question box.  Click Submit Question.
