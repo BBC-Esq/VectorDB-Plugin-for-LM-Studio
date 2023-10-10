@@ -239,7 +239,7 @@ python3 check_gpu.py
   > Ctranslate2 will use the best acceleration method available.  However, if you encounter any problems with the voice transcript that prevents the program from working simply install a release prior to 2.1 and follow the normal installation instructions.
 
 ### Step 2 - Ctranslate2 Whisper Models
-The program automatically downloads and uses the ```small``` Ctranslate2 Whisper by default.  To use more/less powerful models, change ```line 13``` of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
+The program automatically downloads and uses the ```base``` Ctranslate2 Whisper by default.  To use more/less powerful models, change ```line 13``` of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
 
 </details>
 
