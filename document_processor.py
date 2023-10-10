@@ -6,7 +6,7 @@ from concurrent.futures import ProcessPoolExecutor
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import (
-    PDFMinerLoader,
+    PyMuPDFLoader,
     Docx2txtLoader,
     TextLoader,
     JSONLoader,
@@ -21,7 +21,7 @@ SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 INGEST_THREADS = os.cpu_count() or 8
 
 DOCUMENT_MAP = {
-    ".pdf": PDFMinerLoader,
+    ".pdf": PyMuPDFLoader,
     ".docx": Docx2txtLoader,
     ".txt": TextLoader,
     ".json": JSONLoader,
@@ -43,7 +43,14 @@ def load_single_document(file_path: str) -> Document:
             loader = loader_class(file_path)
     else:
         raise ValueError("Document type is undefined")
-    return loader.load()[0]
+    
+    document = loader.load()[0]
+    
+    # file_path = os.path.join(ROOT_DIRECTORY, 'test.txt')
+    # with open(file_path, 'a', encoding='utf-8') as file:
+        # file.write(document.page_content + '\n')
+    
+    return document
 
 def load_document_batch(filepaths):
     with ThreadPoolExecutor(len(filepaths)) as exe:
@@ -71,10 +78,9 @@ def load_documents(source_dir: str) -> list[Document]:
 
 def split_documents(documents):
     logging.info("Splitting documents...")
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=250)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
     texts = text_splitter.split_documents(documents)
-    print(f"Number of chunks created: {len(texts)}")
-    logging.info(f"Split into {len(texts)} chunks of text.")
+    print("Splitting chunks completed.")
     return texts
 
 if __name__ == "__main__":

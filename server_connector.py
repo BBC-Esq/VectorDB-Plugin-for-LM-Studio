@@ -66,10 +66,6 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     prepend_string = "Only base your answer to the following question on the provided context."
     augmented_query = "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
     response_json = connect_to_local_chatgpt(augmented_query)
-    
-    with open("relevant_contexts.txt", "w", encoding="utf-8") as f:
-        for content in contexts:
-            f.write(content + "\n\n---\n\n")
         
     return {"answer": response_json, "sources": relevant_contexts}
 
