@@ -23,5 +23,11 @@ def create_tabs(tabs_config):
     whisper_html_path = os.path.join(user_manual_folder, 'whisper_quants.html')
     whisper_tab.setUrl(QUrl.fromLocalFile(whisper_html_path))
     tab_widget.addTab(whisper_tab, 'Whisper')
+    
+    # Adding the Tips tab
+    tips_tab = QWebEngineView()
+    tips_html_path = os.path.join(user_manual_folder, 'tips.html')
+    tips_tab.setUrl(QUrl.fromLocalFile(tips_html_path))
+    tab_widget.addTab(tips_tab, 'Tips')
 
     return tab_widget
