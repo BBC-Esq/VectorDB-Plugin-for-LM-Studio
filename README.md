@@ -243,7 +243,7 @@ python3 check_gpu.py
 Easily download and run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.
 
 ### Step 3 - Option to Change Ctranslate2 Whisper Models
-The program automatically downloads and uses the ```base``` Ctranslate2 Whisper by default.  To use more/less powerful models, change ```line 13``` of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
+The program automatically downloads and uses the ```base``` Ctranslate2 Whisper by default.  To use more/less powerful models, change [```line 13```](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/blob/ee718ea9d37dc3d21b2c14cdcbb93f6b3b9385ed/voice_recorder_module.py#L13) of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
 
 </details>
 
