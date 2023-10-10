@@ -40,19 +40,19 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
         embeddings = HuggingFaceInstructEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": COMPUTE_DEVICE},
-            encode_kwargs={'normalize_embeddings': True}
+            embed_instruction="Represent the document for retrievel:",
+            query_instruction="Represent the question for retrieving supporting documents:"
         )
     elif "bge" in EMBEDDING_MODEL_NAME and "large-en-v1.5" not in EMBEDDING_MODEL_NAME:
         embeddings = HuggingFaceBgeEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": COMPUTE_DEVICE},
-            encode_kwargs={'normalize_embeddings': True}
+            query_instruction="Represent this sentence for searching relevant passages:"
         )
     else:
         embeddings = HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={'device': COMPUTE_DEVICE},
-            encode_kwargs={'normalize_embeddings': True}
         )
 
     db = Chroma(
