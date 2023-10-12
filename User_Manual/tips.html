@@ -102,7 +102,7 @@
 		<h3 style="color: #f0f0f0;">Tip #1 - Multiple Monitors</h3>
 		
 		<p>If you have more than one monitor connected to your graphics card, move them to your onboard graphics instead.
-		You can do this by unplugging any secondary monitors from the GPU and plugging them intographics ports
+		You can do this by unplugging any secondary monitors from the GPU and plugging them into graphics ports
 		(e.g. HDMI or DisplayPort) coming directly from your motherboard.  This will prevent these monitors from using the VRAM
 		on your graphics card.  You will most likely need to keep your main monitor plugged into your GPU (e.g. for gaming high
 		framerates)...but other monitors can be safely reallocated.</p>
@@ -126,7 +126,7 @@
 		<p>Also, you can specify the transcription model to run on your CPU.  This should not create a meaningful delay.  Again,
 		we are not transcribing hours of low quality audio here...To make this change, simply modify <code>line 13</code> of
 		<code>voice_recorder_module.py</code> from "auto" to "cpu."  Moreover, you can change the default number of cpu
-		threads that is uses from 8 to whatever your CPU has.  Remember, 8 does NOT have quotation marks around it.</p>
+		threads that it uses from 8 to whatever your CPU has.  Remember, 8 does NOT have quotation marks around it.</p>
 		 
 		<p>This makes the transcription model run purely on CPU (hence system RAM) and not VRAM, thus freeing up more VRAM for
 		the LM Studio model.  If using the <code>small.en</code> this will save you 1-2 GB of VRAM.
@@ -137,7 +137,7 @@
 		"instructions" for the <code>BGE</code> models, which has now been corrected.  I now recommend using the
 		<code>BGE v1.5</code> models for 90% of use cases.  They perform just as good as the "instruct" models but with
 		slightly less VRAM.  Also, do not overlook <code>"all-mpnet-base-v2"</code>.  It requires much less VRAM than
-		the and instructor and BGE models and is specifically trained for stereotypical text passages.  Before trying models
+		the instructor and BGE models, and is specifically trained for stereotypical text passages.  Before trying models
 		other than instructor/BGE/all-mpnet, I highly recommend that you search the read a
 		little <a href=https://www.sbert.net/docs/pretrained_models.html> HERE</a> about the different kinds of models.</p>
 		
@@ -145,7 +145,7 @@
 		
 		<p>My program basically sends your question along with "context" to LM Studio for an answer.  This is essentially
 		how "retrieval augmented generation" works.  A lot of people mistakenly assume that it's the LLM that performs the
-		search or somehow interacts with the vector database when it is actuallyk the embedding model tha does all the
+		search or somehow interacts with the vector database when it is actually the embedding model that does all the
 		heavy lifting.  The embedding model is responsible for creating the vector database, converting your question
 		into a "vector" and pulling the relevant "context" from the database, and sending it to LM Studio.  LM Studio
 		merely receives the question + context and responds, which is a "relatively" simple task.  Therefore, you do
@@ -154,7 +154,7 @@
 		quantization or lower to save VRAM.</p>
 		
 		<p>There is an exception, however.  If the documents in your vector database are highly technical such as medical
-		studies or legal documents, for example, a higher-quality model within LM Studio might provide some benefit because
+		studies or legal documents, a higher-quality model within LM Studio might provide some benefit because
 		of its increased vocabulary.  Overall, just experiment.</p>
 		
 		<p>Also, remember that my program only supports llama-based models.  What I mean by "llama-based models" is, models
@@ -193,10 +193,10 @@
 		
 		<h3 style="color: #f0f0f0;">Tip #4 - Ensure Sufficient Context</h3>
 		
-		<p>As explained above, transmits your question with relevant "context" to LM Studio for an answer.  If you get an error
-		stating that the context is too long, increase the maximum "context" of the model within LM Studio.  It's exceedingly
-		rare, but sometimes the question + "context" will exceed the context limit of the LM Studio model.  However, I have yet
-		to get this particular error when the context is set to 4096.</p>
+		<p>As explained above, this program transmits your question with relevant "context" to LM Studio for an answer.
+		If you get an error stating that the context is too long, increase the maximum "context" of the model within LM Studio.
+		It's exceedingly rare, but sometimes the question + "context" will exceed the context limit of the LM Studio model.
+		However, I have yet to get this particular error when the context is set to 4096.</p>
 
 	</main>
 
