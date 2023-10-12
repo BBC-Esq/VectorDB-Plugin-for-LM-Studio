@@ -84,7 +84,7 @@
 	<p>The "base" model is used by default and will automatically download.</p>
 	
 	<p>To use different models, simply modify <code>line 13</code> of <code>voice_recorder_module.py</code>.  For example, to use
-	the "medium.en" model with "bfloat16 quantization change it to:</p>
+	the "medium.en" model with "bfloat16 quantization you would change it to:</p>
 	
 	<p><code>("ctranslate2-4you/whisper-medium.en-ct2-bfloat16", device="auto", compute_type="bfloat16")</code></p>
 	
@@ -94,7 +94,7 @@
 	
 	<p>If you speak English, use models ending in <code>.en</code> since they specialize in English.</p>
 	
-	<p>Generally, the size of the model is most important followed by the quantizations in the following order:</p>
+	<p>Generally, the size of the model is most important factor, then quantizations in the following order:</p>
 	
 	<p><code>float32</code>, <code>bfloat16</code>, <code>float16</code>, <code>int8_float32</code>, <code>int8_bfloat16</code>, <code>int8_float16</code>, <code>int8</code>.</p>
 	
