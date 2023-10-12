@@ -11,7 +11,7 @@
 			margin: 0;
 			padding: 0;
 			background-color: #333; /* Dark grey background */
-			color: #f0f0f0; /* Off-white text color */
+			color: #f5f5f5; /* Off-white text color */
 		}
 
 		header {
@@ -83,30 +83,31 @@
 
         <section>
         <h2 style="color: #f0f0f0;">Introduction to Floating-Point Formats</h2>
-        <p>Running an embedding model or a large language model requires a lot of math calculations and computers don't understand decimal
-		numbers (1,2,3) like you and me.  Rather, they use a series of ones and zeros to represent a number, which are called "bits."  The
-		more bits that are used, the more VRAM/RAM and computational horsepower required.  However, more bits also "generally" means a
-		higher quality result.</p>
+        <p>Running an embedding or a large language model requires a lot of math calculations and computers don't understand
+		decimal numbers (1,2,3) like you and me.  Rather, to represent a number they use a series of ones and zeros called "bits."
+		In general, the more bits used to represent a number means higher quality but also higher VRAM/RAM and compute
+		powere needed.  Even if the same number of bits are used, however, the quality also depends on how many of them
+		are "exponent" versus "fraction" bits.  </p>
 		
-		<p>I say "generally" becuase even if the same number of bits are used the quality also depends on how many of those bits are
-		"exponent" versus "fraction" bits.  The term "floating point format" is defined by both the total number of "bits" used
-		as well as how many of the bits are "exponent" versus "fraction" bits.  The three most common floating point formats above
-		illustrate these concepts.  For example, both float16 and bfloat16 have the same total bits (16) but a different number of
-		"exponent" versus "fraction" bits.</p>
+		<p>The term "Floating point format" refers to the total number of bits used and how many of them are of the
+		"exponent" versus "fraction" type.  The three most common floating point formats are shown above.  As you'll
+		notice, both Float16 and Bfloat16 use 16 bits but a different number of "exponent" versus "fraction" bits,
+		hence their different names.</p>
 		
-		<p>"Exponent" bits basically determine the "range" of numbers that a neural network can utilize when doing math. For example,
-		since Float32 has 8 "exponent" bits lets pretend that this allows the neural network to use any integer
-		between one and one-hundred for the math calculations.  It's "range," therefore, is 1-100.  Bfloat16 would have
-		the same "range" because it also has 8 "exponent" bits.  However, float16 only has 5 "exponent" bits so "range" might be 1-50.</p>
+		<p>"Exponent" bits essentially determine the "range" of numbers that a neural network can use when doing math calculations.
+		For example, Float32 has 8 "exponent" bits.  Lets pretend that this allows the neural network to use any integer
+		between one and one-hundred.  It's "range," therefore, is 1-100.  Bfloat16 would have the same "range" because
+		it also has 8 "exponent" bits.  However, Float16 only has 5 "exponent" bits so its "range" might only be 1-50.</p>
 
         <p></p>
 		
-		<p>In contrast, "fraction" bits basically determine the number of values that can be used within that "range."  The number
-		of "fraction" bits is informally referred to a neural network's "precision." To give another hypothetical, since float32 has 23
-		"fraction" bits let's assume it can use every whole number between 1-100 when doing math calculations  Therefore, it has 100
-		"values" it can use.  In contrast, because bfloat16 only has 7 "fraction" bits could only 25 integers within the "range" of 1-100.</p>
+		<p>"Fraction" bits essentially determine the number of unique values that can be used within a given "range."
+		This is also referred to as the "precision" of a neural network. To use another hypothetical, Float32 has 23
+		"fraction" bits so let's assume it can use every whole number between 1-100 when doing math calculations.
+		In other words, it has 100 unique "values" that it can use.  Bfloat16 only has 7 "fraction" bits.  Therefore,
+		it might only have 25 unique values wihtin the "range" of 1-100 that it can use.</p>
 
-        <p>These are hypotheticals, however, the actual ranges and precision are summarized in this table:</p>
+        <p>These are hypotheticals, but the actual ranges and precisions are summarized in this table:</p>
 		
             <table border="1">
                 <tr>
@@ -133,25 +134,25 @@
 			
         </section>
 
-		<p>Overall, both "range" and "precision" determine the "quality" of an output but in different ways.  The specifics are complex.
-		However, in general the particular use case determines the best floating point format to use.  For example, Google created
-		bfloat16 and found that it was overall better for neural networks but that float16 was better for scientific calculations.</p>
+		<p>As you can easily deduce, "range" and "precision" both determine the "quality" of an output but in different ways.
+		While the specifics are complex and beyond the scope of this short essay, in general, different floating point formats
+		are good for different purposes.  For example, Google, which created Bfloat16, found that it was better for neural
+		networks while Float16 was better for scientific calculations.</p>
 		
-		<p>You can see the floating point format used to create the various embedding models in this program by looking at the
+		<p>You can see the floating point format of the various embedding models used in my program by looking at the
 		"config.json" file for each model.</p>
 		
         <section>
             <h2 style="color: #f0f0f0;">What is Quantization?</h2>
 			
             <p>"Quantization" refers to converting the original floating point format to one with a smaller "range"
-			and/or "precision" - usually both.  Projects like LLAMA.CPP and AutoGPTQ do this with slightly different algorithms but
-			the same general concept applies.  The overall goal is to reduce the memory and computational power needed while only
-			experiencing a "reasonable" loss in quality. Specific "quantizations" like "Q8_0" or "8-bit" refer to the "floating point
-			format" of "int8," for example.  Technically, "int8" is no longer "floating" but you don't need to delve into the nuances
-			of this to understand the basic concepts I'm trying to communicate.</p>
+			and/or "precision," usually both.  Projects like LLAMA.CPP and AutoGPTQ do this with slightly different algorithms but
+			they basically do the same thing.  The overall goal is to reduce the memory and computational power needed while only
+			suffering a "reasonable" loss in quality. Specific "quantizations" like "Q8_0" or "8-bit" refer to the "floating point
+			format" of "int8," for example. (Technically, "int8" is no longer "floating" but you don't need to delve into the nuances
+			of this to understand the basic concepts I'm trying to communicate.)</p>
 			
-			<p>You can obviously see the huge change of "range" and "precision" when using "int8" compared to the above floating
-			point formats:</p>
+			<p>Here is the range and precision for "Int8," clearly a huge difference than the above floating point formats:</p>
 
             <table border="1">
                 <tr>
