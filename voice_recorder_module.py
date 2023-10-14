@@ -10,7 +10,7 @@ class VoiceRecorder:
     def __init__(self, format=pyaudio.paInt16, channels=1, rate=44100, chunk=1024):
         self.format, self.channels, self.rate, self.chunk = format, channels, rate, chunk
         self.is_recording, self.frames = False, []
-        self.model = WhisperModel("ctranslate2-4you/whisper-base-ct2-int8", device="auto", compute_type="int8", cpu_threads=8)
+        self.model = WhisperModel("ctranslate2-4you/whisper-base.en-ct2-float32", device="auto", compute_type="float32", cpu_threads=8)
 
     def transcribe_audio(self, audio_file):
         segments, _ = self.model.transcribe(audio_file)
