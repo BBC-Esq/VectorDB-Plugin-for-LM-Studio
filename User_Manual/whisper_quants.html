@@ -81,7 +81,7 @@
     </header>
 	
 	
-	<p>The "base" model is used by default and will automatically download.</p>
+	<p>The <code>base.en</code> model is used by default and will automatically download.</p>
 	
 	<p>To use different models, simply modify <code>line 13</code> of <code>voice_recorder_module.py</code>.  For example, to use
 	the "medium.en" model with "bfloat16 quantization you would change it to:</p>
@@ -97,6 +97,29 @@
 	<p>Generally, the size of the model is most important factor, then quantizations in the following order:</p>
 	
 	<p><code>float32</code>, <code>bfloat16</code>, <code>float16</code>, <code>int8_float32</code>, <code>int8_bfloat16</code>, <code>int8_float16</code>, <code>int8</code>.</p>
+	
+	<p> HOWEVER, I do not recommend going above <code>base</code> unless you notice inaccuracy with the transcription.  It's not worth
+	the additional VRAM/compute requirements.</p>
+	
+	<p>Additionally, what quantization is compatible depends on your CPU or GPU.  To summarize my research...</p>
+	
+	<p>For CPU usage, I strongly recommend only using "float32" or "int8_float32" (if you need to save some VRAM).</p>
+	
+	<p>For CUDA usage, you have more flexibility, but compatibility depends on the CUDA "Compute" level your GPU supports:</p>
+
+    <p>NVIDIA RTX 4060 and up, all quantizations are supported, but I recommend <code>bfloat16</code></p>
+	
+    <p>From NVIDIA GTX 1650 but prior to RTX 4060, <code>float32</code> or <code>float16</code>, but I recommend the latter.</p>
+	
+	<p><code>int8_float32</code> is compatible with any NVIDIA card 1650 and if your want to save VRAM/compute requirements.</p>
+	
+	<p>Anything below an RTX 1650, only <code>float32</code> is compatible.</p>
+	
+	<p>If you don't use a compatible model Ctranslate2 will convert when running and my program still work.
+	However, this conversion adds overhead and reduces speed.</p>
+	
+	<p>If you are truly </code>HARDCORE</code>, I have converted all of the following quantizations on huggingface
+	so you can modify my script to experiment with all possible quantizations!</p>
 	
 	<table>
         <thead>
