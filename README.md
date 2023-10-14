@@ -272,7 +272,7 @@ The efficacy of an embedding model depends on both the type of text and type of 
 Selects the directory of the embedding model you want to use.
 
 ### Step 5 - Choose Documents for Database
-Select one or more files (pdf, docx, txt, json, enex, eml, msg, csv, xls, xlsx).
+Select one or more files (```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```).
 
 ### Step 6 - Create Vector Database
 GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
