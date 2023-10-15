@@ -15,17 +15,25 @@ CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
 )
 
-openai.api_base = 'http://localhost:1234/v1'
-openai.api_key = ''
-
-prefix = "[INST]"
-suffix = "[/INST]"
-
 def connect_to_local_chatgpt(prompt):
+    with open('config.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+        server_config = config.get('server', {})
+        openai_api_base = server_config.get('connection_str')
+        openai_api_key = server_config.get('api_key')
+        prefix = server_config.get('prefix')
+        suffix = server_config.get('suffix')
+        model_temperature = server_config.get('model_temperature')
+        model_max_tokens = server_config.get('model_max_tokens')
+    
+    openai.api_base = openai_api_base
+    openai.api_key = openai_api_key
+
     formatted_prompt = f"{prefix}{prompt}{suffix}"
     response = openai.ChatCompletion.create(
         model="local model",
-        temperature=0.1,
+        temperature=model_temperature,
+        max_tokens=model_max_tokens,
         messages=[{"role": "user", "content": formatted_prompt}]
     )
     return response.choices[0].message["content"]

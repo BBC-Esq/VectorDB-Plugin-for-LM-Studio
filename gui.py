@@ -49,7 +49,7 @@ class DocQA_GUI(QWidget):
         self.left_frame = QFrame()
         left_vbox = QVBoxLayout()
 
-        tab_widget = create_tabs(tabs_config)
+        tab_widget = create_tabs()
         left_vbox.addWidget(tab_widget)
 
         button_data = [
