@@ -2,7 +2,8 @@
   <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
 </div>
 <div align="center">
-  <h2>Ask questions about your documents and get an answer from an LLM!</h2>
+  <h3>Ask questions about your documents and get an answer from an LLM!</h3>
+  <h3>Start a new "issue" if you want to request a feature or report a bug!</h3>
 </div>
 
 <div align="center">
