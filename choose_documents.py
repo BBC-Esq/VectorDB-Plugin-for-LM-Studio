@@ -1,5 +1,4 @@
 import os
-import shutil
 from PySide6.QtWidgets import QApplication, QFileDialog
 
 def choose_documents_directory():
@@ -14,7 +13,8 @@ def choose_documents_directory():
             os.mkdir(docs_folder)
 
         for file_path in file_paths:
-            shutil.copy(file_path, docs_folder)
+            symlink_target = os.path.join(docs_folder, os.path.basename(file_path))
+            os.symlink(file_path, symlink_target)
 
 if __name__ == '__main__':
     app = QApplication([])

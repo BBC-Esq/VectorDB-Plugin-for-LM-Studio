@@ -9,6 +9,7 @@ from langchain.vectorstores import Chroma
 from chromadb.config import Settings
 from document_processor import load_documents, split_documents
 import torch
+from utilities import validate_symbolic_links
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
@@ -28,6 +29,9 @@ def main():
     logging.info(f"Loading documents from {SOURCE_DIRECTORY}")
     documents = load_documents(SOURCE_DIRECTORY)
     texts = split_documents(documents)
+    
+    #  validate symbolic links before creating the database.
+    validate_symbolic_links(SOURCE_DIRECTORY)
     
     logging.info(f"Loaded {len(documents)} documents from {SOURCE_DIRECTORY}")
     logging.info(f"Split into {len(texts)} chunks of text")
