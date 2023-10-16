@@ -44,7 +44,7 @@
 > IMPORTANT: For any commands that begin with ```python``` or ```pip``` in these instructions, if you installed Python 3 but still have Python 2 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
 
 <details>
-  <summary>🪟 WINDOWS INSTRUCTIONS</summary>
+  <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
   
 ### Step 1 - Install GPU Acceleration Software
 * 🟢 Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
@@ -92,7 +92,7 @@ python check_gpu.py
 </details>
 
 <details>
-  <summary>🐧LINUX INSTRUCTIONS</summary>
+  <summary>🐧LINUX INSTRUCTIONS🐧</summary>
 
 ### Step 1 - GPU Acceleration Software
   * 🟢 Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
@@ -144,7 +144,7 @@ python check_gpu.py
 </details>
 
 <details>
-  <summary>🍎 APPLE INSTRUCTIONS</summary>
+  <summary>🍎APPLE INSTRUCTIONS🍎</summary>
 
 ### Step 1 - GPU Acceleration Software
 * All Macs with MacOS 12.3+ come with 🔘 Metal/MPS support, which is the equivalent of CUDA and ROCm.  However, you still need to install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
@@ -242,7 +242,7 @@ python check_gpu.py
 
 ### Step 2 - Ctranslate2 Compatibility Checker
 
-Easily download and run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.  On Linux or MacOS, follow the instructions on that repository.
+Easily download and run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.  On Linux or MacOS, follow the instructions on that repository to simply use the ```.py``` file instead, or you can convert the ```.exe``` pursuant to the [instructions here](https://github.com/BBC-Esq/ctranslate2-faster-whisper-transcriber/blob/main/linux_instructions.png)
 
 ### Step 3 - Option to Change Ctranslate2 Whisper Models
 The program by default downloads and uses the ```base.en``` ```float32``` Ctranslate2 Whisper model.  To use more/less powerful models or different quantizations change [```line 13```](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/blob/ee718ea9d37dc3d21b2c14cdcbb93f6b3b9385ed/voice_recorder_module.py#L13) of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
@@ -251,7 +251,7 @@ The program by default downloads and uses the ```base.en``` ```float32``` Ctrans
 
 # Usage
 <details>
-  <summary>🔥USAGE INSTRUCTIONS</summary>
+  <summary>🔥USAGE INSTRUCTIONS🔥</summary>
 
 ### Step 1 - Virtual Environment
 Open a command prompt within my repository folder and activate the virtual environment:<br>
