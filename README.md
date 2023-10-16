@@ -41,7 +41,7 @@
 # Installation
 
 > First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
-> NOTE: For any ```python``` or ```pip``` commands in these instructions, if you installed Python 3 but still have Python 2 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
+> IMPORTANT: For any commands that begin with ```python``` or ```pip``` in these instructions, if you installed Python 3 but still have Python 2 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
 
 <details>
   <summary>🪟 WINDOWS INSTRUCTIONS</summary>
@@ -49,7 +49,7 @@
 ### Step 1 - Install GPU Acceleration Software
 * Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
     > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
-* AMD GPU - Unfortuantely, PyTorch does not currently support AMD GPUs on Windows (only Linux).
+* AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows (only Linux).
 
 ### Step 2 - Obtain Repository
 * Download the latest "release" and unzip anywhere on your computer.
@@ -80,12 +80,12 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install torch torchvision torchaudio
 ```
 
-### Step 7 - Install Dependencies
+### Step 6 - Install Dependencies
 ```
 pip install -r requirements.txt
 ```
 
-### Step 6 - Doublecheck GPU-Acceleration
+### Step 7 - Doublecheck GPU-Acceleration
 ```
 python check_gpu.py
 ```
@@ -110,9 +110,8 @@ python -m venv .
 ```
 * Activate the virtual environment:
 ```
-.\Scripts\activate
+source bin/activate
 ```
-  >On Linux try ```source bin/activate``` if the above doesn't work.
 
 ### Step 4 - Update Pip
 ```
@@ -156,7 +155,7 @@ python check_gpu.py
 ### Step 3 - Virtual Environment
 * Open the folder containing my repository files.  Open a command prompt.  Create a virtual environment:
 ```
-python3 -m venv .
+python -m venv .
 ```
 * Activate the virtual environment:
 ```
@@ -165,22 +164,22 @@ source bin/activate
 
 ### Step 4 - Update Pip
 ```
-python3 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 ```
 
 ### Step 5 - Install PyTorch
 ```
-pip3 install torch torchvision torchaudio
+pip install torch torchvision torchaudio
 ```
 
 ### Step 7 - Install Dependencies
 ```
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Step 8 - Doublecheck Metal/MPS-acceleration
 ```
-python3 check_gpu.py
+python check_gpu.py
 ```
 
 </details>
