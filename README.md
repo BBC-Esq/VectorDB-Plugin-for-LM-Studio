@@ -26,7 +26,7 @@
       </tr>
       <tr>
         <td>AMD</td>
-        <td>❌</td>
+        <td>⚠️ (see below)</td>
         <td>✅</td>
         <td>ROCm 5.6</td>
       </tr>
@@ -47,9 +47,9 @@
   <summary>🪟 WINDOWS INSTRUCTIONS</summary>
   
 ### Step 1 - Install GPU Acceleration Software
-* Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+* 🟢 Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
     > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
-* AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows (only Linux).
+* 🔴 AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows (only Linux).  However, it may be possible by using WSL within Windows pursuant to the instructions [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview) and then access GPU-acceleration via [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview).  However, I do not have an AMD GPU so please let me know if you get it working with this method.  If this does work for you, proceed to the instructions below on how to install my program within Linux.
 
 ### Step 2 - Obtain Repository
 * Download the latest "release" and unzip anywhere on your computer.
@@ -70,12 +70,12 @@ python -m pip install --upgrade pip
 ```
 
 ### Step 5 - Install PyTorch
-* Nvidia GPUs:
+* 🟢 Nvidia GPUs:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-> AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows; it is only supported on Linux.
-* CPU only:
+> 🔴 AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows (only Linux).  However, it may be possible by using WSL within Windows pursuant to the instructions [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview) and then access GPU-acceleration via [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview).  However, I do not have an AMD GPU so please let me know if you get it working with this method.  If this does work for you, proceed to the instructions below on how to install my program within Linux.
+* 🔵 CPU only:
 ```
 pip install torch torchvision torchaudio
 ```
@@ -95,9 +95,9 @@ python check_gpu.py
   <summary>🐧LINUX INSTRUCTIONS</summary>
 
 ### Step 1 - GPU Acceleration Software
-  * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+  * 🟢 Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
       > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
-  * AMD GPUs ➜ install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html) according to the instructions.
+  * 🔴 AMD GPUs ➜ install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html) according to the instructions.
     > Additionally, [this repo](https://github.com/nktice/AMD-AI) might help, but I can't verify since I don't have an AMD GPU nor Linux.
 
 ### Step 2 - Obtain Repository
@@ -119,15 +119,15 @@ python -m pip install --upgrade pip
 ```
 
 ### Step 5 - Install PyTorch
-* Nvidia GPU:
+* 🟢 Nvidia GPU:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-* AMD GPU:
+* 🔴 AMD GPU:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
 ```
-* CPU Only command:
+* 🔵 CPU only:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
@@ -147,7 +147,7 @@ python check_gpu.py
   <summary>🍎 APPLE INSTRUCTIONS</summary>
 
 ### Step 1 - GPU Acceleration Software
-* All Macs with MacOS 12.3+ come with Metal/MPS support, which is the equivalent of CUDA (NVIDIA) and ROCm (AMD).  However, you still need to install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+* All Macs with MacOS 12.3+ come with 🔘 Metal/MPS support, which is the equivalent of CUDA and ROCm.  However, you still need to install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 
 ### Step 2 - Obtain Repository
 * Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
@@ -189,7 +189,7 @@ python check_gpu.py
 > As of release 2.1+, my program allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box.  This is based on the "faster-whisper" library, which relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Ctranslate2 supports both CPU and GPU acceleration as follows:
 
 <details>
-  <summary>🔥TRANSCRIPTION INSTRUCTIONS</summary>
+  <summary>🔥TRANSCRIPTION INSTRUCTIONS🔥</summary>
   
 ### Step 1 - Faster-Whisper Compatibility
 
@@ -238,14 +238,14 @@ python check_gpu.py
   </table>
 </div>
 
-  > Ctranslate2 will use the best acceleration method available.  However, if you encounter any problems with the voice transcript that prevents the program from working simply install a release prior to 2.1 and follow the normal installation instructions.
+  > Determine if you will use cpu or gpu acceleration based on the above table.  It will inform which model sizes and quantizations I recommend using.  Ctranslate2 will "fallback" to the best available device and quantization by default, but making sure you download the proper quantization and size will speed up transcription.  If you encounter any problems with the voice transcript that prevents the program from working simply install a release prior to 2.1 and follow the normal installation instructions.
 
 ### Step 2 - Ctranslate2 Compatibility Checker
 
-Easily download and run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.
+Easily download and run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.  On Linux or MacOS, follow the instructions on that repository.
 
 ### Step 3 - Option to Change Ctranslate2 Whisper Models
-The program automatically downloads and uses the ```base.en``` Ctranslate2 Whisper by default.  To use more/less powerful models, change [```line 13```](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/blob/ee718ea9d37dc3d21b2c14cdcbb93f6b3b9385ed/voice_recorder_module.py#L13) of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
+The program by default downloads and uses the ```base.en``` ```float32``` Ctranslate2 Whisper model.  To use more/less powerful models or different quantizations change [```line 13```](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/blob/ee718ea9d37dc3d21b2c14cdcbb93f6b3b9385ed/voice_recorder_module.py#L13) of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
 
 </details>
 
@@ -255,7 +255,7 @@ The program automatically downloads and uses the ```base.en``` Ctranslate2 Whisp
 
 ### Step 1 - Virtual Environment
 Open a command prompt within my repository folder and activate the virtual environment:<br>
-> NOTE: For Macs and Linux the command is: ```source bin/activate```
+> NOTE: For 🍎Macs and 🐧Linux the command is: ```source bin/activate```
 ```
 .\Scripts\activate
 ```
@@ -264,25 +264,25 @@ Open a command prompt within my repository folder and activate the virtual envir
 ```
 python gui.py
 ```
-* NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Working on a fix.
+* NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Feel free to request that I add AMD or Apple support.
 
 ### Step 3 - Download Embedding Model
-The efficacy of an embedding model depends on both the type of text and type of questions you intend to ask.  Do some research on the different models, but I've selected ones that are overall good.
-> You must wait until the download is complete AND unpacked before trying to create the database.
+The best embedding model depends on the type of text being entered into the vector database and the style of question you intend to ask.  I've selected multiple models that are good, but feel free to read about each one because they're suitable for different tasks.
+> NOTE: You must wait until the download is complete AND unpacked before trying to create the database.
 
 ### Step 4 - Select Embedding Model Directory
 Selects the directory of the embedding model you want to use.
 
 ### Step 5 - Choose Documents for Database
 Select one or more files (```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```).
-> PDF files must already have had OCR done on them.  Will eventually use Pytesseract to address this.
+> PDF files must already have had OCR done on them.  Put in a feature request if you want to incorporate Pytesseract for OCR.
 
 ### Step 6 - Create Vector Database
 GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
 
 ### Step 7 - Start LM Studio
 Open LM Studio and load a model.  Click the server tab on the left side.  Click "Start Server" in the server tab.
-> Only Llama2-based models are currently supported due to their prompt format.
+> NOTE: Only Llama2-based models are currently supported due to their prompt format.
 
 ### Step 8 - Submit Question
 Enter a question and click "submit question."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
