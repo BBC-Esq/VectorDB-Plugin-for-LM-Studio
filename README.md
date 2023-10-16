@@ -74,8 +74,8 @@ python -m pip install --upgrade pip
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-> Unfortunately, PyTorch only currently supports AMD GPU's on Linux system.
-* CPU Only command:
+> AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows; it is only supported on Linux.
+* CPU only:
 ```
 pip install torch torchvision torchaudio
 ```
@@ -85,7 +85,7 @@ pip install torch torchvision torchaudio
 pip install -r requirements.txt
 ```
 
-### Step 7 - Doublecheck GPU-Acceleration
+### Step 7 - Double check GPU-Acceleration
 ```
 python check_gpu.py
 ```
@@ -97,7 +97,7 @@ python check_gpu.py
 ### Step 1 - GPU Acceleration Software
   * Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
       > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
-  * AMD GPUs ➜ install ROCm version 5.6 according to the instructions https://rocmdocs.amd.com/en/latest/deploy/linux/quick_start.html](https://rocm.docs.amd.com/en/docs-5.6.1/.
+  * AMD GPUs ➜ install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html) according to the instructions.
     > Additionally, [this repo](https://github.com/nktice/AMD-AI) might help, but I can't verify since I don't have an AMD GPU nor Linux.
 
 ### Step 2 - Obtain Repository
@@ -137,7 +137,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install -r requirements.txt
 ```
 
-### Step 7 - Doublecheck GPU-acceleration
+### Step 7 - Double check GPU-acceleration
 ```
 python check_gpu.py
 ```
@@ -172,12 +172,12 @@ python -m pip install --upgrade pip
 pip install torch torchvision torchaudio
 ```
 
-### Step 7 - Install Dependencies
+### Step 6 - Install Dependencies
 ```
 pip install -r requirements.txt
 ```
 
-### Step 8 - Doublecheck Metal/MPS-acceleration
+### Step 7 - Double check Metal/MPS-acceleration
 ```
 python check_gpu.py
 ```
@@ -240,7 +240,7 @@ python check_gpu.py
 
   > Ctranslate2 will use the best acceleration method available.  However, if you encounter any problems with the voice transcript that prevents the program from working simply install a release prior to 2.1 and follow the normal installation instructions.
 
-### Step2 - Ctranslate2 Compatibility Checker
+### Step 2 - Ctranslate2 Compatibility Checker
 
 Easily download and run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.
 
@@ -288,7 +288,7 @@ Open LM Studio and load a model.  Click the server tab on the left side.  Click 
 Enter a question and click "submit question."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
 
 ### Step 9 - Transcribe Question Instead
-Click start record button.  Talk.  Click stop button.  Paste transcription into question box.  Click Submit Question.
+Click the 'Start Record' button, speak, and then click the 'Stop' button.  Paste transcription into question box and click Submit Question.
 
 </details>
 
