@@ -41,6 +41,7 @@
 # Installation
 
 > First, make sure have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
+> NOTE: For any ```python``` or ```pip``` commands in these instructions, if you installed Python 3 but still have Python 2 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
 
 <details>
   <summary>🪟 WINDOWS INSTRUCTIONS</summary>
@@ -111,6 +112,7 @@ python -m venv .
 ```
 .\Scripts\activate
 ```
+  >On Linux try ```source bin/activate``` if the above doesn't work.
 
 ### Step 4 - Update Pip
 ```
