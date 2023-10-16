@@ -275,12 +275,13 @@ Selects the directory of the embedding model you want to use.
 
 ### Step 5 - Choose Documents for Database
 Select one or more files (```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```).
+> PDF files must already have had OCR done on them.  Will eventually use Pytesseract to address this.
 
 ### Step 6 - Create Vector Database
 GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
 
 ### Step 7 - Start LM Studio
-Open LM Studio and load a model.  Click the server tab on the lefhand side.  Click "Start Server" in the server tab.
+Open LM Studio and load a model.  Click the server tab on the left side.  Click "Start Server" in the server tab.
 > Only Llama2-based models are currently supported due to their prompt format.
 
 ### Step 8 - Submit Question
