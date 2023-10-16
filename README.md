@@ -255,7 +255,7 @@ The program automatically downloads and uses the ```base.en``` Ctranslate2 Whisp
 
 ### Step 1 - Virtual Environment
 Open a command prompt within my repository folder and activate the virtual environment:<br>
-> NOTE: For Macs the preferred command is ```source bin/activate```
+> NOTE: For Macs and Linux the command is: ```source bin/activate```
 ```
 .\Scripts\activate
 ```
