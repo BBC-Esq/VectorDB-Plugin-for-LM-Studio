@@ -40,8 +40,8 @@
 
 # Installation
 
-> First, make sure to have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
-> IMPORTANT: For any commands that begin with ```python``` or ```pip``` in these instructions, if you installed Python 3 but still have Python 2 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
+> ‼️ Make sure to have [Python 3.10+](https://www.python.org/downloads/release/python-31011/).  Also, you must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
+> ‼️ For any commands that begin with ```python``` or ```pip``` in these instructions, if you installed Python 3 but still have Python 2 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
 
 <details>
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
@@ -264,25 +264,25 @@ Open a command prompt within my repository folder and activate the virtual envir
 ```
 python gui.py
 ```
-* NOTE: Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Feel free to request that I add AMD or Apple support.
+* ‼️ Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Feel free to request that I add AMD or Apple support.
 
 ### Step 3 - Download Embedding Model
 The best embedding model depends on the type of text being entered into the vector database and the style of question you intend to ask.  I've selected multiple models that are good, but feel free to read about each one because they're suitable for different tasks.
-> NOTE: You must wait until the download is complete AND unpacked before trying to create the database.
+> ‼️ You must wait until the download is complete AND unpacked before trying to create the database.
 
 ### Step 4 - Select Embedding Model Directory
 Selects the directory of the embedding model you want to use.
 
 ### Step 5 - Choose Documents for Database
 Select one or more files (```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```).
-> PDF files must already have had OCR done on them.  Put in a feature request if you want to incorporate Pytesseract for OCR.
+> ‼️ PDF files must already have had OCR done on them.  Put in a feature request if you want to incorporate Pytesseract for OCR.
 
 ### Step 6 - Create Vector Database
 GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
 
 ### Step 7 - Start LM Studio
 Open LM Studio and load a model.  Click the server tab on the left side.  Click "Start Server" in the server tab.
-> NOTE: Only Llama2-based models are currently supported due to their prompt format.
+> ‼️ Only Llama2-based models are currently supported due to their prompt format.
 
 ### Step 8 - Submit Question
 Enter a question and click "submit question."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
