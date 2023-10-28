@@ -243,15 +243,16 @@ python check_gpu.py
   </table>
 </div>
 
-  > The above table determines which Ctranslate2 quantizations of the Whisper model you can use.
+  > The type of acceleration you'll be using also determines the supported quantizations (discussed below).
 
 ### Compatibility Checker
 
-On Windows, simpy run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.<br>
+On Windows, simpy run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0).<br>
 
 On Linux or MacOS, follow the instructions [HERE](https://github.com/BBC-Esq/ctranslate2-compatibility-checker).
 
-### Step 3 - Changing Transcription Model or Quantization
+### Changing Transcription Model or Quantization
+
 The program by default uses the ```base.en``` ```float32``` model, which usesabout 1.5 G.B. of memory.  You can change the model size and quantization to achieve the desired quality balanced with memory usage.  Detailed instructions are located in the "Whisper" tab within the GUI.
 
 </details>
