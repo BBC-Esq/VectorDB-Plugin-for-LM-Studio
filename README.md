@@ -42,10 +42,10 @@
 
 > ‼️ Make sure to have at least 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (haven't tested higher).<br>
 > ‼️ You must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
-> ‼️ For any commands that begin with ```python``` or ```pip``` in these instructions, if you installed Python 3 but still have Python 2 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
+
 
 # Installation
-
+> ‼️ For any commands that begin with ```python``` or ```pip``` in these instructions, if you installed Python 3 but still have Python 2 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
 <details>
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
   
@@ -191,12 +191,12 @@ python check_gpu.py
 
 # Transcription Instructions
 
-> As of release 2.1+, my program allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the question box.  This is based on the "faster-whisper" library, which relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.  Ctranslate2 supports both CPU and GPU acceleration as follows:
+> As of release 2.1+, my program allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the LM Studio question box.  It uses the "faster-whisper" library, which relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
 
 <details>
   <summary>🔥TRANSCRIPTION INSTRUCTIONS🔥</summary>
   
-### Step 1 - Faster-Whisper Compatibility
+### Compatibility Overview
 
 <div align="center">
   <h4>⚡Transcription Acceleration⚡</h4>
@@ -243,14 +243,16 @@ python check_gpu.py
   </table>
 </div>
 
-  > Determine if you will use cpu or gpu acceleration based on the above table.  It will inform which model sizes and quantizations I recommend using.  Ctranslate2 will "fallback" to the best available device and quantization by default, but making sure you download the proper quantization and size will speed up transcription.  If you encounter any problems with the voice transcript that prevents the program from working simply install a release prior to 2.1 and follow the normal installation instructions.
+  > The above table determines which Ctranslate2 quantizations of the Whisper model you can use.
 
-### Step 2 - Ctranslate2 Compatibility Checker
+### Compatibility Checker
 
-Easily download and run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.  On Linux or MacOS, follow the instructions on that repository to simply use the ```.py``` file instead, or you can convert the ```.exe``` pursuant to the [instructions here](https://github.com/BBC-Esq/ctranslate2-faster-whisper-transcriber/blob/main/linux_instructions.png)
+On Windows, simpy run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) to check which quantizations your CPU and GPU support.<br>
 
-### Step 3 - Option to Change Ctranslate2 Whisper Models
-The program by default downloads and uses the ```base.en``` ```float32``` Ctranslate2 Whisper model.  To use more/less powerful models or different quantizations change [```line 13```](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/blob/ee718ea9d37dc3d21b2c14cdcbb93f6b3b9385ed/voice_recorder_module.py#L13) of ```voice_recorder_module.py``` pursuant to the instructions contained in the "Whisper" tab within the GUI.
+On Linux or MacOS, follow the instructions [HERE](https://github.com/BBC-Esq/ctranslate2-compatibility-checker).
+
+### Step 3 - Changing Transcription Model or Quantization
+The program by default uses the ```base.en``` ```float32``` model, which usesabout 1.5 G.B. of memory.  You can change the model size and quantization to achieve the desired quality balanced with memory usage.  Detailed instructions are located in the "Whisper" tab within the GUI.
 
 </details>
 
