@@ -45,7 +45,7 @@
 
 
 # Installation
-> ‼️ For any commands that begin with ```python``` or ```pip```, if you have both Python 2 and Python installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
+> ‼️ For any commands that begin with ```python``` or ```pip```, if you have both Python 2 and Python 3 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
 <details>
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
   
