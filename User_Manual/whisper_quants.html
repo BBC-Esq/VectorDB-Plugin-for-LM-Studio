@@ -4,32 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Table</title>
+    <title>Whisper and Ctranslate2</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 0;
-            background-color: #333; /* Dark grey background */
-            color: #f5f5f5; /* Off-white text color */
+            background-color: #161b22;
+            color: #d0d0d0;
         }
 		
 		header {
 			text-align: center;
 			background-color: #3498db;
-			color: #fff;
+			color: #333;
 			padding: 20px;
 			position: sticky;
 			top: 0;
 			z-index: 999;
 		}
 		
+		main {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+		
+		h1 {
+		  color: #333;
+		}
+
+		h2 {
+		  color: #f0f0f0;
+		  text-align: center;
+		}
+		
 		table {
             color: black;
 			border-collapse: collapse;
-            width: 80%;
-            margin: 50px auto;
+            margin: auto;
         }
 		
 		thead th {
@@ -45,31 +59,38 @@
         }
 
         .tiny {
-            background-color: #e6f7ff; /* light blue */
+            background-color: #e6f7ff;
         }
 
         .base {
-            background-color: #b3e0ff; /* medium blue */
+            background-color: #b3e0ff;
         }
 
         .small {
-            background-color: #66c2ff; /* darker blue */
+            background-color: #66c2ff;
         }
 
         .medium {
-            background-color: #3399ff; /* even darker blue */
+            background-color: #3399ff;
         }
 
         .large {
-            background-color: #0073e6; /* darkest blue */
+            background-color: #0073e6;
         }
 		
 		code {
-			background-color: #f9f9f9; /* light gray background */
+			background-color: #d0d0d0;
 			border-radius: 3px;
 			padding: 2px 3px;
 			font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 			color: #333;
+		}
+		
+		footer {
+			text-align: center;
+			background-color: #333;
+			color: #fff;
+			padding: 10px;
 		}
     </style>
 </head>
@@ -77,49 +98,75 @@
 <body>
 
     <header>
-        <h1>Whisper Ctranslate2 Quantizations</h1>
+        <h1>Whisper Quants</h1>
     </header>
 	
+	<main>
 	
-	<p>The <code>base.en</code> model is used by default and will automatically download.</p>
+	<h2>Changing Model Size and Quantization</h2>
 	
-	<p>To use different models, simply modify <code>line 13</code> of <code>voice_recorder_module.py</code>.  For example, to use
-	the "medium.en" model with "bfloat16 quantization you would change it to:</p>
+	<p>The <code>base.en</code> model with in <code>float32</code> format is used by default.  To use a different model size,
+	modify <code>line 13</code> of <code>voice_recorder_module.py</code>.  For example, to use
+	the <code>medium.en</code> with in the <code>bfloat16</code> format it should read:</p>
 	
 	<p><code>("ctranslate2-4you/whisper-medium.en-ct2-bfloat16", device="auto", compute_type="bfloat16")</code></p>
 	
-	<p>Remember, you must restart <code>gui.py</code> afterwards.
+	<p>Remember to restart <code>gui.py</code> afterwards.</p>
 	
-	<p>Tips:</p>
+	<p>The available models are: <code>tiny</code>, <code>tiny.en</code>, <code>base</code>, <code>base.en</code>
+	<code>small</code>, <code>small.en</code>, <code>medium</code>, <code>medium.en</code>, <code>large-v2</code>.</p>
 	
-	<p>If you speak English, use models ending in <code>.en</code> since they specialize in English.</p>
+	<p>The available quantizations are (largest to smallest):<code>float32</code>, <code>bfloat16</code>,
+	<code>float16</code> (same as bfloat16), <code>int8_float32</code>, <code>in8_bfloat16</code>, <code>int8_float16</code>.
+	The last two are only barely smaller than <code>int8_float32</code>.
 	
-	<p>Generally, the size of the model is most important factor, then quantizations in the following order:</p>
+	<p>I highly recommend that you check which quantizations you CPU and GPU work with before running the program.</p>
 	
-	<p><code>float32</code>, <code>bfloat16</code>, <code>float16</code>, <code>int8_float32</code>, <code>int8_bfloat16</code>, <code>int8_float16</code>, <code>int8</code>.</p>
+	<p><b>https://github.com/BBC-Esq/ctranslate2-compatibility-checker</b></p>
 	
-	<p> HOWEVER, I do not recommend going above <code>base</code> unless you notice inaccuracy with the transcription.  It's not worth
-	the additional VRAM/compute requirements.</p>
+	<p><code>base.en</code> with <code>float32</code> was chosen as the default because it's the most compatible while still
+	maintaining quality.  </p>Ctranslate2 will automatically use a compatible quantization even if you specify
+	an incompatible one, but this requires converting the model each time you transcribe.  Therefore, check compatibility first
+	and modify my code accordingly.  Experiment.
 	
-	<p>Additionally, what quantization is compatible depends on your CPU or GPU.  To summarize my research...</p>
+	<h2>Changing the Compute Device and CPU Threads</h2>
 	
-	<p>For CPU usage, I strongly recommend only using "float32" or "int8_float32" (if you need to save some VRAM).</p>
+	<p>Modify the same line (<code>line 13</code>) by replacing <code>auto</code> with <code>cpu</code>.  To change the number
+	of cpu threads used simply change 8 to whatever you want.  However, I recommend leaving at least 2 threads for background tasks:</p>
 	
-	<p>For CUDA usage, you have more flexibility, but compatibility depends on the CUDA "Compute" level your GPU supports:</p>
+	<p><b>https://digitaladvisor.com/cpu/cores-vs-threads/</b></p>
+	
+	<h2>English Versus Non-English Models</h2>
+	
+	<p>Use models ending in <code>.en</code> if you speak English.  The <code>large-v2</code> model doesn't come in an
+	English variant because it's just too damn good (but large memory and compute required).</p>
+	
+	<h2>My Recommendations</h2>
+	
+	<p>The size of the model is most important factor, then quantization.  Generally, due to the high quality of
+	these models it's unnecessary to go above <code>small/small.en</code>.  Only go above this if you notice inaccuracies.</p>
+	
+	<h3>CPU Usage</h3>
+	
+	<p><code>float32</code> should be compatible with all CPUs.  If your CPU supports it, prefer <code>int8_float32</code>
+	over <code>int8</code> when trying to save VRAM.</p>
+	
+	<h3>GPU Usage</h3>
+	
+	<p>Only Nvidia GPUs are supported by Ctranslate2 and which quantizations are compatible depends on your specific GPU.  Considering
+	the quality, resource requirements, and quantization compatibility, I recommend the following:</p>
 
-    <p>NVIDIA RTX 4060 and up, all quantizations are supported, but I recommend <code>bfloat16</code></p>
+    <p>RTX 3050 and up - all quantizations are supported but I recommend <code>bfloat16</code></p>
 	
-    <p>From NVIDIA GTX 1650 but prior to RTX 4060, <code>float32</code> or <code>float16</code>, but I recommend the latter.</p>
+    <p>GTX 1650 but prior to RTX 3050 - supports <code>float32</code> or <code>float16</code>, but I recommend the latter.</p>
 	
-	<p><code>int8_float32</code> is compatible with any NVIDIA card 1650 and if your want to save VRAM/compute requirements.</p>
+	<p>To save VRAM, any GPU GTX 1650 and up I recommend <code>int8_float32</code></p>
 	
-	<p>Anything below an RTX 1650, only <code>float32</code> is compatible.</p>
+	<p>Only <code>float32</code> is supported by a GPU below RTX 1650, but it's still faster than running on CPU.</p>
 	
-	<p>If you don't use a compatible model Ctranslate2 will convert when running and my program still work.
-	However, this conversion adds overhead and reduces speed.</p>
+	<h2 style="color: #f0f0f0;" align="center">All Available Models</h2>
 	
-	<p>If you are truly </code>HARDCORE</code>, I have converted all of the following quantizations on huggingface
-	so you can modify my script to experiment with all possible quantizations!</p>
+	<p>Here is a list of all the models I've converted to give you a rough idea of their size/quality.  Experiment!</p>
 	
 	<table>
         <thead>
@@ -384,3 +431,11 @@
         </tbody>
     </table>
 </div>
+
+</main>
+
+    <footer>
+        www.chintellalaw.com
+    </footer>
+</body>
+</html>

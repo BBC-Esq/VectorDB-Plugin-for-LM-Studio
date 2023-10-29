@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #161b22;
+      color: #d0d0d0;
+    }
+
+    header {
+      text-align: center;
+      background-color: #3498db;
+      color: #fff;
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    img {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      height: auto;
+    }
+
+	h1 {
+	  color: #333;
+	}
+
+	h2 {
+	  color: #f0f0f0;
+	  text-align: center;
+	}
+
+    p {
+      text-indent: 35px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 80%;
+      margin: 50px auto;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      color: #000;
+    }
+
+    footer {
+      text-align: center;
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+    }
+    
+    code {
+      background-color: #f9f9f9;
+      border-radius: 3px;
+      padding: 2px 3px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Settings</h1>
+  </header>
+
+  <main>
+    <h2>Server/LLM Settings</h2>
+    <p>The <code>port</code> number in these settings must match the one you've set in LM Studio. If you update it in LM
+	Studio, make sure to update it here as well.</p>
+	
+	<p>The <code>max-tokens</code> setting is <code>-1</code> by default, allowing for
+	unlimited-length responses within the context limit of the large language model you're using.  Changing this to any
+	other number will set the maximum number of tokens the LLM can provide a response within.  This does not change the
+	LLM's overall context limit (usually 4096), which encompasses your question, the "context" provided by the database,
+	and the response from the LLM.</p>
+
+    <h3>Temperature Setting</h3>
+    <p>The <code>temperature</code> setting influences the creativity of the model's responses. A setting of zero is
+	generally not recommended and a higher setting is not recommended when getting answers from specific provide context
+	as my program does.  The case would be different if you want an LLM to creatively write you a story, for example.</p>
+
+    <h3>Prefix and Suffix</h3>
+    <p>The <code>prefix</code> and <code>suffix</code> settings are tailored for LLAMA 2-based models by default, and works
+	with Mistral. Do not change this setting unless you're 100% sure you know the proper prompt format for the LLM in
+	LM Studio.  LM Studio is in beta to automatically provide these settings, but until I've tested the new feature I'm
+	keeping the ability to change them here.</p>
+	
+	<p>Shoutout to <code>@yags</code> for allowing plugins like mine to keep
+	adjusting this setting as prompt formats are extremely tricky.</p>
+
+    <h2>Embedding Models Settings</h2>
+    <p>These settings apply only if you're using a model named <code>BGE</code> or <code>Instructor</code>. Tread carefully
+	when adjusting these settings because it could hinder performance.  You can search online on how to adjust these depending
+	on the type of text being entered into the vector database.</p>
+	
+	<p>All other types of embedding models that my program uses don't require specialized settings.</p>
+
+    <h2>Chunk Settings</h2>
+    <p>The <code>chunk size</code> and <code>chunk overlap</code> settings apply to Langchain's RecursiveCharacterTextSplitter,
+	which is responsible for splitting the text before it's entered into the vector database by the embedding model.
+	The chunk size here is in the number of "characters" not the number of "tokens" like the LLM's settings are.</p>
+
+    <h3>Chunk Size</h3>
+    <p>The Recursive CharacterTextSplitter aims to cut text as close to the specified chunk size as possible. However, it adheres to
+	certain cut-off criteria like paragraph ends. As such, your chunks might not be exactly 1,500 characters. But that's
+	okay, it does this to try and preserver meaning within a given chunk.  The more important thing to remember is that
+	my program by default returns up to four "contexts" from the vector database.  It then sends these to the LLM along with
+	your question for a response.  <code>all chunks + your question + LLM's response</code> should fall within the LLM's token
+	context limit (usually 4096).  If you set the chunk size setting too large it might cause an error or the LLM's response
+	might be cutoff.</p>
+	
+	<p>On average, there are four characters per "<code>token</code>" Therefore, if you set the chunk size to 2000
+	characters approximately <code>2000 tokens</code> (8000/4) will be sent to the LLM along with however long your question is.
+	If your question is 100 tokens, that means that you've used 2100 tokens sending information to the LLM.  Assuming the LLM
+	has a maximum context length of 4096, that leaves <code>1996 tokens</code> within which to provide a response...or
+	approximately 7984 words.  This should still be plenty.  However, in the near future I will add a setting to allow
+	users to send <b>more than only four contexts</b> to the LLM...So you can see how this could quickly exceed the
+	context limit of the LLM.  Just be aware of this upcoming change.</p>
+	
+	<p>Additionally (and arguably more importantly), the embedding model itself has a limit of <code>512 tokens</code>.  In
+	other words, the size of a "chunk" given to the embedding model should not exceed 512 tokens.  If it does, the embedding
+	model will simply cut it off - it won't give an error and prevent my program from working.  This obviously hinders
+	the reliability of the vector database itself, so be aware.<p>
+	
+	<p>With that being said, overall, a larger chunk size is better if the text put into the database communicates ideas in a longer
+	fashion and vice versa.  Feel free to experiment with what gives you the best results!</p>
+
+    <h3>Chunk Overlap</h3>
+    <p>The <code>chunk overlap</code> setting ensures that chunks have overlapping portions to prevent awkward breaks in content.
+	For example, if the end of a chunk is mid-sentence it'll ensure that the next chunk encompasses the entire sentence because
+	it will automatically include, for example, the last 250 characters of the prior chunk.  Feel free to experiment
+	with this setting as well to get the best results!</p>
+	
+	<h2>Break in Case of Emergency</h2>
+	<p>All of the settings are kept in a <code>config.yaml</code> file.  If you accidentally change a setting you don't like or
+	its deleted or corrupted somehow, inside the "User Guide" folder I put a backup of the original file.</p>
+    
+  </main>
+
+  <footer>
+    <p>www.chintellalaw.com</p>
+  </footer>
+
+</body>
+</html>

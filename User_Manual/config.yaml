@@ -1,0 +1,50 @@
+AVAILABLE_MODELS:
+- BAAI/bge-large-en-v1.5
+- BAAI/bge-base-en-v1.5
+- BAAI/bge-small-en-v1.5
+- thenlper/gte-large
+- thenlper/gte-base
+- thenlper/gte-small
+- hkunlp/instructor-xl
+- hkunlp/instructor-large
+- hkunlp/instructor-base
+- sentence-transformers/all-mpnet-base-v2
+- sentence-transformers/all-MiniLM-L6-v2
+- sentence-transformers/all-MiniLM-L12-v2
+- sentence-transformers/sentence-t5-xxl
+- sentence-transformers/sentence-t5-xl
+- sentence-transformers/sentence-t5-large
+- sentence-transformers/sentence-t5-base
+- sentence-transformers/gtr-t5-xxl
+- sentence-transformers/gtr-t5-xl
+- sentence-transformers/gtr-t5-large
+- sentence-transformers/gtr-t5-base
+- jinaai/jina-embedding-l-en-v1
+- jinaai/jina-embedding-b-en-v1
+- jinaai/jina-embedding-s-en-v1
+- jinaai/jina-embedding-t-en-v1
+- jinaai/jina-embeddings-v2-base-en
+- jinaai/jina-embeddings-v2-small-en
+COMPUTE_DEVICE: cuda
+EMBEDDING_MODEL_NAME: null
+chunk_overlap: 250
+chunk_size: 1500
+embedding-models:
+  bge:
+    query_instruction: 'Represent this sentence for searching relevant passages:'
+  instructor:
+    embed_instruction: 'Represent the document for retrieval:'
+    query_instruction: 'Represent the question for retrieving supporting documents:'
+server:
+  api_key: ''
+  connection_str: http://localhost:1234/v1
+  model_max_tokens: -1
+  model_temperature: 0.1
+  prefix: '[INST]'
+  suffix: '[/INST]'
+styles:
+  button: 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic";
+    width: 29;'
+  frame: 'background-color: #161b22;'
+  input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
+  text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'

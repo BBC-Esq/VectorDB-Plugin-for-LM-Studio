@@ -10,8 +10,8 @@
 			line-height: 1.6;
 			margin: 0;
 			padding: 0;
-			background-color: #333; /* Dark grey background */
-			color: #f5f5f5; /* Off-white text color */
+			background-color: #161b22;
+			color: #d0d0d0;
 		}
 
 		header {
@@ -37,17 +37,23 @@
 			height: auto;
 		}
 
-		h1, h2 {
-			color: #333;
+		h1 {
+		  color: #333;
+		}
+
+		h2 {
+		  color: #f0f0f0;
+		  text-align: center;
 		}
 
 		p {
-			text-indent: 35px; /* Indent paragraphs */
+			text-indent: 35px;
 		}
 
 		table {
 			border-collapse: collapse;
-			width: 100%;
+			width: 80%;
+			margin: 50px auto;
 		}
 
 		th, td {
@@ -69,7 +75,7 @@
 		}
 		
 		code {
-			background-color: #f9f9f9; /* light gray background */
+			background-color: #f9f9f9;
 			border-radius: 3px;
 			padding: 2px 3px;
 			font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
@@ -87,121 +93,97 @@
     <main>
 
         <section>
-        <h2 style="color: #f0f0f0;" align="center">Manage VRAM</h2>
-        <p>My program loads an "embedding" model to create/search the vector database and Ctranslate2 Whisper model for the
-		transcription functionality.  Therefore, when you use LM Studio, there are three models loaded into memory.
-		Therefore, it is important to manage your memory, whether it's RAM or VRAM to achieve the best performance.  This is
-		especially true if you are using VRAM.</p>
 		
-		<p>If you're using gpu-acceleration, it's crucial to load the entire model from LM Studio into VRAM (or as
-		many layers as possible) and not system RAM.  This greatly increases speed.  The pathways for sytem RAM and
-		PciExpress are "relatively" slow compared to VRAM.  Even if you load 99% of the LM Studio model into VRAM with 1% into system
-		RAM, you will NOT get 99% of the speed as if the ENTIRE model was loaded into VRAM.  Therefore, follow these tipes
-		to try and achieve this:</p>
+		<h2 style="color: #f0f0f0;" align="center">Manage VRAM</h2>
 		
-		<h3 style="color: #f0f0f0;">Tip #1 - Multiple Monitors</h3>
+		<p>It's important to load the entire model from LM Studio into VRAM (or as many layers as possible), not system RAM.
+		Even if you load 99% of the LM Studio model into VRAM with 1% into system RAM, you will NOT get 99% of the speed as if
+		the ENTIRE model was loaded into VRAM.  My program additionally loads an "embedding" model to create/search the vector
+		database and a Ctranslate2 Whisper model for the transcription functionality. Therefore, it is important manage your
+		memory to achieve the best performance.</p>
 		
-		<p>If you have more than one monitor connected to your graphics card, move them to your onboard graphics instead.
-		You can do this by unplugging any secondary monitors from the GPU and plugging them into graphics ports
-		(e.g. HDMI or DisplayPort) coming directly from your motherboard.  This will prevent these monitors from using the VRAM
-		on your graphics card.  You will most likely need to keep your main monitor plugged into your GPU (e.g. for gaming high
-		framerates)...but other monitors can be safely reallocated.</p>
+		<p>To save VRAM, unplug any secondary monitors from the GPU and plug them into graphics ports (e.g. HDMI or DisplayPort)
+		coming directly from your motherboard.  This will prevent these monitors from using your GPU.  You will most likely want
+		to keep your main monitor plugged in (e.g. for gaming).</p>
 		
-		<p>For example, I have a 4k monitor connected to my GPU and a 1080p monitor connected to my motherboard.  This frees
-		up approximately 1-1.5 GB of VRAM on my graphics card.  PLEASE NOTE, however, that some motherboards automatically
-		disable the motherboard's graphics adapters if it detects a separate GPU is installed.  In other words, it
-		basically presumes that all monitors will be connectec to your GPU.  If this occurs, you will need to enter BIOS
-		and "enable" the graphics adapters coming from your motherboard.  What the specific setting is called can vary depending
-		on the motherboard manufacturer; therefore, check motherboard documentation.</p>
+		<p>PLEASE NOTE, some motherboards automatically disable the motherboard's graphics adapters if a GPU is installed.
+		It basically assumes that you will be connecting all monitors to your GPU.  If this occurs, you will need to enter BIOS
+		and re-enable the graphics adapters on your motherboard.  The name of the specific setting can vary so check your specific
+		motherboard's documentation.</p>
 		
-		<h3 style="color: #f0f0f0;">Tip #2 - Ctranslate2/Whisper Transcription Models</h3>
+		<h2 style="color: #f0f0f0;" align="center">Select an Appropriate Embedding Model</h2>
 		
-		<p> Ctranslate2/Whisper models are state-of-the-art and very high quality.  Even the "tiny" model will usually work
-		for transcribing a simple qustion...unless your audio quality is very poor.  These models are extremely good at
-		transcribing low quality audio, people talking over one another, etc., so transcribing your simple question is easy.
-		Therefore, if VRAM is tight, try a smaller model.  Smaller = less VRAM required.</p>
+		<p>Previously, the <code>instructor</code> models performed best IMHO.  However, I have since corrected a mistake in
+		my code and now recommend using the <code>BGE v1.5</code> models for 90% of use cases.  They perform just as good and
+		use less memory.  Also, <code>all-mpnet-base-v2</code> is good and is low-memory.  Here are some resources to read:</p>
 		
-		<p>Instructions to change the Ctranslate2/Whisper model can be found in the "Whisper" tab within the GUI.</p>
+		<p><b>https://www.sbert.net/docs/pretrained_models.html</b></p>
+		<p><b>https://instructor-embedding.github.io/</b></p>
+		<p><b>https://github.com/FlagOpen/FlagEmbedding</b></p>
+		<p><b>https://huggingface.co/thenlper/gte-large</b></p>
+		<p><b>https://huggingface.co/intfloat/multilingual-e5-large</b></p>
+		<p><b>https://huggingface.co/jinaai/jina-embedding-l-en-v1</b></p>
 		
-		<p>Also, you can specify the transcription model to run on your CPU.  This should not create a meaningful delay.  Again,
-		we are not transcribing hours of low quality audio here...To make this change, simply modify <code>line 13</code> of
-		<code>voice_recorder_module.py</code> from "auto" to "cpu."  Moreover, you can change the default number of cpu
-		threads that it uses from 8 to whatever your CPU has.  Remember, 8 does NOT have quotation marks around it.</p>
-		 
-		<p>This makes the transcription model run purely on CPU (hence system RAM) and not VRAM, thus freeing up more VRAM for
-		the LM Studio model.  If using the <code>small.en</code> this will save you 1-2 GB of VRAM.
+		<h2 style="color: #f0f0f0;" align="center">Select the Appropriate Model Within LM Studio</h2>
 		
-		<h3 style="color: #f0f0f0;">Tip #3 - Selecting an Appropriate Embedding Model</h3>
+		<p>My program uses the embedding model to create the database and subsequently obtain "context" from it, which is
+		then forwarded to the LLM within LM Studio along with your question, for an answer.
+		The embedding model (not the LLM) is responsible for the quality of the context and it is overwhelmingly this quality
+		that determines the quality of the answer you get from LM Studio.  Therefore, if VRAM is short, prioritize a higher
+		quality embedding model over a larger LLM.  Even a 7B model quantized to 8-bit can be overkill.</p>
 		
-		<p>Previously, the <code>instructor</code> models were the best IMHO.  However, I had accidentally omitted the
-		"instructions" for the <code>BGE</code> models, which has now been corrected.  I now recommend using the
-		<code>BGE v1.5</code> models for 90% of use cases.  They perform just as good as the "instruct" models but with
-		slightly less VRAM.  Also, do not overlook <code>"all-mpnet-base-v2"</code>.  It requires much less VRAM than
-		the instructor and BGE models, and is specifically trained for stereotypical text passages.  Before trying models
-		other than instructor/BGE/all-mpnet, I highly recommend that you search the read a
-		little <a href=https://www.sbert.net/docs/pretrained_models.html> HERE</a> about the different kinds of models.</p>
+		<p>This is the smallest model that still works decently IMHO, but my current overall favorite is Mistral:</p>
 		
-		<h3 style="color: #f0f0f0;">Tip #4 - Selecting a Small Model Within LM Studio</h3>
+		<p><b>https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v0.3-GGUF</b></p>
 		
-		<p>My program basically sends your question along with "context" to LM Studio for an answer.  This is essentially
-		how "retrieval augmented generation" works.  A lot of people mistakenly assume that it's the LLM that performs the
-		search or somehow interacts with the vector database when it is actually the embedding model that does all the
-		heavy lifting.  The embedding model is responsible for creating the vector database, converting your question
-		into a "vector" and pulling the relevant "context" from the database, and sending it to LM Studio.  LM Studio
-		merely receives the question + context and responds, which is a "relatively" simple task.  Therefore, you do
-		not need a high quality model within LM Studio.  By "high quality" I mean a 13billion parameter model...or a
-		even a 7-billion parameter model using 8-bit quantization (e.g. Q8_0).  Instead, test 7-billion parameter at 4-bit
-		quantization or lower to save VRAM.</p>
+		<p>There's one caveat, if the documents in your vector database are highly technical (e.g. medical or legal documents),
+		a larger LLM might provide some benefit because of its increased vocabulary.  Just experiment.</p>
 		
-		<p>There is an exception, however.  If the documents in your vector database are highly technical such as medical
-		studies or legal documents, a higher-quality model within LM Studio might provide some benefit because
-		of its increased vocabulary.  Overall, just experiment.</p>
+		<p>Also, remember that my program only supports llama-based models that follow the llama "prompt format."</p>
 		
-		<p>Also, remember that my program only supports llama-based models.  What I mean by "llama-based models" is, models
-		that strictly following the llama "prompt format."  This shouldn't be a hinderance because, again, you only need
-		a basic model to work with this program.</p>
+		<h2 style="color: #f0f0f0;" align="center">Select the Appropriate Transcription Model and Quantization</h2>
 		
-		<p>In contrast, for general chat continue to experiement with larger models or different "fine-tuned" models
-		based on your use case (e.g. role-playing or coding)...but for purposes of this program, you only need a basic model.</p>
+		<p> The transcription functionality uses state-of-the-art Whisper models converted to the Ctranslate2 format.
+		These models are designed to excel at even poor quality audio with people taking overr on another, and transcribing
+		your question is relatively easy. Therefore, try a smaller transcription model or lower quantization to save VRAM.
+		Also, you can run transcription model to run on your CPU (and hence use RAM versus VRAM).
+		Detailed instructions are located within the "Whisper" tab within the GUI.</p>
 		
 		</section>
 		<section>
 		
-		<h2 style="color: #f0f0f0;" align="center">Program Usage</h2>
+		<h2 style="color: #f0f0f0;" align="center">Load LM Studio After Creating Database</h2>
 		
-		<h3 style="color: #f0f0f0;">Tip #1 - Load LM Studio After Creating Database</h3>
+		<p>The embedding model can use gpu-acceleration as well, and creating the database uses more memory than merely
+		querying it; therefore, don't load a model into LM Studio until after creating the database.
+		This will reduce the chance that you run out of VRAM when creating the database.</p>
 		
-		<p>Creating the database typically uses more memory than merely querying it.  Therefore, if the LM Studio model is
-		loaded while you're creating the database you run the risk of VRAM spilling over into RAM, thus slowing the
-		database creation.  I recommend loading LM Studio after creating the database.</p>
+		<h2 style="color: #f0f0f0;" align="center">Ask the Right Questions</h2>
 		
-		<h3 style="color: #f0f0f0;">Tip #2 - Slightly Modify Questions</h3>
+		<p>Modify your question if  you don't get a good answer.  Sometimes there's a big difference between
+		"What is the statute of limitations for defamation?" versus "What is the statute of limitations for a defamation
+		action if the allegedly defamatory statement is in writing as opposed to verbal?"  Experiment with how specific you are.</p>
 		
-		<p>Slightly modify your question if  you don't get a good answer.  For example, there can be a big difference between
-		"What is the statute of limitations for a defamation?" versus "What is the statute of limitations for a defamation
-		action if the allegedly defamatory statement is in writing as opposed to verbal?"  Experiment with how specific
-		your questions are.</p>
+		<p>Don't use multiple questions.  For example, the results will be poor if you ask "What is the statute of limitations for a
+		defamation action?" AND "Can the statute of limitations tolled under certain circumstances?" at the same time.  Instead,
+		reformulate your question into something like: "What is the statute of limitations for a defamation and can it be tolled
+		under certain circumstances?"  Again, just experiment and DO NOT assume that you must use a larger LLM or embedding model.</p>
 		
-		<h3 style="color: #f0f0f0;">Tip #3 - Compound Questions</h3>
+		<h2 style="color: #f0f0f0;" align="center">Ensure Sufficient Context Length for the LLM</h2>
 		
-		<p>Vector databases do not work well with multiple questions.  If you ask "What is the statute of limitations for a
-		defamation action?" AND "Can the statute of limitations tolled under certain circumstances?" in the same question,
-		the results will be poor.  Instead, try reformulating your question into: "What is the statute of limitations
-		for a defamation and can it be tolled under certain circumstances?"  This simple change will have drastic improvements.
-		Again, just experiment with your question.  DO NOT assume that poor results always mean you need an embedding model
-		that requires more VRAM.</p>
+		<p>Rarely, the server log within LM Studio might give you an error stating that the context is too long.  Increase the maximum
+		"context" of the LLM within LM Studio.  The default is 1500 but most models nowadays accept up to 4096.
+		I've limited my program to providing only 4 chunks of "context" and have never seen this go over 4096.</p>
+
+		<h2 style="color: #f0f0f0;" align="center">Ensure Sufficient Context for the Embedding Model</h2>
 		
-		<h3 style="color: #f0f0f0;">Tip #4 - Ensure Sufficient Context</h3>
-		
-		<p>As explained above, this program transmits your question with relevant "context" to LM Studio for an answer.
-		If you get an error stating that the context is too long, increase the maximum "context" of the model within LM Studio.
-		It's exceedingly rare, but sometimes the question + "context" will exceed the context limit of the LM Studio model.
-		However, I have yet to get this particular error when the context is set to 4096.</p>
+		<p>It is currently set at 512 "tokens" per chunk, which is more than enough for 99% of use cases.  A setting to adjust
+		this is coming soon, but feel free to contact me if 512 isn't providing sufficient context.</p>
 
 	</main>
 
     <footer>
-        <nav><a href="http://www.chintellalaw.com" target="_blank">www.chintellalaw.com</a></nav>
+        www.chintellalaw.com
     </footer>
 </body>
 </html>

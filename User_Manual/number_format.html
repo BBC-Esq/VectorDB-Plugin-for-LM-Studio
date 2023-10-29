@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Floating-Point Formats</title>
+    <title>Floating Point Format and Quantization </title>
 	<style>
 		body {
 			font-family: Arial, sans-serif;
 			line-height: 1.6;
 			margin: 0;
 			padding: 0;
-			background-color: #333; /* Dark grey background */
-			color: #f5f5f5; /* Off-white text color */
+			background-color: #161b22;
+			color: #d0d0d0; 
 		}
 
 		header {
@@ -42,12 +42,13 @@
 		}
 
 		p {
-			text-indent: 35px; /* Indent paragraphs */
+			text-indent: 35px;
 		}
 
 		table {
 			border-collapse: collapse;
-			width: 100%;
+			width: 80%;
+			margin: 50px auto;
 		}
 
 		th, td {
@@ -84,30 +85,27 @@
         <section>
         <h2 style="color: #f0f0f0;">Introduction to Floating-Point Formats</h2>
         <p>Running an embedding or a large language model requires a lot of math calculations and computers don't understand
-		decimal numbers (1,2,3) like you and me.  Rather, to represent a number they use a series of ones and zeros called "bits."
-		In general, the more bits used to represent a number means higher quality but also higher VRAM/RAM and compute
-		power needed.  Even if the same number of bits are used, however, the quality also depends on how many of them
-		are "exponent" versus "fraction" bits.  </p>
+		decimals (1,2,3) like you and me.  Rather, they represent numbers with a series of ones and zeros called "bits."
+		In general, the more bits used means higher quality but also higher VRAM/RAM and compute power needed.
+		With that being said, the quality also depends on how many of the bits are "exponent" versus "fraction."</p>
 		
-		<p>The term "Floating point format" refers to the total number of bits used and how many of them are of the
-		"exponent" versus "fraction" type.  The three most common floating point formats are shown above.  As you'll
-		notice, both Float16 and Bfloat16 use 16 bits but a different number of "exponent" versus "fraction" bits,
-		hence their different names.</p>
+		<p>The phrase "Floating point format" refers to the total number of bits used and how many are  "exponent" versus "fraction."
+		The three most common floating point formats are shown above.  Notice that both Float16 and Bfloat16 use 16 bits but
+		a different number of "exponent" versus "fraction" bits.</p>
 		
-		<p>"Exponent" bits essentially determine the "range" of numbers that a neural network can use when doing math calculations.
-		For example, Float32 has 8 "exponent" bits.  Lets pretend that this allows the neural network to use any integer
-		between one and one-hundred.  It's "range," therefore, is 1-100.  Bfloat16 would have the same "range" because
-		it also has 8 "exponent" bits.  However, Float16 only has 5 "exponent" bits so its "range" might only be 1-50.</p>
+		<p>"Exponent" bits essentially determine the "range" of numbers that a neural network can use when doing math.
+		For example, Float32 has 8 "exponent" bits so hypothetically this allows the neural network to use any integer
+		between one and one-hundred - its "range is 1-100.  Bfloat16 would have the same "range" because it also has
+		8 "exponent" bits.  However, since Float16 only has 5 "exponent" bits its "range" might only be 1-50.</p>
 
         <p></p>
 		
-		<p>"Fraction" bits essentially determine the number of unique values that can be used within a given "range."
-		This is also referred to as the "precision" of a neural network. To use another hypothetical, Float32 has 23
-		"fraction" bits so let's assume it can use every whole number between 1-100 when doing math calculations.
-		In other words, it has 100 unique "values" that it can use.  Bfloat16 only has 7 "fraction" bits.  Therefore,
-		it might only have 25 unique values wihtin the "range" of 1-100 that it can use.</p>
+		<p>"Fraction" bits essentially determine the number of unique values that can be used within that "range."
+		 For example, Float32 has 23 "fraction" bits so hypothetially it can use every whole number between 1-100 when doing math.
+		Since Bfloat16 only has 7 "fraction" bits, it might only have 25 unique values within 1-100.
+		This is also referred to as the "precision" of a neural network.</p>
 
-        <p>These are hypotheticals, but the actual ranges and precisions are summarized in this table:</p>
+        <p>These are hypotheticals and the actual ranges and precisions are summarized in this table:</p>
 		
             <table border="1">
                 <tr>
@@ -134,10 +132,9 @@
 			
         </section>
 
-		<p>As you can easily deduce, "range" and "precision" both determine the "quality" of an output but in different ways.
-		While the specifics are complex and beyond the scope of this short essay, in general, different floating point formats
-		are good for different purposes.  For example, Google, which created Bfloat16, found that it was better for neural
-		networks while Float16 was better for scientific calculations.</p>
+		<p>The "range" and "precision" both determine the "quality" of an output, but in different ways.
+		In general, different floating point formats are good for different purposes.  For example, Google, which created
+		Bfloat16, found that it was better for neural networks while Float16 was better for scientific calculations.</p>
 		
 		<p>You can see the floating point format of the various embedding models used in my program by looking at the
 		"config.json" file for each model.</p>
@@ -145,14 +142,14 @@
         <section>
             <h2 style="color: #f0f0f0;">What is Quantization?</h2>
 			
-            <p>"Quantization" refers to converting the original floating point format to one with a smaller "range"
-			and/or "precision," usually both.  Projects like LLAMA.CPP and AutoGPTQ do this with slightly different algorithms but
-			they basically do the same thing.  The overall goal is to reduce the memory and computational power needed while only
-			suffering a "reasonable" loss in quality. Specific "quantizations" like "Q8_0" or "8-bit" refer to the "floating point
-			format" of "int8," for example. (Technically, "int8" is no longer "floating" but you don't need to delve into the nuances
-			of this to understand the basic concepts I'm trying to communicate.)</p>
+            <p>"Quantization" refers to converting the original floating point format to one with a smaller "range" and "precision."
+			Projects like LLAMA.CPP and AutoGPTQ do this with slightly different algorithms.  The overall goal is to reduce
+			the memory and computational power needed while only suffering a "reasonable" loss in quality.
+			Specific "quantizations" like "Q8_0" or "8-bit" refer to the "floating point format" of "int8."
+			(Technically, "int8" is no longer "floating" but you don't need to delve into the nuances of this to understand
+			the basic concepts I'm trying to communicate.)</p>
 			
-			<p>Here is the range and precision for "Int8," clearly a huge difference than the above floating point formats:</p>
+			<p>Here is the range and precision for "Int8," which is clearly less:</p>
 
             <table border="1">
                 <tr>
@@ -167,175 +164,11 @@
                 </tr>
             </table>
         </section>
-<!--
-        <section>
-            <h2 style="color: #f0f0f0;">What is Ctranslate2?</h2>
-			
-            <p>Ctranslate2 is a C++ & Python library that both quantizes and runs large langauge models, but better than ggml,
-			gguf, and gptq.  Moreover, it supports more floating point formats:</p>
-            
-			<table border="1">
-                <tr>
-                    <th>Floating Point Format</th>
-                    <th>Quantized Model Size</th>
-                    <th>Summary</th>
-                </tr>
-                <tr>
-                    <td>float32</td>
-                    <td>100%</td>
-                    <td>Original</td>
-                </tr>
-                <tr>
-                    <td>int16</td>
-                    <td>51.37%</td>
-                    <td>Not used for neural networks.</td>
-                </tr>
-                <tr>
-                    <td>float16</td>
-                    <td>50.00%</td>
-                    <td>"Old school," not suited for neural networks.</td>
-                </tr>
-                <tr>
-                    <td>bfloat16</td>
-                    <td>50.00%</td>
-                    <td>Best for neural networks except for float32.</td>
-                </tr>
-                <tr>
-                    <td>int8_float32</td>
-                    <td>27.47%</td>
-                    <td>Good for neural networks despite low quantization.</td>
-                </tr>
-				<tr>
-                    <td>int8_bfloat16</td>
-                    <td>26.10%</td>
-                    <td>Good for neural networks despite low quantization, but not as good as int8_float32.</td>
-                </tr>
-                <tr>
-                    <td>int8_float16</td>
-                    <td>26.10%</td>
-                    <td>Slightly better than int8.</td>
-                </tr>
-                <tr>
-                    <td>int8</td>
-                    <td>25%</td>
-                    <td>Mediocre</td>
-                </tr>
-            </table>
-			
-            <p>In other words, a model converted to ctranslate2 format and run using "int8" quantization will run
-			faster, produce a higher quality result, and require less vram/ram and computational power than the same
-			model quantized to int8 with the ggml, gguf or gptq algorithms.  Moreover, ctranslate2 supports the floating point
-			formats that are more suitable for neural networks.  All of this makes it more powerful.</p>
 
-            <p>For example, here's a simple comparison an identical 7 billion parameter Llama2-based model:</p>
-            <table border="1">
-                <tr>
-                    <th>Floating Point Format</th>
-                    <th>Backend Tech</th>
-                    <th>VRAM/RAM Needed</th>
-                </tr>
-                <tr>
-                    <td>float16</td>
-                    <td>ctranslate2</td>
-                    <td>15.5 GB</td>
-                </tr>
-                <tr>
-                    <td>bfloat16</td>
-                    <td>ctranslate2</td>
-                    <td>15.4 GB</td>
-                </tr>
-                <tr>
-                    <td>int8 ("Q8_0")</td>
-                    <td>ggml/gguf</td>
-                    <td>12.4 GB</td>
-                </tr>
-                <tr>
-                    <td>"Q6_0"</td>
-                    <td>ggml/gguf</td>
-                    <td>11.6 GB</td>
-                </tr>
-                <tr>
-                    <td>"Q5_k_m"</td>
-                    <td>ggml/gguf</td>
-                    <td>11.4 GB</td>
-                </tr>
-                <tr>
-                    <td>"Q4_k_m"</td>
-                    <td>ggml/gguf</td>
-                    <td>11.3 GB</td>
-                </tr>
-                <tr>
-                    <td>"Q3_k_l"</td>
-                    <td>ggml/gguf</td>
-                    <td>10.5 GB</td>
-                </tr>
-                <tr>
-                    <td>"Q3_k_m"</td>
-                    <td>ggml/gguf</td>
-                    <td>10.3 GB</td>
-                </tr>
-                <tr>
-                    <td>"Q3_k_s"</td>
-                    <td>ggml/gguf</td>
-                    <td>10 GB</td>
-                </tr>
-                <tr>
-                    <td>int8_float32</td>
-                    <td>ctranslate2</td>
-                    <td>9.4 GB</td>
-                </tr>
-                <tr>
-                    <td>int8_float16</td>
-                    <td>ctranslate2</td>
-                    <td>9.0 GB</td>
-                </tr>
-                <tr>
-                    <td>int8_bfloat16</td>
-                    <td>ctranslate2</td>
-                    <td>9.0 GB</td>
-                </tr>
-                <tr>
-                    <td>int8</td>
-                    <td>ctranslate2</td>
-                    <td>9.0 GB</td>
-                </tr>
-            </table>
-			
-            <p>For example, let's say you only have 12 GB of VRAM.  This allows you to run an "int8_float32" quantization of
-			a model converted with ctranslate versus only a "Q6_0" version converted using ggml/gguf.  This is huge.
-			You can easily see from the above table that the model quantized to int8_float32 using Ctranslate2 uses even
-			LESS MEMORY than the much lower quality Q3_k_s ggml/gguf converstion of the same model!</p>
-            
-	<ul>
-		<li>Ctranslate2 has numerous other benefits as well including but not limited to:</li>
-		<ul>
-			<li>Automatically choosing the next best quantization level if what you choose isn't supported by
-			your CPU/GPU</li>
-			<li>Having built-in CPU acceleration in the form of MKL (Intel's Math Kernel Library)</li>
-			<li>Allowing a user to download a single model and then switching between whatever quantizations
-			you want at runtime. GGML/GGUF/GPTQ all require you to download a separate model for each quantization.</li>
-		</ul>
-	</ul>
-        </section>
-		
-		<section>
-            <h2 style="color: #f0f0f0;">But is the Quality Loss Noticeable?</h2>
-			
-            <p>Yes.  Anyone who's played with LLMs or embedding models knows that there's a significant loss in quality
-			between, say, a Q8_0 and Q3_k_m model.  One way to measure this is by analyzing the "perplexity" of a model.</p>
-		</section>
-		
-            <img src="perplexity_loss.png" alt="Perplexity Loss">
-		<section>
-            <h2 style="color: #f0f0f0;">So Why isn't Everybody using Ctranslate2?</h2>
-			
-			<p>This is only my opinion, but the primary reason is because the documentation for Ctranslate2 is written
-			"by programmers for programmers" and can be difficult to understand and there aren't many examples out there.</p>
--->
 	</main>
 
     <footer>
-        <nav><a href="http://www.chintellalaw.com" target="_blank">www.chintellalaw.com</a></nav>
+        www.chintellalaw.com
     </footer>
 </body>
 </html>
