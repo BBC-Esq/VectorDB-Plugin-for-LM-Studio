@@ -43,7 +43,7 @@ class DocQA_GUI(QWidget):
     def init_ui(self):
         main_splitter = QSplitter(Qt.Horizontal)
         self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
-        self.setGeometry(300, 300, 850, 910)
+        self.setGeometry(300, 300, 850, 900)
         self.setMinimumSize(550, 610)
 
         self.left_frame = QFrame()
@@ -104,17 +104,18 @@ class DocQA_GUI(QWidget):
         metrics_frame.setFixedHeight(28)
         metrics_layout = QHBoxLayout(metrics_frame)
 
-        self.gpu_vram_label = QLabel("VRAM: N/A")
-        self.gpu_util_label = QLabel("GPU: N/A")
-        self.cpu_label = QLabel("CPU: N/A")
-        self.ram_label = QLabel("RAM: N/A")
-        self.ram_usage_label = QLabel("RAM Usage: N/A")
+        metrics_labels = [
+            ("VRAM: N/A", "gpu_vram_label"),
+            ("GPU: N/A", "gpu_util_label"),
+            ("CPU: N/A", "cpu_label"),
+            ("RAM: N/A", "ram_label"),
+            ("RAM Usage: N/A", "ram_usage_label")
+        ]
 
-        metrics_layout.addWidget(self.gpu_vram_label)
-        metrics_layout.addWidget(self.gpu_util_label)
-        metrics_layout.addWidget(self.cpu_label)
-        metrics_layout.addWidget(self.ram_label)
-        metrics_layout.addWidget(self.ram_usage_label)
+        for text, attribute_name in metrics_labels:
+            label = QLabel(text)
+            setattr(self, attribute_name, label)
+            metrics_layout.addWidget(label)
 
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(main_splitter)

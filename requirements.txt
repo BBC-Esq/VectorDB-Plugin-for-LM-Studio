@@ -1,7 +1,7 @@
 openai==0.28.0
 langchain==0.0.267
 chromadb==0.3.29
-PyMuPDF==1.23.4
+pdfminer.six==20221105
 InstructorEmbedding==1.0.1
 sentence-transformers==2.2.2
 pandas==2.0.3

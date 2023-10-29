@@ -1,4 +1,5 @@
 import os
+import yaml
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures import ProcessPoolExecutor
@@ -6,7 +7,7 @@ from concurrent.futures import ProcessPoolExecutor
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import (
-    PyMuPDFLoader,
+    PDFMinerLoader,
     Docx2txtLoader,
     TextLoader,
     JSONLoader,
@@ -21,7 +22,7 @@ SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 INGEST_THREADS = os.cpu_count() or 8
 
 DOCUMENT_MAP = {
-    ".pdf": PyMuPDFLoader,
+    ".pdf": PDFMinerLoader,
     ".docx": Docx2txtLoader,
     ".txt": TextLoader,
     ".json": JSONLoader,
@@ -45,10 +46,6 @@ def load_single_document(file_path: str) -> Document:
         raise ValueError("Document type is undefined")
     
     document = loader.load()[0]
-    
-    # file_path = os.path.join(ROOT_DIRECTORY, 'test.txt')
-    # with open(file_path, 'a', encoding='utf-8') as file:
-        # file.write(document.page_content + '\n')
     
     return document
 
@@ -78,9 +75,34 @@ def load_documents(source_dir: str) -> list[Document]:
 
 def split_documents(documents):
     logging.info("Splitting documents...")
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+    
+    # Read chunk size and chunk overlap from config.yaml
+    with open("config.yaml", "r") as config_file:
+        config = yaml.safe_load(config_file)
+        chunk_size = config["chunk_size"]
+        chunk_overlap = config["chunk_overlap"]
+    
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     texts = text_splitter.split_documents(documents)
     print("Splitting chunks completed.")
+    print("Number of Chunks:", len(texts))
+    
+    chunk_sizes = [len(text.page_content) for text in texts]
+    min_size = min(chunk_sizes)
+    average_size = sum(chunk_sizes) / len(texts)
+    max_size = max(chunk_sizes)
+    
+    print("Minimum Chunk Size:", min_size)
+    print("Average Chunk Size:", average_size)
+    print("Maximum Chunk Size:", max_size)
+    
+    size_ranges = range(1, max_size+1, 100)
+    for size_range in size_ranges:
+        lower_bound = size_range
+        upper_bound = size_range + 99
+        count = sum(lower_bound <= size <= upper_bound for size in chunk_sizes)
+        print(f"Chunks between {lower_bound} and {upper_bound} characters:", count)
+    
     return texts
 
 if __name__ == "__main__":
