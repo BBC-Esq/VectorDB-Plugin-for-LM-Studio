@@ -136,7 +136,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 ```
 
 ### Step 6 - Install Dependencies
-> ‼️On Linux systems run this first: ```sudo apt-get install portaudio19-dev``` and ```sudo apt-get install python3-dev```
+> ‼️On Linux systems run this first before installing the requirements.txt: ```sudo apt-get install portaudio19-dev``` and ```sudo apt-get install python3-dev```
 ```
 pip install -r requirements.txt
 ```
