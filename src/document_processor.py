@@ -1,6 +1,7 @@
 import os
 import yaml
 import logging
+from termcolor import cprint
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures import ProcessPoolExecutor
 
@@ -16,6 +17,14 @@ from langchain.document_loaders import (
     UnstructuredCSVLoader,
     UnstructuredExcelLoader
 )
+
+ENABLE_PRINT = True
+
+def my_cprint(*args, **kwargs):
+    if ENABLE_PRINT:
+        filename = "document_processor.py"
+        modified_message = f"{filename}: {args[0]}"
+        cprint(modified_message, *args[1:], **kwargs)
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
@@ -60,7 +69,7 @@ def load_documents(source_dir: str) -> list[Document]:
     paths = [os.path.join(source_dir, file_path) for file_path in all_files if os.path.splitext(file_path)[1] in DOCUMENT_MAP.keys()]
     
     n_workers = min(INGEST_THREADS, max(len(paths), 1))
-    print(f"Number of workers assigned: {n_workers}")
+    my_cprint(f"Number of workers assigned: {n_workers}", "magenta")
     chunksize = round(len(paths) / n_workers)
     docs = []
     
@@ -69,7 +78,7 @@ def load_documents(source_dir: str) -> list[Document]:
         for future in as_completed(futures):
             contents, _ = future.result()
             docs.extend(contents)
-            print(f"Number of files loaded: {len(docs)}")
+            my_cprint(f"Number of files loaded: {len(docs)}", "magenta")
     
     return docs
 
@@ -84,24 +93,24 @@ def split_documents(documents):
     
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     texts = text_splitter.split_documents(documents)
-    print("Splitting chunks completed.")
-    print("Number of Chunks:", len(texts))
+    
+    my_cprint("Splitting chunks completed.", "magenta")
+    my_cprint(f"Number of Chunks: {len(texts)}", "magenta")
     
     chunk_sizes = [len(text.page_content) for text in texts]
     min_size = min(chunk_sizes)
     average_size = sum(chunk_sizes) / len(texts)
     max_size = max(chunk_sizes)
     
-    print("Minimum Chunk Size:", min_size)
-    print("Average Chunk Size:", average_size)
-    print("Maximum Chunk Size:", max_size)
+    my_cprint(f"Minimum Chunk Size: {min_size}", "magenta")
+    my_cprint(f"Maximum Chunk Size: {max_size}", "magenta")
     
     size_ranges = range(1, max_size+1, 100)
     for size_range in size_ranges:
         lower_bound = size_range
         upper_bound = size_range + 99
         count = sum(lower_bound <= size <= upper_bound for size in chunk_sizes)
-        print(f"Chunks between {lower_bound} and {upper_bound} characters:", count)
+        my_cprint(f"Chunks between {lower_bound} and {upper_bound} characters: {count}", "magenta")
     
     return texts
 

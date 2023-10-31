@@ -6,7 +6,6 @@ class ModelsSettingsTab(QWidget):
     def __init__(self):
         super(ModelsSettingsTab, self).__init__()
 
-        # Load current values from the config.yaml file
         with open('config.yaml', 'r') as f:
             config_data = yaml.safe_load(f)
 

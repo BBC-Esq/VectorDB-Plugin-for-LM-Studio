@@ -26,27 +26,40 @@ class ServerSettingsTab(QWidget):
         self.widgets = {}
         layout = QGridLayout()
 
-        row = 0
-        for setting, setting_config in settings_dict.items():
-            label = QLabel(f"{setting.capitalize()}: {setting_config['current']}")
-            edit = QLineEdit()
-            edit.setPlaceholderText(setting_config['placeholder'])
-            edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            if setting_config['validator']:
-                edit.setValidator(setting_config['validator'])
+        layout.addWidget(self.create_label('port', settings_dict), 0, 0)
+        layout.addWidget(self.create_edit('port', settings_dict), 0, 1)
 
-            if setting in ['prefix', 'suffix']:
-                edit.textEdited.connect(
-                    lambda text, edit=edit: edit.setText(''.join([c for c in text if not c.isdigit()]))
-                )
+        layout.addWidget(self.create_label('max_tokens', settings_dict), 1, 0)
+        layout.addWidget(self.create_edit('max_tokens', settings_dict), 1, 1)
 
-            layout.addWidget(label, row, 0)
-            layout.addWidget(edit, row, 1)
+        layout.addWidget(self.create_label('temperature', settings_dict), 1, 2)
+        layout.addWidget(self.create_edit('temperature', settings_dict), 1, 3)
 
-            self.widgets[setting] = {"label": label, "edit": edit}
-            row += 1
+        layout.addWidget(self.create_label('prefix', settings_dict), 2, 0)
+        layout.addWidget(self.create_edit('prefix', settings_dict), 2, 1)
+
+        layout.addWidget(self.create_label('suffix', settings_dict), 2, 2)
+        layout.addWidget(self.create_edit('suffix', settings_dict), 2, 3)
 
         self.setLayout(layout)
+
+    def create_label(self, setting, settings_dict):
+        label = QLabel(f"{setting.capitalize()}: {settings_dict[setting]['current']}")
+        self.widgets[setting] = {"label": label}
+        return label
+
+    def create_edit(self, setting, settings_dict):
+        edit = QLineEdit()
+        edit.setPlaceholderText(settings_dict[setting]['placeholder'])
+        edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        if settings_dict[setting]['validator']:
+            edit.setValidator(settings_dict[setting]['validator'])
+        if setting in ['prefix', 'suffix']:
+            edit.textEdited.connect(
+                lambda text, edit=edit: edit.setText(''.join([c for c in text if not c.isdigit()]))
+            )
+        self.widgets[setting]['edit'] = edit
+        return edit
 
     def update_config(self):
         with open('config.yaml', 'r') as file:
