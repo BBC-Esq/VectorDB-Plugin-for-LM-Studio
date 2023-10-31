@@ -25,10 +25,13 @@ AVAILABLE_MODELS:
 - jinaai/jina-embedding-t-en-v1
 - jinaai/jina-embeddings-v2-base-en
 - jinaai/jina-embeddings-v2-small-en
-COMPUTE_DEVICE: cuda
-EMBEDDING_MODEL_NAME: null
-chunk_overlap: 250
-chunk_size: 1500
+COMPUTE_DEVICE: cpu
+EMBEDDING_MODEL_NAME: 
+chunk_overlap: 200
+chunk_size: 600
+database:
+  contexts: 15
+  similarity: 0.9
 embedding-models:
   bge:
     query_instruction: 'Represent this sentence for searching relevant passages:'
@@ -38,7 +41,7 @@ embedding-models:
 server:
   api_key: ''
   connection_str: http://localhost:1234/v1
-  model_max_tokens: -1
+  model_max_tokens: 512
   model_temperature: 0.1
   prefix: '[INST]'
   suffix: '[/INST]'
@@ -48,3 +51,7 @@ styles:
   frame: 'background-color: #161b22;'
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
+transcriber:
+  device: cpu
+  model: base.en
+  quant: float32

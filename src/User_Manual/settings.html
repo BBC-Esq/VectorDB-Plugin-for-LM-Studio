@@ -156,6 +156,16 @@
 	it will automatically include, for example, the last 250 characters of the prior chunk.  Feel free to experiment
 	with this setting as well to get the best results!</p>
 	
+	<h2>Database Settings</h2>
+    <p>The <code>Similarity</code> setting determines how similiar to your question the results from the database must be in
+	order for them to be considered to be sent to the LLM as "context."  The closer the value to <code>1</code> the more
+	similar it must be, with a value of <code>1</code> meaning a verbatim match to your query.  It's generally advised to
+	leave this unless you notice that you're not getting a sufficient number of contexts.</p>
+	
+	<p> The <code>Contexts</code> setting is more fun to play with.  Here you can control the number of chunks that will be
+	forwarded to the LLM along with your question, for a response.  HOWEVER, make sure and read my instructions above about how
+	to ensure that the LLM does not exceed its maximum context limit; otherwise, it'll give an error.</p>
+	
 	<h2>Break in Case of Emergency</h2>
 	<p>All of the settings are kept in a <code>config.yaml</code> file.  If you accidentally change a setting you don't like or
 	its deleted or corrupted somehow, inside the "User Guide" folder I put a backup of the original file.</p>
