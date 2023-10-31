@@ -253,7 +253,7 @@ On Linux or MacOS, follow the instructions [HERE](https://github.com/BBC-Esq/ctr
 
 ### Changing Transcription Model or Quantization
 
-The program by default uses the ```base.en``` ```float32``` model, which usesabout 1.5 G.B. of memory.  You can change the model size and quantization to achieve the desired quality balanced with memory usage.  Detailed instructions are located in the "Whisper" tab within the GUI.
+All transcription settings can be changed in-program as of Version 2.5!
 
 </details>
 
