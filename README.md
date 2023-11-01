@@ -282,8 +282,9 @@ The best embedding model depends on the type of text being entered into the vect
 Selects the directory of the embedding model you want to use.
 
 ### Step 5 - Choose Documents for Database
-Select one or more files (```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```).
+Select one or more files (```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```).
 > ‼️ PDF files must already have had OCR done on them.  Put in a feature request if you want to incorporate Pytesseract for OCR.
+> ‼️ Processing .rtf files requires that you [install Pandoc first](https://github.com/jgm/pandoc).
 
 ### Step 6 - Create Vector Database
 GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
