@@ -42,7 +42,7 @@
 
 > ‼️ Make sure to have at least 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (haven't tested higher).<br>
 > ‼️ You must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
-
+> ‼️ Processing ```.rtf``` files requires that you [install Pandoc first](https://github.com/jgm/pandoc).
 
 # Installation
 > ‼️ For any commands that begin with ```python``` or ```pip```, if you have both Python 2 and Python 3 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
@@ -284,7 +284,6 @@ Selects the directory of the embedding model you want to use.
 ### Step 5 - Choose Documents for Database
 Select one or more files (```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```).
 > ‼️ PDF files must already have had OCR done on them.  Put in a feature request if you want to incorporate Pytesseract for OCR.
-> ‼️ Processing .rtf files requires that you [install Pandoc first](https://github.com/jgm/pandoc).
 
 ### Step 6 - Create Vector Database
 GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
