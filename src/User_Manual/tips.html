@@ -102,6 +102,12 @@
 		database and a Ctranslate2 Whisper model for the transcription functionality. Therefore, it is important manage your
 		memory to achieve the best performance.</p>
 		
+		<p>If you are tight on VRAM, do not have LM Studio running while the vector database is being created.  I highly
+		recommend that you choose "cpu" for when querying the database and only use "cuda" or "mps" when creating the database.
+		Creating the database takes 5,000 times more compute power and it's worth using gpu-acceleration (and hence VRAM).
+		However, merely querying the database can be done on any CPU easily and when you select "CPU" you're using system RAM
+		and not VRAM.  The option to choose difference compute devices for database creation versus querying is a recent addition.
+		
 		<p>To save VRAM, unplug any secondary monitors from the GPU and plug them into graphics ports (e.g. HDMI or DisplayPort)
 		coming directly from your motherboard.  This will prevent these monitors from using your GPU.  You will most likely want
 		to keep your main monitor plugged in (e.g. for gaming).</p>
@@ -121,7 +127,6 @@
 		<p><b>https://instructor-embedding.github.io/</b></p>
 		<p><b>https://github.com/FlagOpen/FlagEmbedding</b></p>
 		<p><b>https://huggingface.co/thenlper/gte-large</b></p>
-		<p><b>https://huggingface.co/intfloat/multilingual-e5-large</b></p>
 		<p><b>https://huggingface.co/jinaai/jina-embedding-l-en-v1</b></p>
 		
 		<h2 style="color: #f0f0f0;" align="center">Select the Appropriate Model Within LM Studio</h2>

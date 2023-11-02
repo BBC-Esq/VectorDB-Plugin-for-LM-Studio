@@ -26,11 +26,18 @@ AVAILABLE_MODELS:
 - jinaai/jina-embeddings-v2-base-en
 - jinaai/jina-embeddings-v2-small-en
 COMPUTE_DEVICE: cpu
+Compute_Device:
+  available:
+  - cuda
+  - cpu
+  database_creation: cpu
+  database_query: cpu
 EMBEDDING_MODEL_NAME: 
-chunk_overlap: 200
-chunk_size: 600
 database:
-  contexts: 15
+  chunk_overlap: 200
+  chunk_size: 750
+  contexts: 10
+  device: null
   similarity: 0.9
 embedding-models:
   bge:
@@ -41,7 +48,7 @@ embedding-models:
 server:
   api_key: ''
   connection_str: http://localhost:1234/v1
-  model_max_tokens: 512
+  model_max_tokens: -1
   model_temperature: 0.1
   prefix: '[INST]'
   suffix: '[/INST]'
@@ -53,5 +60,5 @@ styles:
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
 transcriber:
   device: cpu
-  model: base.en
-  quant: float32
+  model: small.en
+  quant: int8
