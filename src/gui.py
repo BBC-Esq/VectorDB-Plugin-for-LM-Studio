@@ -6,13 +6,13 @@ from PySide6.QtCore import Qt, QThread, Signal, QUrl
 from PySide6.QtWebEngineWidgets import QWebEngineView
 import yaml
 import os
+from initialize import determine_compute_device, is_nvidia_gpu, get_os_name
 from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
 from choose_documents import choose_documents_directory
 import create_database
 from metrics_gpu import GPU_Monitor
 from metrics_system import SystemMonitor
-from initialize import determine_compute_device, is_nvidia_gpu, get_os_name
 from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
 from metrics_bar import MetricsBar
@@ -123,7 +123,7 @@ class DocQA_GUI(QWidget):
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
-    app.setStyle(QStyleFactory.create('Fusion'))
+    app.setStyle(QStyleFactory.create('fusion'))
     ex = DocQA_GUI()
     ex.show()
     sys.exit(app.exec())

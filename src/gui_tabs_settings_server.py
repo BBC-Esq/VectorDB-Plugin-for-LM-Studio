@@ -28,16 +28,12 @@ class ServerSettingsTab(QWidget):
 
         layout.addWidget(self.create_label('port', settings_dict), 0, 0)
         layout.addWidget(self.create_edit('port', settings_dict), 0, 1)
-
         layout.addWidget(self.create_label('max_tokens', settings_dict), 1, 0)
         layout.addWidget(self.create_edit('max_tokens', settings_dict), 1, 1)
-
         layout.addWidget(self.create_label('temperature', settings_dict), 1, 2)
         layout.addWidget(self.create_edit('temperature', settings_dict), 1, 3)
-
         layout.addWidget(self.create_label('prefix', settings_dict), 2, 0)
         layout.addWidget(self.create_edit('prefix', settings_dict), 2, 1)
-
         layout.addWidget(self.create_label('suffix', settings_dict), 2, 2)
         layout.addWidget(self.create_edit('suffix', settings_dict), 2, 3)
 

@@ -4,7 +4,6 @@ import logging
 from termcolor import cprint
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures import ProcessPoolExecutor
-
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import (
@@ -15,7 +14,10 @@ from langchain.document_loaders import (
     EverNoteLoader,
     UnstructuredEmailLoader,
     UnstructuredCSVLoader,
-    UnstructuredExcelLoader
+    UnstructuredExcelLoader,
+    UnstructuredRTFLoader,
+    UnstructuredODTLoader,
+    UnstructuredMarkdownLoader
 )
 
 ENABLE_PRINT = True
@@ -29,7 +31,6 @@ def my_cprint(*args, **kwargs):
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 INGEST_THREADS = os.cpu_count() or 8
-
 DOCUMENT_MAP = {
     ".pdf": PDFMinerLoader,
     ".docx": Docx2txtLoader,
@@ -41,6 +42,9 @@ DOCUMENT_MAP = {
     ".csv": UnstructuredCSVLoader,
     ".xls": UnstructuredExcelLoader,
     ".xlsx": UnstructuredExcelLoader,
+    ".rtf": UnstructuredRTFLoader,
+    ".odt": UnstructuredODTLoader,
+    ".md": UnstructuredMarkdownLoader,
 }
 
 def load_single_document(file_path: str) -> Document:
@@ -71,6 +75,11 @@ def load_documents(source_dir: str) -> list[Document]:
     n_workers = min(INGEST_THREADS, max(len(paths), 1))
     my_cprint(f"Number of workers assigned: {n_workers}", "magenta")
     chunksize = round(len(paths) / n_workers)
+    
+    # Checking if chunksize is zero
+    if chunksize == 0:
+        raise ValueError(f"chunksize must be a non-zero integer, but got {chunksize}. len(paths): {len(paths)}, n_workers: {n_workers}")
+    
     docs = []
     
     with ProcessPoolExecutor(n_workers) as executor:
@@ -83,27 +92,21 @@ def load_documents(source_dir: str) -> list[Document]:
     return docs
 
 def split_documents(documents):
-    logging.info("Splitting documents...")
-    
-    # Read chunk size and chunk overlap from config.yaml
+    my_cprint(f"Splitting documents.", "magenta")
     with open("config.yaml", "r") as config_file:
         config = yaml.safe_load(config_file)
-        chunk_size = config["chunk_size"]
-        chunk_overlap = config["chunk_overlap"]
+        chunk_size = config["database"]["chunk_size"]
+        chunk_overlap = config["database"]["chunk_overlap"]
     
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     texts = text_splitter.split_documents(documents)
     
-    my_cprint("Splitting chunks completed.", "magenta")
     my_cprint(f"Number of Chunks: {len(texts)}", "magenta")
     
     chunk_sizes = [len(text.page_content) for text in texts]
     min_size = min(chunk_sizes)
     average_size = sum(chunk_sizes) / len(texts)
     max_size = max(chunk_sizes)
-    
-    my_cprint(f"Minimum Chunk Size: {min_size}", "magenta")
-    my_cprint(f"Maximum Chunk Size: {max_size}", "magenta")
     
     size_ranges = range(1, max_size+1, 100)
     for size_range in size_ranges:

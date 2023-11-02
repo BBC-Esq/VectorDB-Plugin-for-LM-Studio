@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QVBoxLayout, QSizePolicy
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QSizePolicy
 from PySide6.QtGui import QIntValidator
 import yaml
 
@@ -16,11 +15,8 @@ class ChunkSettingsTab(QWidget):
 
         settings_group = ['chunk_overlap', 'chunk_size']
 
-        layout = QGridLayout()
-        layout.setColumnStretch(0, 1)
-        layout.setColumnStretch(1, 2)
+        layout = QHBoxLayout()
 
-        row = 0
         for setting in settings_group:
             current_value = config_data.get(setting, '')
 
@@ -31,12 +27,11 @@ class ChunkSettingsTab(QWidget):
             
             label = QLabel(f"{setting.replace('_', ' ').capitalize()}: {current_value}")
             label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            layout.addWidget(label, row, 0)
-            layout.addWidget(edit, row, 1)
+            layout.addWidget(label)
+            layout.addWidget(edit)
 
             self.field_data[setting] = edit
             self.label_data[setting] = label
-            row += 1
 
         main_layout.addLayout(layout)
         self.setLayout(main_layout)
@@ -59,5 +54,5 @@ class ChunkSettingsTab(QWidget):
         if settings_changed:
             with open('config.yaml', 'w') as f:
                 yaml.safe_dump(config_data, f)
-        
+
         return settings_changed

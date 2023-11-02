@@ -7,8 +7,11 @@ import yaml
 import torch
 from transformers import AutoTokenizer
 from termcolor import cprint
+from memory_profiler import profile
+import gc
 
 ENABLE_PRINT = True
+ENABLE_CUDA_PRINT = False
 
 def my_cprint(*args, **kwargs):
     if ENABLE_PRINT:
@@ -16,48 +19,31 @@ def my_cprint(*args, **kwargs):
         modified_message = f"{filename}: {args[0]}"
         cprint(modified_message, *args[1:], **kwargs)
 
-my_cprint("Setting up global constants", "yellow")
+def print_cuda_memory():
+    if ENABLE_CUDA_PRINT:
+        max_allocated_memory = torch.cuda.max_memory_allocated()
+        memory_allocated = torch.cuda.memory_allocated()
+        reserved_memory = torch.cuda.memory_reserved()
+
+        my_cprint(f"Max CUDA memory allocated: {max_allocated_memory / (1024**2):.2f} MB", "green")
+        my_cprint(f"Total CUDA memory allocated: {memory_allocated / (1024**2):.2f} MB", "yellow")
+        my_cprint(f"Total CUDA memory reserved: {reserved_memory / (1024**2):.2f} MB", "yellow")
+
+print_cuda_memory()
 
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 PERSIST_DIRECTORY = f"{ROOT_DIRECTORY}/Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
 
-my_cprint("Initializing CHROMA_SETTINGS", "yellow")
 CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
 )
 
-def validate_config(config):
-    my_cprint("Inside validate_config function", "yellow")
-    required_keys = ['EMBEDDING_MODEL_NAME', 'server']
-    server_sub_keys = ['connection_str', 'api_key', 'prefix', 'suffix', 'model_temperature', 'model_max_tokens']
-    missing_keys = []
-
-    for key in required_keys:
-        if key not in config:
-            missing_keys.append(key)
-
-    if 'server' in config:
-        for sub_key in server_sub_keys:
-            if sub_key not in config['server']:
-                missing_keys.append(f'server.{sub_key}')
-
-    if missing_keys:
-        raise KeyError(f"Missing required keys in config file: {', '.join(missing_keys)}")
-
-def load_retriever_settings():
-    with open('config.yaml', 'r') as config_file:
-        config = yaml.safe_load(config_file)
-        score_threshold = float(config['database']['similarity'])
-        k = int(config['database']['contexts'])
-    return score_threshold, k
-
+# @profile
 def connect_to_local_chatgpt(prompt):
-    my_cprint("Inside connect_to_local_chatgpt function", "yellow")
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
-        validate_config(config)
         server_config = config.get('server', {})
         openai_api_base = server_config.get('connection_str')
         openai_api_key = server_config.get('api_key')
@@ -78,17 +64,21 @@ def connect_to_local_chatgpt(prompt):
     )
     return response.choices[0].message["content"]
 
+# @profile
 def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
-    my_cprint("ask_local_chatgpt function", "yellow")
+    my_cprint("Attempting to connect to server.", "yellow")
+    print_cuda_memory()
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
-        validate_config(config)
         EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
-        COMPUTE_DEVICE = config.get("COMPUTE_DEVICE", "cpu")
+        compute_device = config['Compute_Device']['database_query']
         config_data = config.get('embedding-models', {})
+        score_threshold = float(config['database']['similarity'])
+        k = int(config['database']['contexts'])
 
-    model_kwargs = {"device": COMPUTE_DEVICE}
+    model_kwargs = {"device": compute_device}
 
+    my_cprint("Querying database.", "yellow")
     if "instructor" in EMBEDDING_MODEL_NAME:
         embed_instruction = config_data['instructor'].get('embed_instruction')
         query_instruction = config_data['instructor'].get('query_instruction')
@@ -124,9 +114,6 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
         client_settings=client_settings,
     )
 
-    # Load score_threshold and k from config
-    score_threshold, k = load_retriever_settings()
-
     # Use loaded score_threshold and k
     retriever = db.as_retriever(search_kwargs={'score_threshold': score_threshold, 'k': k})
 
@@ -142,12 +129,21 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
     response_json = connect_to_local_chatgpt(augmented_query)
 
+    del embeddings.client
+    del embeddings
+    torch.cuda.empty_cache()
+    gc.collect()
+    my_cprint("Embedding model removed from memory.", "red")
+    
     return {"answer": response_json, "sources": relevant_contexts}
+    print_cuda_memory()
 
+# @profile
 def interact_with_chat(user_input):
-    my_cprint("Inside interact_with_chat function", "yellow")
+    my_cprint("interact_with_chat function", "yellow")
     global last_response
     response = ask_local_chatgpt(user_input)
     answer = response['answer']
     last_response = answer
+    
     return answer
