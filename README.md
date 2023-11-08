@@ -3,7 +3,6 @@
 </div>
 <div align="center">
   <h3>Ask questions about your documents and get an answer from LM Studio!</h3>
-  <h3>Start a new "issue" if you want to request a feature or report a bug!</h3>
 </div>
 
 <div align="center">
@@ -40,55 +39,53 @@
 
 # Prerequisites
 
-> ‼️ Make sure to have at least 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (haven't tested higher).<br>
-> ‼️ You must have both [Git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.com/) installed.<br>
-> ‼️ Processing ```.rtf``` files requires that you [install Pandoc first](https://github.com/jgm/pandoc).
+You must install the these before using my program:
+
+> ‼️ 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (I have not tested above this.).<br>
+> ‼️ [Git](https://git-scm.com/downloads)<br>
+> ‼️ [Git Large File Storage](https://git-lfs.com/).<br>
+> ‼️ [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
 
 # Installation
-> ‼️ For any commands that begin with ```python``` or ```pip```, if you have both Python 2 and Python 3 installed, you should use ```Python3``` or ```pip3``` instead to make sure that the correct version of Python is used.
+> ‼️‼️ If you have Python 2 and Python 3 installed on your system, make sure and use ```Python3``` andn ```pip3``` instead when installing.
 <details>
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
   
-### Step 1 - Install GPU Acceleration Software
-* 🟢 Nvidia GPU ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-    > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
-* 🔴 AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows (only Linux).  However, it may be possible by using WSL within Windows pursuant to the instructions [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview) and then access GPU-acceleration via [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview).  This might [also be helpful](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png)  However, I do not have an AMD GPU so please let me know if you get it working with this method.  If this does work for you, proceed to the instructions below on how to install my program within Linux.
-
-### Step 2 - Obtain Repository
-* Download the latest "release" and unzip anywhere on your computer.
-
-### Step 3 - Virtual Environment
-* Open the folder containing my repository files.  Open a command prompt.  Create a virtual environment:
+### Step 1
+* 🟢 Nvidia GPU ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+* 🔴 AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows.  It's only supported on Linux.  There are several ways to possibly get around this limitation, but I'm unable to verify since I don't have an AMD GPU.  See [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
+### Step 2
+* Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
+### Step 3
+* Within the ```src``` folder, open a command prompt and create a virtual environment:
 ```
 python -m venv .
 ```
+### Step 4
 * Activate the virtual environment:
 ```
 .\Scripts\activate
 ```
-
-### Step 4 - Upgrade pip
+### Step 5
 ```
 python -m pip install --upgrade pip
 ```
-
-### Step 5 - Install PyTorch
+### Step 6
 * 🟢 Nvidia GPUs:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-> 🔴 AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows (only Linux).  However, it may be possible by using WSL within Windows pursuant to the instructions [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview) and then access GPU-acceleration via [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview).  However, I do not have an AMD GPU so please let me know if you get it working with this method.  If this does work for you, proceed to the instructions below on how to install my program within Linux.
+* 🔴 AMD GPUs - To reiterate, PyTorch does not supprot AMD GPUs Windows, only Linux.
 * 🔵 CPU only:
 ```
 pip install torch torchvision torchaudio
 ```
-
-### Step 6 - Install Dependencies
+### Step 7
 ```
 pip install -r requirements.txt
 ```
-
-### Step 7 - Double check GPU-Acceleration
+### Optional Step 8 - Double check GPU-Acceleration
+Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
 ```
@@ -97,31 +94,27 @@ python check_gpu.py
 <details>
   <summary>🐧LINUX INSTRUCTIONS🐧</summary>
 
-### Step 1 - GPU Acceleration Software
-  * 🟢 Nvidia GPUs ➜ install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-      > Note that this installation is system-wide and it's not necessary to install within a virtual environment.
-  * 🔴 AMD GPUs ➜ install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html) according to the instructions.
-    > Additionally, [this repo](https://github.com/nktice/AMD-AI) might help, but I can't verify since I don't have an AMD GPU nor Linux.
-
-### Step 2 - Obtain Repository
-* Download the latest "release" and unzip anywhere on your computer.
-
-### Step 3 - Virtual Environment
-* Open the folder containing my repository files.  Open a command prompt.  Create a virtual environment:
+### Step 1
+  * 🟢 Nvidia GPUs ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+  * 🔴 AMD GPUs ➜ Install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html).
+    > [THIS REPO](https://github.com/nktice/AMD-AI) might also help if AMD's instructions aren't clear.
+### Step 2
+* Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
+### Step 3
+* Within the ```src``` folder, open a terminal window and create a virtual environment:
 ```
 python -m venv .
 ```
+### Step 4
 * Activate the virtual environment:
 ```
 source bin/activate
 ```
-
-### Step 4 - Update Pip
+### Step 5
 ```
 python -m pip install --upgrade pip
 ```
-
-### Step 5 - Install PyTorch
+### Step 6
 * 🟢 Nvidia GPU:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
@@ -134,14 +127,20 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
-
-### Step 6 - Install Dependencies
-> ‼️On Linux systems run this first before installing the requirements.txt: ```sudo apt-get install portaudio19-dev``` and ```sudo apt-get install python3-dev```
+### Step 7
+```
+sudo apt-get install portaudio19-dev
+```
+### Step 8
+```
+sudo apt-get install python3-dev
+```
+### Step 9
 ```
 pip install -r requirements.txt
 ```
-
-### Step 7 - Double check GPU-acceleration
+### Optional Step 10
+Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
 ```
@@ -150,39 +149,40 @@ python check_gpu.py
 <details>
   <summary>🍎APPLE INSTRUCTIONS🍎</summary>
 
-### Step 1 - GPU Acceleration Software
-* All Macs with MacOS 12.3+ come with 🔘 Metal/MPS support, which is the equivalent of CUDA and ROCm.  However, you still need to install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
-
-### Step 2 - Obtain Repository
-* Download the ZIP file containing the latest release for my repository.  Inside the ZIP file is a folder holding my repository.  Unzip and place this folder anywhere you want on your computer.
-
-### Step 3 - Virtual Environment
-* Open the folder containing my repository files.  Open a command prompt.  Create a virtual environment:
+### Step 1
+* All Macs with MacOS 12.3+ come with 🔘 Metal/MPS, which is Apple's implementation of gpu-acceleration (like CUDA for Nvidia and ROCm for AMD).  I'm not sure if it's possible to install on an older MacOS since I don't have an Apple.
+### Step 2
+* Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+### Step 3
+* Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
+### Step 4
+* Within the ```src``` folder, open a terminal window and create a virtual environment:
 ```
 python -m venv .
 ```
+### Step 5
 * Activate the virtual environment:
 ```
 source bin/activate
 ```
-
-### Step 4 - Update Pip
+### Step 6
 ```
 python -m pip install --upgrade pip
 ```
-
-### Step 5 - Install PyTorch
+### Step 7
 ```
 pip install torch torchvision torchaudio
 ```
-
-### Step 6 - Install Dependencies
-> ‼️On MacOS systems run this first: ```brew install portaudio```
+### Step 8
+```
+brew install portaudio
+```
+### Step 9
 ```
 pip install -r requirements.txt
 ```
-
-### Step 7 - Double check Metal/MPS-acceleration
+### Optional Step 10
+Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
 ```
