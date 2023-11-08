@@ -39,7 +39,7 @@
 
 # Prerequisites
 
-You must install the these before using my program:
+You must install the these before following the installation instructions below:
 
 > ‼️ 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (I have not tested above this.).<br>
 > ‼️ [Git](https://git-scm.com/downloads)<br>
