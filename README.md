@@ -52,17 +52,17 @@ You must install the these before following the installation instructions below:
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
   
 ### Step 1
-* 🟢 Nvidia GPU ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-* 🔴 AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows.  It's only supported on Linux.  There are several ways to possibly get around this limitation, but I'm unable to verify since I don't have an AMD GPU.  See [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
+🟢 Nvidia GPU ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+🔴 AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows.  It's only supported on Linux.  There are several ways to possibly get around this limitation, but I'm unable to verify since I don't have an AMD GPU.  See [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
 ### Step 2
-* Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
+Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
 ### Step 3
-* Within the ```src``` folder, open a command prompt and create a virtual environment:
+Within the ```src``` folder, open a command prompt and create a virtual environment:
 ```
 python -m venv .
 ```
 ### Step 4
-* Activate the virtual environment:
+Activate the virtual environment:
 ```
 .\Scripts\activate
 ```
@@ -71,12 +71,12 @@ python -m venv .
 python -m pip install --upgrade pip
 ```
 ### Step 6
-* 🟢 Nvidia GPUs:
+🟢 Nvidia GPUs:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-* 🔴 AMD GPUs - To reiterate, PyTorch does not supprot AMD GPUs Windows, only Linux.
-* 🔵 CPU only:
+🔴 AMD GPUs - To reiterate, PyTorch does not supprot AMD GPUs Windows, only Linux.
+🔵 CPU only:
 ```
 pip install torch torchvision torchaudio
 ```
@@ -95,18 +95,18 @@ python check_gpu.py
   <summary>🐧LINUX INSTRUCTIONS🐧</summary>
 
 ### Step 1
-  * 🟢 Nvidia GPUs ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-  * 🔴 AMD GPUs ➜ Install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html).
-    > [THIS REPO](https://github.com/nktice/AMD-AI) might also help if AMD's instructions aren't clear.
+🟢 Nvidia GPUs ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+🔴 AMD GPUs ➜ Install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html).
+> [THIS REPO](https://github.com/nktice/AMD-AI) might also help if AMD's instructions aren't clear.
 ### Step 2
-* Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
+Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
 ### Step 3
-* Within the ```src``` folder, open a terminal window and create a virtual environment:
+Within the ```src``` folder, open a terminal window and create a virtual environment:
 ```
 python -m venv .
 ```
 ### Step 4
-* Activate the virtual environment:
+Activate the virtual environment:
 ```
 source bin/activate
 ```
@@ -115,15 +115,15 @@ source bin/activate
 python -m pip install --upgrade pip
 ```
 ### Step 6
-* 🟢 Nvidia GPU:
+🟢 Nvidia GPU:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-* 🔴 AMD GPU:
+🔴 AMD GPU:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
 ```
-* 🔵 CPU only:
+🔵 CPU only:
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
@@ -150,18 +150,18 @@ python check_gpu.py
   <summary>🍎APPLE INSTRUCTIONS🍎</summary>
 
 ### Step 1
-* All Macs with MacOS 12.3+ come with 🔘 Metal/MPS, which is Apple's implementation of gpu-acceleration (like CUDA for Nvidia and ROCm for AMD).  I'm not sure if it's possible to install on an older MacOS since I don't have an Apple.
+All Macs with MacOS 12.3+ come with 🔘 Metal/MPS, which is Apple's implementation of gpu-acceleration (like CUDA for Nvidia and ROCm for AMD).  I'm not sure if it's possible to install on an older MacOS since I don't have an Apple.
 ### Step 2
-* Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 ### Step 3
-* Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
+Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
 ### Step 4
-* Within the ```src``` folder, open a terminal window and create a virtual environment:
+Within the ```src``` folder, open a terminal window and create a virtual environment:
 ```
 python -m venv .
 ```
 ### Step 5
-* Activate the virtual environment:
+Activate the virtual environment:
 ```
 source bin/activate
 ```
@@ -189,14 +189,9 @@ python check_gpu.py
 
 </details>
 
-# Transcription Instructions
+# 🔥Transcription
 
-> As of release 2.1+, my program allows you to speak a question and have it transcribed to the system clipboard, which you can then paste into the LM Studio question box.  It uses the "faster-whisper" library, which relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
-
-<details>
-  <summary>🔥TRANSCRIPTION INSTRUCTIONS🔥</summary>
-  
-### Compatibility Overview
+> As of release v2.1+, my program allows you to transcribe a question into the clipboard and paste it into LM Studio.  It uses the "faster-whisper" library, which relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
 
 <div align="center">
   <h4>⚡Transcription Acceleration⚡</h4>
@@ -243,60 +238,40 @@ python check_gpu.py
   </table>
 </div>
 
-  > The type of acceleration you'll be using also determines the supported quantizations (discussed below).
-
 ### Compatibility Checker
-
-On Windows, simpy run [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0).<br>
-
-On Linux or MacOS, follow the instructions [HERE](https://github.com/BBC-Esq/ctranslate2-compatibility-checker).
-
-### Changing Transcription Model or Quantization
-
-All transcription settings can be changed in-program as of Version 2.5!
-
-</details>
+After following the installation instructions above, you can check which quantized versions of the Whisper models your CPU and GPU support.  On Windows, use [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) and on Linux or MacOS follow the instructions [HERE](https://github.com/BBC-Esq/ctranslate2-compatibility-checker).
+> As of Release v2.5, however, this is no longer mandatory because the program only displays compatible quantizations to choose from.
 
 # Usage
 <details>
   <summary>🔥USAGE INSTRUCTIONS🔥</summary>
 
 ### Step 1 - Virtual Environment
-Open a command prompt within my repository folder and activate the virtual environment:<br>
-> NOTE: For 🍎Macs and 🐧Linux the command is: ```source bin/activate```
-```
-.\Scripts\activate
-```
-
-### Step 2 - Run Program
+Make sure you are in theh ```src``` folder, have opened a command prompt/terminal, and activated the virtual environment (see installation instructions).
+### Step 2
+Run Program
 ```
 python gui.py
 ```
-* ‼️ Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Feel free to request that I add AMD or Apple support.
+> Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Feel free to request that I add AMD or Apple support.
+### Step 3
+The download embedding model button lets you choose to download multiple embedding models.  The command prompt/terminal will state when the download is complete and unpacked.  Don't attempt to create the vector database before.
+### Step 4
+The set model directory allows you to choose which embedding model to create the vector database from when creating the vector database.  If you recreate the database with a different model it'll simply delete the old database to make room for the new one.
+### Step 5
+The choose documents for database button allows you to add one or more documents to be processed into the database.  Symbolic links to the files are put within the "Docs_for_DB" folder.  You can click this multiple times if your files are in different directories, and doing so will not delete the files that you previously added.  To remove files, however, you must specifically delete them from the "Docs-for_DB" folder before recreating the database. 
+> ```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt``` are currently supported.
+> ‼️ PDF files must already have had OCR done on them.
 
-### Step 3 - Download Embedding Model
-The best embedding model depends on the type of text being entered into the vector database and the style of question you intend to ask.  I've selected multiple models that are good, but feel free to read about each one because they're suitable for different tasks.
-> ‼️ You must wait until the download is complete AND unpacked before trying to create the database.
+### Step 6
+The create database button will start creating the vector database.  CPU or GPU usage will spike as the vector database is created.  Even though this runs in the background so the GUI remains responsive, do not attempt to query the database until it's created.
 
-### Step 4 - Select Embedding Model Directory
-Selects the directory of the embedding model you want to use.
-
-### Step 5 - Choose Documents for Database
-Select one or more files (```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```).
-> ‼️ PDF files must already have had OCR done on them.  Put in a feature request if you want to incorporate Pytesseract for OCR.
-
-### Step 6 - Create Vector Database
-GPU usage will spike as the vector database is created.  Wait for this to complete before querying database.
-
-### Step 7 - Start LM Studio
+### Step 7
 Open LM Studio and load a model.  Click the server tab on the left side.  Click "Start Server" in the server tab.
 > ‼️ Only Llama2-based models are currently supported due to their prompt format.
 
-### Step 8 - Submit Question
-Enter a question and click "submit question."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
-
-### Step 9 - Transcribe Question Instead
-Click the 'Start Record' button, speak, and then click the 'Stop' button.  Paste transcription into question box and click Submit Question.
+### Step 8
+Type or transcribe a question into my program and click "Submit Questions."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
 
 </details>
 
