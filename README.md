@@ -257,18 +257,21 @@ python gui.py
 ### Step 3
 The download embedding model button lets you choose to download multiple embedding models.  The command prompt/terminal will state when the download is complete and unpacked.  Don't attempt to create the vector database before.
 ### Step 4
-The set model directory allows you to choose which embedding model to create the vector database from when creating the vector database.  If you recreate the database with a different model it'll simply delete the old database to make room for the new one.
+The set model directory allows you to choose which embedding model to create the vector database.  You can choose any of the embedding models you previously downloaded to see which works best.  Remember, you must recreate the database if you want to use a different embedding model.  Creating the database with one embedding model and then trying to search with a different embedding model will throw an error.  Recreating the vector database will automatically delete the old one.
 ### Step 5
-The choose documents for database button allows you to add one or more documents to be processed into the database.  Symbolic links to the files are put within the "Docs_for_DB" folder.  You can click this multiple times if your files are in different directories, and doing so will not delete the files that you previously added.  To remove files, however, you must specifically delete them from the "Docs-for_DB" folder before recreating the database. 
-> ```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt``` are currently supported.
-> ‼️ PDF files must already have had OCR done on them.
+The choose documents allows you to select which documents you want in the database.  Symbolic links to the files are put within the "Docs_for_DB" folder, but you can also manually copy/paste files into the folder if you prefer having the actual files there.  Also, you can click this button multiple times if your files are in different directories and doing will not delete the files you've already added.  You can remove some/all files to be processed by simply deleting them from the "Docs_for_DB" folder.
+> Remember, you must recreate the database anytime you want to add/remove documents.  Adding/removing documents from the "Docs_for_DB" folder does not automatically modify the database.
+The supported file types are: ```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+> ‼️ PDF files must have had OCR done on them.
 
 ### Step 6
-The create database button will start creating the vector database.  CPU or GPU usage will spike as the vector database is created.  Even though this runs in the background so the GUI remains responsive, do not attempt to query the database until it's created.
+The create database button is self-explanatory.  The command prompt will tell you when it's done and it's safe to search.  However, you can also tell by seeing the GPU usage spike if you're using gpu-acceleration.  Do not attempt to query the database until it's created.
 
 ### Step 7
-Open LM Studio and load a model.  Click the server tab on the left side.  Click "Start Server" in the server tab.
-> ‼️ Only Llama2-based models are currently supported due to their prompt format.
+* After the database is created, open LM Studio and load a model.
+> ‼️ I highly recommend only llama-2 based models since my program uses that prompt format by default, but just make sure you know what you're doing if you decide to modify the prompt format.
+* Click the server tab on the left side.
+* Click "Start Server" in the server tab.
 
 ### Step 8
 Type or transcribe a question into my program and click "Submit Questions."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
