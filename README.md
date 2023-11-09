@@ -259,7 +259,7 @@ The set model directory allows you to choose which embedding model to create the
 The choose documents allows you to select which documents you want in the database.  Symbolic links to the files are put within the "Docs_for_DB" folder, but you can also manually copy/paste files into the folder if you prefer having the actual files there.  Also, you can click this button multiple times if your files are in different directories and doing will not delete the files you've already added.  You can remove some/all files to be processed by simply deleting them from the "Docs_for_DB" folder.
 Remember, you must recreate the database anytime you want to add/remove documents.  Adding/removing documents from the "Docs_for_DB" folder does not automatically modify the database.
 The supported file types are: ```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
-> ‼️ PDF files must have had OCR done on them.
+> ‼️ PDF files must have had OCR done on them.<br>
 > ‼️ As of release 2.6.1, you can now transcribe audio files and put them in the database as well!
 
 ### Step 6
