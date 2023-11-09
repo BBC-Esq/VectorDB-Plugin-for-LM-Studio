@@ -1,12 +1,9 @@
 <div align="center">
   <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
-</div>
-<div align="center">
   <h3>Ask questions about your documents and get an answer from LM Studio!</h3>
 </div>
-
 <div align="center">
-  <h4>⚡GPU Acceleration⚡
+  <h4 align="center">⚡GPU Acceleration⚡
   <table>
     <thead>
       <tr>
@@ -38,7 +35,6 @@
 </div>
 
 # Prerequisites
-
 You must install the these before following the installation instructions below:
 
 > ‼️ 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (I have not tested above this.).<br>
