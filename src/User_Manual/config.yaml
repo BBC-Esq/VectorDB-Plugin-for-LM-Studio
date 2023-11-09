@@ -23,19 +23,17 @@ AVAILABLE_MODELS:
 - jinaai/jina-embedding-b-en-v1
 - jinaai/jina-embedding-s-en-v1
 - jinaai/jina-embedding-t-en-v1
-- jinaai/jina-embeddings-v2-base-en
-- jinaai/jina-embeddings-v2-small-en
-COMPUTE_DEVICE: cpu
+COMPUTE_DEVICE: cuda
 Compute_Device:
   available:
   - cuda
   - cpu
-  database_creation: cpu
+  database_creation: cuda
   database_query: cpu
-EMBEDDING_MODEL_NAME: 
+EMBEDDING_MODEL_NAME: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6 - working/Embedding_Models/sentence-transformers--gtr-t5-base
 database:
-  chunk_overlap: 200
-  chunk_size: 750
+  chunk_overlap: 150
+  chunk_size: 500
   contexts: 10
   device: null
   similarity: 0.9
@@ -58,7 +56,15 @@ styles:
   frame: 'background-color: #161b22;'
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
-transcriber:
+transcribe_file:
   device: cpu
-  model: small.en
+  file: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6 - working/test.mp3
+  language: Option 1
+  model: base.en
   quant: int8
+  timestamps: true
+  translate: false
+transcriber:
+  device: cuda
+  model: base.en
+  quant: float32
