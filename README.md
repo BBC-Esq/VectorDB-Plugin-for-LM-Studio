@@ -239,7 +239,7 @@ python check_gpu.py
 After following the installation instructions above, you can check which quantized versions of the Whisper models your CPU and GPU support.  On Windows, use [```ctranslate2_compatibility.exe```](https://github.com/BBC-Esq/ctranslate2-compatibility-checker/releases/tag/v1.0) and on Linux or MacOS follow the instructions [HERE](https://github.com/BBC-Esq/ctranslate2-compatibility-checker).
 > As of Release v2.5, however, this is no longer mandatory because the program only displays compatible quantizations to choose from.
 
-# Usage
+<div align="center"> <h2>🔥Usage🔥</h2></div>
 <details>
   <summary>🔥USAGE INSTRUCTIONS🔥</summary>
 
@@ -275,7 +275,7 @@ Type or transcribe a question into my program and click "Submit Questions."  The
 
 </details>
 
-<div align="center"><h1>Contact</h1></div>
+<div align="center"><h2>🔥Contact🔥</h2></div>
 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
 
