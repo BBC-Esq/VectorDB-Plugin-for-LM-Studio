@@ -260,6 +260,7 @@ The choose documents allows you to select which documents you want in the databa
 Remember, you must recreate the database anytime you want to add/remove documents.  Adding/removing documents from the "Docs_for_DB" folder does not automatically modify the database.
 The supported file types are: ```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
 > ‼️ PDF files must have had OCR done on them.
+> ‼️ As of release 2.6.1, you can now transcribe audio files and put them in the database as well!
 
 ### Step 6
 The create database button is self-explanatory.  The command prompt will tell you when it's done and it's safe to search.  However, you can also tell by seeing the GPU usage spike if you're using gpu-acceleration.  Do not attempt to query the database until it's created.
