@@ -3,7 +3,7 @@
   <h3>Ask questions about your documents and get an answer from LM Studio!</h3>
 </div>
 <div align="center">
-  <h4 align="center">⚡GPU Acceleration⚡
+  <h4>⚡GPU Acceleration⚡</h4>
   <table>
     <thead>
       <tr>
@@ -31,7 +31,7 @@
         <td colspan="3" align="center"> ✅ </td>
       </tr>
     </tbody>
-  </table></h4>
+  </table>
 </div>
 
 # Prerequisites
