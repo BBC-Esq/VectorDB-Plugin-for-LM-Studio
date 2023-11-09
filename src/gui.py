@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QTabWidget,
-    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QHBoxLayout
+    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout
 )
 from PySide6.QtCore import Qt, QThread, Signal, QUrl
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -37,34 +37,35 @@ class DocQA_GUI(QWidget):
         self.setGeometry(300, 300, 975, 975)
         self.setMinimumSize(550, 610)
 
+        # Left panel setup with grid layout
         self.left_frame = QFrame()
-        left_vbox = QVBoxLayout()
+        grid_layout = QGridLayout()
+        
+        # Tab widget spanning two columns
         tab_widget = create_tabs()
-        left_vbox.addWidget(tab_widget)
-
+        grid_layout.addWidget(tab_widget, 0, 0, 1, 2)  # Span two columns
+        
+        # Button definitions and positions in the grid
         button_data = [
             ("Download Embedding Model", lambda: download_embedding_model(self)),
             ("Set Embedding Model Directory", select_embedding_model_directory),
             ("Choose Documents for Database", choose_documents_directory),
             ("Create Vector Database", self.on_create_button_clicked)
         ]
+        button_positions = [(1, 0), (1, 1), (2, 0), (2, 1)]
+        
+        # Create and add buttons to the grid layout
+        for position, (text, handler) in zip(button_positions, button_data):
+            button = QPushButton(text)
+            button.setStyleSheet(styles.get('button', ''))
+            button.clicked.connect(handler)
+            grid_layout.addWidget(button, *position)
 
-        # Create two rows of buttons
-        for i in range(0, len(button_data), 2):
-            button_row = QHBoxLayout()
-            for j in range(2):
-                if i + j < len(button_data):
-                    text, handler = button_data[i+j]
-                    button = QPushButton(text)
-                    button.setStyleSheet(styles.get('button', ''))
-                    button.clicked.connect(handler)
-                    button_row.addWidget(button)
-            left_vbox.addLayout(button_row)
-
-        self.left_frame.setLayout(left_vbox)
+        self.left_frame.setLayout(grid_layout)
         self.left_frame.setStyleSheet(styles.get('frame', ''))
         main_splitter.addWidget(self.left_frame)
 
+        # Right panel setup
         right_frame = QFrame()
         right_vbox = QVBoxLayout()
 
@@ -84,8 +85,10 @@ class DocQA_GUI(QWidget):
 
         right_vbox.addWidget(submit_questions_button)
 
+        # Define widget containing buttons
         button_row_widget = create_button_row(self.on_submit_button_clicked, styles.get('button', ''))
 
+        # Add widgets from button_module.py
         right_vbox.addWidget(button_row_widget)
 
         right_frame.setLayout(right_vbox)

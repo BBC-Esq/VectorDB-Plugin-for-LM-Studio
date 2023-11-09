@@ -1,9 +1,10 @@
 from functools import partial
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QTextEdit, QTabWidget, QVBoxLayout, QWidget, QGroupBox, QPushButton, QHBoxLayout, QMessageBox
+from PySide6.QtWidgets import QTextEdit, QTabWidget, QVBoxLayout, QWidget, QGroupBox, QPushButton, QHBoxLayout
 from PySide6.QtCore import QUrl
 import os
 from gui_tabs_settings import GuiSettingsTab
+from gui_tabs_tools import GuiSettingsTab as ToolsSettingsTab  # Alias to differentiate
 
 def load_url(view, url):
     view.setUrl(QUrl.fromLocalFile(url))
@@ -11,6 +12,10 @@ def load_url(view, url):
 def create_tabs():
     tab_widget = QTabWidget()
     tab_widget.setTabPosition(QTabWidget.South)
+    
+    tab_font = tab_widget.font()
+    tab_font.setPointSize(13)  # Adjust font size of tabs
+    tab_widget.setFont(tab_font)
 
     user_manual_folder = os.path.join(os.path.dirname(__file__), 'User_Manual')
 
@@ -19,8 +24,8 @@ def create_tabs():
     tab_widget.addTab(settings_tab, 'Settings')
 
     # DATABASE TAB
-    database_tab = QTextEdit("COMING SOON")
-    tab_widget.addTab(database_tab, 'Databases')
+    # database_tab = QTextEdit("COMING SOON")
+    # tab_widget.addTab(database_tab, 'Databases')
 
     # USER GUIDE TAB
     user_guide_tab = QWidget()
@@ -31,9 +36,10 @@ def create_tabs():
 
     buttons_dict = {
         'Tips': 'tips.html',
-        'Whisper Quants': 'whisper_quants.html',
-        'Number Format': 'number_format.html',
-        'Settings': 'settings.html'
+        'Whisper': 'whisper_quants.html',
+        'Float': 'number_format.html',
+        'Settings': 'settings.html',
+        'Transcribe': 'transcribe.html'
     }
 
     user_guide_view = QWebEngineView()
@@ -55,11 +61,20 @@ def create_tabs():
     tab_widget.addTab(user_guide_tab, 'User Guide')
 
     # MODELS TAB
-    models_tab = QTextEdit("COMING SOON")
-    tab_widget.addTab(models_tab, 'Models')
+    # models_tab = QTextEdit("COMING SOON")
+    # tab_widget.addTab(models_tab, 'Models')
     
     # TOOLS TAB
-    # tools_tab = ToolsTab()
-    # tab_widget.addTab(tools_tab, 'Settings')
+    tools_tab = ToolsSettingsTab()  # Instantiate the tools settings tab
+    tab_widget.addTab(tools_tab, 'Tools')
 
     return tab_widget
+
+if __name__ == '__main__':
+    from PySide6.QtWidgets import QApplication
+    import sys
+
+    app = QApplication(sys.argv)
+    main_widget = create_tabs()
+    main_widget.show()
+    sys.exit(app.exec())

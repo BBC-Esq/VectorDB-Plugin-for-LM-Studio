@@ -12,6 +12,8 @@ from termcolor import cprint
 
 ENABLE_PRINT = True
 
+# torch.cuda.reset_peak_memory_stats()
+
 def my_cprint(*args, **kwargs):
     if ENABLE_PRINT:
         filename = "voice_recorder_module.py"
@@ -83,6 +85,7 @@ class VoiceRecorder:
         
     def ReleaseTranscriber(self):
         del self.model
-        torch.cuda.empty_cache()
+        if torch.cuda.is_available():  # Check if CUDA is available to avoid errors in non-GPU environments
+            torch.cuda.empty_cache()
         gc.collect()
         my_cprint("Whisper model removed from memory.", 'red')

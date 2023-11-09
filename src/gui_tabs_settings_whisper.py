@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QHBoxLayout, QMessageBox
+from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QGridLayout, QMessageBox
 from PySide6.QtCore import Qt
 import ctranslate2
 import yaml
@@ -50,30 +50,34 @@ class TranscriberSettingsTab(QWidget):
         quantization_combo.addItems(quantizations)
 
     def create_layout(self):
-        layout = QHBoxLayout()
+        layout = QGridLayout()
 
         # Model
         model_label = QLabel("Model")
-        layout.addWidget(model_label)
+        layout.addWidget(model_label, 0, 0)
         self.model_combo = QComboBox()
         self.model_combo.addItems(["tiny", "tiny.en", "base", "base.en", "small", "small.en", "medium", "medium.en", "large-v2"])
-        layout.addWidget(self.model_combo)
+        layout.addWidget(self.model_combo, 0, 1)
 
         # Quantization
         quantization_label = QLabel("Quant")
-        layout.addWidget(quantization_label)
+        layout.addWidget(quantization_label, 0, 2)
         self.quantization_combo = QComboBox()
-        layout.addWidget(self.quantization_combo)
+        layout.addWidget(self.quantization_combo, 0, 3)
 
         # Device
         device_label = QLabel("Device")
-        layout.addWidget(device_label)
+        layout.addWidget(device_label, 0, 4)
         self.device_combo = QComboBox()
         device_options = ["cpu"]
         if self.has_cuda_device():
             device_options.append("cuda")
         self.device_combo.addItems(device_options)
-        layout.addWidget(self.device_combo)
+        layout.addWidget(self.device_combo, 0, 5)
+
+        # Set column stretch
+        for i in range(6):  # Assuming 6 columns (label + combo) x 3
+            layout.setColumnStretch(i, 1)
 
         self.device_combo.currentTextChanged.connect(lambda: self.update_quantization(self.device_combo, self.quantization_combo))
         self.update_quantization(self.device_combo, self.quantization_combo)
@@ -103,3 +107,12 @@ class TranscriberSettingsTab(QWidget):
             with open('config.yaml', 'w') as f:
                 yaml.dump(config_data, f)
         return settings_changed
+
+if __name__ == "__main__":
+    from PySide6.QtWidgets import QApplication
+    import sys
+
+    app = QApplication(sys.argv)
+    transcriber_settings_tab = TranscriberSettingsTab()
+    transcriber_settings_tab.show()
+    sys.exit(app.exec())

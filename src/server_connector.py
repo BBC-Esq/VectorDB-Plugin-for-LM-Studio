@@ -13,6 +13,8 @@ import gc
 ENABLE_PRINT = True
 ENABLE_CUDA_PRINT = False
 
+# torch.cuda.reset_peak_memory_stats()
+
 def my_cprint(*args, **kwargs):
     if ENABLE_PRINT:
         filename = "server_connector.py"
@@ -78,7 +80,7 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
     model_kwargs = {"device": compute_device}
 
-    my_cprint("Querying database.", "yellow")
+    my_cprint("Embedding model loaded.", "green")
     if "instructor" in EMBEDDING_MODEL_NAME:
         embed_instruction = config_data['instructor'].get('embed_instruction')
         query_instruction = config_data['instructor'].get('query_instruction')
@@ -115,6 +117,7 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     )
 
     # Use loaded score_threshold and k
+    my_cprint("Querying database.", "yellow")
     retriever = db.as_retriever(search_kwargs={'score_threshold': score_threshold, 'k': k})
 
     relevant_contexts = retriever.get_relevant_documents(query)

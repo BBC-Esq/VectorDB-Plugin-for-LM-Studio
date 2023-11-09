@@ -16,11 +16,12 @@ from termcolor import cprint
 ENABLE_PRINT = True
 ENABLE_CUDA_PRINT = False
 
-# torch.cuda.reset_peak_memory_stats()
+torch.cuda.reset_peak_memory_stats()
 
 def my_cprint(*args, **kwargs):
     if ENABLE_PRINT:
-        modified_message = f"create_database.py: {args[0]}"
+        filename = "create_database.py"
+        modified_message = f"{filename}: {args[0]}"
         cprint(modified_message, *args[1:], **kwargs)
 
 def print_cuda_memory():
@@ -55,13 +56,16 @@ def main():
 
     EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
 
+    # calls document_processor.py
     my_cprint(f"Loading documents.", "cyan")
     documents = load_documents(SOURCE_DIRECTORY)
     my_cprint(f"Successfully loaded documents.", "cyan")
     
+    # calls document_processory.py
     texts = split_documents(documents)
     print_cuda_memory()
     
+    # calls get_embeddings function
     embeddings = get_embeddings(EMBEDDING_MODEL_NAME, config_data)
     my_cprint("Embedding model loaded.", "green")
     print_cuda_memory()
@@ -79,23 +83,29 @@ def main():
     )
     print_cuda_memory()
     
+    # persist database
     my_cprint("Persisting database.", "cyan")
     db.persist()
     my_cprint("Database persisted.", "cyan")
     print_cuda_memory()
     
     del embeddings.client
+    # my_cprint("Deleted embeddings.client.", "red")
     print_cuda_memory()
     
     del embeddings
+    # my_cprint("Deleted embeddings variable.", "red")
     print_cuda_memory()
     
     torch.cuda.empty_cache()
+    # my_cprint("CUDA cache emptied.", "red")
     print_cuda_memory()
     
     gc.collect()
     my_cprint("Embedding model removed from memory.", "red")
     print_cuda_memory()
+    
+    # print(torch.cuda.memory_summary())
 
 # @profile
 def get_embeddings(EMBEDDING_MODEL_NAME, config_data, normalize_embeddings=False):
@@ -108,7 +118,7 @@ def get_embeddings(EMBEDDING_MODEL_NAME, config_data, normalize_embeddings=False
         embed_instruction = config_data['embedding-models']['instructor'].get('embed_instruction')
         query_instruction = config_data['embedding-models']['instructor'].get('query_instruction')
 
-        return HuggingFaceInstructEmbeddings(
+        return HuggingFaceInstructEmbeddings(# creating model instance
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": compute_device},
             encode_kwargs={"normalize_embeddings": normalize_embeddings},
