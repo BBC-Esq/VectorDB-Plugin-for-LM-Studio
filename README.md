@@ -34,7 +34,7 @@
   </table>
 </div>
 
-# Prerequisites
+<div align="center"> <h1>🔥Prerequisites🔥</h1></div>
 You must install the these before following the installation instructions below:
 
 > ‼️ 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (I have not tested above this.).<br>
@@ -42,8 +42,9 @@ You must install the these before following the installation instructions below:
 > ‼️ [Git Large File Storage](https://git-lfs.com/).<br>
 > ‼️ [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
 
-# Installation
-> ‼️‼️ If you have Python 2 and Python 3 installed on your system, make sure and use ```Python3``` andn ```pip3``` instead when installing.
+<div align="center"> <h1>🔥Installation🔥</h1>
+‼️If you have Python 2 and Python 3 installed on your system, make sure and use "Python3" and "pip3" instead when installing.‼️
+</div><br>
 <details>
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
   
@@ -185,7 +186,7 @@ python check_gpu.py
 
 </details>
 
-# 🔥Transcription
+<div align="center"> <h1>🔥Transcription🔥</h1></div>
 
 > As of release v2.1+, my program allows you to transcribe a question into the clipboard and paste it into LM Studio.  It uses the "faster-whisper" library, which relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
 
@@ -274,7 +275,7 @@ Type or transcribe a question into my program and click "Submit Questions."  The
 
 </details>
 
-# Contact
+<div align="center"><h1>Contact</h1></div>
 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
 
