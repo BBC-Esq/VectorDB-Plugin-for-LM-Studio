@@ -72,7 +72,7 @@ python -m pip install --upgrade pip
 ```
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
-🔴 AMD GPUs - To reiterate, PyTorch does not supprot AMD GPUs Windows, only Linux.
+🔴 AMD GPUs - To reiterate, PyTorch does not supprot AMD GPUs Windows, only Linux.<br><br>
 🔵 CPU only:
 ```
 pip install torch torchvision torchaudio
