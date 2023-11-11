@@ -22,7 +22,7 @@
       </tr>
       <tr>
         <td>AMD</td>
-        <td>⚠️ (see below)</td>
+        <td>❌</td>
         <td>✅</td>
         <td>ROCm 5.6</td>
       </tr>
@@ -49,7 +49,7 @@ You must install the these before following the installation instructions below:
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
   
 ### Step 1
-🟢 Nvidia GPU ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+🟢 Nvidia GPU ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)<br>
 🔴 AMD GPU - Unfortunately, PyTorch does not currently support AMD GPUs on Windows.  It's only supported on Linux.  There are several ways to possibly get around this limitation, but I'm unable to verify since I don't have an AMD GPU.  See [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
 ### Step 2
 Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
@@ -65,23 +65,11 @@ Activate the virtual environment:
 ```
 ### Step 5
 ```
-python -m pip install --upgrade pip
+python setup.py
 ```
-### Step 6
-🟢 Nvidia GPUs:
-```
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-```
-🔴 AMD GPUs - To reiterate, PyTorch does not supprot AMD GPUs Windows, only Linux.<br><br>
-🔵 CPU only:
-```
-pip install torch torchvision torchaudio
-```
-### Step 7
-```
-pip install -r requirements.txt
-```
-### Optional Step 8 - Double check GPU-Acceleration
+> And just follow the instructions.
+
+### Optional Step 6 - Double check GPU-Acceleration
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
@@ -92,9 +80,10 @@ python check_gpu.py
   <summary>🐧LINUX INSTRUCTIONS🐧</summary>
 
 ### Step 1
-🟢 Nvidia GPUs ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+🟢 Nvidia GPUs ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)<br>
 🔴 AMD GPUs ➜ Install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html).
 > [THIS REPO](https://github.com/nktice/AMD-AI) might also help if AMD's instructions aren't clear.
+
 ### Step 2
 Download the ZIP file from the latest "release," unzip anywhere on your computer, and go into the ```src``` folder.
 ### Step 3
