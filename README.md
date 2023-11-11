@@ -177,7 +177,7 @@ python check_gpu.py
 
 <div align="center"> <h2>🔥Transcription🔥</h2></div>
 
-> As of release v2.1+, my program allows you to transcribe a question into the clipboard and paste it into LM Studio.  It uses the "faster-whisper" library, which relies upon the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
+> My program allows you to transcribe a question into the clipboard and paste it into LM Studio.  It uses the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
 
 <div align="center">
   <h4>⚡Transcription Acceleration⚡</h4>
