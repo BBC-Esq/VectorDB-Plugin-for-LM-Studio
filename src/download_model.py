@@ -25,11 +25,22 @@ class DownloadModelDialog(QDialog):
 
         # Adding column headers
         model_name_header = QLabel("Model Name")
-        self.grid_layout.addWidget(model_name_header, 0, 1)  # Adding header in the second column
+        self.grid_layout.addWidget(model_name_header, 0, 1)
 
-        download_status_header = QLabel("Downloaded")
-        download_status_header.setAlignment(Qt.AlignCenter)
-        self.grid_layout.addWidget(download_status_header, 0, 2)  # Adding header in the third column
+        description_header = QLabel("Description")
+        self.grid_layout.addWidget(description_header, 0, 2)
+
+        dimensions_header = QLabel("Dimensions")
+        self.grid_layout.addWidget(dimensions_header, 0, 3)
+
+        max_sequence_header = QLabel("Max Sequence")
+        self.grid_layout.addWidget(max_sequence_header, 0, 4)
+
+        size_mb_header = QLabel("Size (MB)")
+        self.grid_layout.addWidget(size_mb_header, 0, 5)
+
+        downloaded_header = QLabel("Downloaded")
+        self.grid_layout.addWidget(downloaded_header, 0, 6)
 
         def get_model_directory_name(model_name):
             return model_name.replace("/", "--")
@@ -38,19 +49,31 @@ class DownloadModelDialog(QDialog):
             os.makedirs('Embedding_Models')
         existing_directories = set(os.listdir('Embedding_Models'))
 
-        for row, model in enumerate(self.available_models, start=1):
-            expected_dir_name = get_model_directory_name(model)
+        for row, model_entry in enumerate(self.available_models, start=1):
+            model_name = model_entry['model']
+            expected_dir_name = get_model_directory_name(model_name)
             is_downloaded = expected_dir_name in existing_directories
 
             radiobutton = QRadioButton()
-            self.grid_layout.addWidget(radiobutton, row, 0)  # radio button in the first column
+            self.grid_layout.addWidget(radiobutton, row, 0)
 
-            model_label = QLabel(model)
-            self.grid_layout.addWidget(model_label, row, 1)  # model name in the second column
+            model_label = QLabel(model_name)
+            self.grid_layout.addWidget(model_label, row, 1)
 
-            status_label = QLabel('Yes' if is_downloaded else 'No')
-            status_label.setAlignment(Qt.AlignCenter)
-            self.grid_layout.addWidget(status_label, row, 2)  # status label in the third column
+            description_label = QLabel(model_entry['details']['description'])
+            self.grid_layout.addWidget(description_label, row, 2)
+
+            dimensions_label = QLabel(str(model_entry['details']['dimensions']))
+            self.grid_layout.addWidget(dimensions_label, row, 3)
+
+            max_sequence_label = QLabel(str(model_entry['details']['max_sequence']))
+            self.grid_layout.addWidget(max_sequence_label, row, 4)
+
+            size_mb_label = QLabel(str(model_entry['details']['size_mb']))
+            self.grid_layout.addWidget(size_mb_label, row, 5)
+
+            downloaded_label = QLabel('Yes' if is_downloaded else 'No')
+            self.grid_layout.addWidget(downloaded_label, row, 6)
 
             self.button_group.addButton(radiobutton)
 
@@ -63,7 +86,7 @@ class DownloadModelDialog(QDialog):
         exit_button.clicked.connect(self.reject)
         button_layout.addWidget(exit_button)
 
-        self.grid_layout.addLayout(button_layout, row + 1, 0, 1, 3)  # Span the button layout across three columns
+        self.grid_layout.addLayout(button_layout, row + 1, 0, 1, 7)
 
     def accept(self):
         for button in self.button_group.buttons():
@@ -80,12 +103,12 @@ def download_embedding_model(parent):
         selected_model = dialog.selected_model
 
         if selected_model:
-            model_url = f"https://huggingface.co/{selected_model}"
-            target_directory = os.path.join("Embedding_Models", selected_model.replace("/", "--"))
+            model_url = f"https://huggingface.co/{selected_model['model']}"
+            target_directory = os.path.join("Embedding_Models", selected_model['model'].replace("/", "--"))
 
             def download_model():
                 subprocess.run(["git", "clone", model_url, target_directory])
-                print(f"{selected_model} has been downloaded and is ready to use!")
+                print(f"{selected_model['model']} has been downloaded and is ready to use!")
 
             download_thread = threading.Thread(target=download_model)
             download_thread.start()
