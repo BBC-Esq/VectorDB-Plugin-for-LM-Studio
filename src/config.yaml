@@ -1,28 +1,34 @@
 AVAILABLE_MODELS:
-- BAAI/bge-large-en-v1.5
 - BAAI/bge-base-en-v1.5
+- BAAI/bge-large-en-v1.5
 - BAAI/bge-small-en-v1.5
-- thenlper/gte-large
-- thenlper/gte-base
-- thenlper/gte-small
-- hkunlp/instructor-xl
-- hkunlp/instructor-large
 - hkunlp/instructor-base
-- sentence-transformers/all-mpnet-base-v2
-- sentence-transformers/all-MiniLM-L6-v2
-- sentence-transformers/all-MiniLM-L12-v2
-- sentence-transformers/sentence-t5-xxl
-- sentence-transformers/sentence-t5-xl
-- sentence-transformers/sentence-t5-large
-- sentence-transformers/sentence-t5-base
-- sentence-transformers/gtr-t5-xxl
-- sentence-transformers/gtr-t5-xl
-- sentence-transformers/gtr-t5-large
-- sentence-transformers/gtr-t5-base
-- jinaai/jina-embedding-l-en-v1
+- hkunlp/instructor-large
+- hkunlp/instructor-xl
 - jinaai/jina-embedding-b-en-v1
+- jinaai/jina-embedding-l-en-v1
 - jinaai/jina-embedding-s-en-v1
 - jinaai/jina-embedding-t-en-v1
+- sentence-transformers/all-distilroberta-v1
+- sentence-transformers/all-MiniLM-L6-v2
+- sentence-transformers/all-mpnet-base-v2
+- sentence-transformers/gtr-t5-base
+- sentence-transformers/gtr-t5-large
+- sentence-transformers/gtr-t5-xl
+- sentence-transformers/msmarco-distilbert-base-v4
+- sentence-transformers/msmarco-distilbert-cos-v5
+- sentence-transformers/msmarco-MiniLM-L-6-v3
+- sentence-transformers/msmarco-MiniLM-L6-cos-v5
+- sentence-transformers/msmarco-roberta-base-v3
+- sentence-transformers/multi-qa-distilbert-cos-v1
+- sentence-transformers/multi-qa-MiniLM-L6-cos-v1
+- sentence-transformers/multi-qa-mpnet-base-cos-v1
+- sentence-transformers/sentence-t5-base
+- sentence-transformers/sentence-t5-large
+- sentence-transformers/sentence-t5-xl
+- thenlper/gte-base
+- thenlper/gte-large
+- thenlper/gte-small
 COMPUTE_DEVICE: cuda
 Compute_Device:
   available:
@@ -30,10 +36,10 @@ Compute_Device:
   - cpu
   database_creation: cuda
   database_query: cpu
-EMBEDDING_MODEL_NAME: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6 - working/Embedding_Models/sentence-transformers--gtr-t5-base
+EMBEDDING_MODEL_NAME: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6_2 - working/Embedding_Models/sentence-transformers--all-MiniLM-L6-v2
 database:
-  chunk_overlap: 150
-  chunk_size: 500
+  chunk_overlap: 250
+  chunk_size: 700
   contexts: 10
   device: null
   similarity: 0.9
@@ -57,14 +63,14 @@ styles:
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
 transcribe_file:
-  device: cpu
-  file: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6 - working/test.mp3
+  device: cuda
+  file: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6_1 - working/test.wma
   language: Option 1
-  model: base.en
-  quant: int8
+  model: small.en
+  quant: float16
   timestamps: true
   translate: false
 transcriber:
   device: cuda
-  model: base.en
+  model: small.en
   quant: float32

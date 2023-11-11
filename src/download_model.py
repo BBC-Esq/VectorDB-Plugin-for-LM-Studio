@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QRadioButton, QPushButton, QButtonGroup
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QRadioButton, QPushButton, QButtonGroup
 import os
 import yaml
 import subprocess
@@ -29,9 +29,21 @@ class DownloadModelDialog(QDialog):
             self.layout().addWidget(radiobutton)
             self.button_group.addButton(radiobutton)
 
+        # Horizontal layout for buttons
+        button_layout = QHBoxLayout()
+
+        # Download button
         download_button = QPushButton('Download', self)
         download_button.clicked.connect(self.accept)
-        self.layout().addWidget(download_button)
+        button_layout.addWidget(download_button)
+
+        # Exit button
+        exit_button = QPushButton('Exit', self)
+        exit_button.clicked.connect(self.reject)
+        button_layout.addWidget(exit_button)
+
+        # Add the button layout to the main layout
+        self.layout().addLayout(button_layout)
 
     def accept(self):
         for button in self.button_group.buttons():
