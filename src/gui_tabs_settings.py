@@ -21,11 +21,11 @@ class GuiSettingsTab(QWidget):
         self.layout = QVBoxLayout()
 
         classes = {
-            "Server/LLM Settings": (ServerSettingsTab, 4),
-            "Embedding Models Settings": (ModelsSettingsTab, 6),
+            "Server/LLM Settings": (ServerSettingsTab, 3),
+            # "Embedding Models Settings": (ModelsSettingsTab, 6),
             # "Chunk Settings": (ChunkSettingsTab, 2),
             "Transcriber Settings": (TranscriberSettingsTab, 1),
-            "Database Settings": (DatabaseSettingsTab, 3),
+            "Database Settings": (DatabaseSettingsTab, 5),
         }
 
         self.groups = {}

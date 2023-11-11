@@ -1,7 +1,6 @@
 import os
 
 def validate_symbolic_links(source_directory):
-    # Checks symbolic links in the docs for db folder to make sure they're valid, and removes the ones that aren't
     symbolic_links = [entry for entry in os.listdir(source_directory) if os.path.islink(os.path.join(source_directory, entry))]
 
     for symlink in symbolic_links:

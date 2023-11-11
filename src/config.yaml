@@ -185,14 +185,14 @@ AVAILABLE_MODELS:
     max_sequence: 512
     size_mb: 670
   model: thenlper/gte-large
-COMPUTE_DEVICE: cuda
+COMPUTE_DEVICE: cpu
 Compute_Device:
   available:
   - cuda
   - cpu
-  database_creation: cuda
+  database_creation: cpu
   database_query: cpu
-EMBEDDING_MODEL_NAME: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6_2 - working/Embedding_Models/BAAI--llm-embedder
+EMBEDDING_MODEL_NAME: 
 database:
   chunk_overlap: 250
   chunk_size: 700
@@ -219,14 +219,14 @@ styles:
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
 transcribe_file:
-  device: cuda
-  file: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6_1 - working/test.wma
+  device: cpu
+  file:
   language: Option 1
   model: small.en
-  quant: float16
+  quant: float32
   timestamps: true
   translate: false
 transcriber:
-  device: cuda
-  model: small.en
+  device: cpu
+  model: base.en
   quant: float32

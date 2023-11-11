@@ -36,9 +36,8 @@ def create_tabs():
 
     buttons_dict = {
         'Tips': 'tips.html',
-        'Whisper': 'whisper_quants.html',
-        'Float': 'number_format.html',
         'Settings': 'settings.html',
+        'Embedding Models': 'embedding_models.html',
         'Transcribe': 'transcribe.html'
     }
 
