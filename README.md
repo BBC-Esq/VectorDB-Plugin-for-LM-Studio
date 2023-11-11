@@ -232,35 +232,34 @@ After following the installation instructions above, you can check which quantiz
 <details>
   <summary>🔥USAGE INSTRUCTIONS🔥</summary>
 
-### Step 1 - Virtual Environment
+### Activate Virtual Environment
 Make sure you are in theh ```src``` folder, have opened a command prompt/terminal, and activated the virtual environment (see installation instructions).
-### Step 2
-Run Program
+### Run Program
 ```
 python gui.py
 ```
 > Only systems running Windows with an Nvidia GPU will display metrics in the GUI.  Feel free to request that I add AMD or Apple support.
-### Step 3
+### Download Embedding Model
 The download embedding model button lets you choose to download multiple embedding models.  The command prompt/terminal will state when the download is complete and unpacked.  Don't attempt to create the vector database before.
-### Step 4
+### Set Model Directory
 The set model directory allows you to choose which embedding model to create the vector database.  You can choose any of the embedding models you previously downloaded to see which works best.  Remember, you must recreate the database if you want to use a different embedding model.  Creating the database with one embedding model and then trying to search with a different embedding model will throw an error.  Recreating the vector database will automatically delete the old one.
-### Step 5
+### Choose Documents for Database
 The choose documents allows you to select which documents you want in the database.  Symbolic links to the files are put within the "Docs_for_DB" folder, but you can also manually copy/paste files into the folder if you prefer having the actual files there.  Also, you can click this button multiple times if your files are in different directories and doing will not delete the files you've already added.  You can remove some/all files to be processed by simply deleting them from the "Docs_for_DB" folder.
 Remember, you must recreate the database anytime you want to add/remove documents.  Adding/removing documents from the "Docs_for_DB" folder does not automatically modify the database.
 The supported file types are: ```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
 > ‼️ PDF files must have had OCR done on them.<br>
 > ‼️ As of release 2.6.1, you can now transcribe audio files and put them in the database as well!
 
-### Step 6
+### Create Databaase
 The create database button is self-explanatory.  The command prompt will tell you when it's done and it's safe to search.  However, you can also tell by seeing the GPU usage spike if you're using gpu-acceleration.  Do not attempt to query the database until it's created.
 
-### Step 7
+### Setup LM Studio
 1) After the database is created, open LM Studio and load a model.
 > ‼️ My program uses the Llama2 prompt format by default (although it can be changed).  Therefore, I highly recommend that you only use Llama2 based models unless you know for sure how to modify the prefix and suffix for the prompts for various models.
 2) Click the server tab on the left side.
 3) Click "Start Server" in the server tab.
 
-### Step 8
+### Search Database
 Type or transcribe a question into my program and click "Submit Questions."  The vector database will be queried and your question along with the results will be fed to LM Studio for an answer.
 
 </details>
