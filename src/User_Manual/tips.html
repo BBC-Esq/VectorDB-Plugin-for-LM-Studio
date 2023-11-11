@@ -117,34 +117,9 @@
 		and re-enable the graphics adapters on your motherboard.  The name of the specific setting can vary so check your specific
 		motherboard's documentation.</p>
 		
-		<h2 style="color: #f0f0f0;" align="center">Select an Appropriate Embedding Model</h2>
+		<h2 style="color: #f0f0f0;" align="center">See The User Guide Embedding Models Button</h2>
 		
-		<p>Previously, the <code>instructor</code> models performed best IMHO.  However, I have since corrected a mistake in
-		my code and now recommend using the <code>BGE v1.5</code> models for 90% of use cases.  They perform just as good and
-		use less memory.  Also, <code>all-mpnet-base-v2</code> is good and is low-memory.  Here are some resources to read:</p>
-		
-		<p><b>https://www.sbert.net/docs/pretrained_models.html</b></p>
-		<p><b>https://instructor-embedding.github.io/</b></p>
-		<p><b>https://github.com/FlagOpen/FlagEmbedding</b></p>
-		<p><b>https://huggingface.co/thenlper/gte-large</b></p>
-		<p><b>https://huggingface.co/jinaai/jina-embedding-l-en-v1</b></p>
-		
-		<h2 style="color: #f0f0f0;" align="center">Select the Appropriate Model Within LM Studio</h2>
-		
-		<p>My program uses the embedding model to create the database and subsequently obtain "context" from it, which is
-		then forwarded to the LLM within LM Studio along with your question, for an answer.
-		The embedding model (not the LLM) is responsible for the quality of the context and it is overwhelmingly this quality
-		that determines the quality of the answer you get from LM Studio.  Therefore, if VRAM is short, prioritize a higher
-		quality embedding model over a larger LLM.  Even a 7B model quantized to 8-bit can be overkill.</p>
-		
-		<p>This is the smallest model that still works decently IMHO, but my current overall favorite is Mistral:</p>
-		
-		<p><b>https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v0.3-GGUF</b></p>
-		
-		<p>There's one caveat, if the documents in your vector database are highly technical (e.g. medical or legal documents),
-		a larger LLM might provide some benefit because of its increased vocabulary.  Just experiment.</p>
-		
-		<p>Also, remember that my program only supports llama-based models that follow the llama "prompt format."</p>
+		<p>See the new Embedding Models portion of the User Guide.</p>
 		
 		<h2 style="color: #f0f0f0;" align="center">Select the Appropriate Transcription Model and Quantization</h2>
 		
@@ -162,22 +137,6 @@
 		<p>The embedding model can use gpu-acceleration as well, and creating the database uses more memory than merely
 		querying it; therefore, don't load a model into LM Studio until after creating the database.
 		This will reduce the chance that you run out of VRAM when creating the database.</p>
-		
-		<h2 style="color: #f0f0f0;" align="center">Ask the Right Questions</h2>
-		
-		<p>Modify your question if  you don't get a good answer.  Sometimes there's a big difference between
-		"What is the statute of limitations for defamation?" versus "What is the statute of limitations for a defamation
-		action if the allegedly defamatory statement is in writing as opposed to verbal?"  Experiment with how specific you are.</p>
-		
-		<p>My previous advice was to not ask multiple questions, but now that I've added an option to increase the number of
-		"contexts" from the database to the LLM, this is less stringent.  I now encourage you ask longer-winded questions and even
-		general descriptions of the types of information you're looking for (not strictly a question you see).  For reference, here
-		are my prior instructions:</p>
-		
-		<p><i>Don't use multiple questions.  For example, the results will be poor if you ask "What is the statute of limitations for a
-		defamation action?" AND "Can the statute of limitations tolled under certain circumstances?" at the same time.  Instead,
-		reformulate your question into something like: "What is the statute of limitations for a defamation and can it be tolled
-		under certain circumstances?"  Again, just experiment and DO NOT assume that you must use a larger LLM or embedding model.</i></p>
 		
 		<h2 style="color: #f0f0f0;" align="center">Ensure Sufficient Context Length for the LLM</h2>
 		
