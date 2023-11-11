@@ -35,7 +35,7 @@
 </div>
 
 <div align="center"> <h2>🔥Requirements🔥</h2></div>
-You must install the these before following the installation instructions below:
+You must install these before following the installation instructions below:
 
 > ‼️ 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (I have not tested above this.).<br>
 > ‼️ [Git](https://git-scm.com/downloads)<br>
