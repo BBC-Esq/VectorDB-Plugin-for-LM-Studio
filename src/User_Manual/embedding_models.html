@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedding Models</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #161b22;
+            color: #d0d0d0;
+        }
+		
+		header {
+			text-align: center;
+			background-color: #3498db;
+			color: #333;
+			padding: 20px;
+			position: sticky;
+			top: 0;
+			z-index: 999;
+		}
+		
+		header a {
+			color: #fff;
+			text-decoration: none;
+		}
+		
+		h2:target {
+			padding-top: 200px;
+			margin-top: -100px;
+			display: block;
+		}
+
+		header a:hover {
+			text-decoration: underline;
+		}
+		
+		main {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+		
+		h1 {
+		  color: #333;
+		}
+
+		h2 {
+		  color: #f0f0f0;
+		  text-align: center;
+		}
+		
+		p {
+			text-indent: 25px;
+		}
+
+		
+		table {
+            color: black;
+			border-collapse: collapse;
+            margin: 25px auto;
+        }
+		
+		thead th {
+			background-color: #f69784;
+		}
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px 12px;
+        }
+
+        .tiny {
+            background-color: #e6f7ff;
+        }
+
+        .base {
+            background-color: #b3e0ff;
+        }
+
+        .small {
+            background-color: #66c2ff;
+        }
+
+        .medium {
+            background-color: #3399ff;
+        }
+
+        .large {
+            background-color: #0073e6;
+        }
+		
+		code {
+			background-color: #d0d0d0;
+			border-radius: 3px;
+			padding: 2px 3px;
+			font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+			color: #333;
+		}
+		
+		footer {
+			text-align: center;
+			background-color: #333;
+			color: #fff;
+			padding: 10px;
+		}
+		
+		.table-from-second-file, .table-from-second-file th, .table-from-second-file td {
+			border-collapse: collapse;
+			margin: 25px auto;
+			text-align: center;
+			padding: 8px;
+			border-bottom: 1px solid #ddd;
+			color: #000;
+		}
+
+		.table-from-second-file th {
+			background-color: #f2f2f2;
+			color: #000;
+		}
+		
+		.table-from-second-file td {
+			color: #fff; /* White color for non-header cells */
+			border-bottom: 1px solid #fff;
+			border-left: 1px solid #fff;
+			border-right: 1px solid #fff;
+			text-align: center;
+		}
+		
+		img {
+			display: block;
+			margin: 0 auto;
+			max-width: 100%;
+			height: auto;
+		}
+    </style>
+</head>
+
+<body>
+
+	<header>
+		<h1>Embedding Models</h1>
+		<nav>
+			<a href="#overview">Overview</a> |
+			<a href="#model">Choosing the Correct Model</a> |
+			<a href="#semantic">Semantic Search</a> |
+			<a href="#clustering">Clustering or Semantic Search</a> |
+			<a href="#sentence_similarity">Sentence Similarity</a> |
+			<a href="#rounded">Well Rounded</a> |
+			<a href="#dimensions">Max Sequence and Dimensions</a> |
+			<a href="#total_context">Total Program Context</a>
+		</nav>
+	</header>
+	
+	<main>
+	
+	<h2 id="overview">Overview</h2>
+	
+	<p><b>To get the most out of this program, it's crucial to choose the right embedding model based on the type of task.
+	Choosing the wrong model can lead to poor or incoherent results.  Remember, the LLM's response is only as good as the
+	context you provide via the embedding model.</b></p>
+	
+	<p>An embedding model is loaded into memory (and then immediately unloaded when not needed) for the following tasks:
+<ol>
+    <li>Creating the vector database; and</li>
+    <li>Querying the vector database before your question and the "context" it obtains are sent to the LLM for an answer.</li>
+</ol>
+
+	
+	<h2 id="model">Choosing the Correct Model</h2>
+	
+	<p>The first rule of embedding models is experiment.  Make sure and review the "Download Model" and the characteristics
+	of the various embedding models.  It directly relates to these instructions.  With that being said, there are too many
+	different types of tasks to prescribe a one-size-fits-all .  However, based my research and testing the following rules apply:</p>
+	
+	<h2 id="semantic">Semantic Search</h2>
+	
+	<p>Semantic search is a general term that refers to obtain results based off questions.  This includes RAG and other tasks
+	(this program is primarily geared towards RAG).  All of the embedding models with the "Semantic search" description
+	will perform reasonably well for question answering, in fact, they're trained for this purpose.</p>
+	
+	<p>Models with <code>msmarco</code> in their name are especially good at providing long results to short questions - e.g.</p>
+	
+	<p><b>What does this legal treatise say about the elements of a defamation claim?</b></p>
+	<p><b>What kind of troubles does this character encounter throughout this book?</b></p>
+	
+	<p><code>msmarco</code> models are specifically trained for "asymmetric semantic search," which means a search where your
+	question is short but the result you want is expected to be long and comprehensive.  Other models with the "Semantic search"
+	description are GENERALLY "symmetric semantic search" focused, which means that they tend to produce results of the same
+	length of your question.</p>
+	
+	<p>Models with <code>multi-qa</code> in their name have specifically been trained on question answering and are similar in
+	function to <code>msmarco</code> models.  Experiment.</p>
+	
+	<p>More recent (and much larger) models like ones beginning with <code>gtr</code> (to give one example) are arguably
+	just as efficient in providing long answers to a short question.  The most in recent history has been towards models good
+	at everything, but just experiment!</p>
+	
+	<h2 id="clustering">Clustering or Semantic Search</h2>
+	
+	<p>The phrase "clustering or semantic search" is taken from the "Sentence Transformers website, the organization that created
+	a majority of the models used in this program.  What it basically means is "well rounded."  They are good at question answering
+	as well as other typical embedding models tasks, but for purposes of this program you should think of them as "well rounded."</p>
+	
+	<p>The <code>all-mpnet-base-v2</code> model is widely considered the best of its size in this category, but again, experiment.
+	You might find that it performs better than a larger model geared towards "semantic search" or vice versa.</p>
+	
+	<h2 id="sentence_similarity">Sentence Similarity</h2>
+	
+	<p>There are three models with this description and they are extremely good at it.  They focus on providing sentences that are
+	as similar to your question/sentence as possible; for example:</p>
+	
+	<p><b>Quote for me all sentences that discuss the main character in this book eating food</b></p>
+	<p><b>Provide me all sentences verbatim of a court discussing the elements of a defamation claim.</b></p>
+	
+	<p>The search results will be a slew of chunks containing relevant sentences (as opposed to answering a question), and
+	LM Studio should provide a succinct verbatim outline of the sentences.</p>
+	
+	<h2 id="rounded">Well Rounded</h2>
+	
+	<p>Models with this description provide reasonable quality, and the larger ones are arguably as good as the "specialist" models
+	described above.</p>
+	
+	<p>The "customizable" description means that the model comes with a way to modify its "instructions" within my scripts to fit
+	your specific task.  Currently, the <code>instructor</code> and <code>bge</code> models have this characteristic.  However, I've
+	commented out settings to save space and, in my experience, they're good enough you don't need to change the defaults.  Feel
+	free to modify <code>gui_tabs_settings_models.py</code> to make the settings visible again.</p>
+	
+	<h2 id="dimensions">Max Sequence and Dimensions</h2>
+	
+	<p>"Max sequence" of an embedding models refers to the maximum number of tokens (not characters) that it can process to create
+	an embedding.  "Dimensions" refers to how nuanced meanings it can discern.  The higher "dimensions" means that the model can
+	discern nuanced meanings from very similar text and provide more accurate results.</p>
+	
+	<p>The "chunk size" setting within the Settings tab refers to the number of maximum characters a "chunk" that is fed to the
+	embedding model can have.  IMPORTANT, this refers to the number of characters, not tokens (like with the max sequence length).
+	Therefore, make sure you are chunking your text in a way that falls under the threshold of an embedding model's max sequence
+	token length.  As a general rule of thumb, a token" contains four (4) characters.  Therefore, if you set the chunk size to
+	1200, for example, make sure the embedding model you're using has a max sequence length of 300+.</p>
+	
+	<p>If the chunks are too large, the embedding model will simply truncate them, making your search less efficient.  You won't
+	notice this happening because the program does not give an error when this occurs.</p>
+	
+	<h2 id="total_context">Total Program Context</h2>
+	
+	<p>Finally, remember to abide by the total context (in tokens) available from the LLM within LM Studio (typically 4096).
+	However many tokens your question consists of is added to the total tokens of the multiple pieces of "context" you
+	receive from the vector database.  If anything is left from the 4096, that is how many tokens LM Studio has to respond to
+	your question.</p>
+
+</main>
+
+    <footer>
+        www.chintellalaw.com
+    </footer>
+</body>
+</html>
