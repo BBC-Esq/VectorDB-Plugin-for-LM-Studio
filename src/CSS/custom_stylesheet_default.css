@@ -1,113 +1,101 @@
 DocQA_GUI {
-    background-color: #161b22; /* Set the background color */
+    background-color: #161b22;
 }
 
-/* Style for all QWidget elements */
 QWidget {
-    border: 2px solid #161b22; /* Set the border style and color */
-	border: none;
+    border: 2px solid #161b22;
+    border: none;
 }
 
-/* Style for QPushButton */
 QPushButton {
     background-color: #323842;
-    color: white; /* Set text color to white */
+    color: white;
     font: 10pt "Segoe UI Historic";
-    border-radius: 5px; /* Round all four corners by three pixels */
-    padding: 5px; /* Add 5 pixels of padding around the button text */
-    min-width: 60px; /* Set a minimum width for the buttons */
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
 }
 
-/* Style for QPushButton when hovered */
 QPushButton:hover {
-    background-color: #2b2b2b; /* Change background color on hover */
-    border: 1px solid #555; /* Add a subtle border on hover */
-    color: white; /* Set text color to white on hover */
+    background-color: #2b2b2b;
+    border: 1px solid #555;
+    color: white;
 }
 
-/* Style for the main border of QGroupBox */
 QGroupBox {
-    border: 2px solid #092327; /* Set the main border style and color */
+    border: 2px solid #092327;
 }
 
-/* Style for QLabel text color */
 QLabel {
-    color: white; /* Set the text color to white */
+    color: white;
 }
 
-/* Style for QComboBox when not dropped down */
 QComboBox {
-    background-color: #323842; /* Set the background color */
-    color: white; /* Set the text color to white */
-    border: none; /* No border */
-    border-radius: 5px; /* Rounded corners */
-    padding: 3px; /* Add padding on all sides */
+    background-color: #323842;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px;
 }
 
-/* Style for QComboBox items when dropped down */
 QComboBox QAbstractItemView {
-    background-color: #323842; /* Set the background color for items */
-    color: white; /* Set the text color to white for items */
+    background-color: #323842;
+    color: white;
 }
 
-/* Style for QComboBox items when hovered over */
 QComboBox QAbstractItemView::item:hover {
-    background-color: #038387; /* Change background color when hovering over items */
-    color: white; /* Ensure the text color remains white when hovered over */
+    background-color: #038387;
+    border: 1px solid #253141;
+    color: white;
 }
 
 QLineEdit {
-    background-color: #161b22; /* Set the background color */
-    color: white; /* Set the text color to white */
-    border: none; /* No border */
-    padding-top: 3px; /* 3 pixels padding at the top */
-    padding-bottom: 3px; /* 3 pixels padding at the bottom */
+    background-color: #161b22;
+    color: white;
+    border: none;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 QLineEdit::placeholder {
-    color: #969686; /* Set the placeholder text color */
+    color: #969686;
 }
 
 QGroupBox {
-    color: white; /* Set the text color of QGroupBox title to white */
-    font-size: 12pt; /* Increase font size */
-	padding: 10px; /* Add padding around the content inside the group box */
+    color: white;
+    font-size: 12pt;
+    padding: 10px;
 }
 
 DownloadModelDialog {
     background-color: #161b22;
 }
 
-/* Style for QFrame */
 QFrame {
     background-color: #161b22;
 }
 
-/* Style for read-only text areas (QTextEdit) */
 QTextEdit[readOnly="true"] {
-    background-color: #092327; /* Set the background color to #092327 */
-    color: white; /* Set the text color to white */
-    font: 12pt "Segoe UI Historic";
-    border: 1px solid #2e333b; /* Set the border color to match the background color */
-    selection-background-color: #555; /* Set the selection background color when text is selected */
-    selection-color: white; /* Set the selection text color when text is selected */
-    font: 14pt "Segoe UI Historic"; /* Set the font size to 13pt */
+    background-color: #092327;
+    color: white;
+    font: 14pt "Segoe UI Historic";
+    border: 1px solid #2e333b;
+    selection-background-color: #555;
+    selection-color: white;
 }
 
-/* Style for text areas (QTextEdit) when readOnly is set to false */
 QTextEdit[readOnly="false"] {
-    background-color: #2e333b; /* Set the background color to #2e333b */
-    color: white; /* Set the text color to white */
-    font: 12pt "Segoe UI Historic";
-    border: 1px solid #2e333b; /* Set the border color to match the background color */
-    selection-background-color: #555; /* Set the selection background color when text is selected */
-    selection-color: white; /* Set the selection text color when text is selected */
-    font: 14pt "Segoe UI Historic"; /* Set the font size to 13pt */
+    background-color: #2e333b;
+    color: white;
+    font: 14pt "Segoe UI Historic";
+    border: 1px solid #2e333b;
+    selection-background-color: #555;
+    selection-color: white;
 }
 
 QTabWidget {
     background-color: #161b22;
-    border: none; /* Removes the border from the entire QTabWidget */
+    border: none;
 }
 
 QTabWidget, QTabWidget::pane {
@@ -116,28 +104,25 @@ QTabWidget, QTabWidget::pane {
     border: none;
 }
 
-/* Style for all QTabWidget tabs with rounded bottom corners, custom size, margin, and padding */
 QTabBar::tab {
     background-color: #4b4b4b;
     color: white;
-    border-bottom-left-radius: 3px; /* Adjust the value as needed for rounded corners */
-    border-bottom-right-radius: 3px; /* Adjust the value as needed for rounded corners */
-    margin: 3px; /* Adjust the margin values to control the space around each tab */
-    padding: 5px 5px; /* Adjust the padding values to control the tab size */
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    margin: 3px;
+    padding: 5px 5px;
 }
 
-/* Style for the currently selected tab */
 QTabBar::tab:selected {
-    background-color: #555; /* Change to a slightly different color */
-    border-bottom: 3px solid #038387; /* Add a subtle bottom border with a highlight color */
+    background-color: #555;
+    border-bottom: 3px solid #038387;
 }
 
-/* Style for the tab when hovering */
 QTabBar::tab:hover {
-    background-color: #666; /* Change to a slightly different color when hovering */
+    background-color: #666;
 }
 
 QSplitter::handle {
     background-color: #1e1e1e;
-	height: 10px; /* For horizontal splitters */
+    height: 10px;
 }

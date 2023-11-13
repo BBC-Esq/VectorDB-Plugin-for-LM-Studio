@@ -1,17 +1,14 @@
-/* Style for the main GUI background */
 DocQA_GUI {
-    background-color: #1a1d29; /* Dark purple for the main background */
+    background-color: #1a1d29;
 }
 
-/* Style for all QWidget elements */
 QWidget {
-    border: 2px solid #2c2f3e; /* Slightly lighter purple for widget borders */
+    border: 2px solid #2c2f3e;
     border: none;
 }
 
-/* Style for QPushButton */
 QPushButton {
-    background-color: #323842; /* Subtle dark grey for buttons */
+    background-color: #323842;
     color: white;
     font: 10pt "Segoe UI Historic";
     border-radius: 5px;
@@ -19,53 +16,47 @@ QPushButton {
     min-width: 60px;
 }
 
-/* Style for QPushButton when hovered */
 QPushButton:hover {
-    background-color: #3a3f4f; /* Dark purple for button hover */
+    background-color: #3a3f4f;
     border: 1px solid #555;
     color: white;
 }
 
-/* Style for the main border of QGroupBox */
 QGroupBox {
-    border: 2px solid #3a3e4b; /* Dark purple for group box border */
+    border: 2px solid #3a3e4b;
 }
 
-/* Style for QLabel text color */
 QLabel {
     color: white;
 }
 
-/* Style for QComboBox when not dropped down */
 QComboBox {
-    background-color: #323842; /* Same as QPushButton */
+    background-color: #323842;
     color: white;
     border: none;
     border-radius: 5px;
     padding: 3px;
 }
 
-/* Style for QComboBox items when dropped down */
 QComboBox QAbstractItemView {
-    background-color: #323842; /* Same as QPushButton */
+    background-color: #323842;
     color: white;
 }
 
-/* Style for QComboBox items when hovered over */
 QComboBox QAbstractItemView::item:hover {
-    background-color: #a34f6f; /* Dark pink for combo box hover */
+    background-color: #a34f6f;
     color: white;
 }
 
 QLineEdit {
-    background-color: #1a1d29; /* Same as main background */
+    background-color: #1a1d29;
     color: white;
     border: none;
     padding: 3px;
 }
 
 QLineEdit::placeholder {
-    color: #969686; /* Subtle grey for placeholder text */
+    color: #969686;
 }
 
 QGroupBox {
@@ -75,17 +66,15 @@ QGroupBox {
 }
 
 DownloadModelDialog {
-    background-color: #1a1d29; /* Same as main background */
+    background-color: #1a1d29;
 }
 
-/* Style for QFrame */
 QFrame {
-    background-color: #1a1d29; /* Same as main background */
+    background-color: #1a1d29;
 }
 
-/* Style for read-only text areas (QTextEdit) */
 QTextEdit[readOnly="true"] {
-    background-color: #252836; /* Darker purple for read-only areas */
+    background-color: #252836;
     color: white;
     border: 1px solid #2e333b;
     selection-background-color: #555;
@@ -93,9 +82,8 @@ QTextEdit[readOnly="true"] {
     font: 14pt "Segoe UI Historic";
 }
 
-/* Style for text areas (QTextEdit) when readOnly is set to false */
 QTextEdit[readOnly="false"] {
-    background-color: #2e333b; /* Slightly lighter */
+    background-color: #2e333b;
     color: white;
     border: 1px solid #2e333b;
     selection-background-color: #555;
@@ -104,7 +92,7 @@ QTextEdit[readOnly="false"] {
 }
 
 QTabWidget {
-    background-color: #1a1d29; /* Same as main background */
+    background-color: #1a1d29;
     border: none;
 }
 
@@ -114,9 +102,8 @@ QTabWidget, QTabWidget::pane {
     border: none;
 }
 
-/* Style for all QTabWidget tabs */
 QTabBar::tab {
-    background-color: #4b4b4b; /* Grey for tab background */
+    background-color: #4b4b4b;
     color: white;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -124,18 +111,16 @@ QTabBar::tab {
     padding: 5px 5px;
 }
 
-/* Style for the currently selected tab */
 QTabBar::tab:selected {
-    background-color: #555; /* Slightly lighter grey for selected tab */
+    background-color: #555;
     border-bottom: 3px solid #038387;
 }
 
-/* Style for the tab when hovering */
 QTabBar::tab:hover {
-    background-color: #666; /* Light grey for tab hover */
+    background-color: #666;
 }
 
 QSplitter::handle {
-    background-color: #1e1e1e; /* Dark color for splitter handle */
+    background-color: #1e1e1e;
     height: 5px;
 }

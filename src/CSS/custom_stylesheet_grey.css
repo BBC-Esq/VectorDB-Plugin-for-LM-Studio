@@ -1,5 +1,5 @@
 DocQA_GUI {
-    background-color: #2D2D2D; /* Dark grey */
+    background-color: #2D2D2D;
 }
 
 QWidget {
@@ -8,7 +8,7 @@ QWidget {
 }
 
 QPushButton {
-    background-color: #4E4E4E; /* Medium grey */
+    background-color: #4E4E4E;
     color: white;
     font: 10pt "Segoe UI Historic";
     border-radius: 5px;
@@ -17,21 +17,21 @@ QPushButton {
 }
 
 QPushButton:hover {
-    background-color: #626262; /* Slightly lighter grey */
-    border: 1px solid #7E7E7E; /* Light grey */
+    background-color: #626262;
+    border: 1px solid #7E7E7E;
     color: white;
 }
 
 QGroupBox {
-    border: 2px solid #424242; /* Dark grey */
+    border: 2px solid #424242;
 }
 
 QLabel {
-    color: #A0A0A0; /* Light grey */
+    color: #A0A0A0;
 }
 
 QComboBox {
-    background-color: #4E4E4E; /* Medium grey */
+    background-color: #4E4E4E;
     color: white;
     border: none;
     border-radius: 5px;
@@ -44,19 +44,19 @@ QComboBox QAbstractItemView {
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: #8C8C8C; /* Soft grey */
+    background-color: #8C8C8C;
     color: white;
 }
 
 QLineEdit {
-    background-color: #2D2D2D; /* Dark grey */
-    color: #A0A0A0; /* Light grey */
+    background-color: #2D2D2D;
+    color: #A0A0A0;
     border: none;
     padding: 3px;
 }
 
 QLineEdit::placeholder {
-    color: #7E7E7E; /* Light grey */
+    color: #7E7E7E;
 }
 
 QGroupBox {
@@ -74,19 +74,19 @@ QFrame {
 }
 
 QTextEdit[readOnly="true"] {
-    background-color: #383838; /* Slightly lighter dark grey */
-    color: #A0A0A0; /* Light grey */
-    border: 1px solid #424242; /* Dark grey */
-    selection-background-color: #626262; /* Slightly lighter grey */
+    background-color: #383838;
+    color: #A0A0A0;
+    border: 1px solid #424242;
+    selection-background-color: #626262;
     selection-color: white;
     font: 14pt "Segoe UI Historic";
 }
 
 QTextEdit[readOnly="false"] {
-    background-color: #383838; /* Slightly lighter dark grey */
+    background-color: #383838;
     color: white;
-    border: 1px solid #424242; /* Dark grey */
-    selection-background-color: #626262; /* Slightly lighter grey */
+    border: 1px solid #424242;
+    selection-background-color: #626262;
     selection-color: white;
     font: 14pt "Segoe UI Historic";
 }
@@ -103,7 +103,7 @@ QTabWidget, QTabWidget::pane {
 }
 
 QTabBar::tab {
-    background-color: #4E4E4E; /* Medium grey */
+    background-color: #4E4E4E;
     color: white;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -112,15 +112,15 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: #626262; /* Slightly lighter grey */
-    border-bottom: 3px solid #8C8C8C; /* Soft grey */
+    background-color: #626262;
+    border-bottom: 3px solid #8C8C8C;
 }
 
 QTabBar::tab:hover {
-    background-color: #7E7E7E; /* Light grey */
+    background-color: #7E7E7E;
 }
 
 QSplitter::handle {
-    background-color: #2D2D2D; /* Dark grey */
+    background-color: #2D2D2D;
     height: 5px;
 }
