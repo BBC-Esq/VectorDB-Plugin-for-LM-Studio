@@ -3,15 +3,30 @@ import yaml
 from faster_whisper import WhisperModel
 import time
 from termcolor import cprint
+from PySide6.QtCore import QThread
+
+class TranscriptionThread(QThread):
+    def __init__(self, transcriber):
+        super().__init__()
+        self.transcriber = transcriber
+
+    def run(self):
+        try:
+            self.transcriber.transcribe_to_file()
+            print("Transcription completed and saved in 'Docs_for_DB' directory.")
+        except FileNotFoundError as e:
+            print(f"File not found error: {e}")
+        except Exception as e:
+            print(f"An error occurred during transcription: {e}")
 
 class TranscribeFile:
-    def __init__(self, config_path='config.yaml'):
+    def __init__(self, audio_file, config_path='config.yaml'):
         # Read the configuration from config.yaml
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)['transcribe_file']
 
         model_name = f"ctranslate2-4you/whisper-{config['model']}-ct2-{config['quant']}"
-        self.audio_file = config['file']
+        self.audio_file = audio_file  # Use the passed audio_file
         self.include_timestamps = config['timestamps']
         self.model = WhisperModel(model_name, device=config['device'], compute_type=config['quant'])
         self.enable_print = True
@@ -22,6 +37,10 @@ class TranscribeFile:
             filename = "transcribe_module.py"
             modified_message = f"{filename}: {args[0]}"
             cprint(modified_message, *args[1:], **kwargs)
+
+    def start_transcription_thread(self):
+        self.transcription_thread = TranscriptionThread(self)
+        self.transcription_thread.start()
 
     @staticmethod
     def format_time(seconds):

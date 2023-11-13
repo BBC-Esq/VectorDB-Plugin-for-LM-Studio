@@ -1,10 +1,9 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QTabWidget,
-    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout
+    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar
 )
 from PySide6.QtCore import Qt, QThread, Signal, QUrl
 from PySide6.QtWebEngineWidgets import QWebEngineView
-import yaml
 import os
 from initialize import determine_compute_device, is_nvidia_gpu, get_os_name
 from download_model import download_embedding_model
@@ -17,12 +16,8 @@ from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
 from metrics_bar import MetricsBar
 from button_module import create_button_row
-
-with open('config.yaml', 'r') as config_file:
-    config = yaml.safe_load(config_file)
-
-tabs_config = config.get('tabs', [])
-styles = config.get('styles', {})
+import sys
+from utilities import list_theme_files, make_theme_changer, load_stylesheet
 
 class DocQA_GUI(QWidget):
     def __init__(self):
@@ -30,12 +25,13 @@ class DocQA_GUI(QWidget):
         self.compute_device = determine_compute_device()
         os_name = get_os_name()
         self.init_ui()
+        self.init_menu()
 
     def init_ui(self):
         main_splitter = QSplitter(Qt.Horizontal)
         self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
         self.setGeometry(300, 300, 975, 975)
-        self.setMinimumSize(550, 610)
+        self.setMinimumSize(450, 510)
 
         # Left panel setup with grid layout
         self.left_frame = QFrame()
@@ -57,12 +53,10 @@ class DocQA_GUI(QWidget):
         # Create and add buttons to the grid layout
         for position, (text, handler) in zip(button_positions, button_data):
             button = QPushButton(text)
-            button.setStyleSheet(styles.get('button', ''))
             button.clicked.connect(handler)
             grid_layout.addWidget(button, *position)
 
         self.left_frame.setLayout(grid_layout)
-        self.left_frame.setStyleSheet(styles.get('frame', ''))
         main_splitter.addWidget(self.left_frame)
 
         # Right panel setup
@@ -71,28 +65,24 @@ class DocQA_GUI(QWidget):
 
         self.read_only_text = QTextEdit()
         self.read_only_text.setReadOnly(True)
-        self.read_only_text.setStyleSheet(styles.get('text', ''))
 
         self.text_input = QTextEdit()
-        self.text_input.setStyleSheet(styles.get('input', ''))
 
         right_vbox.addWidget(self.read_only_text, 4)
         right_vbox.addWidget(self.text_input, 1)
 
         submit_questions_button = QPushButton("Submit Questions")
-        submit_questions_button.setStyleSheet(styles.get('button', ''))
         submit_questions_button.clicked.connect(self.on_submit_button_clicked)
 
         right_vbox.addWidget(submit_questions_button)
 
         # Define widget containing buttons
-        button_row_widget = create_button_row(self.on_submit_button_clicked, styles.get('button', ''))
+        button_row_widget = create_button_row(self.on_submit_button_clicked)
 
         # Add widgets from button_module.py
         right_vbox.addWidget(button_row_widget)
 
         right_frame.setLayout(right_vbox)
-        right_frame.setStyleSheet(styles.get('frame', ''))
         main_splitter.addWidget(right_frame)
 
         self.metrics_bar = MetricsBar()
@@ -100,8 +90,20 @@ class DocQA_GUI(QWidget):
         main_layout.addWidget(main_splitter)
         main_layout.addWidget(self.metrics_bar)
 
+    # Create menu bar
+    def init_menu(self):
+        self.menu_bar = QMenuBar(self)
+        self.theme_menu = self.menu_bar.addMenu('Themes')
+
+        self.theme_files = list_theme_files()
+
+        for theme in self.theme_files:
+            action = self.theme_menu.addAction(theme)
+            action.triggered.connect(make_theme_changer(theme))
+
     def resizeEvent(self, event):
         self.left_frame.setMaximumWidth(self.width() * 0.5)
+        self.left_frame.setMinimumWidth(self.width() * 0.3)
         super().resizeEvent(event)
 
     def on_create_button_clicked(self):
@@ -124,9 +126,10 @@ class DocQA_GUI(QWidget):
         event.accept()
 
 if __name__ == '__main__':
-    import sys
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create('fusion'))
+    stylesheet = load_stylesheet('custom_stylesheet.css')
+    app.setStyleSheet(stylesheet)
     ex = DocQA_GUI()
     ex.show()
     sys.exit(app.exec())

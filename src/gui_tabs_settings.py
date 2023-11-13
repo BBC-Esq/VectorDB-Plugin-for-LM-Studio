@@ -25,7 +25,7 @@ class GuiSettingsTab(QWidget):
             # "Embedding Models Settings": (ModelsSettingsTab, 6),
             # "Chunk Settings": (ChunkSettingsTab, 2),
             "Transcriber Settings": (TranscriberSettingsTab, 1),
-            "Database Settings": (DatabaseSettingsTab, 5),
+            "Database Settings": (DatabaseSettingsTab, 4),
         }
 
         self.groups = {}

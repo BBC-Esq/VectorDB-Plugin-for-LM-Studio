@@ -1,25 +1,10 @@
 from PySide6.QtWidgets import (
-    QLabel, QComboBox, QWidget, QGridLayout, QPushButton, QFileDialog, QCheckBox, QApplication
+    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFileDialog, QCheckBox, QApplication
 )
-from PySide6.QtCore import QThread, Qt
+from PySide6.QtCore import Qt
 import ctranslate2
 import yaml
 from transcribe_module import TranscribeFile
-
-class TranscriptionThread(QThread):
-    def __init__(self, transcriber):
-        super().__init__()
-        self.transcriber = transcriber
-
-    def run(self):
-        try:
-            # Run the transcription process
-            self.transcriber.transcribe_to_file()
-            print("Transcription completed and saved in 'Docs_for_DB' directory.")
-        except FileNotFoundError as e:
-            print(f"File not found error: {e}")
-        except Exception as e:
-            print(f"An error occurred during transcription: {e}")
 
 class TranscriberToolSettingsTab(QWidget):
     
@@ -68,55 +53,64 @@ class TranscriberToolSettingsTab(QWidget):
         quantization_combo.addItems(quantizations)
 
     def create_layout(self):
-        layout = QGridLayout()
+        main_layout = QVBoxLayout()
 
-        def add_widget(widget_class, text, row, column, colspan=1, signal_slot=None, items=None):
-            widget = widget_class()
-            if widget_class in [QLabel, QPushButton]:
-                widget.setText(text)
-            if signal_slot:
-                widget.clicked.connect(signal_slot)
-            if widget_class is QComboBox and items:
-                widget.addItems(items)
-            layout.addWidget(widget, row, column, 1, colspan)
-            return widget
+        # First horizontal layout
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(QLabel("Model"))
+        self.model_combo = QComboBox()
+        self.model_combo.addItems(["tiny", "tiny.en", "base", "base.en", "small", "small.en", "medium", "medium.en", "large-v2"])
+        hbox1.addWidget(self.model_combo)
 
-        # Model
-        add_widget(QLabel, "Model", 0, 0)
-        self.model_combo = add_widget(QComboBox, None, 0, 1, items=["tiny", "tiny.en", "base", "base.en", "small", "small.en", "medium", "medium.en", "large-v2"])
+        hbox1.addWidget(QLabel("Quant"))
+        self.quantization_combo = QComboBox()
+        hbox1.addWidget(self.quantization_combo)
 
-        # Quantization
-        add_widget(QLabel, "Quant", 0, 2)
-        self.quantization_combo = add_widget(QComboBox, None, 0, 3)
-
-        # Device
-        add_widget(QLabel, "Device", 0, 4)
+        hbox1.addWidget(QLabel("Device"))
         device_options = ["cpu"] + ["cuda"] if self.has_cuda_device() else []
-        self.device_combo = add_widget(QComboBox, None, 0, 5, items=device_options)
-
-        # Timestamp and Translate Labels with Checkboxes
-        add_widget(QLabel, "Timestamps", 1, 0)
-        self.timestamp_checkbox = add_widget(QCheckBox, None, 1, 1)
-        add_widget(QLabel, "Translate", 1, 2)
-        self.translate_checkbox = add_widget(QCheckBox, None, 1, 3)
-
-        # Language Label and ComboBox
-        add_widget(QLabel, "Language", 1, 4)
-        self.language_combo = add_widget(QComboBox, None, 1, 5, items=["Option 1", "Option 2", "Option 3"])
-
-        # Select Audio File Button
-        self.select_file_button = add_widget(QPushButton, "Select Audio File", 2, 0, 3, signal_slot=self.select_audio_file)
-
-        # Transcribe/Translate Button
-        self.transcribe_translate_button = add_widget(QPushButton, "Transcribe/Translate", 2, 3, 3, signal_slot=self.start_transcription)
-
-        # Update Settings Button
-        self.update_settings_button = add_widget(QPushButton, "Update Settings", 3, 0, 6, signal_slot=self.save_settings)
-
+        self.device_combo = QComboBox()
+        self.device_combo.addItems(device_options)
         self.device_combo.currentTextChanged.connect(lambda: self.update_quantization(self.device_combo, self.quantization_combo))
         self.update_quantization(self.device_combo, self.quantization_combo)
+        hbox1.addWidget(self.device_combo)
 
-        self.setLayout(layout)
+        main_layout.addLayout(hbox1)
+
+        # Second horizontal layout
+        hbox2 = QHBoxLayout()
+        hbox2.addWidget(QLabel("Timestamps"))
+        self.timestamp_checkbox = QCheckBox()
+        hbox2.addWidget(self.timestamp_checkbox)
+
+        hbox2.addWidget(QLabel("Translate"))
+        self.translate_checkbox = QCheckBox()
+        hbox2.addWidget(self.translate_checkbox)
+
+        hbox2.addWidget(QLabel("Language"))
+        self.language_combo = QComboBox()
+        self.language_combo.addItems(["Option 1", "Option 2", "Option 3"])
+        hbox2.addWidget(self.language_combo)
+
+        main_layout.addLayout(hbox2)
+
+        # Third horizontal layout
+        hbox3 = QHBoxLayout()
+        self.select_file_button = QPushButton("Select Audio File")
+        self.select_file_button.clicked.connect(self.select_audio_file)
+        hbox3.addWidget(self.select_file_button)
+
+        self.transcribe_translate_button = QPushButton("Transcribe/Translate")
+        self.transcribe_translate_button.clicked.connect(self.start_transcription)
+        hbox3.addWidget(self.transcribe_translate_button)
+
+        main_layout.addLayout(hbox3)
+
+        # Update settings button (without a horizontal layout)
+        self.update_settings_button = QPushButton("Update Settings")
+        self.update_settings_button.clicked.connect(self.save_settings)
+        main_layout.addWidget(self.update_settings_button)
+
+        self.setLayout(main_layout)
     
     def select_audio_file(self):
         audio_file_filter = "Audio Files (*.mp3 *.wav *.flac *.mp4 *.wma *.mpeg *.mpga *.m4a *.webm *.ogg *.oga *.)"
@@ -153,13 +147,11 @@ class TranscriberToolSettingsTab(QWidget):
 
     def start_transcription(self):
         if self.selected_audio_file:
-            transcriber = TranscribeFile()
-            self.transcription_thread = TranscriptionThread(transcriber)
-            self.transcription_thread.start()
+            transcriber = TranscribeFile(self.selected_audio_file)
+            transcriber.start_transcription_thread()
         else:
             print("Please select an audio file first.")
 
-# Only used if ran standalone
 if __name__ == "__main__":
     app = QApplication([])
     window = TranscriberToolSettingsTab()
