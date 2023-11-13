@@ -264,7 +264,7 @@ The create database button...wait for it...creates the vector database!  The com
 3) ...then click "Start Server" in the server tab.
 
 ### Search Database
-Now you type/transcribe your question and click "Submit Questions."  The vector database will be queried.  Your question along with any "contexts" from the database will be sent to the LLM within LM Studio for answer!
+Now type/transcribe your question and click "Submit Questions."  The vector database will be queried.  Your question along with any "contexts" from the database will be sent to the LLM within LM Studio for answer!
 
 </details>
 
