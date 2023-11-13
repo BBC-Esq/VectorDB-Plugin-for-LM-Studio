@@ -164,97 +164,94 @@
 	
 	<h2 id="overview">Overview</h2>
 	
-	<p><b>To get the most out of this program, it's crucial to choose the right embedding model based on the type of task.
-	Choosing the wrong model can lead to poor or incoherent results.  Remember, the LLM's response is only as good as the
-	context you provide via the embedding model.</b></p>
-	
-	<p>An embedding model is loaded into memory (and then immediately unloaded when not needed) for the following tasks:
+	<p>My program loads an embedding model into memory for:
 <ol>
-    <li>Creating the vector database; and</li>
+    <li>Creating the vector database</li>
     <li>Querying the vector database before your question and the "context" it obtains are sent to the LLM for an answer.</li>
 </ol>
-
 	
+	<p><b>To get the most out of this program, it's crucial to choose the right embedding model.  Remember, the LLM's
+	response is only as good as the context you provide via the embedding model.</b></p>
+
 	<h2 id="model">Choosing the Correct Model</h2>
 	
-	<p>The first rule of embedding models is experiment.  Make sure and review the "Download Model" and the characteristics
-	of the various embedding models.  It directly relates to these instructions.  With that being said, there are too many
-	different types of tasks to prescribe a one-size-fits-all .  However, based my research and testing the following rules apply:</p>
+	<p>The first rule of embedding models is experiment.  Make sure and review the list of models displayed when you click
+	"Download Model".  These instructions directly relate to the information displayed there. With that being said, there
+	is no one-size-fits-all .  However, based my research and testing the following rules apply:</p>
 	
 	<h2 id="semantic">Semantic Search</h2>
 	
-	<p>Semantic search is a general term that refers to obtain results based off questions.  This includes RAG and other tasks
-	(this program is primarily geared towards RAG).  All of the embedding models with the "Semantic search" description
-	will perform reasonably well for question answering, in fact, they're trained for this purpose.</p>
+	<p>Semantic search generally refers to obtaining results that are similar to your query  This includes RAG and other
+	tasks, but this program is geared towards RAG.  All of the embedding models with the "Semantic search" description
+	will perform reasonably well for this with a few nuances.</p>
 	
-	<p>Models with <code>msmarco</code> in their name are especially good at providing long results to short questions - e.g.</p>
+	<p>Models with <code>msmarco</code> in their name are specifically trained to provide longer results when
+	given a short question:</p>
 	
-	<p><b>What does this legal treatise say about the elements of a defamation claim?</b></p>
-	<p><b>What kind of troubles does this character encounter throughout this book?</b></p>
+	<p><b>Tell me everything that this legal treatise say about the elements of a defamation claim?</b></p>
+	<p><b>What are all the kinds of troubles that the main character from the book experiences?</b></p>
 	
-	<p><code>msmarco</code> models are specifically trained for "asymmetric semantic search," which means a search where your
-	question is short but the result you want is expected to be long and comprehensive.  Other models with the "Semantic search"
-	description are GENERALLY "symmetric semantic search" focused, which means that they tend to produce results of the same
-	length of your question.</p>
+	<p>This is called "asymmetric semantic search.  Other models with the "Semantic search" description are GENERALLY
+	"symmetric semantic search," which means that they tend to produce results of the same length of your question.</p>
 	
-	<p>Models with <code>multi-qa</code> in their name have specifically been trained on question answering and are similar in
-	function to <code>msmarco</code> models.  Experiment.</p>
+	<p>In addition, models with <code>multi-qa</code> in their name have specifically been trained on question answering
+	and are similar in function to <code>msmarco</code> models.  You'll just have to experiment with the different
+	models as well as how you structure your query.</p>
 	
-	<p>More recent (and much larger) models like ones beginning with <code>gtr</code> (to give one example) are arguably
-	just as efficient in providing long answers to a short question.  The most in recent history has been towards models good
-	at everything, but just experiment!</p>
+	<p>With that being said, more recent larger models like ones beginning with <code>gtr</code> (to give one example)
+	claim to be just as efficient as "specialist" models.  The recent trend has been for larger models good at everything.</p>
 	
 	<h2 id="clustering">Clustering or Semantic Search</h2>
 	
-	<p>The phrase "clustering or semantic search" is taken from the "Sentence Transformers website, the organization that created
-	a majority of the models used in this program.  What it basically means is "well rounded."  They are good at question answering
-	as well as other typical embedding models tasks, but for purposes of this program you should think of them as "well rounded."</p>
+	<p>Models with the description of "clustering or semantic search" basically means "well rounded."  They are good at
+	question answering as well as other tasks, but for purposes of this program you should think of them as "well rounded."</p>
 	
-	<p>The <code>all-mpnet-base-v2</code> model is widely considered the best of its size in this category, but again, experiment.
-	You might find that it performs better than a larger model geared towards "semantic search" or vice versa.</p>
+	<p>The <code>all-mpnet-base-v2</code> model is widely considered the best of its size in this category, and some claim
+	that it performs better than models in the "Semantic Search" category, for example.	And as previously stated, the larger
+	models might outperform, or vice versa.  Just experiment.</p>
 	
 	<h2 id="sentence_similarity">Sentence Similarity</h2>
 	
-	<p>There are three models with this description and they are extremely good at it.  They focus on providing sentences that are
-	as similar to your question/sentence as possible; for example:</p>
+	<p>There are onlyk three models with this description.  They focus on providing sentences that are very similar to
+	your question/sentence as possible; for example:</p>
 	
 	<p><b>Quote for me all sentences that discuss the main character in this book eating food</b></p>
 	<p><b>Provide me all sentences verbatim of a court discussing the elements of a defamation claim.</b></p>
 	
-	<p>The search results will be a slew of chunks containing relevant sentences (as opposed to answering a question), and
-	LM Studio should provide a succinct verbatim outline of the sentences.</p>
+	<p>The search results should be multiple chunks with highly relevant sentences (as opposed to answering a question):</p>
 	
 	<h2 id="rounded">Well Rounded</h2>
 	
-	<p>Models with this description provide reasonable quality, and the larger ones are arguably as good as the "specialist" models
-	described above.</p>
+	<p>Self-explanatory.  But again, the larger models sometimes perform just as good as the specialist models.</p>
 	
-	<p>The "customizable" description means that the model comes with a way to modify its "instructions" within my scripts to fit
-	your specific task.  Currently, the <code>instructor</code> and <code>bge</code> models have this characteristic.  However, I've
-	commented out settings to save space and, in my experience, they're good enough you don't need to change the defaults.  Feel
-	free to modify <code>gui_tabs_settings_models.py</code> to make the settings visible again.</p>
+	<p>The "customizable" description means that you can modify an "instruction" parameter when running the model.  However, I
+	removed this setting from the Settings tab to conserve space since I never saw the need based off of my searched.  If you
+	want to add it back, feel free to modify <code>gui_tabs_settings_models.py</code> to make the setting visible again.
+	Only the <code>instructor</code> and <code>bge</code> models use this parameter.</p>
 	
 	<h2 id="dimensions">Max Sequence and Dimensions</h2>
 	
-	<p>"Max sequence" of an embedding models refers to the maximum number of tokens (not characters) that it can process to create
-	an embedding.  "Dimensions" refers to how nuanced meanings it can discern.  The higher "dimensions" means that the model can
-	discern nuanced meanings from very similar text and provide more accurate results.</p>
+	<p>The "max sequence" of an refers to the maximum number of tokens (not characters) that it can process at once.
+	A model's "dimensions" refers to how nuanced a meaning it can extract from text.  A higher "dimensions" means that
+	the model can discern nuanced meanings from very similar text and provide more accurate results.</p>
 	
-	<p>The "chunk size" setting within the Settings tab refers to the number of maximum characters a "chunk" that is fed to the
-	embedding model can have.  IMPORTANT, this refers to the number of characters, not tokens (like with the max sequence length).
-	Therefore, make sure you are chunking your text in a way that falls under the threshold of an embedding model's max sequence
-	token length.  As a general rule of thumb, a token" contains four (4) characters.  Therefore, if you set the chunk size to
-	1200, for example, make sure the embedding model you're using has a max sequence length of 300+.</p>
+	<p>The "max sequence" of a model relates to the "chunk size" setting within the Settings tab. "Chunk size" means
+	that the program strives to chunk text to the specified number of characters (not tokens), and then
+	these chunks are sent to the embedding model.  Therefore, it's important to make sure that chunk size
+	(in characters) doesn't exceed a model's "max sequence" (in tokens).  To analyze this, a general rule of thumb
+	is that a token approximately consists of four (4) characters.  If you set the chunk size to 1200, for example,
+	you would need to make sure the embedding model you're using has a max sequence length of 300+.</p>
 	
-	<p>If the chunks are too large, the embedding model will simply truncate them, making your search less efficient.  You won't
-	notice this happening because the program does not give an error when this occurs.</p>
+	<p>If the chunks are too large, the embedding model will simply truncate them, but this will make your search
+	less accurate.</p>
 	
 	<h2 id="total_context">Total Program Context</h2>
 	
 	<p>Finally, remember to abide by the total context (in tokens) available from the LLM within LM Studio (typically 4096).
-	However many tokens your question consists of is added to the total tokens of the multiple pieces of "context" you
-	receive from the vector database.  If anything is left from the 4096, that is how many tokens LM Studio has to respond to
-	your question.</p>
+	The program prints in the command prompt the total number of tokens received from the embedding model and sent to
+	the LLM within LM Studio.  To calculate how many tokens the LLM cand respond with, you would subtract the total number
+	of tokens sent to LM Studio from 4096.  For example, if 3096 tokens are sent to LM Studio, the LLM within LM
+	Studio would have 1000 tokens to respond (approximately 4,000 characters).</p>
 
 </main>
 
