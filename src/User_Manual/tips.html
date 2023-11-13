@@ -96,26 +96,29 @@
 		
 		<h2 style="color: #f0f0f0;" align="center">Manage VRAM</h2>
 		
-		<p>It's important to load the entire model from LM Studio into VRAM (or as many layers as possible), not system RAM.
-		Even if you load 99% of the LM Studio model into VRAM with 1% into system RAM, you will NOT get 99% of the speed as if
-		the ENTIRE model was loaded into VRAM.  My program additionally loads an "embedding" model to create/search the vector
-		database and a Ctranslate2 Whisper model for the transcription functionality. Therefore, it is important manage your
-		memory to achieve the best performance.</p>
+		<p>The most important thing is toe load the entire model from LM Studio into VRAM (no system RAM) or as many layers as
+		possible.  Even if you load 99% of the LM Studio model into VRAM you will NOT get 99% of the speed as if the ENTIRE model
+		was loaded into VRAM.  Additionally, my program loads an "embedding" model to create/search the vector database and a
+		Ctranslate2 Whisper model for the transcription functionality. Therefore, it is important manage your VRAM.</p>
 		
-		<p>If you are tight on VRAM, do not have LM Studio running while the vector database is being created.  I highly
-		recommend that you choose "cpu" for when querying the database and only use "cuda" or "mps" when creating the database.
-		Creating the database takes 5,000 times more compute power and it's worth using gpu-acceleration (and hence VRAM).
-		However, merely querying the database can be done on any CPU easily and when you select "CPU" you're using system RAM
-		and not VRAM.  The option to choose difference compute devices for database creation versus querying is a recent addition.
+		<p>Do not have a model loaded into LM Studio while creating the vector database.  When creating the database you only
+		want the embedding model to use VRAM and GPU-acceleration; it will be 1000x faster.  After the database is created, the
+		embedding model is immediately removed from memory so no worries there.</p>
 		
-		<p>To save VRAM, unplug any secondary monitors from the GPU and plug them into graphics ports (e.g. HDMI or DisplayPort)
-		coming directly from your motherboard.  This will prevent these monitors from using your GPU.  You will most likely want
-		to keep your main monitor plugged in (e.g. for gaming).</p>
+		<p>For querying the database, I highly recommend using CPU.  The computation power to query the database is about 10,000
+		less than creating it, and all modern CPUs can do it in a split second.  Therefore, there is no point in having the
+		use up valuable VRAM; save that for the LLM within LM Studio.</p>
 		
-		<p>PLEASE NOTE, some motherboards automatically disable the motherboard's graphics adapters if a GPU is installed.
-		It basically assumes that you will be connecting all monitors to your GPU.  If this occurs, you will need to enter BIOS
-		and re-enable the graphics adapters on your motherboard.  The name of the specific setting can vary so check your specific
-		motherboard's documentation.</p>
+		<p>Here are more general tips if you find yourself still falling short on VRAM:</p>
+		
+		<p>Unplug any secondary monitors from the GPU and plug them into graphics ports (e.g. HDMI or DisplayPort) coming from
+		your motherboard.  This will prevent them from using your GPU's VRAM.  You will most likely want to keep your main
+		monitor plugged in (e.g. for gaming), but there's no reason to keep other monitors plugged in.</p>
+		
+		<p>Be aware, however, some motherboards automatically disable the motherboard's graphics adapters if it detects that a
+		GPU is installed.  The manufactutor basically asssumes that a user will plug all monitors into their GPU.  However, you
+		can undo this setting by entering BIOS and re-enable the graphics adapters on your motherboard.  The name of the specific
+		setting can vary so check your specific motherboard's documentation.</p>
 		
 		<h2 style="color: #f0f0f0;" align="center">See The User Guide Embedding Models Button</h2>
 		
@@ -123,31 +126,39 @@
 		
 		<h2 style="color: #f0f0f0;" align="center">Select the Appropriate Transcription Model and Quantization</h2>
 		
-		<p> The transcription functionality uses state-of-the-art Whisper models converted to the Ctranslate2 format.
-		These models are designed to excel at even poor quality audio with people taking overr on another, and transcribing
-		your question is relatively easy. Therefore, try a smaller transcription model or lower quantization to save VRAM.
-		Also, you can run transcription model to run on your CPU (and hence use RAM versus VRAM).
-		Detailed instructions are located within the "Whisper" tab within the GUI.</p>
-		
+		<p> The transcription functionality uses state-of-the-art Whisper that have already been converted to Ctranslate2 format.
+		These models are excellent at transcribing even poor quality audio with people taking overr on another; therefore,
+		transcribing your question is relatively easy.  When you transcribe a question, the Whisper model is automatically
+		removed from memory; therefore, it shouldn't use VRAM when you actually use the LLM within LM Studio.  However, to be
+		cautious, you can simply choose to run the transcription on CPU-only.  Check the Settings Tab.  The User Guide also
+		discusses the what the different sizes and quantizations mean.</p>
+
 		</section>
 		<section>
 		
 		<h2 style="color: #f0f0f0;" align="center">Load LM Studio After Creating Database</h2>
 		
-		<p>The embedding model can use gpu-acceleration as well, and creating the database uses more memory than merely
-		querying it; therefore, don't load a model into LM Studio until after creating the database.
-		This will reduce the chance that you run out of VRAM when creating the database.</p>
+		<p>As discussed above, you need to create the database with GPU-acceleration, which requries loading the embedding model
+		into VRAM (not RAM).  After the database is created, feel free to load the model into LM Studio and make sure that the
+		embedding model only queries using the CPU (and hence system RAM).</p>
 		
 		<h2 style="color: #f0f0f0;" align="center">Ensure Sufficient Context Length for the LLM</h2>
 		
-		<p>Rarely, the server log within LM Studio might give you an error stating that the context is too long.  Increase the maximum
-		"context" of the LLM within LM Studio.  The default is 1500 but most models nowadays accept up to 4096.
-		I've limited my program to providing only 4 chunks of "context" and have never seen this go over 4096.</p>
-
-		<h2 style="color: #f0f0f0;" align="center">Ensure Sufficient Context for the Embedding Model</h2>
+		<p>Read the Settings portion of the User Guide.  Generally, you need to understand that each embedding model has a maximum
+		number of tokens it can create embeddings from at one time.  This determines the "chunk" size that you need to use (a token
+		being about 4 characters).  The "chunk" setting is in characters (not tokens) so do the math.</p>
 		
-		<p>It is currently set at 512 "tokens" per chunk, which is more than enough for 99% of use cases.  A setting to adjust
-		this is coming soon, but feel free to contact me if 512 isn't providing sufficient context.</p>
+		<p>The number of "contexts" refers to the number of these chunks that are returned when you query the embedding model.  If
+		the chunk size is 500 and you set the number of "contexts" to return to 10, that means that the embedding model will return
+		approximately 5,000 characters worth of "context" total.  Divide this by four (4) (approx. 4 characters per token) and you
+		can see how the tokens really add up.</p>
+		
+		<p>The program sends your question + all the contexts to the LLM within LM Studio for a response.  However, the LLM can
+		only respond with whatever available tokens are left.  If you sent contexts (plus your Q.) totalling 4050 token, for
+		example, the LLM will only have 46 tokens left with in which to formulate its response!</p>
+		
+		<p>If the LLM runs out of context in providing its response it'll simply stop; there will be no error.  However, if
+		the total context along exceed 4096 (most models now are 4096) then you will get an error, just FYI.  Experiment!</p>
 
 	</main>
 
