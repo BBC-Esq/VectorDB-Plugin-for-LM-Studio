@@ -1,0 +1,126 @@
+DocQA_GUI {
+    background-color: #2D2D2D; /* Dark grey */
+}
+
+QWidget {
+    border: 2px solid #2D2D2D;
+    border: none;
+}
+
+QPushButton {
+    background-color: #4E4E4E; /* Medium grey */
+    color: white;
+    font: 10pt "Segoe UI Historic";
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
+}
+
+QPushButton:hover {
+    background-color: #626262; /* Slightly lighter grey */
+    border: 1px solid #7E7E7E; /* Light grey */
+    color: white;
+}
+
+QGroupBox {
+    border: 2px solid #424242; /* Dark grey */
+}
+
+QLabel {
+    color: #A0A0A0; /* Light grey */
+}
+
+QComboBox {
+    background-color: #4E4E4E; /* Medium grey */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #4E4E4E;
+    color: white;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: #8C8C8C; /* Soft grey */
+    color: white;
+}
+
+QLineEdit {
+    background-color: #2D2D2D; /* Dark grey */
+    color: #A0A0A0; /* Light grey */
+    border: none;
+    padding: 3px;
+}
+
+QLineEdit::placeholder {
+    color: #7E7E7E; /* Light grey */
+}
+
+QGroupBox {
+    color: white;
+    font-size: 12pt;
+    padding: 10px;
+}
+
+DownloadModelDialog {
+    background-color: #2D2D2D;
+}
+
+QFrame {
+    background-color: #2D2D2D;
+}
+
+QTextEdit[readOnly="true"] {
+    background-color: #383838; /* Slightly lighter dark grey */
+    color: #A0A0A0; /* Light grey */
+    border: 1px solid #424242; /* Dark grey */
+    selection-background-color: #626262; /* Slightly lighter grey */
+    selection-color: white;
+    font: 14pt "Segoe UI Historic";
+}
+
+QTextEdit[readOnly="false"] {
+    background-color: #383838; /* Slightly lighter dark grey */
+    color: white;
+    border: 1px solid #424242; /* Dark grey */
+    selection-background-color: #626262; /* Slightly lighter grey */
+    selection-color: white;
+    font: 14pt "Segoe UI Historic";
+}
+
+QTabWidget {
+    background-color: #2D2D2D;
+    border: none;
+}
+
+QTabWidget, QTabWidget::pane {
+    margin: 0px;
+    padding: 0px;
+    border: none;
+}
+
+QTabBar::tab {
+    background-color: #4E4E4E; /* Medium grey */
+    color: white;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    margin: 3px;
+    padding: 5px 5px;
+}
+
+QTabBar::tab:selected {
+    background-color: #626262; /* Slightly lighter grey */
+    border-bottom: 3px solid #8C8C8C; /* Soft grey */
+}
+
+QTabBar::tab:hover {
+    background-color: #7E7E7E; /* Light grey */
+}
+
+QSplitter::handle {
+    background-color: #2D2D2D; /* Dark grey */
+    height: 5px;
+}

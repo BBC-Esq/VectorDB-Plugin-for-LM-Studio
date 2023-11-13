@@ -1,0 +1,126 @@
+DocQA_GUI {
+    background-color: #1e2126;
+}
+
+QWidget {
+    border: 2px solid #1e2126;
+    border: none;
+}
+
+QPushButton {
+    background-color: #39424e;
+    color: white;
+    font: 10pt "Segoe UI Historic";
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
+}
+
+QPushButton:hover {
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
+    color: white;
+}
+
+QGroupBox {
+    border: 2px solid #1b3a47;
+}
+
+QLabel {
+    color: white;
+}
+
+QComboBox {
+    background-color: #39424e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #39424e;
+    color: white;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: #703c4b;
+    color: white;
+}
+
+QLineEdit {
+    background-color: #1e2126;
+    color: white;
+    border: none;
+    padding: 3px;
+}
+
+QLineEdit::placeholder {
+    color: #a2a2a3;
+}
+
+QGroupBox {
+    color: white;
+    font-size: 12pt;
+    padding: 10px;
+}
+
+DownloadModelDialog {
+    background-color: #1e2126;
+}
+
+QFrame {
+    background-color: #1e2126;
+}
+
+QTextEdit[readOnly="true"] {
+    background-color: #1b3a47;
+    color: white;
+    border: 1px solid #3d444c;
+    selection-background-color: #6c757d;
+    selection-color: white;
+    font: 14pt "Segoe UI Historic";
+}
+
+QTextEdit[readOnly="false"] {
+    background-color: #3d444c;
+    color: white;
+    border: 1px solid #3d444c;
+    selection-background-color: #6c757d;
+    selection-color: white;
+    font: 14pt "Segoe UI Historic";
+}
+
+QTabWidget {
+    background-color: #1e2126;
+    border: none;
+}
+
+QTabWidget, QTabWidget::pane {
+    margin: 0px;
+    padding: 0px;
+    border: none;
+}
+
+QTabBar::tab {
+    background-color: #565e66;
+    color: white;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    margin: 3px;
+    padding: 5px 5px;
+}
+
+QTabBar::tab:selected {
+    background-color: #6c757d;
+    border-bottom: 3px solid #703c4b;
+}
+
+QTabBar::tab:hover {
+    background-color: #737c85;
+}
+
+QSplitter::handle {
+    background-color: #202428;
+    height: 5px;
+}

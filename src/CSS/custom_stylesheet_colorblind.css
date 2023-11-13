@@ -1,0 +1,143 @@
+DocQA_GUI {
+    background-color: #F0F0F0; /* Set a light background color */
+}
+
+/* Style for all QWidget elements */
+QWidget {
+    border: 2px solid #E0E0E0; /* Set a light border style and color */
+    border: none;
+}
+
+/* Style for QPushButton */
+QPushButton {
+    background-color: #4D4D4D; /* Set a gray background color */
+    color: #FFFFFF; /* Set white text color for contrast */
+    font: 10pt "Segoe UI Historic";
+    border-radius: 5px; /* Round all four corners by three pixels */
+    padding: 5px; /* Add 5 pixels of padding around the button text */
+    min-width: 60px; /* Set a minimum width for the buttons */
+}
+
+/* Style for QPushButton when hovered */
+QPushButton:hover {
+    background-color: #333333; /* Slightly darker gray on hover */
+    border: 1px solid #555; /* Add a subtle border on hover */
+    color: #FFFFFF; /* Set text color to white on hover */
+}
+
+/* Style for the main border of QGroupBox */
+QGroupBox {
+    border: 2px solid #E0E0E0; /* Set a light border style and color */
+}
+
+/* Style for QLabel text color */
+QLabel {
+    color: #333333; /* Set a dark gray text color */
+}
+
+/* Style for QComboBox when not dropped down */
+QComboBox {
+    background-color: #4D4D4D; /* Set a gray background color */
+    color: #FFFFFF; /* Set white text color for contrast */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 3px; /* Add padding on all sides */
+}
+
+/* Style for QComboBox items when dropped down */
+QComboBox QAbstractItemView {
+    background-color: #4D4D4D; /* Set a gray background color for items */
+    color: #FFFFFF; /* Set white text color for items */
+}
+
+/* Style for QComboBox items when hovered over */
+QComboBox QAbstractItemView::item:hover {
+    background-color: #333333; /* Slightly darker gray when hovering over items */
+    color: #FFFFFF; /* Ensure the text color remains white when hovered over */
+}
+
+QLineEdit {
+    background-color: #F0F0F0; /* Set a light background color */
+    color: #333333; /* Set a dark gray text color */
+    border: none; /* No border */
+    padding-top: 3px; /* 3 pixels padding at the top */
+    padding-bottom: 3px; /* 3 pixels padding at the bottom */
+}
+
+QLineEdit::placeholder {
+    color: #777777; /* Set a lighter gray placeholder text color */
+}
+
+QGroupBox {
+    color: #333333; /* Set a dark gray text color of QGroupBox title */
+    font-size: 12pt; /* Increase font size */
+    padding: 10px; /* Add padding around the content inside the group box */
+}
+
+DownloadModelDialog {
+    background-color: #F0F0F0; /* Set a light background color */
+}
+
+/* Style for QFrame */
+QFrame {
+    background-color: #F0F0F0; /* Set a light background color */
+}
+
+/* Style for read-only text areas (QTextEdit) */
+QTextEdit[readOnly="true"] {
+    background-color: #E0E0E0; /* Set a light gray background color */
+    color: #333333; /* Set a dark gray text color */
+    font: 12pt "Segoe UI Historic";
+    border: 1px solid #C0C0C0; /* Set a light border color to match the background color */
+    selection-background-color: #555; /* Set the selection background color when text is selected */
+    selection-color: #FFFFFF; /* Set the selection text color when text is selected */
+    font: 14pt "Segoe UI Historic"; /* Set the font size to 13pt */
+}
+
+/* Style for text areas (QTextEdit) when readOnly is set to false */
+QTextEdit[readOnly="false"] {
+    background-color: #E0E0E0; /* Set a light gray background color */
+    color: #333333; /* Set a dark gray text color */
+    font: 12pt "Segoe UI Historic";
+    border: 1px solid #C0C0C0; /* Set a light border color to match the background color */
+    selection-background-color: #555; /* Set the selection background color when text is selected */
+    selection-color: #FFFFFF; /* Set the selection text color when text is selected */
+    font: 14pt "Segoe UI Historic"; /* Set the font size to 13pt */
+}
+
+QTabWidget {
+    background-color: #F0F0F0; /* Set a light background color */
+    border: none; /* Removes the border from the entire QTabWidget */
+}
+
+QTabWidget, QTabWidget::pane {
+    margin: 0px;
+    padding: 0px;
+    border: none;
+}
+
+/* Style for all QTabWidget tabs with rounded bottom corners, custom size, margin, and padding */
+QTabBar::tab {
+    background-color: #777777; /* Set a medium gray background color */
+    color: #FFFFFF; /* Set white text color for contrast */
+    border-bottom-left-radius: 3px; /* Adjust the value as needed for rounded corners */
+    border-bottom-right-radius: 3px; /* Adjust the value as needed for rounded corners */
+    margin: 3px; /* Adjust the margin values to control the space around each tab */
+    padding: 5px 5px; /* Adjust the padding values to control the tab size */
+}
+
+/* Style for the currently selected tab */
+QTabBar::tab:selected {
+    background-color: #555; /* Set a darker gray background color for the selected tab */
+    border-bottom: 3px solid #038387; /* Add a subtle bottom border with a highlight color */
+}
+
+/* Style for the tab when hovering */
+QTabBar::tab:hover {
+    background-color: #666; /* Set a slightly darker gray when hovering */
+}
+
+QSplitter::handle {
+    background-color: #E0E0E0; /* Set a light gray splitter handle background color */
+    height: 5px; /* For horizontal splitters */
+}
