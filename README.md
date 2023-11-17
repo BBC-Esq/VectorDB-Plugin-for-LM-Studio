@@ -37,11 +37,10 @@
 <div align="center"> <h2>🔥Requirements🔥</h2></div>
 You <b>MUST</b> install these before installing my program:<p>
 
-> 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [3.11](https://www.python.org/downloads/release/python-3116/)
-> ‼️ (I have not tested above this.).<br>
-> [Git](https://git-scm.com/downloads)<br>
-> [Git Large File Storage](https://git-lfs.com/).<br>
-> [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
+1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [3.11](https://www.python.org/downloads/release/python-3116/) (I have not tested above 3.11.).
+2) [Git](https://git-scm.com/downloads)
+3) [Git Large File Storage](https://git-lfs.com/).
+4) [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
 
 <div align="center"> <h2>🔥Installation🔥</h2>
 <b>‼️If you have Python 2 and Python 3 installed on your system, make sure and use "Python3" and "pip3" instead when installing.‼️</b>
