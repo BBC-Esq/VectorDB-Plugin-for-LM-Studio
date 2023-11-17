@@ -35,15 +35,16 @@
 </div>
 
 <div align="center"> <h2>🔥Requirements🔥</h2></div>
-You must install these before following the installation instructions below:
+You <b>MUST</b> install these before following the installation instructions below:<p>
 
-> ‼️ 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) (I have not tested above this.).<br>
-> ‼️ [Git](https://git-scm.com/downloads)<br>
-> ‼️ [Git Large File Storage](https://git-lfs.com/).<br>
-> ‼️ [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
+> 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [3.11](https://www.python.org/downloads/release/python-3116/)
+> ‼️ (I have not tested above this.).<br>
+> [Git](https://git-scm.com/downloads)<br>
+> [Git Large File Storage](https://git-lfs.com/).<br>
+> [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
 
 <div align="center"> <h2>🔥Installation🔥</h2>
-‼️If you have Python 2 and Python 3 installed on your system, make sure and use "Python3" and "pip3" instead when installing.‼️
+<b>‼️If you have Python 2 and Python 3 installed on your system, make sure and use "Python3" and "pip3" instead when installing.‼️</b>
 </div><br>
 <details>
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
