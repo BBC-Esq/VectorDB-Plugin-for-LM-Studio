@@ -35,7 +35,7 @@
 </div>
 
 <div align="center"> <h2>🔥Requirements🔥</h2></div>
-You <b>MUST</b> install these before following the installation instructions below:<p>
+You <b>MUST</b> install these before installing my program:<p>
 
 > 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [3.11](https://www.python.org/downloads/release/python-3116/)
 > ‼️ (I have not tested above this.).<br>
