@@ -1,125 +1,575 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Settings</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 0;
-      padding: 0;
-      background-color: #161b22;
-      color: #d0d0d0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisper Transcription</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #161b22;
+            color: #d0d0d0;
+        }
+		
+		header {
+			text-align: center;
+			background-color: #3498db;
+			color: #333;
+			padding: 20px;
+			position: sticky;
+			top: 0;
+			z-index: 999;
+		}
+		
+		header a {
+			color: #fff;
+			text-decoration: none;
+		}
+		
+		h2:target {
+			padding-top: 275px;
+			margin-top: -100px;
+			display: block;
+		}
 
-    header {
-      text-align: center;
-      background-color: #3498db;
-      color: #fff;
-      padding: 20px;
-      position: sticky;
-      top: 0;
-      z-index: 999;
-    }
+		header a:hover {
+			text-decoration: underline;
+		}
+		
+		main {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+		
+		h1 {
+		  color: #333;
+		}
 
-    main {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+		h2 {
+		  color: #f0f0f0;
+		  text-align: center;
+		}
+		
+		p {
+			text-indent: 25px;
+		}
 
-    img {
-      display: block;
-      margin: 0 auto;
-      max-width: 100%;
-      height: auto;
-    }
+		
+		table {
+            color: black;
+			border-collapse: collapse;
+            margin: 25px auto;
+        }
+		
+		thead th {
+			background-color: #f69784;
+		}
 
-	h1 {
-	  color: #333;
-	}
+        table, th, td {
+            border: 1px solid black;
+        }
 
-	h2 {
-	  color: #f0f0f0;
-	  text-align: center;
-	}
+        th, td {
+            padding: 8px 12px;
+        }
 
-    p {
-      text-indent: 35px;
-    }
+        .tiny {
+            background-color: #e6f7ff;
+        }
 
-    table {
-      border-collapse: collapse;
-      width: 80%;
-      margin: 50px auto;
-    }
+        .base {
+            background-color: #b3e0ff;
+        }
 
-    th, td {
-      text-align: left;
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-    }
+        .small {
+            background-color: #66c2ff;
+        }
 
-    th {
-      background-color: #f2f2f2;
-      color: #000;
-    }
+        .medium {
+            background-color: #3399ff;
+        }
 
-    footer {
-      text-align: center;
-      background-color: #333;
-      color: #fff;
-      padding: 10px;
-    }
-    
-    code {
-      background-color: #f9f9f9;
-      border-radius: 3px;
-      padding: 2px 3px;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      color: #333;
-    }
-  </style>
+        .large {
+            background-color: #0073e6;
+        }
+		
+		code {
+			background-color: #d0d0d0;
+			border-radius: 3px;
+			padding: 2px 3px;
+			font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+			color: #333;
+		}
+		
+		footer {
+			text-align: center;
+			background-color: #333;
+			color: #fff;
+			padding: 10px;
+		}
+		
+		.table-from-second-file, .table-from-second-file th, .table-from-second-file td {
+			border-collapse: collapse;
+			margin: 25px auto;
+			text-align: center;
+			padding: 8px;
+			border-bottom: 1px solid #ddd;
+			color: #000; /* for th and td */
+		}
+
+		.table-from-second-file th {
+			background-color: #f2f2f2;
+			color: #000;
+		}
+		
+		.table-from-second-file td {
+			color: #fff; /* White color for non-header cells */
+			border-bottom: 1px solid #fff;
+			border-left: 1px solid #fff;
+			border-right: 1px solid #fff;
+			text-align: center;
+		}
+		
+		img {
+			display: block;
+			margin: 0 auto;
+			max-width: 100%;
+			height: auto;
+		}
+    </style>
 </head>
+
 <body>
 
-  <header>
-    <h1>Transcribe Audio</h1>
-  </header>
+	<header>
+		<h1>Whisper Transcription</h1>
+		<nav>
+			<a href="#overview">Overview</a> |
+			<a href="#transcribe-question">Transcribe Question</a> |
+			<a href="#transcribe-audio">Transcribe Audio Files for Database</a> |
+			<a href="#whisper-models">Whisper Models and Quants</a> |
+			<a href="#additional-info">Additional Info</a> |
+			<a href="#available-models">Available Whisper Models and Quants</a> |
+			<a href="#floating">Introduction to Floating Point Formats</a> |
+			<a href="#quantization">What is Quantization?</a>
+		</nav>
+	</header>
+	
+	<main>
+	
+	<h2 id="overview">Overview</h2>
+	
+	<p><b>My program uses powerful Whisper models for transcription in two ways:</b></p>
+<ol>
+    <li>Transcribe your question to the clipboard and then paste it to the question box; and</li>
+    <li>Within the "Tools" tab, transcribe entire audio files to be put into the vector database.</li>
+</ol>
 
-  <main>
-    <h2>Transcribe Audio</h2>
-    <p>My program now includes the ability to transcribe various types of audio files and the resulting <code>.txt</code> file will
-	be saved to the <code>Docs_for_DB</code> folder to be included when you create your database - enabling you to search audio!
-	To add multiple audio files to the vector database, simply choose multiple files and process them separately.</p>
+	
+	<h2 id="transcribe-question">Transcribe Question</h2>
+	
+	<p>The start and stop recording button transcribe your voice to the clipboard, which you can then simply paste
+	into the question box for the LLM.  The quality of the transcription can be controlled from the "Settings" tab.
+	The available Whisper model sizes and quantizations are automatically populated based on your system's capabilities.
+	You can read below what these settings exactly mean.</p>
+	
+	<p>However, feel free to use gpu or cpu acceleration since the Whisper models are immediately unloaded from memory after
+	the transcription is complete in order to conserve system memory.  Remember to click update settings whenever you change
+	the settings, however.</p>
+	
+	<h2 id="transcribe-audio">Transcribe Audio Files for Database</h2>
+	
+	<p>The "Tools" tab includes a new feature to transcribe audio files of any length and put a <code>.txt</code> file in the folder
+	holding the files to put into the vector database.  Once the transcription is complete, it will automatically put the file there.
+	Remember, you must re-created the database anytime you want to add/remove a file from it.</p>
+	
+	<p>I highly recommend using GPU-acceleration if available since transcribing an audio file takes a lot longer than a simple question.
+	The settings for transcribing an audio file are separate than the voice-transcribe settings.  Therefore, changing one does not
+	change the other.  Read more below about the Whisper models and quantization to ensure you're getting the most out of this
+	powerful new feature.  And batch processing is coming in the future.</p>
+	
+	<h2 id="whisper-models">Whisper Models and Quants</h2>
+	
+	<h3>English versus Non-English Models</h3>
+	
+	<p>Use models ending in <code>.en</code> if you speak English.  The <code>large-v2</code> model doesn't come in an
+	English-specific variant becauase it's just good at everything.</p>
+	
+	<h3>My Recommendations</h3>
+	
+	<p>The size of the model is most important factor followed by quantization.  For transcribing your questions, I recommend
+	<code>small.en</code> with <code>float32</code> for everyday usage (using CPU).  Regarding transcribing an audio file, always
+	use GPU if available.  I also recommend using as large of a Whisper model as possible and then either a quantization of
+	<code>float32</code>, <code>float16</code>, or <code>bfloat16</code> so you don't have to re-transcribe it.  Also, don't
+	forget to check the timestamps option if you want.</p>
+	
+	<p>If you're trying to transcribe a file using your CPU, it heavily depends on your CPU, but be aware that using the CPU is
+	about 500x slower than even a mediocre GPU.  Even then, I wouldn't recommend going below <code>small/small.en</code> because
+	there is a significant jump in quality between <code>base</code> and <code>small</code>.
+	
+	<h2 id="additional-info">Additional Info</h2>
+	
+	<p>Below is a table of all Whisper models I've quantized as well, and below that, a primer about floating point formats
+	and quantization!</p>
+	
+	<h2 id="available-models">Available Whisper Models and Quants</h2>
+	
+	<table>
+        <thead>
+            <tr>
+                <th>Quantization</th>
+                <th>Size on Disk</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-int8_bfloat16</td>
+                <td>42.7 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-int8_float16</td>
+                <td>42.7 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-int8_bfloat16</td>
+                <td>43.1 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-int8_float16</td>
+                <td>43.1 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-int8</td>
+                <td>45.4 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-int8_float32</td>
+                <td>45.4 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-int8</td>
+                <td>45.7 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-int8_float32</td>
+                <td>45.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-int8_bfloat16</td>
+                <td>78.4 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-int8_float16</td>
+                <td>78.4 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-int8_bfloat16</td>
+                <td>78.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-int8_float16</td>
+                <td>78.7 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-bfloat16</td>
+                <td>78.8 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-float16</td>
+                <td>78.8 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-bfloat16</td>
+                <td>79.1 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-float16</td>
+                <td>79.1 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-int8</td>
+                <td>82.4 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-int8_float32</td>
+                <td>82.4 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-int8</td>
+                <td>82.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-int8_float32</td>
+                <td>82.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-bfloat16</td>
+                <td>148.5 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-float16</td>
+                <td>148.5 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-bfloat16</td>
+                <td>148.8 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-float16</td>
+                <td>148.8 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny.en-ct2-float32</td>
+                <td>154.4 MB</td>
+            </tr>
+            <tr class="tiny">
+                <td>whisper-tiny-ct2-float32</td>
+                <td>154.7 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-int8_bfloat16</td>
+                <td>249.8 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-int8_float16</td>
+                <td>249.8 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-int8_bfloat16</td>
+                <td>250.2 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-int8_float16</td>
+                <td>250.2 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-int8</td>
+                <td>257.3 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-int8_float32</td>
+                <td>257.3 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-int8</td>
+                <td>257.7 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-int8_float32</td>
+                <td>257.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base.en-ct2-float32</td>
+                <td>293.7 MB</td>
+            </tr>
+            <tr class="base">
+                <td>whisper-base-ct2-float32</td>
+                <td>294.0 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-bfloat16</td>
+                <td>486.8 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-float16</td>
+                <td>486.8 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-bfloat16</td>
+                <td>487.1 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-float16</td>
+                <td>487.1 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-int8_bfloat16</td>
+                <td>775.8 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-int8_float16</td>
+                <td>775.8 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-int8_bfloat16</td>
+                <td>776.1 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-int8_float16</td>
+                <td>776.1 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-int8</td>
+                <td>788.2 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-int8_float32</td>
+                <td>788.2 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-int8</td>
+                <td>788.5 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-int8_float32</td>
+                <td>788.5 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small.en-ct2-float32</td>
+                <td>970.4 MB</td>
+            </tr>
+            <tr class="small">
+                <td>whisper-small-ct2-float32</td>
+                <td>970.7 MB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-bfloat16</td>
+                <td>1.5 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-float16</td>
+                <td>1.5 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-bfloat16</td>
+                <td>1.5 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-float16</td>
+                <td>1.5 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-int8_bfloat16</td>
+                <td>1.6 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-int8_float16</td>
+                <td>1.6 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-int8</td>
+                <td>1.6 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-int8_float32</td>
+                <td>1.6 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium.en-ct2-float32</td>
+                <td>3.1 GB</td>
+            </tr>
+            <tr class="medium">
+                <td>whisper-medium-ct2-float32</td>
+                <td>3.1 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-bfloat16</td>
+                <td>3.1 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-float16</td>
+                <td>3.1 GB</td>
+            </tr>
+            <tr class="large">
+                <td>whisper-large-v2-ct2-float32</td>
+                <td>6.2 GB</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-    <h3>Setting</h3>
-    <p>The "translate" checkbox and the "language" pulldown menu are placeholders until I add that functionality in the next release.
-	However, the timestamps checkbox works fine.  All of the other settings are identical to the settings for the voice transcriber
-	when asking the LLM a question.  However, you can choose different settings here than those in the "Settings" tab for the voice
-	transcriber; they update the config.yaml file differently.</p>
-	
-	<p>I highly recommend using gpu-acceleration if available (it'll be displayed as an option if available).  Unlike the voice
-	transcription functionality, which typically transcribes a short question, processing audio files are usually a lot longer.</p>
-	
-	<p>Currently, whenever you change the quant, model size, or compute "Device," you must click "Update Settings" before
-	starting the transcription.</p>
-	
-    <h3>Upcoming Improvements</h3>
-    <p>Add functionality to process multiple files in batch by selecting a single directory</p>
-	
-	<p>Add functionality to process multiple files at once (multiple "workers") while batch processing (vram intensive).<p>
-	
-	<p>Support the new Whisper large-v3 model released a few days ago.</p>
-	
-	<p>Support the new Distil-Whisper models that use half VRAM and compute requirements, but only do English.</p>
-    
-  </main>
+        <h2 id="floating">Introduction to Floating Point Formats</h2>
+		
+		<section>
+            <img src="./float.png" alt="Floating Point">
+        </section>
 
-  <footer>
-    <p>www.chintellalaw.com</p>
-  </footer>
+        <p>Running an embedding or a large language model requires a lot of math calculations and computers don't understand
+		decimals (1,2,3) like you and me.  Rather, they represent numbers with a series of ones and zeros called "bits."
+		In general, the more bits used means higher quality but also higher VRAM/RAM and compute power needed.
+		With that being said, the quality also depends on how many of the bits are "exponent" versus "fraction."</p>
+		
+		<p>The phrase "Floating point format" refers to the total number of bits used and how many are  "exponent" versus "fraction."
+		The three most common floating point formats are shown above.  Notice that both Float16 and Bfloat16 use 16 bits but
+		a different number of "exponent" versus "fraction" bits.</p>
+		
+		<p>"Exponent" bits essentially determine the "range" of numbers that a neural network can use when doing math.
+		For example, Float32 has 8 "exponent" bits so hypothetically this allows the neural network to use any integer
+		between one and one-hundred - its "range is 1-100.  Bfloat16 would have the same "range" because it also has
+		8 "exponent" bits.  However, since Float16 only has 5 "exponent" bits its "range" might only be 1-50.</p>
 
+        <p></p>
+		
+		<p>"Fraction" bits essentially determine the number of unique values that can be used within that "range."
+		 For example, Float32 has 23 "fraction" bits so hypothetically it can use every whole number between 1-100 when doing math.
+		Since Bfloat16 only has 7 "fraction" bits, it might only have 25 unique values within 1-100.
+		This is also referred to as the "precision" of a neural network.</p>
+
+        <p>These are hypotheticals and the actual ranges and precisions are summarized in this table:</p>
+		
+            <table class="table-from-second-file" border="1">
+                <tr>
+                    <th>Floating Point Format</th>
+                    <th>Range (Based on Exponent)</th>
+                    <th>Discrete Values (Based on Fraction)</th>
+                </tr>
+                <tr>
+                    <td>float32</td>
+                    <td>~3.4×10<sup>38</sup></td>
+                    <td>8,388,608</td>
+                </tr>
+                <tr>
+                    <td>float16</td>
+                    <td>±65,504</td>
+                    <td>1,024</td>
+                </tr>
+                <tr>
+                    <td>bfloat16</td>
+                    <td>~3.4×10<sup>38</sup></td>
+                    <td>128</td>
+                </tr>
+            </table>
+
+		<p>The "range" and "precision" both determine the "quality" of an output, but in different ways.
+		In general, different floating point formats are good for different purposes.  For example, Google, which created
+		Bfloat16, found that it was better for neural networks while Float16 was better for scientific calculations.</p>
+		
+		<p>You can see the floating point format of the various embedding models used in my program by looking at the
+		"config.json" file for each model.</p>
+		
+        <section>
+            <h2 id="quantization">What is Quantization?</h2>
+			
+            <p>"Quantization" refers to converting the original floating point format to one with a smaller "range" and "precision."
+			Projects like LLAMA.CPP and AutoGPTQ do this with slightly different algorithms.  The overall goal is to reduce
+			the memory and computational power needed while only suffering a "reasonable" loss in quality.
+			Specific "quantizations" like "Q8_0" or "8-bit" refer to the "floating point format" of "int8."
+			(Technically, "int8" is no longer "floating" but you don't need to delve into the nuances of this to understand
+			the basic concepts I'm trying to communicate.)</p>
+			
+			<p>Here is the range and precision for "Int8," which is clearly less:</p>
+            <table class="table-from-second-file" border="1">
+                <tr>
+                    <th>Floating Point Format</th>
+                    <th>Range (Based on Exponent)</th>
+                    <th>Discrete Values (Based on Fraction)</th>
+                </tr>
+                <tr>
+                    <td>int8</td>
+                    <td>-128 to 127</td>
+                    <td>±127 (within integer range)</td>
+                </tr>
+            </table>
+
+</main>
+
+    <footer>
+        www.chintellalaw.com
+    </footer>
 </body>
 </html>
