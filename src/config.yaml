@@ -185,7 +185,7 @@ AVAILABLE_MODELS:
     max_sequence: 512
     size_mb: 670
   model: thenlper/gte-large
-COMPUTE_DEVICE: cpu
+COMPUTE_DEVICE: cuda
 Compute_Device:
   available:
   - cuda
@@ -194,9 +194,9 @@ Compute_Device:
   database_query: cpu
 EMBEDDING_MODEL_NAME: 
 database:
-  chunk_overlap: 250
-  chunk_size: 700
-  contexts: 10
+  chunk_overlap: 150
+  chunk_size: 512
+  contexts: 25
   device: null
   similarity: 0.9
 embedding-models:
@@ -218,15 +218,16 @@ styles:
   frame: 'background-color: #161b22;'
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
+test_embeddings: false
 transcribe_file:
-  device: cpu
-  file:
+  device: cuda
+  file: 
   language: Option 1
-  model: small.en
+  model: medium.en
   quant: float32
-  timestamps: true
+  timestamps: false
   translate: false
 transcriber:
   device: cpu
-  model: base.en
+  model: small.en
   quant: float32

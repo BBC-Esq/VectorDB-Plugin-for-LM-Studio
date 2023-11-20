@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QTabWidget,
-    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar
+    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox
 )
 from PySide6.QtCore import Qt, QThread, Signal, QUrl
 from PySide6.QtWebEngineWidgets import QWebEngineView
 import os
+import yaml
 from initialize import determine_compute_device, is_nvidia_gpu, get_os_name
 from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
@@ -33,15 +34,14 @@ class DocQA_GUI(QWidget):
         self.setGeometry(300, 300, 975, 975)
         self.setMinimumSize(450, 510)
 
-        # Left panel setup with grid layout
+        # Left frame setup
         self.left_frame = QFrame()
         grid_layout = QGridLayout()
         
-        # Tab widget spanning two columns
         tab_widget = create_tabs()
-        grid_layout.addWidget(tab_widget, 0, 0, 1, 2)  # Span two columns
+        grid_layout.addWidget(tab_widget, 0, 0, 1, 2)
         
-        # Button definitions and positions in the grid
+        # Button definitions and positions
         button_data = [
             ("Download Embedding Model", lambda: download_embedding_model(self)),
             ("Set Embedding Model Directory", select_embedding_model_directory),
@@ -59,7 +59,7 @@ class DocQA_GUI(QWidget):
         self.left_frame.setLayout(grid_layout)
         main_splitter.addWidget(self.left_frame)
 
-        # Right panel setup
+        # Right frame setup
         right_frame = QFrame()
         right_vbox = QVBoxLayout()
 
@@ -73,13 +73,14 @@ class DocQA_GUI(QWidget):
 
         submit_questions_button = QPushButton("Submit Questions")
         submit_questions_button.clicked.connect(self.on_submit_button_clicked)
-
         right_vbox.addWidget(submit_questions_button)
 
-        # Define widget containing buttons
-        button_row_widget = create_button_row(self.on_submit_button_clicked)
+        # Add Test Embeddings Checkbox
+        self.test_embeddings_checkbox = QCheckBox("Test Embeddings")
+        self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
+        right_vbox.addWidget(self.test_embeddings_checkbox)
 
-        # Add widgets from button_module.py
+        button_row_widget = create_button_row(self.on_submit_button_clicked)
         right_vbox.addWidget(button_row_widget)
 
         right_frame.setLayout(right_vbox)
@@ -90,7 +91,6 @@ class DocQA_GUI(QWidget):
         main_layout.addWidget(main_splitter)
         main_layout.addWidget(self.metrics_bar)
 
-    # Create menu bar
     def init_menu(self):
         self.menu_bar = QMenuBar(self)
         self.theme_menu = self.menu_bar.addMenu('Themes')
@@ -115,6 +115,18 @@ class DocQA_GUI(QWidget):
         self.submit_button_thread = SubmitButtonThread(user_question, self)
         self.submit_button_thread.responseSignal.connect(self.update_response)
         self.submit_button_thread.start()
+
+    def on_test_embeddings_changed(self):
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        config_path = os.path.join(script_dir, 'config.yaml')
+
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+
+        config['test_embeddings'] = self.test_embeddings_checkbox.isChecked()
+
+        with open(config_path, 'w') as file:
+            yaml.dump(config, file)
 
     def update_response(self, response):
         self.read_only_text.setPlainText(response)

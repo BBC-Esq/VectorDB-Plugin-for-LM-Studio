@@ -9,11 +9,11 @@ from transformers import AutoTokenizer
 from termcolor import cprint
 from memory_profiler import profile
 import gc
+import tempfile
+import subprocess
 
 ENABLE_PRINT = True
 ENABLE_CUDA_PRINT = False
-
-# torch.cuda.reset_peak_memory_stats()
 
 def my_cprint(*args, **kwargs):
     if ENABLE_PRINT:
@@ -41,6 +41,19 @@ INGEST_THREADS = os.cpu_count() or 8
 CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
 )
+
+# Function to write contexts to a temporary file and open it
+def write_contexts_to_temp_file_and_open(contexts):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt", mode='w+') as temp_file:
+        for context in contexts:
+            temp_file.write(context + "\n\n")
+        temp_file_path = temp_file.name
+
+    # Open the temp file with the default application
+    if os.name == 'nt':  # Windows
+        os.startfile(temp_file_path)
+    elif os.name == 'posix':  # macOS, Linux
+        subprocess.run(['open', temp_file_path])
 
 # @profile
 def connect_to_local_chatgpt(prompt):
@@ -70,6 +83,12 @@ def connect_to_local_chatgpt(prompt):
 def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
     my_cprint("Attempting to connect to server.", "yellow")
     print_cuda_memory()
+
+    # Read the test_embeddings setting from config.yaml every time the function is called
+    with open('config.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+        test_embeddings = config.get('test_embeddings', False)
+
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
         EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
@@ -122,6 +141,12 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
     relevant_contexts = retriever.get_relevant_documents(query)
     contexts = [document.page_content for document in relevant_contexts]
+
+    # Check if test_embeddings is True, then just write contexts to temp file and return
+    if test_embeddings:
+        write_contexts_to_temp_file_and_open(contexts)
+        return {"answer": "Contexts written to temporary file and opened", "sources": relevant_contexts}
+
     prepend_string = "Only base your answer to the following question on the provided context."
     augmented_query = "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
 
@@ -139,7 +164,6 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     my_cprint("Embedding model removed from memory.", "red")
     
     return {"answer": response_json, "sources": relevant_contexts}
-    print_cuda_memory()
 
 # @profile
 def interact_with_chat(user_input):
