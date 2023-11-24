@@ -42,7 +42,7 @@ You <b>MUST</b> install these before installing my program:<p>
 3) [Git Large File Storage](https://git-lfs.com/).
 4) [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
 
-<div align="center"> <h2>🔥Installation🔥</h2>
+<div align="center"> <h2>🔥Install Vector Database🔥</h2>
 <b>‼️If you have Python 2 and Python 3 installed on your system, make sure and use "Python3" and "pip3" instead when installing.‼️</b>
 </div><br>
 <details>
@@ -175,7 +175,7 @@ python check_gpu.py
 
 </details>
 
-<div align="center"> <h2>🔥Transcription🔥</h2></div>
+<div align="center"> <h2>🔥Transcribe Question🔥</h2></div>
 
 > My program allows you to transcribe a question into the clipboard and paste it into LM Studio.  It uses the powerful Ctranslate2 library and the state-of-the-art "Whisper" models.
 
