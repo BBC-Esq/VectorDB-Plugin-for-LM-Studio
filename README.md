@@ -217,8 +217,8 @@ python gui.py
   > ⚠️ Only models that use the Llama-2 prompt format are supported by default.  You can change the "prefix" or "suffix" to test out other models.
 * Click the server tab on the left side.
 * Click "Start Server" in the server tab.
-  * ⚠️ As of LM Studio .2.8, there's a setting to allow you to set the prompt format within LM Studio.
-  * You can disable this setting to allow my program to work out-of-the-box.  Otherwise, you will need to click the "disable" prompt formatting checkbox in the "Server" settings.
+  * ⚠️ As of LM Studio ```.2.8```, there's a setting to allow you to set the prompt format (and other settings) within LM Studio.
+  * It is recommended to DISABLE this setting to allow the program to work out-of-the-box.  However, experienced users can click the "disable" prompt formatting checkbox in the "Server" settings, which will enable you to experiment with the prompt formats provided by LM Studio.
 
 ### Search Database
 * Type your question and click "Submit Questions."
