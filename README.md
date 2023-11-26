@@ -247,7 +247,7 @@ python gui.py
       <tr>
         <td>Nvidia GPU</td>
         <td>✅</td>
-        <td>Requires CUDA</td>
+        <td>Requires CUDA 11.8 (not 12.1)</td>
       </tr>
       <tr>
         <td>AMD GPU</td>
