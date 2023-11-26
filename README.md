@@ -165,7 +165,7 @@ pip install torch torchvision torchaudio
 ```
 brew install portaudio
 ```
-* You can also use:
+* Homebrew can be installed with:
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
