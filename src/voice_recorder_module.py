@@ -2,17 +2,14 @@ import pyaudio
 import wave
 import os
 import tempfile
-import threading
-import pyperclip
 from faster_whisper import WhisperModel
 import torch
 import gc
 import yaml
 from termcolor import cprint
+from PySide6.QtCore import QThread, Signal
 
 ENABLE_PRINT = True
-
-# torch.cuda.reset_peak_memory_stats()
 
 def my_cprint(*args, **kwargs):
     if ENABLE_PRINT:
@@ -20,21 +17,43 @@ def my_cprint(*args, **kwargs):
         modified_message = f"{filename}: {args[0]}"
         cprint(modified_message, *args[1:], **kwargs)
 
+class TranscriptionThread(QThread):
+    transcription_complete = Signal(str)
+
+    def __init__(self, audio_file, model):
+        super().__init__()
+        self.audio_file = audio_file
+        self.model = model
+
+    def run(self):
+        segments, _ = self.model.transcribe(self.audio_file)
+        transcription_text = "\n".join([segment.text for segment in segments])
+        my_cprint("Transcription completed.", 'green')
+        self.transcription_complete.emit(transcription_text)
+        os.remove(self.audio_file)
+
+class RecordingThread(QThread):
+    def __init__(self, voice_recorder):
+        super().__init__()
+        self.voice_recorder = voice_recorder
+
+    def run(self):
+        self.voice_recorder.record_audio()
+
 class VoiceRecorder:
-    def __init__(self, format=pyaudio.paInt16, channels=1, rate=44100, chunk=1024):
+    def __init__(self, gui_instance, format=pyaudio.paInt16, channels=1, rate=44100, chunk=1024):
+        self.gui_instance = gui_instance
         self.format, self.channels, self.rate, self.chunk = format, channels, rate, chunk
         self.is_recording, self.frames = False, []
-
-    def transcribe_audio(self, audio_file):
-        segments, _ = self.model.transcribe(audio_file)
-        pyperclip.copy("\n".join([segment.text for segment in segments]))
-        my_cprint("Transcription copied to clipboard.", 'green')
+        self.recording_thread = None
+        self.transcription_thread = None
 
     def record_audio(self):
         p = pyaudio.PyAudio()
         try:
             stream = p.open(format=self.format, channels=self.channels, rate=self.rate, input=True, frames_per_buffer=self.chunk)
-            [self.frames.append(stream.read(self.chunk)) for _ in iter(lambda: self.is_recording, False)]
+            while self.is_recording:
+                self.frames.append(stream.read(self.chunk))
             stream.stop_stream()
             stream.close()
         finally:
@@ -48,14 +67,12 @@ class VoiceRecorder:
             wf.setsampwidth(pyaudio.PyAudio().get_sample_size(self.format))
             wf.setframerate(self.rate)
             wf.writeframes(b"".join(self.frames))
-        
-        def transcribe_and_cleanup():
-            self.transcribe_audio(temp_filename)
-            os.remove(temp_filename)
-            self.frames.clear()
-            self.ReleaseTranscriber()
+        self.frames.clear()
 
-        threading.Thread(target=transcribe_and_cleanup).start()
+        self.transcription_thread = TranscriptionThread(temp_filename, self.model)
+        self.transcription_thread.transcription_complete.connect(self.gui_instance.update_transcription)
+        self.transcription_thread.transcription_complete.connect(self.ReleaseTranscriber)
+        self.transcription_thread.start()
 
     def start_recording(self):
         if not self.is_recording:
@@ -65,6 +82,8 @@ class VoiceRecorder:
             transcriber_config = config_data['transcriber']
             model_string = f"ctranslate2-4you/whisper-{transcriber_config['model']}-ct2-{transcriber_config['quant']}"
             
+            cpu_threads = max(4, os.cpu_count() - 6)
+            
             print(f"Loaded device: {transcriber_config['device']}")
             print(f"Loaded model: {transcriber_config['model']}")
             print(f"Loaded quant: {transcriber_config['quant']}")
@@ -73,19 +92,23 @@ class VoiceRecorder:
                 model_string,
                 device=transcriber_config['device'],
                 compute_type=transcriber_config['quant'],
-                cpu_threads=8
+                cpu_threads=cpu_threads
             )
             my_cprint("Whisper model loaded.", 'green')
             
             self.is_recording = True
-            threading.Thread(target=self.record_audio).start()
+            self.recording_thread = RecordingThread(self)
+            self.recording_thread.start()
 
     def stop_recording(self):
-        self.save_audio()
-        
+        self.is_recording = False
+        if self.recording_thread is not None:
+            self.recording_thread.wait()
+            self.save_audio()
+
     def ReleaseTranscriber(self):
         del self.model
-        if torch.cuda.is_available():  # Check if CUDA is available to avoid errors in non-GPU environments
+        if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
         my_cprint("Whisper model removed from memory.", 'red')

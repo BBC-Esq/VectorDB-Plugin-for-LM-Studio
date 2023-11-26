@@ -6,27 +6,35 @@ from PySide6.QtCore import Qt, QThread, Signal, QUrl
 from PySide6.QtWebEngineWidgets import QWebEngineView
 import os
 import yaml
-from initialize import determine_compute_device, is_nvidia_gpu, get_os_name
+import sys
+from initialize import main as initialize_system
+from metrics_bar import MetricsBar
 from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
 from choose_documents import choose_documents_directory
 import create_database
-from metrics_gpu import GPU_Monitor
-from metrics_system import SystemMonitor
 from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
-from metrics_bar import MetricsBar
 from button_module import create_button_row
-import sys
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
 
 class DocQA_GUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.compute_device = determine_compute_device()
-        os_name = get_os_name()
+        initialize_system()
+        self.metrics_bar = MetricsBar()
+        self.compute_device = self.metrics_bar.determine_compute_device()
+        os_name = self.metrics_bar.get_os_name()
         self.init_ui()
         self.init_menu()
+        self.load_config()
+        
+    def load_config(self):
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        config_path = os.path.join(script_dir, 'config.yaml')
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+        self.test_embeddings_checkbox.setChecked(config.get('test_embeddings', False))
 
     def init_ui(self):
         main_splitter = QSplitter(Qt.Horizontal)
@@ -34,14 +42,14 @@ class DocQA_GUI(QWidget):
         self.setGeometry(300, 300, 975, 975)
         self.setMinimumSize(450, 510)
 
-        # Left frame setup
+        # LEFT FRAME
         self.left_frame = QFrame()
         grid_layout = QGridLayout()
         
         tab_widget = create_tabs()
         grid_layout.addWidget(tab_widget, 0, 0, 1, 2)
         
-        # Button definitions and positions
+        # Buttons data
         button_data = [
             ("Download Embedding Model", lambda: download_embedding_model(self)),
             ("Set Embedding Model Directory", select_embedding_model_directory),
@@ -50,7 +58,7 @@ class DocQA_GUI(QWidget):
         ]
         button_positions = [(1, 0), (1, 1), (2, 0), (2, 1)]
         
-        # Create and add buttons to the grid layout
+        # Create and add buttons
         for position, (text, handler) in zip(button_positions, button_data):
             button = QPushButton(text)
             button.clicked.connect(handler)
@@ -59,7 +67,7 @@ class DocQA_GUI(QWidget):
         self.left_frame.setLayout(grid_layout)
         main_splitter.addWidget(self.left_frame)
 
-        # Right frame setup
+        # RIGHT FRAME
         right_frame = QFrame()
         right_vbox = QVBoxLayout()
 
@@ -75,20 +83,20 @@ class DocQA_GUI(QWidget):
         submit_questions_button.clicked.connect(self.on_submit_button_clicked)
         right_vbox.addWidget(submit_questions_button)
 
-        # Add Test Embeddings Checkbox
         self.test_embeddings_checkbox = QCheckBox("Test Embeddings")
         self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
         right_vbox.addWidget(self.test_embeddings_checkbox)
 
-        button_row_widget = create_button_row(self.on_submit_button_clicked)
+        # Create and add button row
+        button_row_widget = create_button_row(self.on_submit_button_clicked, self)
         right_vbox.addWidget(button_row_widget)
 
         right_frame.setLayout(right_vbox)
         main_splitter.addWidget(right_frame)
 
-        self.metrics_bar = MetricsBar()
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(main_splitter)
+        # Metrics bar
         main_layout.addWidget(self.metrics_bar)
 
     def init_menu(self):
@@ -131,16 +139,17 @@ class DocQA_GUI(QWidget):
     def update_response(self, response):
         self.read_only_text.setPlainText(response)
 
+    def update_transcription(self, text):
+        self.text_input.setPlainText(text)
+
     def closeEvent(self, event):
         self.metrics_bar.stop_monitors()
-        self.metrics_bar.system_monitor.stop_and_exit_system_monitor()
-        self.metrics_bar.gpu_monitor.stop_and_exit_gpu_monitor()
         event.accept()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create('fusion'))
-    stylesheet = load_stylesheet('custom_stylesheet.css')
+    stylesheet = load_stylesheet('custom_stylesheet_steel_ocean.css')
     app.setStyleSheet(stylesheet)
     ex = DocQA_GUI()
     ex.show()

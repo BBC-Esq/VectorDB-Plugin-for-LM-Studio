@@ -1,9 +1,9 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QRadioButton, QPushButton, QButtonGroup, QLabel, QGridLayout
 import os
-import yaml
 import subprocess
 import threading
+from constants import AVAILABLE_MODELS
 
 class DownloadModelDialog(QDialog):
     def __init__(self, parent=None):
@@ -12,18 +12,12 @@ class DownloadModelDialog(QDialog):
         self.grid_layout = QGridLayout()
         self.setLayout(self.grid_layout)
 
-        try:
-            with open('config.yaml', 'r') as file:
-                config = yaml.safe_load(file)
-                self.available_models = config.get('AVAILABLE_MODELS', [])
-        except Exception as e:
-            print(f"Error loading config.yaml: {e}")
-            self.available_models = []
+        self.available_models = AVAILABLE_MODELS
 
         self.button_group = QButtonGroup(self)
         self.selected_model = None
 
-        # Adding column headers
+        # Add column headers
         model_name_header = QLabel("Model Name")
         self.grid_layout.addWidget(model_name_header, 0, 1)
 
@@ -82,7 +76,7 @@ class DownloadModelDialog(QDialog):
         download_button.clicked.connect(self.accept)
         button_layout.addWidget(download_button)
 
-        exit_button = QPushButton('Exit', self)
+        exit_button = QPushButton('Cancel', self)
         exit_button.clicked.connect(self.reject)
         button_layout.addWidget(exit_button)
 
@@ -112,3 +106,4 @@ def download_embedding_model(parent):
 
             download_thread = threading.Thread(target=download_model)
             download_thread.start()
+

@@ -20,6 +20,9 @@ from langchain.document_loaders import (
     UnstructuredMarkdownLoader
 )
 
+# Import DOCUMENT_LOADERS from constants.py
+from constants import DOCUMENT_LOADERS
+
 ENABLE_PRINT = True
 
 def my_cprint(*args, **kwargs):
@@ -31,25 +34,14 @@ def my_cprint(*args, **kwargs):
 ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 INGEST_THREADS = os.cpu_count() or 8
-DOCUMENT_MAP = {
-    ".pdf": PDFMinerLoader,
-    ".docx": Docx2txtLoader,
-    ".txt": TextLoader,
-    ".json": JSONLoader,
-    ".enex": EverNoteLoader,
-    ".eml": UnstructuredEmailLoader,
-    ".msg": UnstructuredEmailLoader,
-    ".csv": UnstructuredCSVLoader,
-    ".xls": UnstructuredExcelLoader,
-    ".xlsx": UnstructuredExcelLoader,
-    ".rtf": UnstructuredRTFLoader,
-    ".odt": UnstructuredODTLoader,
-    ".md": UnstructuredMarkdownLoader,
-}
+
+# Replace class names in DOCUMENT_LOADERS with actual classes
+for ext, loader_name in DOCUMENT_LOADERS.items():
+    DOCUMENT_LOADERS[ext] = globals()[loader_name]
 
 def load_single_document(file_path: str) -> Document:
     file_extension = os.path.splitext(file_path)[1]
-    loader_class = DOCUMENT_MAP.get(file_extension)
+    loader_class = DOCUMENT_LOADERS.get(file_extension)
     if loader_class:
         if file_extension == ".txt":
             loader = loader_class(file_path, encoding='utf-8')
@@ -70,7 +62,7 @@ def load_document_batch(filepaths):
 
 def load_documents(source_dir: str) -> list[Document]:
     all_files = os.listdir(source_dir)
-    paths = [os.path.join(source_dir, file_path) for file_path in all_files if os.path.splitext(file_path)[1] in DOCUMENT_MAP.keys()]
+    paths = [os.path.join(source_dir, file_path) for file_path in all_files if os.path.splitext(file_path)[1] in DOCUMENT_LOADERS.keys()]
     
     n_workers = min(INGEST_THREADS, max(len(paths), 1))
     my_cprint(f"Number of workers assigned: {n_workers}", "magenta")

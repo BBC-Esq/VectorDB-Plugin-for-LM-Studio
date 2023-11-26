@@ -12,7 +12,7 @@ class GuiSettingsTab(QWidget):
 
         # Dictionary that maps the title of the group box to the respective widget class and its stretch factor
         classes = {
-            "Transcriber Tool Settings": (TranscriberToolSettingsTab, 1),
+            "Transcribe File Settings": (TranscriberToolSettingsTab, 1),
         }
 
         self.groups = {}

@@ -1,65 +1,43 @@
 from PySide6.QtWidgets import (
-    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFileDialog, QCheckBox, QApplication
+    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QApplication, QGridLayout, QCheckBox, QFileDialog, QProgressBar
 )
-from PySide6.QtCore import Qt
-import ctranslate2
+from PySide6.QtCore import Qt, Signal
 import yaml
+import os
+from constants import WHISPER_MODEL_NAMES
+from multiprocessing import Pipe
 from transcribe_module import TranscribeFile
+import threading
 
 class TranscriberToolSettingsTab(QWidget):
-    
+    progress_updated = Signal(int)
+
     def __init__(self):
         super().__init__()
         self.selected_audio_file = None
+        self.config = self.read_config()
+        self.gpu_brand = self.config.get('Compute_Device', {}).get('gpu_brand', '').lower()
+        self.default_device = self.config.get('transcribe_file', {}).get('device', 'cpu').lower()
+        self.default_quant = self.config.get('transcribe_file', {}).get('quant', '')
+        self.default_model = self.config.get('transcribe_file', {}).get('model', '')
+        self.timestamps_enabled = self.config.get('transcribe_file', {}).get('timestamps', False)
         self.create_layout()
-        self.load_config()
+        self.progress_updated.connect(self.update_progress_bar)
 
-    def load_config(self):
-        with open('config.yaml', 'r') as f:
-            config_data = yaml.safe_load(f)
-            transcriber_data = config_data.get('transcribe_file', {})
-
-        initial_device_value = transcriber_data.get('device', None)
-        if initial_device_value is not None:
-            self.device_combo.setCurrentText(str(initial_device_value))
-
-        self.update_quantization(self.device_combo, self.quantization_combo)
-        initial_quant_value = transcriber_data.get('quant', None)
-        if initial_quant_value is not None:
-            self.quantization_combo.setCurrentText(str(initial_quant_value))
-
-        update_map = {
-            'model': (self.model_combo, 'setCurrentText', str)
-        }
-        for setting, (widget, setter, caster) in update_map.items():
-            initial_value = transcriber_data.get(setting, None)
-            if initial_value is not None:
-                getattr(widget, setter)(caster(initial_value))
-
-    def has_cuda_device(self):
-        cuda_device_count = ctranslate2.get_cuda_device_count()
-        return cuda_device_count > 0
-
-    def get_supported_quantizations(self, device_type):
-        types = ctranslate2.get_supported_compute_types(device_type)
-        return [q for q in types if q != 'int16']
-
-    def update_quantization(self, device_combo, quantization_combo):
-        if device_combo.currentText() == "cpu":
-            quantizations = self.get_supported_quantizations("cpu")
-        else:
-            quantizations = self.get_supported_quantizations("cuda")
-        quantization_combo.clear()
-        quantization_combo.addItems(quantizations)
+    def read_config(self):
+        with open('config.yaml', 'r') as file:
+            return yaml.safe_load(file)
 
     def create_layout(self):
         main_layout = QVBoxLayout()
 
-        # First horizontal layout
+        # First row of widgets
         hbox1 = QHBoxLayout()
         hbox1.addWidget(QLabel("Model"))
         self.model_combo = QComboBox()
-        self.model_combo.addItems(["tiny", "tiny.en", "base", "base.en", "small", "small.en", "medium", "medium.en", "large-v2"])
+        self.model_combo.addItems([model for model in WHISPER_MODEL_NAMES if model not in ["tiny", "tiny.en", "base", "base.en"]])
+        self.model_combo.setCurrentText(self.default_model)
+        self.model_combo.currentTextChanged.connect(self.update_model_in_config)
         hbox1.addWidget(self.model_combo)
 
         hbox1.addWidget(QLabel("Quant"))
@@ -67,90 +45,121 @@ class TranscriberToolSettingsTab(QWidget):
         hbox1.addWidget(self.quantization_combo)
 
         hbox1.addWidget(QLabel("Device"))
-        device_options = ["cpu"] + ["cuda"] if self.has_cuda_device() else []
         self.device_combo = QComboBox()
-        self.device_combo.addItems(device_options)
-        self.device_combo.currentTextChanged.connect(lambda: self.update_quantization(self.device_combo, self.quantization_combo))
-        self.update_quantization(self.device_combo, self.quantization_combo)
+        self.device_combo.addItem("cpu")
+        if self.gpu_brand == "nvidia":
+            self.device_combo.addItem("cuda")
+        index = self.device_combo.findText(self.default_device, Qt.MatchFixedString)
+        if index >= 0:
+            self.device_combo.setCurrentIndex(index)
+        self.device_combo.currentTextChanged.connect(self.device_selection_changed)
         hbox1.addWidget(self.device_combo)
 
         main_layout.addLayout(hbox1)
 
-        # Second horizontal layout
+        self.populate_quant_combo(self.default_device)
+        self.quantization_combo.currentTextChanged.connect(self.update_quant_in_config)
+
+        # Second row of widgets
         hbox2 = QHBoxLayout()
         hbox2.addWidget(QLabel("Timestamps"))
         self.timestamp_checkbox = QCheckBox()
+        self.timestamp_checkbox.setChecked(self.timestamps_enabled)
+        self.timestamp_checkbox.stateChanged.connect(self.update_timestamps_in_config)
         hbox2.addWidget(self.timestamp_checkbox)
-
-        hbox2.addWidget(QLabel("Translate"))
-        self.translate_checkbox = QCheckBox()
-        hbox2.addWidget(self.translate_checkbox)
-
-        hbox2.addWidget(QLabel("Language"))
-        self.language_combo = QComboBox()
-        self.language_combo.addItems(["Option 1", "Option 2", "Option 3"])
-        hbox2.addWidget(self.language_combo)
 
         main_layout.addLayout(hbox2)
 
-        # Third horizontal layout
-        hbox3 = QHBoxLayout()
+        # Third row of widgets
+        grid_layout = QGridLayout()
         self.select_file_button = QPushButton("Select Audio File")
         self.select_file_button.clicked.connect(self.select_audio_file)
-        hbox3.addWidget(self.select_file_button)
+        grid_layout.addWidget(self.select_file_button, 0, 0)
 
-        self.transcribe_translate_button = QPushButton("Transcribe/Translate")
-        self.transcribe_translate_button.clicked.connect(self.start_transcription)
-        hbox3.addWidget(self.transcribe_translate_button)
+        self.transcribe_button = QPushButton("Transcribe")
+        self.transcribe_button.clicked.connect(self.start_transcription)
+        grid_layout.addWidget(self.transcribe_button, 0, 1)
 
-        main_layout.addLayout(hbox3)
+        self.file_path_label = QLabel("No file currently selected")
+        grid_layout.addWidget(self.file_path_label, 1, 0, 1, 2)
 
-        # Update settings button (without a horizontal layout)
-        self.update_settings_button = QPushButton("Update Settings")
-        self.update_settings_button.clicked.connect(self.save_settings)
-        main_layout.addWidget(self.update_settings_button)
+        # Add QProgressBar
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setMaximum(100)
+        grid_layout.addWidget(self.progress_bar, 2, 0, 1, 2)
 
+        main_layout.addLayout(grid_layout)
         self.setLayout(main_layout)
-    
+
+    def populate_quant_combo(self, device_type):
+        self.quantization_combo.clear()
+        quantizations = self.config.get('Supported_CTranslate2_Quantizations', {})
+        device_type_key = 'GPU' if device_type == 'cuda' else 'CPU'
+        if device_type_key in quantizations:
+            self.quantization_combo.addItems(quantizations[device_type_key])
+        self.set_default_quant()
+
+    def set_default_quant(self):
+        index = self.quantization_combo.findText(self.default_quant, Qt.MatchFixedString)
+        if index >= 0:
+            self.quantization_combo.setCurrentIndex(index)
+        else:
+            if self.quantization_combo.count() > 0:
+                self.quantization_combo.setCurrentIndex(0)
+        self.update_quant_in_config(self.quantization_combo.currentText())
+
+    def update_config_file(self):
+        with open('config.yaml', 'w') as file:
+            yaml.dump(self.config, file)
+
+    def device_selection_changed(self, new_device):
+        self.config['transcribe_file']['device'] = new_device.lower()
+        self.update_config_file()
+        self.populate_quant_combo(new_device.lower())
+
+    def update_quant_in_config(self, new_quant):
+        self.config['transcribe_file']['quant'] = new_quant
+        self.update_config_file()
+
+    def update_timestamps_in_config(self):
+        self.config['transcribe_file']['timestamps'] = self.timestamp_checkbox.isChecked()
+        self.update_config_file()
+
+    def update_model_in_config(self, new_model):
+        self.config['transcribe_file']['model'] = new_model
+        self.update_config_file()
+
     def select_audio_file(self):
-        audio_file_filter = "Audio Files (*.mp3 *.wav *.flac *.mp4 *.wma *.mpeg *.mpga *.m4a *.webm *.ogg *.oga *.)"
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Audio File", "", audio_file_filter)
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Audio File", current_dir)
         if file_name:
+            short_path = "..." + os.path.join(os.path.basename(os.path.dirname(file_name)), os.path.basename(file_name))
+            self.file_path_label.setText(short_path)
             self.selected_audio_file = file_name
-            self.update_config(file_to_transcribe=file_name)
-    
-    def save_settings(self):
-        settings = {
-            "model": self.model_combo.currentText(),
-            "quant": self.quantization_combo.currentText(),
-            "device": self.device_combo.currentText(),
-            "timestamps": self.timestamp_checkbox.isChecked(),
-            "translate": self.translate_checkbox.isChecked(),
-            "language": self.language_combo.currentText()
-        }
-        self.update_config(**settings)
 
-    def update_config(self, file_to_transcribe=None, **kwargs):
-        with open('config.yaml', 'r') as f:
-            config_data = yaml.safe_load(f)
-            transcribe_data = config_data.get('transcribe_file', {})
-
-        if file_to_transcribe:
-            transcribe_data['file'] = file_to_transcribe
-        for key, value in kwargs.items():
-            transcribe_data[key] = value
-
-        config_data['transcribe_file'] = transcribe_data
-
-        with open('config.yaml', 'w') as f:
-            yaml.dump(config_data, f, default_flow_style=False)
+    def update_progress_bar(self, value):
+        self.progress_bar.setValue(value)
 
     def start_transcription(self):
-        if self.selected_audio_file:
-            transcriber = TranscribeFile(self.selected_audio_file)
-            transcriber.start_transcription_thread()
-        else:
-            print("Please select an audio file first.")
+        if not self.selected_audio_file:
+            print("Please select an audio file.")
+            return
+
+        receiver_pipe, sender_pipe = Pipe()
+
+        transcriber = TranscribeFile(self.selected_audio_file)
+        transcriber.start_transcription_thread(sender_pipe)
+
+        print("Transcription process started.")
+
+        def update_progress():
+            while True:
+                progress = receiver_pipe.recv()
+                self.progress_updated.emit(int(progress))
+                if progress >= 100:
+                    break
+
+        threading.Thread(target=update_progress, daemon=True).start()
 
 if __name__ == "__main__":
     app = QApplication([])

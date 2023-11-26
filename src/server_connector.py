@@ -7,7 +7,7 @@ import yaml
 import torch
 from transformers import AutoTokenizer
 from termcolor import cprint
-from memory_profiler import profile
+# from memory_profiler import profile
 import gc
 import tempfile
 import subprocess
@@ -42,17 +42,17 @@ CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
 )
 
-# Function to write contexts to a temporary file and open it
-def write_contexts_to_temp_file_and_open(contexts):
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt", mode='w+') as temp_file:
-        for context in contexts:
-            temp_file.write(context + "\n\n")
-        temp_file_path = temp_file.name
+def write_contexts_to_file_and_open(contexts):
+    with open('contexts.txt', 'w') as file:
+        for index, context in enumerate(contexts, start=1):
+            file.write(f"------------ Context {index} ---------------\n\n\n")
+            file.write(context + "\n\n\n")
+    temp_file_path = 'contexts.txt'
 
-    # Open the temp file with the default application
-    if os.name == 'nt':  # Windows
+    # Open with platform-specific default application
+    if os.name == 'nt':
         os.startfile(temp_file_path)
-    elif os.name == 'posix':  # macOS, Linux
+    elif os.name == 'posix':
         subprocess.run(['open', temp_file_path])
 
 # @profile
@@ -64,13 +64,19 @@ def connect_to_local_chatgpt(prompt):
         openai_api_key = server_config.get('api_key')
         prefix = server_config.get('prefix')
         suffix = server_config.get('suffix')
+        prompt_format_disabled = server_config.get('prompt_format_disabled', False)
         model_temperature = server_config.get('model_temperature')
         model_max_tokens = server_config.get('model_max_tokens')
 
     openai.api_base = openai_api_base
     openai.api_key = openai_api_key
 
-    formatted_prompt = f"{prefix}{prompt}{suffix}"
+    # Check if prompt formatting is disabled
+    if prompt_format_disabled:
+        formatted_prompt = prompt
+    else:
+        formatted_prompt = f"{prefix}{prompt}{suffix}"
+
     response = openai.ChatCompletion.create(
         model="local model",
         temperature=model_temperature,
@@ -84,7 +90,7 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     my_cprint("Attempting to connect to server.", "yellow")
     print_cuda_memory()
 
-    # Read the test_embeddings setting from config.yaml every time the function is called
+    # Read settings from config.yaml every function call
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
         test_embeddings = config.get('test_embeddings', False)
@@ -135,16 +141,16 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
         client_settings=client_settings,
     )
 
-    # Use loaded score_threshold and k
+    # Set score_threshold and k
     my_cprint("Querying database.", "yellow")
     retriever = db.as_retriever(search_kwargs={'score_threshold': score_threshold, 'k': k})
 
     relevant_contexts = retriever.get_relevant_documents(query)
     contexts = [document.page_content for document in relevant_contexts]
 
-    # Check if test_embeddings is True, then just write contexts to temp file and return
+    # Is test_embeddings is True?
     if test_embeddings:
-        write_contexts_to_temp_file_and_open(contexts)
+        write_contexts_to_file_and_open(contexts)
         return {"answer": "Contexts written to temporary file and opened", "sources": relevant_contexts}
 
     prepend_string = "Only base your answer to the following question on the provided context."

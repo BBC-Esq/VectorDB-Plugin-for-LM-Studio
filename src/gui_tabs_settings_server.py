@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
 
@@ -14,6 +14,7 @@ class ServerSettingsTab(QWidget):
             self.current_temperature = config_data.get('server', {}).get('model_temperature', '')
             self.current_prefix = config_data.get('server', {}).get('prefix', '')
             self.current_suffix = config_data.get('server', {}).get('suffix', '')
+            self.prompt_format_disabled = config_data.get('server', {}).get('prompt_format_disabled', False)
 
         settings_dict = {
             'port': {"placeholder": "Enter new port...", "validator": QIntValidator(), "current": self.current_port},
@@ -32,10 +33,22 @@ class ServerSettingsTab(QWidget):
         layout.addWidget(self.create_edit('max_tokens', settings_dict), 1, 1)
         layout.addWidget(self.create_label('temperature', settings_dict), 1, 2)
         layout.addWidget(self.create_edit('temperature', settings_dict), 1, 3)
-        layout.addWidget(self.create_label('prefix', settings_dict), 2, 0)
-        layout.addWidget(self.create_edit('prefix', settings_dict), 2, 1)
-        layout.addWidget(self.create_label('suffix', settings_dict), 2, 2)
-        layout.addWidget(self.create_edit('suffix', settings_dict), 2, 3)
+
+        prompt_format_label = QLabel("Prompt Format:")
+        layout.addWidget(prompt_format_label, 2, 0)
+
+        disable_label = QLabel("Disable")
+        layout.addWidget(disable_label, 2, 2)
+
+        self.disable_checkbox = QCheckBox()
+        self.initial_disable_state = self.prompt_format_disabled
+        self.disable_checkbox.setChecked(self.prompt_format_disabled)
+        layout.addWidget(self.disable_checkbox, 2, 3)
+
+        layout.addWidget(self.create_label('prefix', settings_dict), 3, 0)
+        layout.addWidget(self.create_edit('prefix', settings_dict), 3, 1)
+        layout.addWidget(self.create_label('suffix', settings_dict), 3, 2)
+        layout.addWidget(self.create_edit('suffix', settings_dict), 3, 3)
 
         self.setLayout(layout)
 
@@ -75,6 +88,12 @@ class ServerSettingsTab(QWidget):
 
                 widget['label'].setText(f"{setting.capitalize()}: {new_value}")
                 widget['edit'].clear()
+
+        current_disable_state = self.disable_checkbox.isChecked()
+        if current_disable_state != self.initial_disable_state:
+            updated = True
+            config_data['server']['prompt_format_disabled'] = current_disable_state
+            self.initial_disable_state = current_disable_state
 
         if updated:
             with open('config.yaml', 'w') as file:

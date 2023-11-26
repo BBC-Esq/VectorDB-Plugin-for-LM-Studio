@@ -53,8 +53,10 @@ class DatabaseSettingsTab(QWidget):
         v_layout.addLayout(h_layout2)
         self.setLayout(v_layout)
         
-        message_label = QLabel("<b><u>Only use gpu-acceleration for database creation.</u></b>")
-        v_layout.addWidget(message_label)
+        tip_label_1 = QLabel("<b><u>Must</u> 'Update Settings' before any settings take effect.</b>")
+        tip_label_2 = QLabel("<b><u>RECREATE</u> database if changing Chunk Size/Overlap settings</b>")
+        v_layout.addWidget(tip_label_1)
+        v_layout.addWidget(tip_label_2)
         
         self.setLayout(v_layout)
 

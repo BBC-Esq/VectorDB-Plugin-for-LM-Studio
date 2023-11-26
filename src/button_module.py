@@ -2,9 +2,8 @@ from PySide6.QtWidgets import QPushButton, QLabel, QHBoxLayout, QWidget, QCheckB
 from PySide6.QtCore import Qt
 import voice_recorder_module
 
-def create_button_row(submit_handler):
-
-    voice_recorder = voice_recorder_module.VoiceRecorder()
+def create_button_row(submit_handler, gui_instance):
+    voice_recorder = voice_recorder_module.VoiceRecorder(gui_instance)
 
     def start_recording():
         voice_recorder.start_recording()

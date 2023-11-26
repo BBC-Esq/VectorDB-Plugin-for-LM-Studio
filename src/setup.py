@@ -29,12 +29,14 @@ def display_cuda_message():
     cuda_version = check_cuda_version()
     if cuda_version is None:
         proceed_without_cuda = ctypes.windll.user32.MessageBoxW(0, "No CUDA installation detected. Would you like to proceed with a CPU-only installation?", "CUDA Check", 1) == 1
-        return proceed_without_cuda
+        return None, proceed_without_cuda
     elif cuda_version == "11.8":
-        return ctypes.windll.user32.MessageBoxW(0, "You have the correct CUDA version (11.8). Click OK to proceed.", "CUDA Check", 1) == 1
+        return "11.8", ctypes.windll.user32.MessageBoxW(0, "You have the correct CUDA version (11.8). Click OK to proceed.", "CUDA Check", 1) == 1
+    elif cuda_version == "12.1":
+        return "12.1", ctypes.windll.user32.MessageBoxW(0, "CUDA version 12.1 detected. Click OK to proceed.", "CUDA Check", 1) == 1
     else:
         update_cuda = ctypes.windll.user32.MessageBoxW(0, f"Incorrect version of CUDA installed (Version: {cuda_version}). Would you like to proceed with a CPU-only installation?", "CUDA Check", 1) == 1
-        return update_cuda
+        return None, update_cuda
 
 def manual_installation_confirmation():
     if not user_confirmation("Have you installed Git? Click OK to confirm, or Cancel to exit installation."):
@@ -50,11 +52,14 @@ def setup_windows_installation():
         return
     if not manual_installation_confirmation():
         return
-    cuda_installed = display_cuda_message()
+    cuda_version, cuda_installed = display_cuda_message()
     os.system("python -m pip install --upgrade pip")
     if cuda_installed:
         if user_confirmation("Click OK for Nvidia GPU-acceleration support or Cancel for CPU only."):
-            os.system("pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
+            if cuda_version == "11.8":
+                os.system("pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
+            elif cuda_version == "12.1":
+                os.system("pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121")
         else:
             os.system("pip install torch torchvision torchaudio")
     else:
