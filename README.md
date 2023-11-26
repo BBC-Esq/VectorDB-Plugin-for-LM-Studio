@@ -213,7 +213,7 @@ python gui.py
 
 ## Creating the Databaase
 * The create database button creates the vector database!
-  > ⚠️ Wait until the command prompt "persisted" before proceeding to the next step.
+  > ⚠️ Wait until the command prompt says "persisted" before proceeding to the next step.
   > ⚠️ Remember, you must recreate the database anytime you add/remove documents.
 
 ## Load LM Studio
