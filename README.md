@@ -226,7 +226,7 @@ python gui.py
   * ⚠️ As of LM Studio ```.2.8```, there's a setting to allow you to set the prompt format (and other settings) within LM Studio.
   * It is recommended to DISABLE this setting to allow the program to work out-of-the-box.  However, experienced users can click the "disable" prompt formatting checkbox in the "Server" settings, which will enable you to experiment with the prompt formats provided by LM Studio.
 
-### Search Database
+## Search Database
 * Type your question and click "Submit Questions."
 * You can speak your question to LM Studio using the powerful Ctranslate2 library and state-of-the-art "Whisper" models.  Simply click the Start Recording button...talk...click the Stop Recording button.
 
@@ -267,6 +267,11 @@ python gui.py
     </tbody>
   </table>
 </div>
+
+## Tools
+* You can transcribe audio files to the database folder, which will then be put into the database when you create it.
+* However, just like transcribing a question, if you are using an NVIDIA GPU you must have installed ⚠️CUDA 11.8⚠️ and not CUDA 12.1 since the ```faster-whisper``` library currently doesn't support 12.1 (yet).
+
 </details>
 
 <div align="center"><h2>CONTACT</h2></div>
