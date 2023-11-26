@@ -93,62 +93,56 @@
     <p>The <code>port</code> number in these settings must match the one you've set in LM Studio. If you update it in LM
 	Studio, make sure to update it here as well.</p>
 	
-	<p>The <code>max-tokens</code> setting is <code>-1</code> by default, allows the LLM to provide a response that is
-	unlimited in length.  99% it will cut itself off after sufficiently answering your question, however, so there's
-	little risk in using <code>-1</code>.  However, you can change it to experiment.  Remember, any number here besides
-	<code>-1</code> is in tokens (not characters).</p>
+	<p>The <code>max-tokens</code> setting is <code>-1</code> by default, which allows the LLM to provide a response
+	that is unlimited in length.  Most off the time the LLM will cut itself off after sufficiently answering your
+	question; however, rarely it will repeat itself or ramble.  Therefore, you can change this setting if need be.
+	Remember, any number here besides <code>-1</code> is in tokens (not characters).</p>
 
     <h3>Temperature Setting</h3>
-    <p>The <code>temperature</code> setting can be between 0 and 1, and it determines the creativity of the LLM's response.
+    <p>The <code>temperature</code> setting can be between 0 and 1, and determines the creativity of the LLM's response.
 	Zero means don't be creative.</p>
 
     <h3>Prefix and Suffix</h3>
     <p>The <code>prefix</code> and <code>suffix</code> settings are tailored for LLAMA 2-based models by default, and
-	this also works with <code>Mistral</code> models.  Do not change this setting unless you're 100% sure about the
-	prompt format that a model needs to function efficiently.  Since you just need a basic LLM to answer questions from
-	context you provide, stick with basic models like Llama-2 itself of Mistral, but make sure that the model uses the
-	Llama-2 prompt format.</p>
+	it also works pretty well with <code>Mistral</code> models.  Do not change this setting unless you know what you're
+	doing.  Since you just need a basic LLM to answer questions based on the context from the vector database, I
+	recommend using basic models like Llama-2 itself or Mistral.</p>
+	
+	<p>Within LM Studio, you need to turn OFF the Automatic Prompt Formatting setting within the server tab in order
+	for the program to work best.  However, you can disable the prefix/suffix setting within this program by clicking
+	the "disable" checkbox, just make sure to re-enable the setting in LM Studio and know what you're doing.</p>
 
     <h2>Database Settings</h2>
     <p>The <code>chunk size</code> and <code>chunk overlap</code> settings apply to Langchain's
 	"RecursiveCharacterTextSplitter," which is responsible for splitting the text before it's entered into the
-	vector database.  In short, this program extracts text, chunks it, and then sends the chunks to the embedding
-	model, which then puts it into the vector database.  Feel free to experiment with different chunk sizes to see if
-	it improves the search results.  However, make sure that the chunk size falls under the "token" limit of the embedding
-	model you use.  Different embedding models have different token limits (like different LLM's do).</p>
-	
-	<p>The "chunk" size setting is in the number of characters (not tokens), and one token is approximately four characters.
-	Therefore, if you set the chunk size to 1,200, for example, make sure the embedding modle you choose has a maximum
-	token limit of at least 300.</p>
+	vector database.  These settings are in CHARACTERS not TOKENS.</p>
 
-    <h3>Chunk Size</h3>
-    <p>The RecursiveCharacterTextSplitter tries to create chunks of the specified size, but it adheres to certain criteria
-	as to when it can split chunks.  the specified chunk size as possible. However, it adheres to certain cutoff points
-	such as the end of a paragraph. As such, your text might be split in the middle of two ideas/concepts that are
-	related.  That's where the "overlap" setting comes in.</p>
+	<p>How large the chunks are and whether there is an overlap has a direct impact on the quality of
+	the results received from the vector database.  Feel free to experiment with different settings to see if
+	it improves the search results.  However, make sure that the chunk size falls under the "token" limit of the embedding
+	model you use.  Different embedding models have different token limits (like different LLM's do).  </p>
 	
-	<p>The "chunk overlap" setting (also in characters, not tokens) starts the next chunk to include the specified number
-	of characters of the former chunk so no meaning is lost (ideally).  Feel free to experiment with this setting as well to
-	improve the search results that are fed to the LLM for an answer.  The most important thing to remember, however, is to
-	keep the chunk size within the embedding model's token limit, and make sure to leave enough overall context for the LLM
-	to provide a sufficient response.</p>
+	<p>A token is approximately four (4) characters.  For example, if you set the chunk size to 1,200, make sure the
+	embedding modle you choose has a maximum token limit of at least 300.</p>
 	
-	<p>You can calculate it like this: <code>all chunks + your question + LLM's response</code> should fall within the LLM's token
-	context limit (usually 4096).  If what you send the LLM exceeds 4096 you will get an error message, and even if you don't,
-	the LLM may cut itself off if it doesn't have enough context to provide a sufficient answer (no error message for this).</p>
-	
-	<p>On average, there are four characters per "token" Therefore, if you set the chunk size to 1,200 characters that equals
-	approximately 300 tokens...and if you requst 12 "contexts" from the database, that equals 3,600 tokens, whihc leaves the
-	LLM approximatelyk 496 tokens to provide a response.  This is usually sufficient, but it might not be...just experiment.</p>
+	<p>Ultimately, you must leave enough "context" (in tokens) for the LLM to provide a response.  You can calculate it
+	like this: <code>all chunks + your question + LLM's response</code> should fall within the LLM's token context limit
+	(usually 4096).  If what you send the LLM exceeds 4096 you will get an error message, and even if you don't, the
+	LLM may cut itself off if it doesn't have enough context to provide a sufficient answer (no error message for this).</p>
 	
 	<h2>Whisper Settings</h2>
 	
-	<p> Whisper models are used throughout this program to transcribe your question for the LLM as well as the new feature to
-	transcribe an audio file to put it into the database.  See the User Guide section on this for more details.  Generally,
-	however, you should transcribe your question using CPU and only use GPU acceleration to transcribe an audio file.  If
-	VRAM is short when transcribing an audio file, unload the model from LLM Studio and load it back after the transcription
-	is completed.  Both utilizations of Whisper models remove the model immediately after their done being used in order to
-	conserve valuable VRAM.</p>
+	<p> Whisper models are used throughout this program to transcribe your question for the LLM as well as transcribe an
+	audio file to put it into the database.  See the User Guide section on this for more details.  Generally, you should
+	transcribe your question using CPU and only use GPU acceleration to transcribe an audio file.  If VRAM is especially
+	a concern, unload the model from LLM Studio and load it back after the transcription is completed.  Both uses of
+	Whisper models remove the model immediately after their done being used in order to conserve VRAM.</p>
+	
+	<h2>Test Embeddings</h2>
+	
+	<p>The setting is useful to actually see the "contexts" provided by the vector database.  Checking this box will
+	obtain and display the contexts, and no longer connect to LM Studio.  This is useful for fine-tuning your chunk size
+	and overlap and other settings before connecting to LM Studio.</p>
 	
 	<h2>Break in Case of Emergency</h2>
 	<p>All settings for this progrma are keps in <code>config.yaml</code>.  If you accidentally change a setting you don't

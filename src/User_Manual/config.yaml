@@ -1,41 +1,30 @@
-AVAILABLE_MODELS:
-- BAAI/bge-large-en-v1.5
-- BAAI/bge-base-en-v1.5
-- BAAI/bge-small-en-v1.5
-- thenlper/gte-large
-- thenlper/gte-base
-- thenlper/gte-small
-- hkunlp/instructor-xl
-- hkunlp/instructor-large
-- hkunlp/instructor-base
-- sentence-transformers/all-mpnet-base-v2
-- sentence-transformers/all-MiniLM-L6-v2
-- sentence-transformers/all-MiniLM-L12-v2
-- sentence-transformers/sentence-t5-xxl
-- sentence-transformers/sentence-t5-xl
-- sentence-transformers/sentence-t5-large
-- sentence-transformers/sentence-t5-base
-- sentence-transformers/gtr-t5-xxl
-- sentence-transformers/gtr-t5-xl
-- sentence-transformers/gtr-t5-large
-- sentence-transformers/gtr-t5-base
-- jinaai/jina-embedding-l-en-v1
-- jinaai/jina-embedding-b-en-v1
-- jinaai/jina-embedding-s-en-v1
-- jinaai/jina-embedding-t-en-v1
-COMPUTE_DEVICE: cuda
 Compute_Device:
   available:
-  - cuda
   - cpu
-  database_creation: cuda
+  - cuda
+  database_creation: cpu
   database_query: cpu
-EMBEDDING_MODEL_NAME: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6 - working/Embedding_Models/sentence-transformers--gtr-t5-base
+  gpu_brand: NVIDIA
+EMBEDDING_MODEL_NAME: 
+Platform_Info:
+  os: windows
+Supported_CTranslate2_Quantizations:
+  CPU:
+  - float32
+  - int8_float32
+  - int8
+  GPU:
+  - float32
+  - float16
+  - bfloat16
+  - int8_float32
+  - int8_float16
+  - int8_bfloat16
+  - int8
 database:
-  chunk_overlap: 150
-  chunk_size: 500
-  contexts: 10
-  device: null
+  chunk_overlap: 300
+  chunk_size: 600
+  contexts: 25
   similarity: 0.9
 embedding-models:
   bge:
@@ -49,6 +38,7 @@ server:
   model_max_tokens: -1
   model_temperature: 0.1
   prefix: '[INST]'
+  prompt_format_disabled: false
   suffix: '[/INST]'
 styles:
   button: 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic";
@@ -56,15 +46,14 @@ styles:
   frame: 'background-color: #161b22;'
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
+test_embeddings: false
 transcribe_file:
   device: cpu
-  file: C:/PATH/Scripts/ChromaDB-Plugin-for-LM-Studio/v2_6 - working/test.mp3
-  language: Option 1
-  model: base.en
-  quant: int8
+  file: 
+  model: small.en
+  quant: float32
   timestamps: true
-  translate: false
 transcriber:
-  device: cuda
-  model: base.en
+  device: cpu
+  model: small.en
   quant: float32
