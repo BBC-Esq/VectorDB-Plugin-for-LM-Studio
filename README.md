@@ -42,10 +42,7 @@ You <b>MUST</b> install these before installing my program:<p>
 3) [Git Large File Storage](https://git-lfs.com/).
 4) [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
 
-<div align="center"> <h2>INSTALLATION</h2>
-
-<b>🛑If you have both ```Python 2``` and ```Python 3``` installed, use ```Python3``` and ```pip3``` instead when installing and running this program.🛑</b>
-</div>
+<div align="center"> <h2>INSTALLATION</h2></div>
 
 <details>
   <summary>🪟WINDOWS INSTRUCTIONS🪟</summary>
