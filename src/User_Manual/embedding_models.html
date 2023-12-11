@@ -181,7 +181,7 @@
 	
 	<h2 id="semantic">Semantic Search</h2>
 	
-	<p>Semantic search generally refers to obtaining results that are similar to your query  This includes RAG and other
+	<p>Semantic search generally refers to obtaining results that are similar to your query.  This includes RAG and other
 	tasks, but this program is geared towards RAG.  All of the embedding models with the "Semantic search" description
 	will perform reasonably well for this with a few nuances.</p>
 	
@@ -212,10 +212,10 @@
 	
 	<h2 id="sentence_similarity">Sentence Similarity</h2>
 	
-	<p>There are onlyk three models with this description.  They focus on providing sentences that are very similar to
+	<p>There are only three models with this description.  They focus on providing sentences that are very similar to
 	your question/sentence as possible; for example:</p>
 	
-	<p><b>Quote for me all sentences that discuss the main character in this book eating food</b></p>
+	<p><b>Quote for me all sentences that discuss the main character in this book eating food.</b></p>
 	<p><b>Provide me all sentences verbatim of a court discussing the elements of a defamation claim.</b></p>
 	
 	<p>The search results should be multiple chunks with highly relevant sentences (as opposed to answering a question):</p>
@@ -231,27 +231,25 @@
 	
 	<h2 id="dimensions">Max Sequence and Dimensions</h2>
 	
-	<p>The "max sequence" of an refers to the maximum number of tokens (not characters) that it can process at once.
-	A model's "dimensions" refers to how nuanced a meaning it can extract from text.  A higher "dimensions" means that
+	<p>The "max sequence" of an embedding model refers to the maximum number of tokens (not characters) that it can process at
+	once.  A model's "dimensions" refers to how nuanced a meaning it can extract from text.  A higher "dimensions" means that
 	the model can discern nuanced meanings from very similar text and provide more accurate results.</p>
 	
-	<p>The "max sequence" of a model relates to the "chunk size" setting within the Settings tab. "Chunk size" means
-	that the program strives to chunk text to the specified number of characters (not tokens), and then
-	these chunks are sent to the embedding model.  Therefore, it's important to make sure that chunk size
-	(in characters) doesn't exceed a model's "max sequence" (in tokens).  To analyze this, a general rule of thumb
-	is that a token approximately consists of four (4) characters.  If you set the chunk size to 1200, for example,
-	you would need to make sure the embedding model you're using has a max sequence length of 300+.</p>
-	
-	<p>If the chunks are too large, the embedding model will simply truncate them, but this will make your search
-	less accurate.</p>
+	<p>Within the "Settings" tab, you should set the chunk size to one-fourth (1/4) of the "max sequence" (it's OK to do less)
+	of the embedding model that you plan to use.  This is because approximately four characters equals one (1) token.
+	If the chunks you feed the embedding model are larger than its "max sequence" they will simply be truncated, meaning
+	that you lose valuable data.  There will not be an error for you to notice this happening.  For example, if you set
+	the chunk size to 1200, make sure that the embedding model you choose has a "max sequence" of at least 300.</p>
 	
 	<h2 id="total_context">Total Program Context</h2>
 	
-	<p>Finally, remember to abide by the total context (in tokens) available from the LLM within LM Studio (typically 4096).
-	The program prints in the command prompt the total number of tokens received from the embedding model and sent to
-	the LLM within LM Studio.  To calculate how many tokens the LLM cand respond with, you would subtract the total number
-	of tokens sent to LM Studio from 4096.  For example, if 3096 tokens are sent to LM Studio, the LLM within LM
-	Studio would have 1000 tokens to respond (approximately 4,000 characters).</p>
+	<p>Finally, be mindful of the total context (in tokens) available from the LLM within LM Studio (typically 4096).
+	My program prints in the command prompt the total number of tokens being sent to the LLM within LM Studio.
+	To calculate how many tokens the LLM has left to provide a response, simply simply subtract it's maximum context
+	length by how many tokens you sent it (plus your relatively small query itself).  For example, if your query and
+	the contexts from the vector database equal 1000 tokens, the LLM will have 3096 tokens left to provide a response.</p>
+	
+	<p>You can then adjust the chunk size or the number of chunks to make sure the LLM has enough context to respond.</p>
 
 </main>
 

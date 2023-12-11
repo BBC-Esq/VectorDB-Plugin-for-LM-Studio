@@ -5,7 +5,7 @@ Compute_Device:
   database_creation: cpu
   database_query: cpu
   gpu_brand: NVIDIA
-EMBEDDING_MODEL_NAME: 
+EMBEDDING_MODEL_NAME: null
 Platform_Info:
   os: windows
 Supported_CTranslate2_Quantizations:
@@ -22,9 +22,9 @@ Supported_CTranslate2_Quantizations:
   - int8_bfloat16
   - int8
 database:
-  chunk_overlap: 300
+  chunk_overlap: 200
   chunk_size: 600
-  contexts: 25
+  contexts: 8
   similarity: 0.9
 embedding-models:
   bge:
@@ -38,19 +38,27 @@ server:
   model_max_tokens: -1
   model_temperature: 0.1
   prefix: '[INST]'
+  prefix_chat_ml: <|im_start|>
+  prefix_llama2_and_mistral: '[INST]'
+  prefix_neural_chat: '### User:'
+  prefix_orca2: <|im_start|>user
   prompt_format_disabled: false
   suffix: '[/INST]'
+  suffix_chat_ml: <|im_end|>
+  suffix_llama2_and_mistral: '[/INST]'
+  suffix_neural_chat: '### Assistant:'
+  suffix_orca2: <|im_end|><|im_start|>assistant
 styles:
   button: 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic";
     width: 29;'
   frame: 'background-color: #161b22;'
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
-test_embeddings: false
+test_embeddings: true
 transcribe_file:
   device: cpu
-  file: 
-  model: small.en
+  file: null
+  model: large-v2
   quant: float32
   timestamps: true
 transcriber:

@@ -171,51 +171,42 @@
 </ol>
 
 	
-	<h2 id="transcribe-question">Transcribe Question</h2>
+	<h2 id="transcribe-question">Transcribe Question or Files</h2>
 	
-	<p>The start and stop recording button transcribe your voice to the clipboard, which you can then simply paste
-	into the question box for the LLM.  The quality of the transcription can be controlled from the "Settings" tab.
-	The available Whisper model sizes and quantizations are automatically populated based on your system's capabilities.
-	You can read below what these settings exactly mean.</p>
+	<p>The start and stop recording button transcribe your voice and automatically paste it to the question box.  The quality
+	of the transcription can be controlled from the "Settings" tab in two ways: 1) model size and 2) model quantization.
+	I do not recommend using any model smaller than the <code>small/small.en</code> model.</p>
 	
-	<p>However, feel free to use gpu or cpu acceleration since the Whisper models are immediately unloaded from memory after
-	the transcription is complete in order to conserve system memory.  Remember to click update settings whenever you change
-	the settings, however.</p>
+	<p>I recommend using <code>cpu</code> when transcribing a question and GPU (if available) when transcribing a file.  If you
+	use GPU when transcribing a question it might compete for VRAM with the LLM within LM Studio.  When transcribing a file,
+	however, you should choose a large Whisper model and choose GPU so that the entire Whisper model is in VRAM.  If VRAM is short,
+	this necessitates ejecting the LLM from within LM Studio first.  After the transcription is complete you can simply reload it.</p>
 	
-	<h2 id="transcribe-audio">Transcribe Audio Files for Database</h2>
+	<p>Remember, any time you change any of the settings within the Settings tab, you must click the button to update settings.
+	However, the settings within the "Tools" tabe ARE updated automatically as soon as you change them.</p>
 	
-	<p>The "Tools" tab includes a new feature to transcribe audio files of any length and put a <code>.txt</code> file in the folder
-	holding the files to put into the vector database.  Once the transcription is complete, it will automatically put the file there.
-	Remember, you must re-created the database anytime you want to add/remove a file from it.</p>
+	<p>The "Tools" tab includes a feature to transcribe an audio file to a <code>.txt</code> file within the
+	"Docs_for_DB" folder, which will be put into the vector database whenever you create it.  Remember, you must re-create the
+	database anytime you add/remove files from this folder.</p>
 	
-	<p>I highly recommend using GPU-acceleration if available since transcribing an audio file takes a lot longer than a simple question.
-	The settings for transcribing an audio file are separate than the voice-transcribe settings.  Therefore, changing one does not
-	change the other.  Read more below about the Whisper models and quantization to ensure you're getting the most out of this
-	powerful new feature.  And batch processing is coming in the future.</p>
-	
-	<h2 id="whisper-models">Whisper Models and Quants</h2>
+	<h2 id="whisper-models">Engligh/Non-English Whisper Models and Quantizations</h2>
 	
 	<h3>English versus Non-English Models</h3>
 	
-	<p>Use models ending in <code>.en</code> if you speak English.  The <code>large-v2</code> model doesn't come in an
-	English-specific variant becauase it's just good at everything.</p>
+	<p>You should use Whisper models ending in <code>.en</code> when speaking English.  You'll notice that the <code>large-v2</code>
+	model doesn't have a <code>.en</code> variant, however, because it's just good at all languages.</p>
 	
-	<h3>My Recommendations</h3>
+	<h3>Recommended Size and Quantizations</h3>
 	
-	<p>The size of the model is most important factor followed by quantization.  For transcribing your questions, I recommend
-	<code>small.en</code> with <code>float32</code> for everyday usage (using CPU).  Regarding transcribing an audio file, always
-	use GPU if available.  I also recommend using as large of a Whisper model as possible and then either a quantization of
-	<code>float32</code>, <code>float16</code>, or <code>bfloat16</code> so you don't have to re-transcribe it.  Also, don't
-	forget to check the timestamps option if you want.</p>
-	
-	<p>If you're trying to transcribe a file using your CPU, it heavily depends on your CPU, but be aware that using the CPU is
-	about 500x slower than even a mediocre GPU.  Even then, I wouldn't recommend going below <code>small/small.en</code> because
-	there is a significant jump in quality between <code>base</code> and <code>small</code>.
+	<p>The size of the model is most important factor followed by quantization.  For transcribing your question, I recommend
+	<code>small.en</code> with <code>float32</code> using CPU. When transcribing a file, however, I strongly recommend using GPU, the
+	largest model that will fit entirely in VRAM, and <code>float32</code> (but no less than <code>float16/bfloat16</code> quantization).
+	You only want to transcribe a accurately the first time, whereas you can easily correct mistakes when transcribing a simple question.
+	Also, don't forget timestamps if you want them.</p>
 	
 	<h2 id="additional-info">Additional Info</h2>
 	
-	<p>Below is a table of all Whisper models I've quantized as well, and below that, a primer about floating point formats
-	and quantization!</p>
+	<p>Below is interesting information about the Whisper models I've quantized, floating point formats, and quantizations!</p>
 	
 	<h2 id="available-models">Available Whisper Models and Quants</h2>
 	
