@@ -18,13 +18,13 @@
         <td>Nvidia</td>
         <td>✅</td>
         <td>✅</td>
-        <td>CUDA</td>
+        <td>CUDA 11.8 (not 12+)</td>
       </tr>
       <tr>
         <td>AMD</td>
         <td>❌</td>
         <td>✅</td>
-        <td>ROCm 5.6</td>
+        <td>ROCm 5.6 (5.7 unknown)</td>
       </tr>
       <tr>
         <td>Apple/Metal</td>
