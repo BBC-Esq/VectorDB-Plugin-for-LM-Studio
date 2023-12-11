@@ -28,12 +28,8 @@ def get_supported_quantizations(device_type):
     types = ctranslate2.get_supported_compute_types(device_type)
     filtered_types = [q for q in types if q != 'int16']
 
-    # Define the desired order of quantizations
     desired_order = ['float32', 'float16', 'bfloat16', 'int8_float32', 'int8_float16', 'int8_bfloat16', 'int8']
-
-    # Sort the filtered_types based on the desired order
     sorted_types = [q for q in desired_order if q in filtered_types]
-
     return sorted_types
 
 def update_config_file(**system_info):
@@ -44,13 +40,11 @@ def update_config_file(**system_info):
     config_data['Compute_Device'].setdefault('database_creation', 'cpu')
     config_data['Compute_Device'].setdefault('database_query', 'cpu')
 
-    # Add supported quantizations for CPU and GPU
     config_data['Supported_CTranslate2_Quantizations'] = {
         'CPU': get_supported_quantizations('cpu'),
         'GPU': get_supported_quantizations('cuda') if torch.cuda.is_available() else []
     }
 
-    # Update other keys
     for key, value in system_info.items():
         if key != 'Compute_Device' and key != 'Supported_CTranslate2_Quantizations':
             config_data[key] = value

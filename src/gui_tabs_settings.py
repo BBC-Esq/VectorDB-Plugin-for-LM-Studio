@@ -1,10 +1,9 @@
-from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout, QWidget, QMessageBox
+from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout, QWidget, QMessageBox, QLabel
 from gui_tabs_settings_server import ServerSettingsTab
 # from gui_tabs_settings_models import ModelsSettingsTab
     # Commented out unless/until modifying BGE and Instructor settings become useful
 from gui_tabs_settings_whisper import TranscriberSettingsTab
 from gui_tabs_settings_database import DatabaseSettingsTab
-# from gui_tabs_settings_chunks import ChunkSettingsTab
 
 def update_all_configs(configs):
     updated = any(config.update_config() for config in configs.values())
@@ -28,8 +27,7 @@ class GuiSettingsTab(QWidget):
         classes = {
             "Server/LLM Settings": (ServerSettingsTab, 3),
             "Voice Recorder Settings": (TranscriberSettingsTab, 1),
-            "Database Settings": (DatabaseSettingsTab, 4),
-            # "Chunking Settings": (ChunkSettingsTab, 4),
+            "Database Settings": (DatabaseSettingsTab, 3),
         }
 
         self.groups = {}
@@ -61,6 +59,13 @@ class GuiSettingsTab(QWidget):
         center_button_layout.addWidget(self.update_all_button)
         center_button_layout.addStretch(1)
 
+        tip_label_1 = QLabel("<b><u>Must</u> 'Update Settings' before any settings take effect.</b>")
+        tip_label_2 = QLabel("<b><u>Must recreate</u> database if changing Chunk Size/Overlap settings</b>")
+        self.layout.addWidget(tip_label_1)
+        self.layout.addWidget(tip_label_2)
+
+        self.setLayout(self.layout)
+        
         self.layout.addLayout(center_button_layout)
         self.setLayout(self.layout)
         adjust_stretch(self.groups, self.layout)

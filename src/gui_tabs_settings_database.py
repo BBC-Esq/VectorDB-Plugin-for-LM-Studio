@@ -52,13 +52,6 @@ class DatabaseSettingsTab(QWidget):
         v_layout.addLayout(h_layout1)
         v_layout.addLayout(h_layout2)
         self.setLayout(v_layout)
-        
-        tip_label_1 = QLabel("<b><u>Must</u> 'Update Settings' before any settings take effect.</b>")
-        tip_label_2 = QLabel("<b><u>RECREATE</u> database if changing Chunk Size/Overlap settings</b>")
-        v_layout.addWidget(tip_label_1)
-        v_layout.addWidget(tip_label_2)
-        
-        self.setLayout(v_layout)
 
     def update_config(self):
         with open('config.yaml', 'r') as f:

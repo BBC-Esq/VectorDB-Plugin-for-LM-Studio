@@ -57,7 +57,7 @@ class TranscribeFile:
         total_duration = len(audio)
         my_cprint(f"Total audio duration: {total_duration / 1000} seconds", 'yellow')
 
-        segments_generator, _ = model.transcribe(audio_file)
+        segments_generator, _ = model.transcribe(audio_file, beam_size=1)
         segments = []
 
         accumulated_duration = 0
@@ -122,3 +122,45 @@ class TranscribeFile:
         with open(output_file, 'w', encoding='utf-8') as file:
             file.write(transcription_text)
         my_cprint(f"Transcription saved to {output_file}.", 'white')
+        
+        """
+                                      def TranscribeFile
+                          (Initialize transcription configuration)
+                                         │
+                                         │
+                                         │
+                                         ▼
+                              def start_transcription_thread
+                          (Starts a new transcription process)
+                                         │
+                                         │
+                                         │
+                                         ▼
+                         ┌───────────────────────────────────────┐
+                         │     def transcribe_worker             │
+                         │ (Runs in a separate process for each  │
+                         │  audio file, utilizing multiprocessing│
+                         │  with specified CPU threads)          │
+                         └───────────────────────────────────────┘
+                                         │
+                                         │
+                                         │
+                                         ▼
+                       ┌───────────────────────────────────────┐
+                       │   WhisperModel.transcribe             │
+                       │ (Transcribes audio segments and sends │
+                       │  progress updates through a pipe)     │
+                       └───────────────────────────────────────┘
+                                         │
+                                         │
+                                         │
+                                         ▼
+                          def format_transcription
+                       (Formats transcription with timestamps)
+                                         │
+                                         │
+                                         │
+                                         ▼
+                             def save_transcription
+                      (Saves the transcribed text to a file)
+"""

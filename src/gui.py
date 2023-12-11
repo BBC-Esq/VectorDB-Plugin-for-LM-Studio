@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QTabWidget,
-    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox
+    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox, QHBoxLayout
 )
-from PySide6.QtCore import Qt, QThread, Signal, QUrl
-from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtCore import Qt
 import os
+import torch
 import yaml
 import sys
 from initialize import main as initialize_system
@@ -15,7 +15,7 @@ from choose_documents import choose_documents_directory
 import create_database
 from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
-from button_module import create_button_row
+import voice_recorder_module
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
 
 class DocQA_GUI(QWidget):
@@ -29,6 +29,12 @@ class DocQA_GUI(QWidget):
         self.init_menu()
         self.load_config()
         
+    def is_nvidia_gpu(self):
+        if torch.cuda.is_available():
+            gpu_name = torch.cuda.get_device_name(0)
+            return "nvidia" in gpu_name.lower()
+        return False
+    
     def load_config(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
         config_path = os.path.join(script_dir, 'config.yaml')
@@ -52,7 +58,7 @@ class DocQA_GUI(QWidget):
         # Buttons data
         button_data = [
             ("Download Embedding Model", lambda: download_embedding_model(self)),
-            ("Set Embedding Model Directory", select_embedding_model_directory),
+            ("Choose Embedding Model Directory", select_embedding_model_directory),
             ("Choose Documents for Database", choose_documents_directory),
             ("Create Vector Database", self.on_create_button_clicked)
         ]
@@ -88,7 +94,7 @@ class DocQA_GUI(QWidget):
         right_vbox.addWidget(self.test_embeddings_checkbox)
 
         # Create and add button row
-        button_row_widget = create_button_row(self.on_submit_button_clicked, self)
+        button_row_widget = self.create_button_row(self.on_submit_button_clicked)
         right_vbox.addWidget(button_row_widget)
 
         right_frame.setLayout(right_vbox)
@@ -96,8 +102,10 @@ class DocQA_GUI(QWidget):
 
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(main_splitter)
+        
         # Metrics bar
         main_layout.addWidget(self.metrics_bar)
+        self.metrics_bar.setMaximumHeight(75 if self.is_nvidia_gpu() else 30)
 
     def init_menu(self):
         self.menu_bar = QMenuBar(self)
@@ -143,8 +151,35 @@ class DocQA_GUI(QWidget):
         self.text_input.setPlainText(text)
 
     def closeEvent(self, event):
-        self.metrics_bar.stop_monitors()
+        self.metrics_bar.stop_metrics_collector()
         event.accept()
+
+    def create_button_row(self, submit_handler):
+        voice_recorder = voice_recorder_module.VoiceRecorder(self)
+
+        def start_recording():
+            voice_recorder.start_recording()
+
+        def stop_recording():
+            voice_recorder.stop_recording()
+
+        start_button = QPushButton("Start Recording")
+        start_button.clicked.connect(start_recording)
+
+        stop_button = QPushButton("Stop Recording")
+        stop_button.clicked.connect(stop_recording)
+
+        hbox = QHBoxLayout()
+        hbox.addWidget(start_button)
+        hbox.addWidget(stop_button)
+
+        hbox.setStretchFactor(start_button, 3)
+        hbox.setStretchFactor(stop_button, 3)
+
+        row_widget = QWidget()
+        row_widget.setLayout(hbox)
+
+        return row_widget
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

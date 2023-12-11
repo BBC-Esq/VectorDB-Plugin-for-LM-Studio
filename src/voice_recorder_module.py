@@ -20,7 +20,7 @@ def my_cprint(*args, **kwargs):
 class TranscriptionThread(QThread):
     transcription_complete = Signal(str)
 
-    def __init__(self, audio_file, model):
+    def __init__(self, audio_file, model): # Can add additional parameters from the transcribe method of WhisperModel class here
         super().__init__()
         self.audio_file = audio_file
         self.model = model
@@ -112,3 +112,45 @@ class VoiceRecorder:
             torch.cuda.empty_cache()
         gc.collect()
         my_cprint("Whisper model removed from memory.", 'red')
+
+"""
+                                      def VoiceRecorder
+                             (Manages voice recording and transcription)
+                                         │
+                                         │
+                                         │
+                                         ▼
+                              def start_recording
+                (Initializes recording parameters and starts recording thread)
+                                         │
+                                         │
+                                         │
+                                         ▼
+                          ┌───────────────────────────────────────┐
+                          │     def RecordingThread.run          │
+                          │ (Runs the voice recording in a thread│
+                          │  and saves the audio file)           │
+                          └───────────────────────────────────────┘
+                                         │
+                                         │
+                                         │
+                                         ▼
+                             def save_audio
+         (Stops recording, saves audio, and starts transcription thread)
+                                         │
+                                         │
+                                         │
+                                         ▼
+                         ┌───────────────────────────────────────┐
+                         │    def TranscriptionThread.run        │
+                         │ (Transcribes the audio file in a     │
+                         │  separate thread and emits a signal  │
+                         │  when transcription is complete)     │
+                         └───────────────────────────────────────┘
+                                         │
+                                         │
+                                         │
+                                         ▼
+                          def ReleaseTranscriber
+                     (Releases resources used by the transcriber)
+"""

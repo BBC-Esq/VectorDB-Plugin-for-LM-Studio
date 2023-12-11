@@ -7,7 +7,6 @@ import yaml
 import torch
 from transformers import AutoTokenizer
 from termcolor import cprint
-# from memory_profiler import profile
 import gc
 import tempfile
 import subprocess
@@ -43,19 +42,17 @@ CHROMA_SETTINGS = Settings(
 )
 
 def write_contexts_to_file_and_open(contexts):
-    with open('contexts.txt', 'w') as file:
+    with open('contexts.txt', 'w', encoding='utf-8') as file:
         for index, context in enumerate(contexts, start=1):
             file.write(f"------------ Context {index} ---------------\n\n\n")
             file.write(context + "\n\n\n")
     temp_file_path = 'contexts.txt'
 
-    # Open with platform-specific default application
     if os.name == 'nt':
         os.startfile(temp_file_path)
     elif os.name == 'posix':
         subprocess.run(['open', temp_file_path])
 
-# @profile
 def connect_to_local_chatgpt(prompt):
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
@@ -71,7 +68,6 @@ def connect_to_local_chatgpt(prompt):
     openai.api_base = openai_api_base
     openai.api_key = openai_api_key
 
-    # Check if prompt formatting is disabled
     if prompt_format_disabled:
         formatted_prompt = prompt
     else:
@@ -85,12 +81,10 @@ def connect_to_local_chatgpt(prompt):
     )
     return response.choices[0].message["content"]
 
-# @profile
 def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
     my_cprint("Attempting to connect to server.", "yellow")
     print_cuda_memory()
 
-    # Read settings from config.yaml every function call
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
         test_embeddings = config.get('test_embeddings', False)
@@ -171,7 +165,6 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     
     return {"answer": response_json, "sources": relevant_contexts}
 
-# @profile
 def interact_with_chat(user_input):
     my_cprint("interact_with_chat function", "yellow")
     global last_response

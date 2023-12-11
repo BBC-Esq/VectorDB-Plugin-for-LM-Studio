@@ -20,7 +20,6 @@ from langchain.document_loaders import (
     UnstructuredMarkdownLoader
 )
 
-# Import DOCUMENT_LOADERS from constants.py
 from constants import DOCUMENT_LOADERS
 
 ENABLE_PRINT = True
@@ -35,7 +34,6 @@ ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
 INGEST_THREADS = os.cpu_count() or 8
 
-# Replace class names in DOCUMENT_LOADERS with actual classes
 for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
 

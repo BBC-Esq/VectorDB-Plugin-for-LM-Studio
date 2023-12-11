@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox, QComboBox
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
 
@@ -7,14 +7,14 @@ class ServerSettingsTab(QWidget):
         super(ServerSettingsTab, self).__init__()
 
         with open('config.yaml', 'r') as file:
-            config_data = yaml.safe_load(file)
-            self.connection_str = config_data.get('server', {}).get('connection_str', '')
+            self.config_data = yaml.safe_load(file)
+            self.connection_str = self.config_data.get('server', {}).get('connection_str', '')
             self.current_port = self.connection_str.split(":")[-1].split("/")[0]
-            self.current_max_tokens = config_data.get('server', {}).get('model_max_tokens', '')
-            self.current_temperature = config_data.get('server', {}).get('model_temperature', '')
-            self.current_prefix = config_data.get('server', {}).get('prefix', '')
-            self.current_suffix = config_data.get('server', {}).get('suffix', '')
-            self.prompt_format_disabled = config_data.get('server', {}).get('prompt_format_disabled', False)
+            self.current_max_tokens = self.config_data.get('server', {}).get('model_max_tokens', '')
+            self.current_temperature = self.config_data.get('server', {}).get('model_temperature', '')
+            self.current_prefix = self.config_data.get('server', {}).get('prefix', '')
+            self.current_suffix = self.config_data.get('server', {}).get('suffix', '')
+            self.prompt_format_disabled = self.config_data.get('server', {}).get('prompt_format_disabled', False)
 
         settings_dict = {
             'port': {"placeholder": "Enter new port...", "validator": QIntValidator(), "current": self.current_port},
@@ -36,8 +36,13 @@ class ServerSettingsTab(QWidget):
 
         prompt_format_label = QLabel("Prompt Format:")
         layout.addWidget(prompt_format_label, 2, 0)
+        
+        self.prompt_format_combobox = QComboBox()
+        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat", "Orca2"])
+        layout.addWidget(self.prompt_format_combobox, 2, 1)
+        self.prompt_format_combobox.currentIndexChanged.connect(self.update_prefix_suffix)
 
-        disable_label = QLabel("Disable")
+        disable_label = QLabel("Disable:")
         layout.addWidget(disable_label, 2, 2)
 
         self.disable_checkbox = QCheckBox()
@@ -47,8 +52,8 @@ class ServerSettingsTab(QWidget):
 
         layout.addWidget(self.create_label('prefix', settings_dict), 3, 0)
         layout.addWidget(self.create_edit('prefix', settings_dict), 3, 1)
-        layout.addWidget(self.create_label('suffix', settings_dict), 3, 2)
-        layout.addWidget(self.create_edit('suffix', settings_dict), 3, 3)
+        layout.addWidget(self.create_label('suffix', settings_dict), 4, 0)
+        layout.addWidget(self.create_edit('suffix', settings_dict), 4, 1)
 
         self.setLayout(layout)
 
@@ -69,6 +74,21 @@ class ServerSettingsTab(QWidget):
             )
         self.widgets[setting]['edit'] = edit
         return edit
+
+    def update_prefix_suffix(self, index):
+        option = self.prompt_format_combobox.currentText()
+
+        key_mapping = {
+            "ChatML": ("prefix_chat_ml", "suffix_chat_ml"),
+            "Llama2/Mistral": ("prefix_llama2_and_mistral", "suffix_llama2_and_mistral"),
+            "Neural Chat": ("prefix_neural_chat", "suffix_neural_chat"),
+            "Orca2": ("prefix_orca2", "suffix_orca2"),
+        }
+
+        prefix_key, suffix_key = key_mapping.get(option, ("", ""))
+
+        self.widgets['prefix']['edit'].setText(self.config_data.get('server', {}).get(prefix_key, ''))
+        self.widgets['suffix']['edit'].setText(self.config_data.get('server', {}).get(suffix_key, ''))
 
     def update_config(self):
         with open('config.yaml', 'r') as file:
