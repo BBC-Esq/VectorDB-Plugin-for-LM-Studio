@@ -60,19 +60,25 @@ class DatabaseSettingsTab(QWidget):
         settings_changed = False
 
         # Update device configurations
-        device_types = ["creation", "query"]
-        for device_type, combo in zip(device_types, self.device_combos):
-            current_device = config_data['Compute_Device'][f'database_{device_type}']
-            new_device = combo.currentText()
-            if current_device != new_device:
-                config_data['Compute_Device'][f'database_{device_type}'] = new_device
+        device_map = {
+            'database_creation': (self.device_combos[0], 'currentText', str, 'Create Device'),
+            'database_query': (self.device_combos[1], 'currentText', str, 'Query Device')
+        }
+
+        for setting, (widget, getter, caster, label_prefix) in device_map.items():
+            new_value = getattr(widget, getter)()
+            if new_value != config_data['Compute_Device'].get(setting, ''):
                 settings_changed = True
+                config_data['Compute_Device'][setting] = caster(new_value)
+                
+                # Update label text to reflect new device setting
+                label = widget.parentWidget().findChildren(QLabel)[0]
+                label.setText(f"{label_prefix}: {new_value}")
 
         # Update database settings
         for setting, widget in self.field_data.items():
             new_value = widget.text()
-            current_value = config_data['database'].get(setting, '')
-            if new_value and new_value != str(current_value):
+            if new_value and new_value != str(config_data['database'].get(setting, '')):
                 settings_changed = True
                 config_data['database'][setting] = float(new_value) if setting == 'similarity' else int(new_value)
                 self.label_data[setting].setText(f"{setting.replace('_', ' ').capitalize()}: {new_value}")
