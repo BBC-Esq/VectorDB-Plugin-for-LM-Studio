@@ -204,9 +204,63 @@
 	You only want to transcribe a accurately the first time, whereas you can easily correct mistakes when transcribing a simple question.
 	Also, don't forget timestamps if you want them.</p>
 	
+	<p>Here is a table to give you an idea of the tradeoff of using CUDA/CPU and a few quantizations, as they impact memory and time:</p>
+	
 	<h2 id="additional-info">Additional Info</h2>
 	
 	<p>Below is interesting information about the Whisper models I've quantized, floating point formats, and quantizations!</p>
+	
+<style type="text/css">
+#T_7a207_ td {
+  background-color: #b3e0ff;
+}
+#T_7a207_ th {
+  background-color: none;
+}
+#T_7a207_row0_col1, #T_7a207_row0_col3, #T_7a207_row1_col1, #T_7a207_row1_col3, #T_7a207_row2_col1, #T_7a207_row2_col3, #T_7a207_row3_col1, #T_7a207_row3_col3 {
+  text-align: center;
+}
+</style>
+<table id="T_7a207_">
+  <thead>
+    <tr>
+      <th class="col_heading level0 col0" >Model</th>
+      <th class="col_heading level0 col1" >Compute Platform</th>
+      <th class="col_heading level0 col2" >Transcription Time</th>
+      <th class="col_heading level0 col3" >Memory Used</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td id="T_7a207_row0_col0" class="data row0 col0" >Large v2 (float32)</td>
+      <td id="T_7a207_row0_col1" class="data row0 col1" >CUDA</td>
+      <td id="T_7a207_row0_col2" class="data row0 col2" >8 min 25 sec</td>
+      <td id="T_7a207_row0_col3" class="data row0 col3" >7 GB VRAM</td>
+    </tr>
+    <tr>
+      <td id="T_7a207_row1_col0" class="data row1 col0" >Large v2 (float16)</td>
+      <td id="T_7a207_row1_col1" class="data row1 col1" >CUDA</td>
+      <td id="T_7a207_row1_col2" class="data row1 col2" >7 min 15 sec</td>
+      <td id="T_7a207_row1_col3" class="data row1 col3" >5 GB VRAM</td>
+    </tr>
+    <tr>
+      <td id="T_7a207_row2_col0" class="data row2 col0" >Large v2 (int8)</td>
+      <td id="T_7a207_row2_col1" class="data row2 col1" >CUDA</td>
+      <td id="T_7a207_row2_col2" class="data row2 col2" >12 min 25 sec</td>
+      <td id="T_7a207_row2_col3" class="data row2 col3" >3.1 GB VRAM</td>
+    </tr>
+    <tr>
+      <td id="T_7a207_row3_col0" class="data row3 col0" >Large v2 (float32)</td>
+      <td id="T_7a207_row3_col1" class="data row3 col1" >CPU</td>
+      <td id="T_7a207_row3_col2" class="data row3 col2" >103 min 30 sec</td>
+      <td id="T_7a207_row3_col3" class="data row3 col3" >12 GB RAM</td>
+    </tr>
+  </tbody>
+</table>
+
+	<p>All CUDA tests were done with an RTX 4090 and the CPU test was done with an 13900k (using 28 out of 32 logical cores).
+	The audio file was 2 hours and 24 minutes long <code>.flac</code> file.</p>
+
 	
 	<h2 id="available-models">Available Whisper Models and Quants</h2>
 	
