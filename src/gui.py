@@ -11,8 +11,7 @@ from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
-from choose_documents import choose_documents_directory
-from see_documents import see_documents_directory
+from choose_documents import choose_documents_directory, see_documents_directory
 import create_database
 from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
