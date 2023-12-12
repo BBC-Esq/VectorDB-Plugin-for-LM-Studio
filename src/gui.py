@@ -11,7 +11,7 @@ from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
-from choose_documents import choose_documents_directory
+from choose_documents import choose_documents_directory, see_documents_directory
 import create_database
 from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
@@ -60,9 +60,10 @@ class DocQA_GUI(QWidget):
             ("Download Embedding Model", lambda: download_embedding_model(self)),
             ("Choose Embedding Model Directory", select_embedding_model_directory),
             ("Choose Documents for Database", choose_documents_directory),
+            ("See Currently Chosen Documents", see_documents_directory),
             ("Create Vector Database", self.on_create_button_clicked)
         ]
-        button_positions = [(1, 0), (1, 1), (2, 0), (2, 1)]
+        button_positions = [(1, 0), (1, 1), (2, 0), (2, 1), (3, 0)]
         
         # Create and add buttons
         for position, (text, handler) in zip(button_positions, button_data):
