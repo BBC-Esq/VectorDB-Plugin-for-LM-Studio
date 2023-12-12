@@ -77,9 +77,14 @@ def connect_to_local_chatgpt(prompt):
         model="local model",
         temperature=model_temperature,
         max_tokens=model_max_tokens,
-        messages=[{"role": "user", "content": formatted_prompt}]
+        messages=[{"role": "user", "content": formatted_prompt}],
+        stream=True
     )
-    return response.choices[0].message["content"]
+
+    for chunk in response:
+        if 'choices' in chunk and len(chunk['choices']) > 0 and 'delta' in chunk['choices'][0] and 'content' in chunk['choices'][0]['delta']:
+            chunk_message = chunk['choices'][0]['delta']['content']
+            yield chunk_message
 
 def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
     my_cprint("Attempting to connect to server.", "yellow")
@@ -156,6 +161,9 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     my_cprint(f"Total number of tokens in contexts: {total_tokens}", "yellow")
 
     response_json = connect_to_local_chatgpt(augmented_query)
+
+    for chunk_message in response_json:
+        yield chunk_message
 
     del embeddings.client
     del embeddings

@@ -22,6 +22,7 @@ class DocQA_GUI(QWidget):
     def __init__(self):
         super().__init__()
         initialize_system()
+        self.cumulative_response = ""
         self.metrics_bar = MetricsBar()
         self.compute_device = self.metrics_bar.determine_compute_device()
         os_name = self.metrics_bar.get_os_name()
@@ -130,6 +131,7 @@ class DocQA_GUI(QWidget):
     def on_submit_button_clicked(self):
         user_question = self.text_input.toPlainText()
         self.submit_button_thread = SubmitButtonThread(user_question, self)
+        self.cumulative_response = ""
         self.submit_button_thread.responseSignal.connect(self.update_response)
         self.submit_button_thread.start()
 
@@ -146,7 +148,8 @@ class DocQA_GUI(QWidget):
             yaml.dump(config, file)
 
     def update_response(self, response):
-        self.read_only_text.setPlainText(response)
+        self.cumulative_response += response
+        self.read_only_text.setPlainText(self.cumulative_response)
 
     def update_transcription(self, text):
         self.text_input.setPlainText(text)
