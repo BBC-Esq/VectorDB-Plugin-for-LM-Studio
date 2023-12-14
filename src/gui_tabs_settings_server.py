@@ -38,7 +38,7 @@ class ServerSettingsTab(QWidget):
         layout.addWidget(prompt_format_label, 2, 0)
         
         self.prompt_format_combobox = QComboBox()
-        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat", "Orca2"])
+        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat", "Orca2", "Llava 13B", "Obsidian 3B"])
         layout.addWidget(self.prompt_format_combobox, 2, 1)
         self.prompt_format_combobox.currentIndexChanged.connect(self.update_prefix_suffix)
 
@@ -83,6 +83,8 @@ class ServerSettingsTab(QWidget):
             "Llama2/Mistral": ("prefix_llama2_and_mistral", "suffix_llama2_and_mistral"),
             "Neural Chat": ("prefix_neural_chat", "suffix_neural_chat"),
             "Orca2": ("prefix_orca2", "suffix_orca2"),
+            "Llava 13B": ("prefix_llava_13B", "suffix_llava_13B"),
+            "Obsidian 3B": ("prefix_obsidian_3B", "suffix_obsidian_3B"),
         }
 
         prefix_key, suffix_key = key_mapping.get(option, ("", ""))

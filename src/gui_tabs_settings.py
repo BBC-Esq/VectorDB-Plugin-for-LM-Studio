@@ -61,8 +61,10 @@ class GuiSettingsTab(QWidget):
 
         tip_label_1 = QLabel("<b><u>Must</u> 'Update Settings' before any settings take effect.</b>")
         tip_label_2 = QLabel("<b><u>Must recreate</u> database if changing Chunk Size/Overlap settings</b>")
+        tip_label_3 = QLabel("🚨<b><u>Linux/Mac users READ THE UPDATED INSTRUCTIONS ON GITHUB!!!!</u></b>🚨")
         self.layout.addWidget(tip_label_1)
         self.layout.addWidget(tip_label_2)
+        self.layout.addWidget(tip_label_3)
 
         self.setLayout(self.layout)
         

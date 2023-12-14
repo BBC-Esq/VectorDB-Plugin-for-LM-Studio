@@ -41,17 +41,28 @@ CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
 )
 
+contexts_output_file_path = "contexts.txt"
+metadata_output_file_path = "metadata.txt"
+
+def save_metadata_to_file(metadata_list, output_file_path):
+    with open(output_file_path, 'w', encoding='utf-8') as output_file:
+        for metadata in metadata_list:
+            output_file.write(str(metadata) + '\n')
+
+def format_metadata_as_citations(metadata_list):
+    citations = [os.path.basename(metadata['file_path']) for metadata in metadata_list]
+    return "\n".join(citations)
+
 def write_contexts_to_file_and_open(contexts):
-    with open('contexts.txt', 'w', encoding='utf-8') as file:
+    with open(contexts_output_file_path, 'w', encoding='utf-8') as file:
         for index, context in enumerate(contexts, start=1):
             file.write(f"------------ Context {index} ---------------\n\n\n")
             file.write(context + "\n\n\n")
-    temp_file_path = 'contexts.txt'
-
+    
     if os.name == 'nt':
-        os.startfile(temp_file_path)
+        os.startfile(contexts_output_file_path)
     elif os.name == 'posix':
-        subprocess.run(['open', temp_file_path])
+        subprocess.run(['open', contexts_output_file_path])
 
 def connect_to_local_chatgpt(prompt):
     with open('config.yaml', 'r') as config_file:
@@ -77,10 +88,8 @@ def connect_to_local_chatgpt(prompt):
         model="local model",
         temperature=model_temperature,
         max_tokens=model_max_tokens,
-        messages=[{"role": "user", "content": formatted_prompt}],
-        stream=True
+        messages=[{"role": "user", "content": formatted_prompt}], stream=True
     )
-
     for chunk in response:
         if 'choices' in chunk and len(chunk['choices']) > 0 and 'delta' in chunk['choices'][0] and 'content' in chunk['choices'][0]['delta']:
             chunk_message = chunk['choices'][0]['delta']['content']
@@ -146,8 +155,10 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
     relevant_contexts = retriever.get_relevant_documents(query)
     contexts = [document.page_content for document in relevant_contexts]
+    metadata_list = [document.metadata for document in relevant_contexts]
 
-    # Is test_embeddings is True?
+    save_metadata_to_file(metadata_list, metadata_output_file_path)
+
     if test_embeddings:
         write_contexts_to_file_and_open(contexts)
         return {"answer": "Contexts written to temporary file and opened", "sources": relevant_contexts}
@@ -165,19 +176,26 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     for chunk_message in response_json:
         yield chunk_message
 
+    yield "\n\n"
+    
+    citations = format_metadata_as_citations(metadata_list)
+    
+    unique_citations = []
+    for citation in citations.split("\n"):
+        if citation not in unique_citations:
+            unique_citations.append(citation)
+    
+    yield "\n".join(unique_citations)
+
     del embeddings.client
     del embeddings
     torch.cuda.empty_cache()
     gc.collect()
     my_cprint("Embedding model removed from memory.", "red")
-    
+
     return {"answer": response_json, "sources": relevant_contexts}
 
-def interact_with_chat(user_input):
-    my_cprint("interact_with_chat function", "yellow")
-    global last_response
-    response = ask_local_chatgpt(user_input)
-    answer = response['answer']
-    last_response = answer
-    
-    return answer
+
+if __name__ == "__main__":
+    user_input = "Your query here"
+    interact_with_chat(user_input)

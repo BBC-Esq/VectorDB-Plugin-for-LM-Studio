@@ -2,6 +2,7 @@ import sys
 import subprocess
 import os
 import ctypes
+import shutil  # Import the shutil library
 
 def user_confirmation(message):
     return ctypes.windll.user32.MessageBoxW(0, message, "Confirmation", 1) == 1
@@ -66,6 +67,17 @@ def setup_windows_installation():
     os.system("python -m pip install --upgrade pip")
     install_pytorch(cuda_version, cuda_installed)
     os.system("pip install -r requirements.txt")
+
+    source_path = "User_Manual/pdf.py"
+    target_path = "Lib/site-packages/langchain/document_loaders/parsers/pdf.py"
+
+    try:
+        shutil.copy(source_path, target_path)
+    except FileNotFoundError:
+        print("Warning: pdf.py not found in User_Manual folder.")
+    except Exception as e:
+        print(f"An error occurred while moving pdf.py: {e}")
+
     print("Installation completed successfully.")
     print("Run 'Python gui.py' to start program.")
 

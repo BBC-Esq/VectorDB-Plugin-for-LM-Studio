@@ -17,7 +17,6 @@ def choose_documents_directory():
             symlink_target = os.path.join(docs_folder, os.path.basename(file_path))
             os.symlink(file_path, symlink_target)
 
-
 def see_documents_directory():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     docs_folder = os.path.join(current_dir, "Docs_for_DB")

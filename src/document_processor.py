@@ -7,7 +7,7 @@ from concurrent.futures import ProcessPoolExecutor
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import (
-    PDFMinerLoader,
+    PyMuPDFLoader,
     Docx2txtLoader,
     TextLoader,
     JSONLoader,
@@ -49,8 +49,13 @@ def load_single_document(file_path: str) -> Document:
         raise ValueError("Document type is undefined")
     
     document = loader.load()[0]
-    
+    '''
+    # Write the content to a .txt file
+    with open("output_load_single_document.txt", "w", encoding="utf-8") as output_file:
+        output_file.write(document.page_content)
+    '''
     return document
+
 
 def load_document_batch(filepaths):
     with ThreadPoolExecutor(len(filepaths)) as exe:
@@ -66,7 +71,6 @@ def load_documents(source_dir: str) -> list[Document]:
     my_cprint(f"Number of workers assigned: {n_workers}", "magenta")
     chunksize = round(len(paths) / n_workers)
     
-    # Checking if chunksize is zero
     if chunksize == 0:
         raise ValueError(f"chunksize must be a non-zero integer, but got {chunksize}. len(paths): {len(paths)}, n_workers: {n_workers}")
     
@@ -79,7 +83,7 @@ def load_documents(source_dir: str) -> list[Document]:
             docs.extend(contents)
             my_cprint(f"Number of files loaded: {len(docs)}", "magenta")
     
-    return docs
+    return docs # end of first invocation by create_database.py
 
 def split_documents(documents):
     my_cprint(f"Splitting documents.", "magenta")
@@ -106,7 +110,3 @@ def split_documents(documents):
         my_cprint(f"Chunks between {lower_bound} and {upper_bound} characters: {count}", "magenta")
     
     return texts
-
-if __name__ == "__main__":
-    documents = load_documents(SOURCE_DIRECTORY)
-    split_documents(documents)

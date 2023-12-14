@@ -131,6 +131,9 @@ Run this script if you want to doublecheck that you installed the Pytorch and gp
 ```
 python check_gpu.py
 ```
+### Step 11
+🚨🚨🚨You must copy the ```pdf.py``` file within the ```User_Manual``` folder to the following folder: ```[folder holding this program]\Lib\site-packages\langchain\document_loaders\parsers```.🚨🚨🚨.<br><br>This will REPLACE the ```pdf.py``` file there.  This is crucial to get the 80x speedup on PDF loading in version 2.7.2+.  Moreover, the PDF loading WILL NOT WORK at all unless you do this properly.
+
 </details>
 
 <details>
@@ -177,6 +180,8 @@ Run this script if you want to doublecheck that you installed the Pytorch and gp
 ```
 python check_gpu.py
 ```
+### Step 11
+🚨🚨🚨You must copy the ```pdf.py``` file within the ```User_Manual``` folder to the following folder: ```[folder holding this program]\Lib\site-packages\langchain\document_loaders\parsers```.🚨🚨🚨.<br><br>This will REPLACE the ```pdf.py``` file there.  This is crucial to get the 80x speedup on PDF loading in version 2.7.2+.  Moreover, the PDF loading WILL NOT WORK at all unless you do this properly.
 
 </details>
 
@@ -267,7 +272,7 @@ python gui.py
 
 ## Tools
 * You can transcribe audio files to the database folder, which will then be put into the database when you create it.
-* However, just like transcribing a question, if you are using an NVIDIA GPU you must have installed ⚠️CUDA 11.8⚠️ and not CUDA 12.1 since the ```faster-whisper``` library currently doesn't support 12.1 (yet).
+* However, just like transcribing a question, if you are using an NVIDIA GPU you must have installed ⚠️CUDA 11.8⚠️ and not CUDA 12.1 since the ```faster-whisper``` library currently doesn't support 12.1 WITHOUTH having to compile from source, which most users don't/can't do.
 
 </details>
 
@@ -277,7 +282,5 @@ All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or 
 
 <div align="center">
   <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example.png" alt="Example Image">
-  <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" alt="Example Image2">
-  <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" alt="Example Image3">
   <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" alt="Example Image4">
 </div>

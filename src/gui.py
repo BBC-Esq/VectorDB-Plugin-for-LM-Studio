@@ -12,6 +12,7 @@ from metrics_bar import MetricsBar
 from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
 from choose_documents import choose_documents_directory, see_documents_directory
+from choose_documents import choose_documents_directory
 import create_database
 from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
@@ -21,8 +22,8 @@ from utilities import list_theme_files, make_theme_changer, load_stylesheet
 class DocQA_GUI(QWidget):
     def __init__(self):
         super().__init__()
-        initialize_system()
         self.cumulative_response = ""
+        initialize_system()
         self.metrics_bar = MetricsBar()
         self.compute_device = self.metrics_bar.determine_compute_device()
         os_name = self.metrics_bar.get_os_name()
