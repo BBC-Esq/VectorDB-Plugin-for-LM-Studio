@@ -10,6 +10,7 @@ class CreateDatabaseThread(QThread):
 
 class SubmitButtonThread(QThread):
     responseSignal = Signal(str)
+    errorSignal = Signal()
 
     def __init__(self, user_question, parent=None, callback=None):
         super(SubmitButtonThread, self).__init__(parent)
@@ -17,8 +18,12 @@ class SubmitButtonThread(QThread):
         self.callback = callback
 
     def run(self):
-        response = server_connector.ask_local_chatgpt(self.user_question)
-        for response_chunk in response:
-            self.responseSignal.emit(response_chunk)
-        if self.callback:
-            self.callback()
+        try:
+            response = server_connector.ask_local_chatgpt(self.user_question)
+            for response_chunk in response:
+                self.responseSignal.emit(response_chunk)
+            if self.callback:
+                self.callback()
+        except Exception as err:
+            self.errorSignal.emit()
+            print(err)

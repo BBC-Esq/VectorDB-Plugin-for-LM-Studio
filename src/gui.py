@@ -142,6 +142,7 @@ class DocQA_GUI(QWidget):
             self.submit_button_thread = SubmitButtonThread(user_question, self, self.enable_submit_button)
             self.cumulative_response = ""
             self.submit_button_thread.responseSignal.connect(self.update_response)
+            self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
             self.submit_button_thread.start()
 
     def on_test_embeddings_changed(self):
