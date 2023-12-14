@@ -77,10 +77,8 @@ def connect_to_local_chatgpt(prompt):
         model="local model",
         temperature=model_temperature,
         max_tokens=model_max_tokens,
-        messages=[{"role": "user", "content": formatted_prompt}],
-        stream=True
+        messages=[{"role": "user", "content": formatted_prompt}], stream=True
     )
-
     for chunk in response:
         if 'choices' in chunk and len(chunk['choices']) > 0 and 'delta' in chunk['choices'][0] and 'content' in chunk['choices'][0]['delta']:
             chunk_message = chunk['choices'][0]['delta']['content']
@@ -164,7 +162,7 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
     for chunk_message in response_json:
         yield chunk_message
-
+    
     del embeddings.client
     del embeddings
     torch.cuda.empty_cache()

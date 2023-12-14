@@ -34,13 +34,16 @@ if __name__ == '__main__':
     source_directory = "Docs_for_DB"
     validate_symbolic_links(source_directory)
     
-# Print GPU memory stats in script
-# def print_cuda_memory():
-    # if ENABLE_CUDA_PRINT:
-        # max_allocated_memory = torch.cuda.max_memory_allocated()
-        # memory_allocated = torch.cuda.memory_allocated()
-        # reserved_memory = torch.cuda.memory_reserved()
+'''
+Print GPU memory stats in script
+def print_cuda_memory():
+    if ENABLE_CUDA_PRINT:
+        max_allocated_memory = torch.cuda.max_memory_allocated()
+        memory_allocated = torch.cuda.memory_allocated()
+        reserved_memory = torch.cuda.memory_reserved()
 
-        # my_cprint(f"Max CUDA memory allocated: {max_allocated_memory / (1024**2):.2f} MB", "green")
-        # my_cprint(f"Total CUDA memory allocated: {memory_allocated / (1024**2):.2f} MB", "yellow")
-        # my_cprint(f"Total CUDA memory reserved: {reserved_memory / (1024**2):.2f} MB", "yellow")
+        my_cprint(f"Max CUDA memory allocated: {max_allocated_memory / (1024**2):.2f} MB", "green")
+        my_cprint(f"Total CUDA memory allocated: {memory_allocated / (1024**2):.2f} MB", "yellow")
+        my_cprint(f"Total CUDA memory reserved: {reserved_memory / (1024**2):.2f} MB", "yellow")
+        print_cuda_memory()
+'''

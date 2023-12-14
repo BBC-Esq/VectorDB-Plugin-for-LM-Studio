@@ -281,7 +281,7 @@ AVAILABLE_MODELS = [
 ]
 
 DOCUMENT_LOADERS = {
-    ".pdf": "PDFMinerLoader",
+    ".pdf": "PyMuPDFLoader",
     ".docx": "Docx2txtLoader",
     ".txt": "TextLoader",
     ".json": "JSONLoader",
@@ -291,6 +291,7 @@ DOCUMENT_LOADERS = {
     ".csv": "UnstructuredCSVLoader",
     ".xls": "UnstructuredExcelLoader",
     ".xlsx": "UnstructuredExcelLoader",
+    ".xlsm": "UnstructuredExcelLoader",
     ".rtf": "UnstructuredRTFLoader",
     ".odt": "UnstructuredODTLoader",
     ".md": "UnstructuredMarkdownLoader",
