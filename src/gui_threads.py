@@ -17,4 +17,5 @@ class SubmitButtonThread(QThread):
 
     def run(self):
         response = server_connector.ask_local_chatgpt(self.user_question)
-        self.responseSignal.emit(response['answer'])
+        for response_chunk in response:
+            self.responseSignal.emit(response_chunk)
