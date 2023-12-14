@@ -272,7 +272,7 @@ python gui.py
 
 ## Tools
 * You can transcribe audio files to the database folder, which will then be put into the database when you create it.
-* However, just like transcribing a question, if you are using an NVIDIA GPU you must have installed ⚠️CUDA 11.8⚠️ and not CUDA 12.1 since the ```faster-whisper``` library currently doesn't support 12.1 (yet).
+* However, just like transcribing a question, if you are using an NVIDIA GPU you must have installed ⚠️CUDA 11.8⚠️ and not CUDA 12.1 since the ```faster-whisper``` library currently doesn't support 12.1 WITHOUTH having to compile from source, which most users don't/can't do.
 
 </details>
 
