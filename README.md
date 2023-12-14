@@ -131,6 +131,9 @@ Run this script if you want to doublecheck that you installed the Pytorch and gp
 ```
 python check_gpu.py
 ```
+### Step 11
+🚨🚨🚨You must copy the ```pdf.py``` file within the ```User_Manual``` folder to the following folder: ```[folder holding this program]\Lib\site-packages\langchain\document_loaders\parsers```.🚨🚨🚨.<br><br>This will REPLACE the ```pdf.py``` file there.  This is crucial to get the 80x speedup on PDF loading in version 2.7.2+.  Moreover, the PDF loading WILL NOT WORK at all unless you do this properly.
+
 </details>
 
 <details>
@@ -177,6 +180,8 @@ Run this script if you want to doublecheck that you installed the Pytorch and gp
 ```
 python check_gpu.py
 ```
+### Step 11
+🚨🚨🚨You must copy the ```pdf.py``` file within the ```User_Manual``` folder to the following folder: ```[folder holding this program]\Lib\site-packages\langchain\document_loaders\parsers```.🚨🚨🚨.<br><br>This will REPLACE the ```pdf.py``` file there.  This is crucial to get the 80x speedup on PDF loading in version 2.7.2+.  Moreover, the PDF loading WILL NOT WORK at all unless you do this properly.
 
 </details>
 
