@@ -27,10 +27,11 @@ class DocQA_GUI(QWidget):
         self.metrics_bar = MetricsBar()
         self.compute_device = self.metrics_bar.determine_compute_device()
         os_name = self.metrics_bar.get_os_name()
+        self.submit_button = None
         self.init_ui()
         self.init_menu()
         self.load_config()
-        
+
     def is_nvidia_gpu(self):
         if torch.cuda.is_available():
             gpu_name = torch.cuda.get_device_name(0)
@@ -88,9 +89,9 @@ class DocQA_GUI(QWidget):
         right_vbox.addWidget(self.read_only_text, 4)
         right_vbox.addWidget(self.text_input, 1)
 
-        submit_questions_button = QPushButton("Submit Questions")
-        submit_questions_button.clicked.connect(self.on_submit_button_clicked)
-        right_vbox.addWidget(submit_questions_button)
+        self.submit_button = QPushButton("Submit Questions")
+        self.submit_button.clicked.connect(self.on_submit_button_clicked)
+        right_vbox.addWidget(self.submit_button)
 
         self.test_embeddings_checkbox = QCheckBox("Test Embeddings")
         self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
@@ -129,12 +130,20 @@ class DocQA_GUI(QWidget):
         self.create_database_thread = CreateDatabaseThread(self)
         self.create_database_thread.start()
 
+    def enable_submit_button(self):
+        self.submit_button.setDisabled(False)
+        self.submit_button.setText("Submit Questions")
+
     def on_submit_button_clicked(self):
-        user_question = self.text_input.toPlainText()
-        self.submit_button_thread = SubmitButtonThread(user_question, self)
-        self.cumulative_response = ""
-        self.submit_button_thread.responseSignal.connect(self.update_response)
-        self.submit_button_thread.start()
+        if self.submit_button.isEnabled():
+            self.submit_button.setDisabled(True)
+            self.submit_button.setText("Processing...")
+            user_question = self.text_input.toPlainText()
+            self.submit_button_thread = SubmitButtonThread(user_question, self, self.enable_submit_button)
+            self.cumulative_response = ""
+            self.submit_button_thread.responseSignal.connect(self.update_response)
+            self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
+            self.submit_button_thread.start()
 
     def on_test_embeddings_changed(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -151,6 +160,7 @@ class DocQA_GUI(QWidget):
     def update_response(self, response):
         self.cumulative_response += response
         self.read_only_text.setPlainText(self.cumulative_response)
+        self.submit_button.setDisabled(False)
 
     def update_transcription(self, text):
         self.text_input.setPlainText(text)
