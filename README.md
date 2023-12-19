@@ -18,7 +18,7 @@
         <td>Nvidia</td>
         <td>✅</td>
         <td>✅</td>
-        <td>CUDA 11.8 (not 12+)</td>
+        <td>CUDA 11.8</td>
       </tr>
       <tr>
         <td>AMD</td>
