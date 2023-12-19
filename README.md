@@ -53,7 +53,7 @@ You <b>MUST</b> install these before installing my program:<p>
 
 🔴 AMD GPU - PyTorch does not currently support AMD GPUs on Windows - only Linux.  There are several possible workarounds but I'm unable to verify since I don't have an AMD GPU.  You can look [HERE](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html), [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
 ### Step 2
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone before an official release is created.
 ### Step 3
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
@@ -86,7 +86,7 @@ python check_gpu.py
 > [THIS REPO](https://github.com/nktice/AMD-AI) might also help if AMD's instructions aren't clear.
 
 ### Step 2
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone before an official release is created.
 ### Step 3
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
@@ -144,7 +144,7 @@ All Macs with MacOS 12.3+ come with 🔘 Metal/MPS, which is Apple's implementat
 ### Step 2
 Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 ### Step 3
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone before an official release is created.
 ### Step 4
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
