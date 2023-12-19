@@ -2,7 +2,7 @@ import sys
 import subprocess
 import os
 import ctypes
-import shutil  # Import the shutil library
+import shutil
 
 def user_confirmation(message):
     return ctypes.windll.user32.MessageBoxW(0, message, "Confirmation", 1) == 1
@@ -13,8 +13,7 @@ def check_python_version_and_confirm():
         ctypes.windll.user32.MessageBoxW(0, "This program is currently only compatible with Python 3.10 or 3.11.", "Python Version Error", 0)
         return False
     elif major >= 3 and minor >= 12:
-        ctypes.windll.user32.MessageBoxW(0, "This program is currently only compatible with Python 3.10 or 3.11.", "Python Version Error", 0)
-        return False
+        return user_confirmation("Detected Python version is 3.12 or greater, which is not officially supported. Click OK to proceed with the installation anyway, or Cancel to stop.")
     else:
         return user_confirmation(f"Python version {sys.version.split()[0]} detected. Click OK to proceed with the installation, or Cancel to stop.")
 
