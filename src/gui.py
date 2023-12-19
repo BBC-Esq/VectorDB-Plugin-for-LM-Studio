@@ -7,6 +7,7 @@ import os
 import torch
 import yaml
 import sys
+import threading  # Import threading
 from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from download_model import download_embedding_model
@@ -18,6 +19,9 @@ from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
 import voice_recorder_module
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
+
+# Import BarkAudio from bark_module
+from bark_module import BarkAudio
 
 class DocQA_GUI(QWidget):
     def __init__(self):
@@ -93,9 +97,15 @@ class DocQA_GUI(QWidget):
         self.submit_button.clicked.connect(self.on_submit_button_clicked)
         right_vbox.addWidget(self.submit_button)
 
+        # Test Embeddings checkbox and Bark button
+        checkbox_button_hbox = QHBoxLayout()
         self.test_embeddings_checkbox = QCheckBox("Test Embeddings")
         self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
-        right_vbox.addWidget(self.test_embeddings_checkbox)
+        checkbox_button_hbox.addWidget(self.test_embeddings_checkbox)
+        bark_button = QPushButton("Bark")
+        bark_button.clicked.connect(self.on_bark_button_clicked)  # Connect to the new handler
+        checkbox_button_hbox.addWidget(bark_button)
+        right_vbox.addLayout(checkbox_button_hbox)
 
         # Create and add button row
         button_row_widget = self.create_button_row(self.on_submit_button_clicked)
@@ -195,6 +205,15 @@ class DocQA_GUI(QWidget):
         row_widget.setLayout(hbox)
 
         return row_widget
+
+    # Handler for the Bark button click
+    def on_bark_button_clicked(self):
+        threading.Thread(target=self.run_bark_module).start()
+
+    # Method to instantiate and run BarkAudio
+    def run_bark_module(self):
+        bark_audio = BarkAudio()  # Instantiate BarkAudio when the button is clicked
+        bark_audio.run()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

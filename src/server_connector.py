@@ -173,11 +173,25 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
     response_json = connect_to_local_chatgpt(augmented_query)
 
+    full_response = []
+
     for chunk_message in response_json:
+        if full_response and isinstance(full_response[-1], str):
+            full_response[-1] += chunk_message
+        else:
+            full_response.append(chunk_message)
+
         yield chunk_message
+
+    # Save the full response to chat_history.txt
+    with open('chat_history.txt', 'w', encoding='utf-8') as file:
+        for message in full_response:
+            file.write(message)
 
     yield "\n\n"
     
+    # LLM's response complete
+    # format and append citations
     citations = format_metadata_as_citations(metadata_list)
     
     unique_citations = []
@@ -194,7 +208,6 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
     my_cprint("Embedding model removed from memory.", "red")
 
     return {"answer": response_json, "sources": relevant_contexts}
-
 
 if __name__ == "__main__":
     user_input = "Your query here"

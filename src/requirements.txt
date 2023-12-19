@@ -18,5 +18,8 @@ PyAudio==0.2.14
 faster-whisper==0.10.0
 termcolor==2.3.0
 pypandoc==1.12
-pydub==0.25.1
 PyYAML==6.0.1
+transformers==4.36.0
+accelerate==0.25.0
+optimum==1.15.0
+pydub==0.25.1
