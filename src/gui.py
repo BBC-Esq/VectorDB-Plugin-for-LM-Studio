@@ -2,12 +2,12 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QTabWidget,
     QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox, QHBoxLayout
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 import os
 import torch
 import yaml
 import sys
-import threading  # Import threading
+import threading
 from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from download_model import download_embedding_model
@@ -19,8 +19,6 @@ from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
 import voice_recorder_module
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
-
-# Import BarkAudio from bark_module
 from bark_module import BarkAudio
 
 class DocQA_GUI(QWidget):
@@ -103,7 +101,7 @@ class DocQA_GUI(QWidget):
         self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
         checkbox_button_hbox.addWidget(self.test_embeddings_checkbox)
         bark_button = QPushButton("Bark")
-        bark_button.clicked.connect(self.on_bark_button_clicked)  # Connect to the new handler
+        bark_button.clicked.connect(self.on_bark_button_clicked)
         checkbox_button_hbox.addWidget(bark_button)
         right_vbox.addLayout(checkbox_button_hbox)
 
@@ -140,20 +138,25 @@ class DocQA_GUI(QWidget):
         self.create_database_thread = CreateDatabaseThread(self)
         self.create_database_thread.start()
 
+    def on_submit_button_clicked(self):
+        self.submit_button.setDisabled(True)
+        self.submit_button.setText("Processing...")
+        user_question = self.text_input.toPlainText()
+        self.submit_button_thread = SubmitButtonThread(user_question, self)
+        self.cumulative_response = ""
+        self.submit_button_thread.responseSignal.connect(self.update_response)
+        self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
+        self.submit_button_thread.start()
+
+        # Start a timer for 7 seconds to reset the button
+        self.reset_timer = QTimer(self)
+        self.reset_timer.setSingleShot(True)
+        self.reset_timer.timeout.connect(self.enable_submit_button)
+        self.reset_timer.start(7000)  # 7 seconds
+
     def enable_submit_button(self):
         self.submit_button.setDisabled(False)
         self.submit_button.setText("Submit Questions")
-
-    def on_submit_button_clicked(self):
-        if self.submit_button.isEnabled():
-            self.submit_button.setDisabled(True)
-            self.submit_button.setText("Processing...")
-            user_question = self.text_input.toPlainText()
-            self.submit_button_thread = SubmitButtonThread(user_question, self, self.enable_submit_button)
-            self.cumulative_response = ""
-            self.submit_button_thread.responseSignal.connect(self.update_response)
-            self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
-            self.submit_button_thread.start()
 
     def on_test_embeddings_changed(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -206,13 +209,11 @@ class DocQA_GUI(QWidget):
 
         return row_widget
 
-    # Handler for the Bark button click
     def on_bark_button_clicked(self):
         threading.Thread(target=self.run_bark_module).start()
 
-    # Method to instantiate and run BarkAudio
     def run_bark_module(self):
-        bark_audio = BarkAudio()  # Instantiate BarkAudio when the button is clicked
+        bark_audio = BarkAudio()
         bark_audio.run()
 
 if __name__ == '__main__':
