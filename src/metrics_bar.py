@@ -8,11 +8,14 @@ import pynvml
 import torch
 import platform
 
-# Initialize NVIDIA Management Library (NVML)
-pynvml.nvmlInit()
+def is_nvidia_gpu_available():
+    return torch.cuda.is_available() and "nvidia" in torch.cuda.get_device_name(0).lower()
 
-# Get the handle for the first GPU
-handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+if is_nvidia_gpu_available():
+    pynvml.nvmlInit()
+    handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+else:
+    handle = None
 
 class MetricsCollector(QThread):
     metrics_updated = Signal(tuple)
