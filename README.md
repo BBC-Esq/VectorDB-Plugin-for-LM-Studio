@@ -161,6 +161,14 @@ python -m pip install --upgrade pip
 ```
 ### Step 7
 ```
+pip3 install torch torchvision torchaudio
+```
+* And if that fails OR YOU GET CUDA-RELATED ERRORS when creating the database (e.g. if using M1, which is ARM-based), run:
+```
+pip uninstall torch torchvision torchaudio
+```
+The reinstall using this:
+```
 pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 -f https://download.pytorch.org/whl/cpu/torch_stable.html
 ```
 ### Step 8
