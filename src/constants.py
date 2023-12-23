@@ -286,6 +286,7 @@ DOCUMENT_LOADERS = {
     ".txt": "TextLoader",
     ".json": "JSONLoader",
     ".enex": "EverNoteLoader",
+    ".epub": "UnstructuredEPubLoader",
     ".eml": "UnstructuredEmailLoader",
     ".msg": "UnstructuredEmailLoader",
     ".csv": "UnstructuredCSVLoader",

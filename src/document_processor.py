@@ -11,6 +11,7 @@ from langchain.document_loaders import (
     TextLoader,
     JSONLoader,
     EverNoteLoader,
+    UnstructuredEPubLoader,
     UnstructuredEmailLoader,
     UnstructuredCSVLoader,
     UnstructuredExcelLoader,
@@ -37,19 +38,21 @@ for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
 
 def load_single_document(file_path: Path) -> Document:
-    file_extension = file_path.suffix
+    file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
 
     if loader_class:
         if file_extension == ".txt":
             loader = loader_class(str(file_path), encoding='utf-8')
         elif file_extension == ".json":
-            jq_schema = ".[]"  # Schema to get all objects in the array
+            jq_schema = ".[]"  # Assuming you still want to keep JSON loading with the previous schema
             loader = loader_class(str(file_path), jq_schema=jq_schema)
+        elif file_extension == ".epub":
+            loader = UnstructuredEPubLoader(str(file_path), mode="single")
         else:
             loader = loader_class(str(file_path))
     else:
-        raise ValueError("Document type is undefined")
+        raise ValueError(f"Document type for extension {file_extension} is undefined")
 
     document = loader.load()[0]
     '''
