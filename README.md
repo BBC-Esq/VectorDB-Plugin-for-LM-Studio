@@ -161,7 +161,7 @@ python -m pip install --upgrade pip
 ```
 ### Step 7
 ```
-pip install torch torchvision torchaudio
+pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 -f https://download.pytorch.org/whl/cpu/torch_stable.html
 ```
 ### Step 8
 ```
