@@ -26,8 +26,10 @@ def see_documents_directory():
     # Cross-platform directory opening
     if os.name == 'nt':  # Windows
         subprocess.Popen(['explorer', str(docs_folder)])
-    elif os.name == 'posix':  # MacOS and Linux
+    elif sys.platform == 'darwin':  # macOS
         subprocess.Popen(['open', str(docs_folder)])
+    elif sys.platform.startswith('linux'):  # Linux
+        subprocess.Popen(['xdg-open', str(docs_folder)])
 
 if __name__ == '__main__':
     app = QApplication([])
