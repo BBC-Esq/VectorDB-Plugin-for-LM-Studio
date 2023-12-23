@@ -9,7 +9,6 @@ from langchain.document_loaders import (
     PyMuPDFLoader,
     Docx2txtLoader,
     TextLoader,
-    JSONLoader,
     EverNoteLoader,
     UnstructuredEPubLoader,
     UnstructuredEmailLoader,
@@ -44,9 +43,6 @@ def load_single_document(file_path: Path) -> Document:
     if loader_class:
         if file_extension == ".txt":
             loader = loader_class(str(file_path), encoding='utf-8')
-        elif file_extension == ".json":
-            jq_schema = ".[]"  # Assuming you still want to keep JSON loading with the previous schema
-            loader = loader_class(str(file_path), jq_schema=jq_schema)
         elif file_extension == ".epub":
             loader = UnstructuredEPubLoader(str(file_path), mode="single")
         else:

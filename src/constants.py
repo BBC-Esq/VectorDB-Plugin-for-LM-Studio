@@ -284,7 +284,6 @@ DOCUMENT_LOADERS = {
     ".pdf": "PyMuPDFLoader",
     ".docx": "Docx2txtLoader",
     ".txt": "TextLoader",
-    ".json": "JSONLoader",
     ".enex": "EverNoteLoader",
     ".epub": "UnstructuredEPubLoader",
     ".eml": "UnstructuredEmailLoader",
