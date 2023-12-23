@@ -4,6 +4,7 @@ from gui_tabs_settings_server import ServerSettingsTab
     # Commented out unless/until modifying BGE and Instructor settings become useful
 from gui_tabs_settings_whisper import TranscriberSettingsTab
 from gui_tabs_settings_database import DatabaseSettingsTab
+from gui_tabs_settings_bark import BarkModelSettingsTab
 
 def update_all_configs(configs):
     updated = any(config.update_config() for config in configs.values())
@@ -28,6 +29,7 @@ class GuiSettingsTab(QWidget):
             "Server/LLM Settings": (ServerSettingsTab, 3),
             "Voice Recorder Settings": (TranscriberSettingsTab, 1),
             "Database Settings": (DatabaseSettingsTab, 3),
+            "Bark Settings": (BarkModelSettingsTab, 1),
         }
 
         self.groups = {}
@@ -59,8 +61,8 @@ class GuiSettingsTab(QWidget):
         center_button_layout.addWidget(self.update_all_button)
         center_button_layout.addStretch(1)
 
-        tip_label_1 = QLabel("<b><u>Must</u> 'Update Settings' before any settings take effect.</b>")
-        tip_label_2 = QLabel("<b><u>Must recreate</u> database if changing Chunk Size/Overlap settings</b>")
+        tip_label_1 = QLabel("<b><u>Must</u> click 'Update Settings' to take effect.</b>")
+        tip_label_2 = QLabel("<b><u>Must recreate</u> database if changing Chunk Size/Overlap.</b>")
         tip_label_3 = QLabel("🚨<b><u>Linux/Mac users READ THE UPDATED INSTRUCTIONS ON GITHUB!!!!</u></b>🚨")
         self.layout.addWidget(tip_label_1)
         self.layout.addWidget(tip_label_2)

@@ -20,6 +20,7 @@ from gui_threads import CreateDatabaseThread, SubmitButtonThread
 import voice_recorder_module
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
 from bark_module import BarkAudio
+from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP
 
 class DocQA_GUI(QWidget):
     def __init__(self):
@@ -97,10 +98,12 @@ class DocQA_GUI(QWidget):
 
         # Test Embeddings checkbox and Bark button
         checkbox_button_hbox = QHBoxLayout()
-        self.test_embeddings_checkbox = QCheckBox("Test Embeddings")
+        self.test_embeddings_checkbox = QCheckBox("Chunks Only")
+        self.test_embeddings_checkbox.setToolTip(CHUNKS_ONLY_TOOLTIP)
         self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
         checkbox_button_hbox.addWidget(self.test_embeddings_checkbox)
-        bark_button = QPushButton("Bark")
+        bark_button = QPushButton("Bark Response")
+        bark_button.setToolTip(SPEAK_RESPONSE_TOOLTIP)
         bark_button.clicked.connect(self.on_bark_button_clicked)
         checkbox_button_hbox.addWidget(bark_button)
         right_vbox.addLayout(checkbox_button_hbox)
@@ -148,11 +151,11 @@ class DocQA_GUI(QWidget):
         self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
         self.submit_button_thread.start()
 
-        # Start a timer for 7 seconds to reset the button
+        # timer to reset button
         self.reset_timer = QTimer(self)
         self.reset_timer.setSingleShot(True)
         self.reset_timer.timeout.connect(self.enable_submit_button)
-        self.reset_timer.start(7000)  # 7 seconds
+        self.reset_timer.start(3000)  # 3 seconds
 
     def enable_submit_button(self):
         self.submit_button.setDisabled(False)
@@ -180,6 +183,8 @@ class DocQA_GUI(QWidget):
 
     def closeEvent(self, event):
         self.metrics_bar.stop_metrics_collector()
+        # active_threads = threading.enumerate()
+        # print(f"Active threads at GUI close: {active_threads}")
         event.accept()
 
     def create_button_row(self, submit_handler):
@@ -210,7 +215,9 @@ class DocQA_GUI(QWidget):
         return row_widget
 
     def on_bark_button_clicked(self):
-        threading.Thread(target=self.run_bark_module).start()
+        bark_thread = threading.Thread(target=self.run_bark_module)
+        bark_thread.daemon = True
+        bark_thread.start()
 
     def run_bark_module(self):
         bark_audio = BarkAudio()

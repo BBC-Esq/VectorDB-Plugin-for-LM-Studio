@@ -2,7 +2,7 @@ Compute_Device:
   available:
   - cpu
   - cuda
-  database_creation: cpu
+  database_creation: cuda
   database_query: cpu
   gpu_brand: NVIDIA
 EMBEDDING_MODEL_NAME: 
@@ -21,9 +21,15 @@ Supported_CTranslate2_Quantizations:
   - int8_float16
   - int8_bfloat16
   - int8
+bark:
+  enable_cpu_offload: false
+  model_precision: float16
+  size: small
+  speaker: v2/en_speaker_6
+  use_better_transformer: true
 database:
   chunk_overlap: 250
-  chunk_size: 700
+  chunk_size: 750
   contexts: 8
   similarity: 0.9
 embedding-models:
@@ -37,7 +43,7 @@ server:
   connection_str: http://localhost:1234/v1
   model_max_tokens: -1
   model_temperature: 0.1
-  prefix: '[INST]'
+  prefix: '### User:'
   prefix_chat_ml: <|im_start|>
   prefix_llama2_and_mistral: '[INST]'
   prefix_llava_13B: '### Instruction:\\n'
@@ -45,7 +51,7 @@ server:
   prefix_obsidian_3B: <|im_start|>user\n
   prefix_orca2: <|im_start|>user
   prompt_format_disabled: false
-  suffix: '[/INST]'
+  suffix: '### Assistant:'
   suffix_chat_ml: <|im_end|>
   suffix_llama2_and_mistral: '[/INST]'
   suffix_llava_13B: \\n### Response:\\n
@@ -58,7 +64,7 @@ styles:
   frame: 'background-color: #161b22;'
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
-test_embeddings: true
+test_embeddings: false
 transcribe_file:
   device: cpu
   file: null

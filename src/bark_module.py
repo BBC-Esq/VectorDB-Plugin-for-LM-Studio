@@ -1,47 +1,127 @@
+import warnings
 import threading
 import queue
 from transformers import AutoProcessor, BarkModel
 import torch
 import numpy as np
 import re
-import time
 import pyaudio
 import gc
+import yaml
+from termcolor import cprint
+import platform
+
+warnings.filterwarnings("ignore", message="torch.nn.utils.weight_norm is deprecated in favor of torch.nn.utils.parametrizations.weight_norm.")
+
+ENABLE_PRINT = True
+
+def my_cprint(*args, **kwargs):
+    if ENABLE_PRINT:
+        filename = "bark_module.py"
+        modified_message = f"{filename}: {args[0]}"
+        cprint(modified_message, *args[1:], **kwargs)
 
 class BarkAudio:
     def __init__(self):
-        self.processor = AutoProcessor.from_pretrained("suno/bark-small")
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.model = BarkModel.from_pretrained("suno/bark-small", torch_dtype=torch.float16).to(self.device)
-        self.model = self.model.to_bettertransformer()
-        # self.model.enable_cpu_offload()
-
+        self.load_config()
+        self.initialize_model_and_processor()
         self.sentence_queue = queue.Queue()
         self.processing_queue = queue.Queue()
         self.start_time = None
+        self.running = True
+        self.lock = threading.Lock()
+
+    def load_config(self):
+        with open('config.yaml', 'r') as file:
+            self.config = yaml.safe_load(file)['bark']
+
+    def initialize_model_and_processor(self):
+        os_name = platform.system().lower()
+
+        # set compute device
+        if torch.cuda.is_available():
+            if torch.version.hip and os_name == 'linux':
+                self.device = "cuda:0"
+            elif torch.version.cuda and os_name == 'windows':
+                self.device = "cuda:0"
+            elif torch.version.hip and os_name == 'windows':
+                self.device = "cpu"
+            else:
+                self.device = "cpu"
+        elif torch.backends.mps.is_available():
+            self.device = "mps"
+        elif os_name == 'darwin':
+            self.device = "cpu"
+        else:
+            self.device = "cpu"
+        
+        my_cprint(f"Selected compute device: {self.device}", "white")
+        
+        # load processor
+        if self.config['size'] == 'small':
+            self.processor = AutoProcessor.from_pretrained("suno/bark-small")
+            my_cprint("Bark processor loaded.", "green")
+        else:
+            self.processor = AutoProcessor.from_pretrained("suno/bark")
+            my_cprint("Bark processor loaded.", "green")
+        
+        # load bark models
+        if self.config['size'] == 'small' and self.config['model_precision'] == 'float16':
+            self.model = BarkModel.from_pretrained("suno/bark-small", torch_dtype=torch.float16).to(self.device)
+            my_cprint("Bark model loaded.", "green")
+            print("Size = Small")
+            print("Quant = float16")
+        elif self.config['size'] == 'small' and self.config['model_precision'] != 'float16':
+            self.model = BarkModel.from_pretrained("suno/bark-small").to(self.device)
+            my_cprint("Bark model loaded.", "green")
+            print("Size = Small")
+            print("Quant = float32")
+        elif self.config['size'] != 'small' and self.config['model_precision'] == 'float16':
+            self.model = BarkModel.from_pretrained("suno/bark", torch_dtype=torch.float16).to(self.device)
+            my_cprint("Bark model loaded.", "green")
+            print("Size = Normal")
+            print("Quant = float16")
+        else:
+            self.model = BarkModel.from_pretrained("suno/bark").to(self.device)
+            my_cprint("Bark model loaded.", "green")
+            print("Size = Normal")
+            print("Quant = float32")
+        
+        if self.config['use_better_transformer']:
+            self.model = self.model.to_bettertransformer()
+            my_cprint("Better Transformer selected.", "cyan")
+
+        if self.config['enable_cpu_offload']:
+            self.model.enable_cpu_offload()
+            print("Offload to CPU selected.")
 
     def play_audio_thread(self):
-        while True:
+        my_cprint("Creating audio.", "white")
+        while self.running:
             queue_item = self.sentence_queue.get()
             if queue_item is None:
+                my_cprint("All audio finished playing.", "white")
                 break
 
-            audio_array, sampling_rate, sentence_num = queue_item
-            elapsed_time = time.time() - self.start_time
-            print(f"({elapsed_time:.2f} seconds) Playing sentence #{sentence_num}")
+            audio_array, sampling_rate, _ = queue_item
 
-            p = pyaudio.PyAudio()
-            stream = p.open(format=pyaudio.paInt16, channels=1, rate=sampling_rate, output=True)
-            stream.write(audio_array.tobytes())
-            stream.stop_stream()
-            stream.close()
-            p.terminate()
+            try:
+                p = pyaudio.PyAudio()
+                stream = p.open(format=pyaudio.paInt16, channels=1, rate=sampling_rate, output=True)
+                stream.write(audio_array.tobytes())
+                stream.stop_stream()
+                stream.close()
+            except Exception as e:
+                pass
+            finally:
+                p.terminate()
 
-        self.stop()
+        # print attributes of the BarkModel instance
+        # print(dir(self.model))
+        self.release_resources()
 
     def process_text_thread(self):
-        sentence_count = 1
-        while True:
+        while self.running:
             text_prompt = self.processing_queue.get()
             if text_prompt is None:
                 break
@@ -50,74 +130,55 @@ class BarkAudio:
 
             for sentence in sentences:
                 if sentence.strip():
-                    elapsed_time = time.time() - self.start_time
-                    print(f"({elapsed_time:.2f} seconds) Processing sentence #{sentence_count}")
-                    voice_preset = "v2/en_speaker_6"
-                    
+                    voice_preset = self.config['speaker']
                     inputs = self.processor(text=sentence, voice_preset=voice_preset, return_tensors="pt")
-                    
-                    with torch.no_grad():
-                        speech_output = self.model.generate(**inputs.to(self.device), do_sample=True)
+
+                    try:
+                        speech_output = self.model.generate(**inputs.to(self.device), pad_token_id=0, do_sample=True)
+                    except Exception as e:
+                        continue
 
                     audio_array = speech_output[0].cpu().numpy()
                     audio_array = np.int16(audio_array / np.max(np.abs(audio_array)) * 32767)
                     sampling_rate = self.model.generation_config.sample_rate
 
-                    self.sentence_queue.put((audio_array, sampling_rate, sentence_count))
-                    sentence_count += 1
+                    self.sentence_queue.put((audio_array, sampling_rate, len(sentences) - 1))
+
+            self.sentence_queue.put(None)
 
     def run(self):
+        self.load_config()
         with open('chat_history.txt', 'r', encoding='utf-8') as file:
             llm_response = file.read()
             self.processing_queue.put(llm_response)
 
-        self.start_time = time.time()
-
         processing_thread = threading.Thread(target=self.process_text_thread)
         playback_thread = threading.Thread(target=self.play_audio_thread)
+        
+        processing_thread.daemon = True
+        playback_thread.daemon = True
+        
         processing_thread.start()
         playback_thread.start()
 
         processing_thread.join()
         playback_thread.join()
 
-    def stop(self):
-        self.sentence_queue.put(None)
-
-        self.release_resources()
-
     def release_resources(self):
-        del self.model
+        if hasattr(self.model, 'semantic'):
+            del self.model.semantic
+        if hasattr(self.model, 'coarse_acoustics'):
+            del self.model.coarse_acoustics
+        if hasattr(self.model, 'fine_acoustics'):
+            del self.model.fine_acoustics
+        
         del self.processor
+        del self.model
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
+        my_cprint("Bark models removed from memory.", "red")
 
 if __name__ == "__main__":
     bark_audio = BarkAudio()
     bark_audio.run()
-
-'''
-INSTRUCTIONS:
-
-(1) Bark consists of 4 models but only one is used at any given moment.  You can uncomment "self.model.enable_cpu_offload()"
-    to put 3 models into RAM and only the one being used into VRAM.  This saves VRAM at a significant speed cost.
-
-(2) Delete ", torch_dtype=torch.float16" verbatim to run the model in float32 instead of float16.  You must leave ".to(device)".
-
-(3) You can comment out "model = model.to_bettertransformer()" to NOT use "better transformer," which is a library from Huggingface.
-    Only do this if Better Transformers isn't compatible with your system, but it should be, and it provides a 5-20% speedup.
-
-(4) Finally, to use the Bark full-size model remove "-small" on the two lines above; for example, it should read "suno/bark" instead.
-
-*** You can experiment with any combination items (1)-(4) above to get the VRAM/speed/quality you want.  For example, using the
-    full-size Bark models but only at float16...or using the "-small" models but at full float32. ***
-'''
-
-'''
-INSTRUCTIONS:
-                    
-Go here for examples of different voices:
-
-https://suno-ai.notion.site/8b8e8749ed514b0cbf3f699013548683?v=bc67cff786b04b50b3ceb756fd05f68c
-'''

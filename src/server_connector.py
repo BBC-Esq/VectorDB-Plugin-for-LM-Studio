@@ -1,3 +1,4 @@
+import logging
 import os
 import openai
 from langchain.vectorstores import Chroma
@@ -10,6 +11,8 @@ from termcolor import cprint
 import gc
 import tempfile
 import subprocess
+from pathlib import Path
+from PySide6.QtWidgets import QMessageBox
 
 ENABLE_PRINT = True
 ENABLE_CUDA_PRINT = False
@@ -27,34 +30,34 @@ def print_cuda_memory():
         reserved_memory = torch.cuda.memory_reserved()
 
         my_cprint(f"Max CUDA memory allocated: {max_allocated_memory / (1024**2):.2f} MB", "green")
-        my_cprint(f"Total CUDA memory allocated: {memory_allocated / (1024**2):.2f} MB", "yellow")
-        my_cprint(f"Total CUDA memory reserved: {reserved_memory / (1024**2):.2f} MB", "yellow")
+        my_cprint(f"Total CUDA memory allocated: {memory_allocated / (1024**2):.2f} MB", "white")
+        my_cprint(f"Total CUDA memory reserved: {reserved_memory / (1024**2):.2f} MB", "white")
 
 print_cuda_memory()
 
-ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
-PERSIST_DIRECTORY = f"{ROOT_DIRECTORY}/Vector_DB"
+ROOT_DIRECTORY = Path(__file__).resolve().parent
+SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
+PERSIST_DIRECTORY = ROOT_DIRECTORY / "Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
 
 CHROMA_SETTINGS = Settings(
-    chroma_db_impl="duckdb+parquet", persist_directory=PERSIST_DIRECTORY, anonymized_telemetry=False
+    chroma_db_impl="duckdb+parquet", persist_directory=str(PERSIST_DIRECTORY), anonymized_telemetry=False
 )
 
-contexts_output_file_path = "contexts.txt"
-metadata_output_file_path = "metadata.txt"
+contexts_output_file_path = ROOT_DIRECTORY / "contexts.txt"
+metadata_output_file_path = ROOT_DIRECTORY / "metadata.txt"
 
 def save_metadata_to_file(metadata_list, output_file_path):
-    with open(output_file_path, 'w', encoding='utf-8') as output_file:
+    with output_file_path.open('w', encoding='utf-8') as output_file:
         for metadata in metadata_list:
             output_file.write(str(metadata) + '\n')
 
 def format_metadata_as_citations(metadata_list):
-    citations = [os.path.basename(metadata['file_path']) for metadata in metadata_list]
+    citations = [Path(metadata['file_path']).name for metadata in metadata_list]
     return "\n".join(citations)
 
 def write_contexts_to_file_and_open(contexts):
-    with open(contexts_output_file_path, 'w', encoding='utf-8') as file:
+    with contexts_output_file_path.open('w', encoding='utf-8') as file:
         for index, context in enumerate(contexts, start=1):
             file.write(f"------------ Context {index} ---------------\n\n\n")
             file.write(context + "\n\n\n")
@@ -95,8 +98,8 @@ def connect_to_local_chatgpt(prompt):
             chunk_message = chunk['choices'][0]['delta']['content']
             yield chunk_message
 
-def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_settings=CHROMA_SETTINGS):
-    my_cprint("Attempting to connect to server.", "yellow")
+def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_settings=CHROMA_SETTINGS):
+    my_cprint("Attempting to connect to server.", "white")
     print_cuda_memory()
 
     with open('config.yaml', 'r') as config_file:
@@ -105,7 +108,13 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
-        EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
+        try:
+            EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
+        except KeyError:
+            msg_box = QMessageBox()
+            msg_box.setText("Must download and choose an embedding model to use first!")
+            msg_box.exec()
+            raise
         compute_device = config['Compute_Device']['database_query']
         config_data = config.get('embedding-models', {})
         score_threshold = float(config['database']['similarity'])
@@ -149,11 +158,21 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
         client_settings=client_settings,
     )
 
-    # Set score_threshold and k
-    my_cprint("Querying database.", "yellow")
+    my_cprint("Database initialized.", "white")
+
     retriever = db.as_retriever(search_kwargs={'score_threshold': score_threshold, 'k': k})
 
-    relevant_contexts = retriever.get_relevant_documents(query)
+    my_cprint("Querying database.", "white")
+    try:
+        relevant_contexts = retriever.get_relevant_documents(query)
+        logging.info("Retrieved %d relevant contexts", len(relevant_contexts))
+    except Exception as e:
+        logging.error("Error querying database: %s", str(e))
+        raise
+
+    if not relevant_contexts:
+        logging.warning("No relevant contexts found for the query")
+
     contexts = [document.page_content for document in relevant_contexts]
     metadata_list = [document.metadata for document in relevant_contexts]
 
@@ -163,13 +182,13 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
         write_contexts_to_file_and_open(contexts)
         return {"answer": "Contexts written to temporary file and opened", "sources": relevant_contexts}
 
-    prepend_string = "Only base your answer to the following question on the provided context."
+    prepend_string = "Only base your answer to the following question on the provided context/contexts accompanying this question.  If you cannot answer based on the included context/contexts alone, please state so."
     augmented_query = "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
 
-    my_cprint(f"Number of relevant contexts: {len(relevant_contexts)}", "yellow")
+    my_cprint(f"Number of relevant contexts: {len(relevant_contexts)}", "white")
 
     total_tokens = sum(len(tokenizer.encode(context)) for context in contexts)
-    my_cprint(f"Total number of tokens in contexts: {total_tokens}", "yellow")
+    my_cprint(f"Total number of tokens in contexts: {total_tokens}", "white")
 
     response_json = connect_to_local_chatgpt(augmented_query)
 
@@ -183,8 +202,8 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
         yield chunk_message
 
-    # Save the full response to chat_history.txt
-    with open('chat_history.txt', 'w', encoding='utf-8') as file:
+    chat_history_file_path = ROOT_DIRECTORY / 'chat_history.txt'
+    with chat_history_file_path.open('w', encoding='utf-8') as file:
         for message in full_response:
             file.write(message)
 
@@ -211,4 +230,4 @@ def ask_local_chatgpt(query, persist_directory=PERSIST_DIRECTORY, client_setting
 
 if __name__ == "__main__":
     user_input = "Your query here"
-    interact_with_chat(user_input)
+    ask_local_chatgpt(user_input)
