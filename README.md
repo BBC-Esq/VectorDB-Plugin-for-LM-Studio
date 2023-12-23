@@ -208,7 +208,7 @@ python gui.py
   > The folders to choose from are WITHIN the ```Embedding_Models``` folder.
 
 ## Adding Documents
-* Choose the documents you want to enter into the vector database.  You can select multiple documents at once and/or click this button multiple times. Symbolic links to the files are created within the ```Docs_for_DB``` folder, not the actual files.  Supported file types are ```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+* Choose the documents you want to enter into the vector database.  You can select multiple documents at once and/or click this button multiple times. Symbolic links to the files are created within the ```Docs_for_DB``` folder, not the actual files.  Supported file types are ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
   > You can also click the ```See Currently Chosen Documents``` button to drag and drop (or delete) files.
 
 * Additionally, the Tools Tab contains a feature allowing you to transcribe audio files to ```.txt``` and automatially put them into the ```Docs_for_DB``` folder.
