@@ -225,9 +225,9 @@ python gui.py
 
 ## Choosing a Prompt Format
 * The Settings Tab allows you to set the prompt format matching the model used within LM Studio.
-  * ⚠️ If using ```LM Studio v0.2.7``` or earlier, this is all you need to do.
+  * ⚠️ If using ```LM Studio v0.2.8``` or earlier, this is all you need to do.
 
-  * ⚠️ If using ```LM Studio v0.2.8, v0.2.9, and v0.2.10```, there is a known BUG preventing LM Studio from respecting the prompt format chosen.  This program will still function correctly, but the response from LM Studio might be suboptimal.  The developer says this will be fixed and I am working on a workaround as well.  In the meantime, you can either continue to use the prompt formatting setting within this program or:
+  * ⚠️ If using ```v0.2.9, and v0.2.10```, there is a known BUG preventing LM Studio from respecting the prompt format chosen.  This program will still function correctly, but the response from LM Studio might be suboptimal.  The developer says this will be fixed and I am working on a workaround as well.  In the meantime, you can either continue to use the prompt formatting setting within this program or:
   > 1) Check the "disable" prompt format checkbox in this program; and
   > 2) Choose an appropriate "preset" within LM Studio.
 
