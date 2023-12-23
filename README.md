@@ -227,7 +227,7 @@ python gui.py
 * The Settings Tab allows you to set the prompt format matching the model used within LM Studio.
   * ⚠️ If using ```LM Studio v0.2.9``` or earlier, this is all you need to do.
 
-  * ⚠️ If using ```v0.2.10```, there is a known BUG preventing LM Studio from respecting the prompt format chosen.  In order for it to not override the prefix/suffix you set in this program, you must go to the Server settings (far right side) and:
+  * ⚠️ If using ```v0.2.10```, there is a known BUG preventing LM Studio from respecting the prompt format chosen.  To prevent this, you must, within LM Studio go to the Server settings (far right side) and:
     * Delete any/all text within the ```User Message Prefix``` box; and
     * Delete any/all text within the ```User Message Suffix``` box.
   * The program will work optimally after that.
