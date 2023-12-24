@@ -1,13 +1,11 @@
 Compute_Device:
   available:
-  - cpu
-  - cuda
-  database_creation: cuda
-  database_query: cpu
-  gpu_brand: NVIDIA
-EMBEDDING_MODEL_NAME: 
+  database_creation:
+  database_query:
+  gpu_brand:
+EMBEDDING_MODEL_NAME:
 Platform_Info:
-  os: windows
+  os: 
 Supported_CTranslate2_Quantizations:
   CPU:
   - float32
@@ -23,13 +21,13 @@ Supported_CTranslate2_Quantizations:
   - int8
 bark:
   enable_cpu_offload: false
-  model_precision: float16
-  size: small
-  speaker: v2/en_speaker_6
+  model_precision: float32
+  size: normal
+  speaker: v2/en_speaker_1
   use_better_transformer: true
 database:
   chunk_overlap: 250
-  chunk_size: 750
+  chunk_size: 800
   contexts: 8
   similarity: 0.9
 embedding-models:
@@ -50,6 +48,7 @@ server:
   prefix_neural_chat: '### User:'
   prefix_obsidian_3B: <|im_start|>user\n
   prefix_orca2: <|im_start|>user
+  prefix_phi2: 'Instruct:'
   prompt_format_disabled: false
   suffix: '### Assistant:'
   suffix_chat_ml: <|im_end|>
@@ -58,17 +57,18 @@ server:
   suffix_neural_chat: '### Assistant:'
   suffix_obsidian_3B: '\n###\n<|im_start|>assistant:'
   suffix_orca2: <|im_end|><|im_start|>assistant
+  suffix_phi2: 'Output:'
 styles:
   button: 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic";
     width: 29;'
   frame: 'background-color: #161b22;'
   input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
   text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
-test_embeddings: false
+test_embeddings: true
 transcribe_file:
   device: cpu
   file: null
-  model: small.en
+  model: large-v2
   quant: float32
   timestamps: true
 transcriber:

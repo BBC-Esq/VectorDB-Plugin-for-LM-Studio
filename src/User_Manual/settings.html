@@ -125,10 +125,10 @@
 	
 	<h2><u>Bark Settings</u></h2>
 	
-	<p>These settings pertain to the <u>Bark Response</u> button, which plays audio of the LLM's response using "Bark" modeols.
+	<p>These settings pertain to the <u>Bark Response</u> button, which plays audio of the LLM's response using "Bark" models.
 	You must wait for the LLM's entire response to be received otherwise it may give an error.  DO NOT use this feature
-	unless: (1) you have an Nvidia GPU; or (2) you are using an AMD GPU, running Linux, and have installed all the proper
-	acceleration software (e.g. RocM).  Otherwise, it'll revert to CPU-usage and be EXTREMELY SLOW.</p>
+	unless: (1) you have an Nvidia GPU; (2) you are using an AMD GPU, running Linux, and have installed all the proper
+	acceleration software (e.g. RocM); or (3) have Apple MPS.  Otherwise, it'll revert to CPU-usage and be EXTREMELY SLOW.</p>
 	
 	<p><code>Size</code>: Setting refers to either the normal size Bark model or the small model, each with its own resource
 	requirements, speed, and accuracy.  The small model is used by default.</p>
@@ -146,7 +146,7 @@
 	
 	<p><code>Voices</code>: Allows a user to test Barks premade voices.  <code>v2/en_speaker_6</code> is the default setting
 	and the highest quality in my opinion, but feel free to experiment.  The only female voice is <code>v2/en_speaker_9</code>.
-	Eventuallyb this program might incorporate voices able to speak in different languages, which will be around the same time
+	Eventually this program might incorporate voices able to speak in different languages, which will be around the same time
 	that the functionality to translate to/from different languages is added:</p>
 	
 	<p>https://suno-ai.notion.site/8b8e8749ed514b0cbf3f699013548683?v=bc67cff786b04b50b3ceb756fd05f68c</p>
