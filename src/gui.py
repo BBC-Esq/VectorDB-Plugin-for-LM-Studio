@@ -13,7 +13,6 @@ from metrics_bar import MetricsBar
 from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
 from choose_documents import choose_documents_directory, see_documents_directory
-from choose_documents import choose_documents_directory
 import create_database
 from gui_tabs import create_tabs
 from gui_threads import CreateDatabaseThread, SubmitButtonThread
@@ -21,12 +20,16 @@ import voice_recorder_module
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
 from bark_module import BarkAudio
 from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP
+import logging
 
 class DocQA_GUI(QWidget):
     def __init__(self):
         super().__init__()
+
+        # Initialize the system with logging
+        self.initialize_system_with_logging()
+
         self.cumulative_response = ""
-        initialize_system()
         self.metrics_bar = MetricsBar()
         self.compute_device = self.metrics_bar.determine_compute_device()
         os_name = self.metrics_bar.get_os_name()
@@ -34,6 +37,15 @@ class DocQA_GUI(QWidget):
         self.init_ui()
         self.init_menu()
         self.load_config()
+
+    def initialize_system_with_logging(self):
+        try:
+            logging.info("Starting system initialization.")
+            initialize_system()
+            logging.info("System initialization completed successfully.")
+        except Exception as e:
+            logging.error(f"Error during system initialization: {e}")
+            raise
 
     def is_nvidia_gpu(self):
         if torch.cuda.is_available():
@@ -183,8 +195,6 @@ class DocQA_GUI(QWidget):
 
     def closeEvent(self, event):
         self.metrics_bar.stop_metrics_collector()
-        # active_threads = threading.enumerate()
-        # print(f"Active threads at GUI close: {active_threads}")
         event.accept()
 
     def create_button_row(self, submit_handler):
@@ -224,6 +234,7 @@ class DocQA_GUI(QWidget):
         bark_audio.run()
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create('fusion'))
     stylesheet = load_stylesheet('custom_stylesheet_steel_ocean.css')

@@ -38,7 +38,7 @@ class ServerSettingsTab(QWidget):
         layout.addWidget(prompt_format_label, 2, 0)
         
         self.prompt_format_combobox = QComboBox()
-        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat", "Orca2", "Llava 13B", "Obsidian 3B"])
+        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat", "Orca2", "Llava 13B", "Obsidian 3B", "Phi-2"])
         layout.addWidget(self.prompt_format_combobox, 2, 1)
         self.prompt_format_combobox.currentIndexChanged.connect(self.update_prefix_suffix)
 
@@ -54,6 +54,11 @@ class ServerSettingsTab(QWidget):
         layout.addWidget(self.create_edit('prefix', settings_dict), 3, 1)
         layout.addWidget(self.create_label('suffix', settings_dict), 4, 0)
         layout.addWidget(self.create_edit('suffix', settings_dict), 4, 1)
+        
+        new_tip_label1 = QLabel("<b>For the prefix/suffix to work you must delete any/all text</b>")
+        new_tip_label2 = QLabel("<b>in 'User Message Prefix' and 'Suffix' boxes within LM Studio.</b>")
+        layout.addWidget(new_tip_label1, 5, 0, 1, 4)
+        layout.addWidget(new_tip_label2, 6, 0, 1, 4)
 
         self.setLayout(layout)
 
@@ -85,6 +90,7 @@ class ServerSettingsTab(QWidget):
             "Orca2": ("prefix_orca2", "suffix_orca2"),
             "Llava 13B": ("prefix_llava_13B", "suffix_llava_13B"),
             "Obsidian 3B": ("prefix_obsidian_3B", "suffix_obsidian_3B"),
+            "Phi-2": ("prefix_phi2", "suffix_phi2"),
         }
 
         prefix_key, suffix_key = key_mapping.get(option, ("", ""))

@@ -61,12 +61,8 @@ class GuiSettingsTab(QWidget):
         center_button_layout.addWidget(self.update_all_button)
         center_button_layout.addStretch(1)
 
-        tip_label_1 = QLabel("<b><u>Must</u> click 'Update Settings' to take effect.</b>")
-        tip_label_2 = QLabel("<b><u>Must recreate</u> database if changing Chunk Size/Overlap.</b>")
-        tip_label_3 = QLabel("🚨<b><u>Linux/Mac users READ THE UPDATED INSTRUCTIONS ON GITHUB!!!!</u></b>🚨")
+        tip_label_1 = QLabel("🚨🚨<b><u>Linux/Mac users read the GitHub instructions regarding PDFs!!!</u></b>🚨🚨")
         self.layout.addWidget(tip_label_1)
-        self.layout.addWidget(tip_label_2)
-        self.layout.addWidget(tip_label_3)
 
         self.setLayout(self.layout)
         

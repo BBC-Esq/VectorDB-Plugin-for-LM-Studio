@@ -36,6 +36,15 @@ INGEST_THREADS = os.cpu_count() or 8
 for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
 
+from langchain.document_loaders import (
+    UnstructuredEPubLoader, UnstructuredRTFLoader, 
+    UnstructuredODTLoader, UnstructuredMarkdownLoader, 
+    UnstructuredExcelLoader, UnstructuredCSVLoader
+)
+from pathlib import Path
+from langchain.docstore.document import Document
+# Other necessary imports...
+
 def load_single_document(file_path: Path) -> Document:
     file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
@@ -44,13 +53,24 @@ def load_single_document(file_path: Path) -> Document:
         if file_extension == ".txt":
             loader = loader_class(str(file_path), encoding='utf-8')
         elif file_extension == ".epub":
-            loader = UnstructuredEPubLoader(str(file_path), mode="single")
+            loader = UnstructuredEPubLoader(str(file_path), mode="single", strategy="fast")
+        elif file_extension == ".rtf":
+            loader = UnstructuredRTFLoader(str(file_path), mode="single", strategy="fast")
+        elif file_extension == ".odt":
+            loader = UnstructuredODTLoader(str(file_path), mode="single", strategy="fast")
+        elif file_extension == ".md":
+            loader = UnstructuredMarkdownLoader(str(file_path), mode="single", strategy="fast")
+        elif file_extension == ".xlsx" or file_extension == ".xlsd":
+            loader = UnstructuredExcelLoader(str(file_path), mode="single")
+        elif file_extension == ".csv":
+            loader = UnstructuredCSVLoader(str(file_path), mode="single")
         else:
             loader = loader_class(str(file_path))
     else:
         raise ValueError(f"Document type for extension {file_extension} is undefined")
 
     document = loader.load()[0]
+
     '''
     # Write the content to a .txt file
     with open("output_load_single_document.txt", "w", encoding="utf-8") as output_file:

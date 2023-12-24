@@ -2,6 +2,7 @@ import torch
 import yaml
 import platform
 import ctranslate2
+import os
 
 def get_compute_device_info():
     available_devices = ["cpu"]
@@ -33,12 +34,19 @@ def get_supported_quantizations(device_type):
     return sorted_types
 
 def update_config_file(**system_info):
-    with open('config.yaml', 'r') as stream:
+    full_config_path = os.path.abspath('config.yaml')
+    
+    with open(full_config_path, 'r') as stream:
         config_data = yaml.safe_load(stream)
 
-    config_data.setdefault('Compute_Device', {})
-    config_data['Compute_Device'].setdefault('database_creation', 'cpu')
-    config_data['Compute_Device'].setdefault('database_query', 'cpu')
+    compute_device_info = system_info.get('Compute_Device', {})
+    config_data['Compute_Device']['available'] = compute_device_info.get('available', ['cpu'])
+    config_data['Compute_Device']['gpu_brand'] = compute_device_info.get('gpu_brand', '')
+
+    valid_devices = ['cpu', 'cuda', 'mps']
+    for key in ['database_creation', 'database_query']:
+        if config_data['Compute_Device'].get(key, 'cpu') not in valid_devices:
+            config_data['Compute_Device'][key] = 'cpu'
 
     config_data['Supported_CTranslate2_Quantizations'] = {
         'CPU': get_supported_quantizations('cpu'),
@@ -49,7 +57,7 @@ def update_config_file(**system_info):
         if key != 'Compute_Device' and key != 'Supported_CTranslate2_Quantizations':
             config_data[key] = value
 
-    with open('config.yaml', 'w') as stream:
+    with open(full_config_path, 'w') as stream:
         yaml.safe_dump(config_data, stream)
 
 def main():
