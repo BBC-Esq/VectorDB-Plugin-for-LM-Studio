@@ -1,6 +1,4 @@
 import os
-
-import sys
 import subprocess
 from pathlib import Path
 
@@ -13,7 +11,7 @@ def choose_documents():
     file_dialog = QFileDialog()
     file_dialog.setFileMode(QFileDialog.ExistingFiles)
     file_paths, _ = file_dialog.getOpenFileNames(
-        None, "Choose Documents for Database", current_dir
+        None, "Choose Documents for Database", str(current_dir)
     )
 
     if file_paths:
@@ -54,19 +52,16 @@ def choose_directory():
 
 
 def see_documents_directory():
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    docs_folder = os.path.join(current_dir, "Docs_for_DB")
+    current_dir = Path(__file__).parent.resolve()
+    docs_folder = current_dir / "Docs_for_DB"
 
-    # Ensure the directory exists
-    if not os.path.exists(docs_folder):
-        os.mkdir(docs_folder)
+    docs_folder.mkdir(parents=True, exist_ok=True)
 
-    if sys.platform == "win32":
-        # Open the directory in Windows File Explorer
-        subprocess.Popen(f'explorer "{docs_folder}"')
-    elif sys.platform == "darwin":
-        # Open the directory in MacOS Finder
-        subprocess.Popen(f'open "{docs_folder}"', shell=True)
+    # Cross-platform directory opening
+    if os.name == "nt":  # Windows
+        subprocess.Popen(f'explorer "{str(docs_folder)}"')
+    elif os.name == "posix":  # MacOS and Linux
+        subprocess.Popen(f'xdg-open "{str(docs_folder)}"')
 
 
 if __name__ == "__main__":
