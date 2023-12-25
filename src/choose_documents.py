@@ -2,6 +2,7 @@ import subprocess
 import os
 from pathlib import Path
 from PySide6.QtWidgets import QApplication, QFileDialog
+import sys
 
 def choose_documents_directory():
     current_dir = Path(__file__).parent.resolve()
