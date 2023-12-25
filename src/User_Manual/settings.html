@@ -89,81 +89,95 @@
   </header>
 
   <main>
-    <h2>Server/LLM Settings</h2>
-    <p>The <code>port</code> number in these settings must match the one you've set in LM Studio. If you update it in LM
-	Studio, make sure to update it here as well.</p>
+	<h2><u>Server/LLM Settings</u></h2>
+    <p><code>Port</code>: Must match the port that you've set in LM Studio.</p>
 	
-	<p>The <code>max-tokens</code> setting is <code>-1</code> by default, which allows the LLM to provide an unlimited
-	response (up to its maximum context length).  Most off the time the LLM will automatically stop after sufficiently
-	answering your question.  However, sometimes smaller models ramble or repease themselves and you can styumie that
-	that behavior with this setting.  Remember, any number other than <code>-1</code> is in tokens (not characters).</p>
+	<p><code>Max-tokens</code>: Refers to the maximum amount of tokens that the LLM can use to provide a response.
+	The default is <code>-1</code>, which allows the LLM an unlimited amount of tokens (up to the maximum context length
+	specified within LM Studio).  This setting is mostly useful for smaller models that sometimes ramble.</p>
 
-    <h3>Temperature Setting</h3>
-    <p>The <code>temperature</code> setting can be between 0 and 1.  Zero means don't be creative at all.  The default
-	setting is <code>1</code> becuase typically with RAG tasks you simply want factual information.</p>
+    <p><code>Temperature</code>: Determines the creativity of the LLM's response.  Can be between 0 and 1.  Zero means
+	don't be creative at all.  The default setting is <code>.1</code>.</p>
 
-    <h3>Prefix and Suffix</h3>
-    <p>The <code>prefix</code> and <code>suffix</code> settings are <code>[INST]</code> and <code>[/INST]</code> by default,
-	which is the prompt format for <code>Llama2-chat</code> and <code>Mistral</code> models, but NOT necessarily fine-tuned
-	versions of those models by third parties.  I recommend using the original <code>Mistral</code> (7B) or <code>Llama2-chat</code>
-	(7B or 13B) models with this program.  RAG primarily involves summarizing the contexts received from the vector database,
-	not providing creative answers that fine-tuned models are good at.  However, using fine-tuned models can be beneficial
-	if the type of text in the database is highly technical (e.g. medical terminology).</p>
-	
-	<p>The pulldown menu contains the basic "prefix" and "suffix" for Mistral/Llama2, Neural-Chat, Orca2, and ChatML formats.
-	Selecting one will populate the boxes to enter the prefix and suffix, thus, you must still click the update settings button.</p>
-	
-	<p>There are also options for some vision models, however, they do not currently work...this will be updated later.  While the
-	correct prefix/suffix are there, you should not use them to try to connect to a vision model on LM Studio (if you're using
-	LM Studio .2.9) until this program finalizes compatibility.  In short, this program is compatible with LM Studio .2.8.</p>
-	
-	<p>However, feel free to experiment.  If you want to control the prompt formatting within this program, however, you
-	need to disable the automatic prompt formatting within LM Studio.  If you don't want this program to handle prompt
-	formatting simply check the "disable" checkbox, but make sure to enable prompt formatting within LM Studio.</p>
+    <h3>Prompt Format</h3>
+    <p><code>Prefix</code> and <code>Suffix</code>: refer to what precedes and follows what you send to the LLM.
+	LLM's are trained with a certain "prompt format" and they provide the best responses when your questions are
+	structured to fit this prompt format.  For example, Llama-2-chat uses the <code>[INST]</code> and <code>[/INST]</code>
+	prefix and suffix, respectively.</p>
 
-    <h2>Database Settings</h2>
-    <p>The <code>chunk size</code> and <code>chunk overlap</code> settings refer to where the "RecursiveCharacterTextSplitter,"
-	splits the text you provide it in order to create "chunks" that will be entered into the database.  These settings are
-	in CHARACTERS, not TOKENS.</p>
+	<p>I've included a few presets for models that I think provide the best responses for RAG, but there's also space to enter
+	a custom prefix/suffix.  Make sure and check the model card on Huggingface for the proper format if you don't use a preset.</p>
+	
+	<p> Also, my program does not utilize "system messages" or other complex prompt formats.  It only uses "prefix" and "suffix," which
+	I've found more than sufficient for RAG purposes.  However, if you want to use an LLM that can accommodate more complex prompt
+	formatting, click the <code>disable</code> button in my program and enable "Automatic Prompt Formatting" within LM Studio.</p>
+	
+	<h2><u>Voice Recorder Settings</u></h2>
+	
+	<p> This program uses state-of-the-art Whisper models to (1) transcribe your question and (2) transcribe audio files to
+	<code>.txt</code>, which are then put into the vector database.  Details about these settings are further explained in the
+	<u>Whisper Tab</u> of this User Guide.</p>
 
-	<p>The chunk size and overlap directly impact the quality of the results received from the vector database.  Feel free to
-	experiment with different settings, however, because different settings might work better with different styles of text.
-	For example, different settings might work better for a book than an EXCEL spreadsheet.</p>
+	<p>In general, however, I recommend transcribing your question using CPU and using GPU acceleration to transcribe an audio file.
+	Moreover, when transcribing a file using gpu-acceleration I recommend using as large of a Whisper model as possible and no less
+	than float16/bfloat16 quantization.  If need be, eject the LLM from within LM Studio when transcribing a file to free up VRAM.
+	The selectable options are automatically determined by what's compatible with your CPU and/or GPU.</p>
 	
-	<p>However, make sure that the chunk size falls under the "max sequence" limit of the embedding being used to create
-	the vector database.  Different embedding models have max sequence limits (in tokens, not characters), and if you feed it
-	chunks larger than its max sequenced it will simply truncate the chunk.  This won't produce an error, but you will lose
-	valuable data.  You can seethe various max sequence limits of the various models by clicking the "Download" button.</p>
+	<h2><u>Bark Settings</u></h2>
 	
-	<p>Also, remember that the chunk settings are in characters (no tokens) and that there are approximatelky four (4) characters
-	per token.  Therefore, if you set the chunk size to 1,200, the embedding model's max sequence should be at least 300.</p>
+	<p>These settings pertain to the <u>Bark Response</u> button, which plays audio of the LLM's response using "Bark" models.
+	You must wait for the LLM's entire response to be received otherwise it may give an error.  DO NOT use this feature
+	unless: (1) you have an Nvidia GPU; (2) you are using an AMD GPU, running Linux, and have installed all the proper
+	acceleration software (e.g. RocM); or (3) have Apple MPS.  Otherwise, it'll revert to CPU-usage and be EXTREMELY SLOW.</p>
 	
-	<p>The <code>Contexts</code> setting refers to how many chunks you want returned from the vector database.  A greater number
-	obviously means more context for the LLM to use as its knowledge base.  However, it also means that more of the LLM's maximum
-	context length will be available for it to provide a response.</p>
+	<p><code>Size</code>: Setting refers to either the normal size Bark model or the small model, each with its own resource
+	requirements, speed, and accuracy.  The small model is used by default.</p>
 	
-	<p>To summarize, <code>all chunks from vector database + your question + LLM's response</code> should fall within the LLM's
-	token context limit (usually 4096).  If what you send the LLM exceeds 4096 you will get an error message.  If what
-	you send the LLM does NOT exceed the total context limit, but the LLM's response would, the LLM will simply cut itself
-	off and you'll get an incomplete response.</p>
+	<p><code>Quant</code>: Allows a user to choose the original <u>float32</u> version of the Bark model or the <u>float16</u>
+	quantized version.  Using <u>float16</u> saves significant resources with little quality loss, but feel free to try both!</p>
 	
-	<h2>Whisper Settings</h2>
+	<p><code>Better Transformer</code>: Better Transformer is a library created by Huggingface that provides a general 5-20% speedup.
+	Since it is compatible with most systems, you should leave this checked unless you're getting strange errors.</p>
+
+	<p><code>Cpu_Offload</code>: Bark actually consists of four sub-models and only one is used at any given moment.  Checking
+	this setting makes it so only the active sub-model is using VRAM while the others are kept in system RAM.  However, this
+	noticeably decreases speed.  This setting is unchecked by default and you should leave it that way unless you are extremely
+	short on VRAM.</p>
 	
-	<p> Whisper models are used throughout this program to transcribe your question for the LLM as well as transcribe an
-	audio file to a <code>.txt</code> file, to put it into the database folder.  Generally, you should
-	transcribe your question using CPU and only GPU acceleration to transcribe an audio file and use as large of a Whisper
-	model that you can.  If VRAM is especially limited, eject LLM from LLM Studio and load it back after the transcription
-	is complete to ensure that the entire Whisper model is loaded into VRAM and not system memory.</p>
+	<p><code>Voices</code>: Allows a user to test Barks premade voices.  <code>v2/en_speaker_6</code> is the default setting
+	and the highest quality in my opinion, but feel free to experiment.  The only female voice is <code>v2/en_speaker_9</code>.
+	Eventually this program might incorporate voices able to speak in different languages, which will be around the same time
+	that the functionality to translate to/from different languages is added:</p>
 	
-	<h2>Test Embeddings</h2>
+	<p>https://suno-ai.notion.site/8b8e8749ed514b0cbf3f699013548683?v=bc67cff786b04b50b3ceb756fd05f68c</p>
 	
-	<p>Checking the <code>test embeddings</code> checkbox will NOT query the LLM and simply return the chunks separated by a
-	chunk delimeter so you can see the quality of the chunks.  This is useful to test various chunk settings as well as different
-	embedding models.  Once you're sure that you're getting quality chunks, uncheck this box.</p>
+	<h2><u>Database Settings</u></h2>
+    <p><code>Chunk Size</code> and <code>Chunk Overlap</code>: These two settings refer to how the "RecursiveCharacterTextSplitter"
+	splits the text that you extract from the various documents you want to put into the vector database.  These settings are in
+	"characters," NOT tokens.  The chunks of text are then vectorized by the embedding model and put into the database.  Feel free to
+	experiment with different settings.  Different settings might work better with different styles of text.</p>
+	
+	<p>However, make sure that the chunk size does not exceed the <code>max sequence</code> of the embedding model you are using.
+	Each embedding model has a <code>max sequence</code>, which you can view by clicking the "<u>Download Embedding Model</u>" button.
+	This limit determines the maximum length (in tokens, NOT characters) that the model can process at a time.  Thus, if you
+	choose a "chunk size" of 1,200, for example, make sure the embedding model you choose has a <code>max sequence</code> of
+	at least 300.  This is based off of the rule of thumb that a token is approximately 4 characters.</p>
+	
+	<p><code>Contexts</code>: Refers to how many "chunks" you want to retrieve and send to the LLM for a response.  Make sure
+	that the number of contexts, multiplied by the "chunk size," doesn't exceed the LLM's maximum context limit set within
+	LM Studio.  Also, make sure and leave enough context for the LLM to provide a response.</p>
+
+	<p>For example, if the LLM's limit is 4096 and you send 10 "contexts" each having 1,200 characters (i.e. 300 tokens) you've
+	already used up 3,000 tokens of the LLM's 4096 limit.  This would leave 1096 tokens for the LLM's response, which is usually
+	(but not always) sufficient to answer your question.</p>
+	
+	<p><code>Chunks Only</code>: Checking this checkbox will return only the relevant chunks of text from the vector database and
+	will not connect to the LLM.  This is extremely useful to text the chunk size/overlap settings to ensure that you're getting
+	relevant chunks before connecting to the LLM.</p>
 	
 	<h2>Break in Case of Emergency</h2>
-	<p>All settings for this progrma are keps in <code>config.yaml</code>.  If you accidentally change a setting you don't
-	like or this file gets deleted or corrupted, there's a backup cpoy inside the "User Guide" folder.</p>
+	<p>Settings for this program are stored in <code>config.yaml</code>.  If you mistakenly change a setting or lose this file,
+	there is a backup within the <u>User Guide</u> folder.</p>
     
   </main>
 

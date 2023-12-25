@@ -61,7 +61,7 @@ def see_documents_directory():
     if os.name == "nt":  # Windows
         subprocess.Popen(f'explorer "{str(docs_folder)}"')
     elif os.name == "posix":  # MacOS and Linux
-        subprocess.Popen(f'xdg-open "{str(docs_folder)}"')
+        subprocess.Popen(f'open "{str(docs_folder)}"', shell=True)
 
 
 if __name__ == "__main__":

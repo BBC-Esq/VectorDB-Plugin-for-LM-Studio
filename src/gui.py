@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
 import voice_recorder_module
 from bark_module import BarkAudio
 from choose_documents import choose_directory, choose_documents, see_documents_directory
@@ -30,18 +31,36 @@ from metrics_bar import MetricsBar
 from select_model import select_embedding_model_directory
 from utilities import list_theme_files, load_stylesheet, make_theme_changer
 
+import voice_recorder_module
+from utilities import list_theme_files, make_theme_changer, load_stylesheet
+from bark_module import BarkAudio
+from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP
+import logging
+
 
 class DocQA_GUI(QWidget):
     def __init__(self):
         super().__init__()
+
+        # Initialize the system with logging
+        self.initialize_system_with_logging()
+
         self.cumulative_response = ""
-        initialize_system()
         self.metrics_bar = MetricsBar()
         self.compute_device = self.metrics_bar.determine_compute_device()
         self.submit_button = None
         self.init_ui()
         self.init_menu()
         self.load_config()
+
+    def initialize_system_with_logging(self):
+        try:
+            logging.info("Starting system initialization.")
+            initialize_system()
+            logging.info("System initialization completed successfully.")
+        except Exception as e:
+            logging.error(f"Error during system initialization: {e}")
+            raise
 
     def is_nvidia_gpu(self):
         if torch.cuda.is_available():
@@ -113,13 +132,15 @@ class DocQA_GUI(QWidget):
 
         # Test Embeddings checkbox and Bark button
         checkbox_button_hbox = QHBoxLayout()
-        self.test_embeddings_checkbox = QCheckBox("Test Embeddings")
+        self.test_embeddings_checkbox = QCheckBox("Chunks Only")
+        self.test_embeddings_checkbox.setToolTip(CHUNKS_ONLY_TOOLTIP)
         self.test_embeddings_checkbox.stateChanged.connect(
             self.on_test_embeddings_changed
         )
         checkbox_button_hbox.addWidget(self.test_embeddings_checkbox)
         if sys.platform == "win32":
-            bark_button = QPushButton("Bark")
+            bark_button = QPushButton("Bark Response")
+            bark_button.setToolTip(SPEAK_RESPONSE_TOOLTIP)
             bark_button.clicked.connect(self.on_bark_button_clicked)
             checkbox_button_hbox.addWidget(bark_button)
         right_vbox.addLayout(checkbox_button_hbox)
@@ -167,11 +188,11 @@ class DocQA_GUI(QWidget):
         self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
         self.submit_button_thread.start()
 
-        # Start a timer for 7 seconds to reset the button
+        # timer to reset button
         self.reset_timer = QTimer(self)
         self.reset_timer.setSingleShot(True)
         self.reset_timer.timeout.connect(self.enable_submit_button)
-        self.reset_timer.start(7000)  # 7 seconds
+        self.reset_timer.start(3000)  # 3 seconds
 
     def enable_submit_button(self):
         self.submit_button.setDisabled(False)
@@ -229,7 +250,9 @@ class DocQA_GUI(QWidget):
         return row_widget
 
     def on_bark_button_clicked(self):
-        threading.Thread(target=self.run_bark_module).start()
+        bark_thread = threading.Thread(target=self.run_bark_module)
+        bark_thread.daemon = True
+        bark_thread.start()
 
     def run_bark_module(self):
         bark_audio = BarkAudio()
@@ -237,6 +260,7 @@ class DocQA_GUI(QWidget):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create("fusion"))
     stylesheet = load_stylesheet("custom_stylesheet_steel_ocean.css")

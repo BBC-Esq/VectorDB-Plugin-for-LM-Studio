@@ -1,5 +1,3 @@
-# Creates threads for gui functions
-
 from PySide6.QtCore import QThread, Signal
 import server_connector
 import create_database
