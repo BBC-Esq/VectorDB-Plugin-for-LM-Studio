@@ -1,8 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QRadioButton, QPushButton, QButtonGroup, QLabel, QGridLayout
-import os
 import subprocess
 import threading
+from pathlib import Path
 from constants import AVAILABLE_MODELS
 
 class DownloadModelDialog(QDialog):
@@ -39,9 +39,11 @@ class DownloadModelDialog(QDialog):
         def get_model_directory_name(model_name):
             return model_name.replace("/", "--")
 
-        if not os.path.exists('Embedding_Models'):
-            os.makedirs('Embedding_Models')
-        existing_directories = set(os.listdir('Embedding_Models'))
+        embedding_models_dir = Path('Embedding_Models')
+        if not embedding_models_dir.exists():
+            embedding_models_dir.mkdir(parents=True)
+
+        existing_directories = set([d.name for d in embedding_models_dir.iterdir() if d.is_dir()])
 
         for row, model_entry in enumerate(self.available_models, start=1):
             model_name = model_entry['model']
@@ -98,12 +100,11 @@ def download_embedding_model(parent):
 
         if selected_model:
             model_url = f"https://huggingface.co/{selected_model['model']}"
-            target_directory = os.path.join("Embedding_Models", selected_model['model'].replace("/", "--"))
+            target_directory = Path("Embedding_Models") / selected_model['model'].replace("/", "--")
 
             def download_model():
-                subprocess.run(["git", "clone", model_url, target_directory])
+                subprocess.run(["git", "clone", model_url, str(target_directory)])
                 print(f"{selected_model['model']} has been downloaded and is ready to use!")
 
             download_thread = threading.Thread(target=download_model)
             download_thread.start()
-

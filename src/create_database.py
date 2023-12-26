@@ -1,5 +1,3 @@
-import logging
-import os
 import shutil
 import yaml
 import gc
@@ -11,6 +9,8 @@ from document_processor import load_documents, split_documents
 import torch
 from utilities import validate_symbolic_links
 from termcolor import cprint
+from pathlib import Path
+import os
 
 ENABLE_PRINT = True
 
@@ -19,57 +19,49 @@ def my_cprint(*args, **kwargs):
         modified_message = f"create_database.py: {args[0]}"
         cprint(modified_message, *args[1:], **kwargs)
 
-ROOT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-SOURCE_DIRECTORY = f"{ROOT_DIRECTORY}/Docs_for_DB"
-PERSIST_DIRECTORY = f"{ROOT_DIRECTORY}/Vector_DB"
+ROOT_DIRECTORY = Path(__file__).resolve().parent
+SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
+PERSIST_DIRECTORY = ROOT_DIRECTORY / "Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
 
 CHROMA_SETTINGS = Settings(
     chroma_db_impl="duckdb+parquet",
-    persist_directory=PERSIST_DIRECTORY,
+    persist_directory=str(PERSIST_DIRECTORY),
     anonymized_telemetry=False
 )
 
 def main():
 
-    with open(os.path.join(ROOT_DIRECTORY, "config.yaml"), 'r') as stream:
+    with open(ROOT_DIRECTORY / "config.yaml", 'r') as stream:
         config_data = yaml.safe_load(stream)
 
     EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
 
-    my_cprint(f"Loading documents.", "cyan")
+    my_cprint(f"Loading documents.", "white")
     documents = load_documents(SOURCE_DIRECTORY) # First invocation of document_processor.py script
-    my_cprint(f"Successfully loaded documents.", "cyan")
-    '''
-    with open("output_documents.txt", "w", encoding="utf-8") as text_file:
-        for doc in documents:
-            text_file.write(str(doc) + "\n")
-    '''
+    my_cprint(f"Successfully loaded documents.", "white")
+    
     texts = split_documents(documents) # Second invocation of document_processor.py script
-    my_cprint(f"Successfully split documents.", "cyan")
-    '''
-    with open("output_documents_split.txt", "w", encoding="utf-8") as text_file:
-        for text in texts:  
-            text_file.write(str(text) + "\n")
-    '''
+    my_cprint(f"Successfully split documents.", "white")
+    
     embeddings = get_embeddings(EMBEDDING_MODEL_NAME, config_data)
     my_cprint("Embedding model loaded.", "green")
 
-    if os.path.exists(PERSIST_DIRECTORY):
+    if PERSIST_DIRECTORY.exists():
         shutil.rmtree(PERSIST_DIRECTORY)
-    os.makedirs(PERSIST_DIRECTORY)
+    PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
-    my_cprint("Creating database.", "cyan")
+    my_cprint("Creating database.", "white")
     
     db = Chroma.from_documents(
         texts, embeddings, 
-        persist_directory=PERSIST_DIRECTORY, 
+        persist_directory=str(PERSIST_DIRECTORY), 
         client_settings=CHROMA_SETTINGS,
     )
     
-    my_cprint("Persisting database.", "cyan")
+    my_cprint("Persisting database.", "white")
     db.persist()
-    my_cprint("Database persisted.", "cyan")
+    my_cprint("Database persisted.", "white")
     
     del embeddings.client
     del embeddings
@@ -78,7 +70,7 @@ def main():
     my_cprint("Embedding model removed from memory.", "red")
 
 def get_embeddings(EMBEDDING_MODEL_NAME, config_data, normalize_embeddings=False):
-    my_cprint("Creating embeddings.", "cyan")
+    my_cprint("Creating embeddings.", "white")
     
     compute_device = config_data['Compute_Device']['database_creation']
     
@@ -113,8 +105,4 @@ def get_embeddings(EMBEDDING_MODEL_NAME, config_data, normalize_embeddings=False
         )
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-        level=logging.INFO
-    )
     main()

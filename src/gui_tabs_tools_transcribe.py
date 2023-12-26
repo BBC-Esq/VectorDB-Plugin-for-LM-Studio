@@ -1,16 +1,14 @@
 from PySide6.QtWidgets import (
-    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QApplication, QGridLayout, QCheckBox, QFileDialog, QProgressBar
+    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QApplication, QGridLayout, QCheckBox, QFileDialog
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt
 import yaml
 import os
 from constants import WHISPER_MODEL_NAMES
-from multiprocessing import Pipe
 from transcribe_module import TranscribeFile
 import threading
 
 class TranscriberToolSettingsTab(QWidget):
-    progress_updated = Signal(int)
 
     def __init__(self):
         super().__init__()
@@ -22,7 +20,6 @@ class TranscriberToolSettingsTab(QWidget):
         self.default_model = self.config.get('transcribe_file', {}).get('model', '')
         self.timestamps_enabled = self.config.get('transcribe_file', {}).get('timestamps', False)
         self.create_layout()
-        self.progress_updated.connect(self.update_progress_bar)
 
     def read_config(self):
         with open('config.yaml', 'r') as file:
@@ -76,17 +73,16 @@ class TranscriberToolSettingsTab(QWidget):
         self.select_file_button.clicked.connect(self.select_audio_file)
         grid_layout.addWidget(self.select_file_button, 0, 0)
 
+        self.select_folder_button = QPushButton("Select Folder")
+        self.select_folder_button.clicked.connect(self.select_audio_folder)
+        grid_layout.addWidget(self.select_folder_button, 0, 1)
+
         self.transcribe_button = QPushButton("Transcribe")
         self.transcribe_button.clicked.connect(self.start_transcription)
-        grid_layout.addWidget(self.transcribe_button, 0, 1)
+        grid_layout.addWidget(self.transcribe_button, 1, 0)
 
         self.file_path_label = QLabel("No file currently selected")
-        grid_layout.addWidget(self.file_path_label, 1, 0, 1, 2)
-
-        # Add QProgressBar
-        self.progress_bar = QProgressBar(self)
-        self.progress_bar.setMaximum(100)
-        grid_layout.addWidget(self.progress_bar, 2, 0, 1, 2)
+        grid_layout.addWidget(self.file_path_label, 2, 0, 1, 2)
 
         main_layout.addLayout(grid_layout)
         self.setLayout(main_layout)
@@ -137,29 +133,32 @@ class TranscriberToolSettingsTab(QWidget):
             self.file_path_label.setText(short_path)
             self.selected_audio_file = file_name
 
-    def update_progress_bar(self, value):
-        self.progress_bar.setValue(value)
+    def select_audio_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select Folder")
+        if folder:
+            self.process_folder(folder)
+
+    def process_folder(self, folder):
+        supported_extensions = ('.mp3', '.wma', '.flac')
+        audio_files = [os.path.join(folder, f) for f in os.listdir(folder) if f.lower().endswith(supported_extensions)]
+        
+        for audio_file in audio_files:
+            self.selected_audio_file = audio_file
+            self.start_transcription()
+            while threading.active_count() > 1:
+                QApplication.processEvents()  # Keep the UI responsive
 
     def start_transcription(self):
         if not self.selected_audio_file:
             print("Please select an audio file.")
             return
 
-        receiver_pipe, sender_pipe = Pipe()
+        def transcription_thread():
+            transcriber = TranscribeFile(self.selected_audio_file)
+            transcriber.start_transcription()
 
-        transcriber = TranscribeFile(self.selected_audio_file)
-        transcriber.start_transcription_thread(sender_pipe)
-
-        print("Transcription process started.")
-
-        def update_progress():
-            while True:
-                progress = receiver_pipe.recv()
-                self.progress_updated.emit(int(progress))
-                if progress >= 100:
-                    break
-
-        threading.Thread(target=update_progress, daemon=True).start()
+        threading.Thread(target=transcription_thread, daemon=True).start()
+        print(f"Transcription process for {os.path.basename(self.selected_audio_file)} started.")
 
 if __name__ == "__main__":
     app = QApplication([])

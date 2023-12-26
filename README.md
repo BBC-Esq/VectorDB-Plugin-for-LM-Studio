@@ -40,7 +40,7 @@ You <b>MUST</b> install these before installing my program:<p>
 1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3116/) (PyTorch is NOT compatible with 3.12, at least as of 12/19/2023).
 2) [Git](https://git-scm.com/downloads)
 3) [Git Large File Storage](https://git-lfs.com/).
-4) [Pandoc](https://github.com/jgm/pandoc) (only if you want to process ```.rtf``` files).
+4) [Pandoc](https://github.com/jgm/pandoc).
 
 <div align="center"> <h2>INSTALLATION</h2></div>
 
@@ -161,7 +161,15 @@ python -m pip install --upgrade pip
 ```
 ### Step 7
 ```
-pip install torch torchvision torchaudio
+pip3 install torch torchvision torchaudio
+```
+* And if that fails OR YOU GET CUDA-RELATED ERRORS when creating the database (e.g. if using M1, which is ARM-based), run:
+```
+pip uninstall torch torchvision torchaudio
+```
+The reinstall using this:
+```
+pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 -f https://download.pytorch.org/whl/cpu/torch_stable.html
 ```
 ### Step 8
 ```
@@ -201,36 +209,53 @@ python gui.py
 * Read the User Guide before proceeding further!
 
 ## Download Embedding Model
-* Choose the embedding model you want to download.  Do not attempt to create the vector database until the command prompt says that the model is downloaded AND unpacked.
+* Choose the embedding model you want to download.  Do not attempt to create the vector database until the command prompt says that the model is ready to use.
+
 ## Set Model Directory
-* Choose the directory containing the embedding model you want to use to create the vector database.
-  > Do not simply choose the "Embedding_Models" folder.
+* Choose the directory containing the embedding model you want to use.
+  > The folders to choose from are WITHIN the ```Embedding_Models``` folder.
+
 ## Adding Documents
-* Choose the documents you want to enter into the vector database.  You can select multiple documents at once and/or click this button multiple times.
-  > NOTE - Symbolic links to the files are created within the "Docs_for_DB" folder, not the actual files.
-* Supported file types are ```.pdf```, ```.docx```, ```.txt```, ```.json```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
-* You can also transcribe audio files to ```.txt``` to be put into the database.  Look within the "Tools" tab.
-  > ⚠️ Anytime you add documents you must recreate the vector database.
+* Choose the documents you want to enter into the vector database.  You can select multiple documents at once and/or click this button multiple times. Symbolic links to the files are created within the ```Docs_for_DB``` folder, not the actual files.  Supported file types are ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+  > You can also click the ```See Currently Chosen Documents``` button to drag and drop (or delete) files.
+
+* Additionally, the Tools Tab contains a feature allowing you to transcribe audio files to ```.txt``` and automatially put them into the ```Docs_for_DB``` folder.
+* ⚠️ Anytime you add/remove documents you must recreate the vector database.
 
 ## Removing Documents
-* You must manually delete the symbolic link/links from the "Docs_for_DB" folder and recreate the vector database.
+* You must manually delete the symbolic link/links from the ```Docs_for_DB``` folder and recreate the vector database.
 
 ## Creating the Databaase
-* The create database button creates the vector database!
-  > ⚠️ Wait until the command prompt says "persisted" before proceeding to the next step.
-  > ⚠️ Remember, you must recreate the database anytime you add/remove documents.
+* The create database button creates the vector database!  Wait until the command prompt says "persisted" before proceeding to the next step.
 
-## Load LM Studio
-* Open LM Studio and load a model.
-  > ⚠️ Only models that use the Llama-2 prompt format are supported by default.  You can change the "prefix" or "suffix" to test out other models.
-* Click the server tab on the left side.
-* Click "Start Server" in the server tab.
-  * ⚠️ As of LM Studio ```.2.8```, there's a setting to allow you to set the prompt format (and other settings) within LM Studio.
-  * It is recommended to DISABLE this setting to allow the program to work out-of-the-box.  However, experienced users can click the "disable" prompt formatting checkbox in the "Server" settings, which will enable you to experiment with the prompt formats provided by LM Studio.
+## Start LM Studio
+* Start LM Studio and load a model.
+
+## Choosing a Prompt Format
+* The Settings Tab allows you to set the prompt format matching the model used within LM Studio.
+  * ⚠️ If using ```LM Studio v0.2.9``` or earlier, this is all you need to do.
+
+  * ⚠️ If using ```v0.2.10```, there is a known BUG preventing LM Studio from respecting the prompt format chosen.  To prevent this, you must, within LM Studio go to the Server settings (far right side) and:
+    * Delete any/all text within the ```User Message Prefix``` box; and
+    * Delete any/all text within the ```User Message Suffix``` box.
+  * The program will work optimally after that.
+
+## Start the LM Studio Server
+* Click the server tab on the left side and click ```Start Server.```
 
 ## Search Database
-* Type your question and click "Submit Questions."
-* You can speak your question to LM Studio using the powerful Ctranslate2 library and state-of-the-art "Whisper" models.  Simply click the Start Recording button...talk...click the Stop Recording button.
+* Type (or speak) your question and click ```Submit Questions.```
+
+## Test Chunks
+* If you wish to test the quality of the chunk settings check the ```Chunks Only``` checkbox.  LM Studio will not be connected to and you'll simply receive the relevant contexts from the vector database.
+
+## Test to Voice
+* This program uses Bark models to convert the response from LM Studio to audio.  You must wait until the ENTIRE response is received from the LLM and then click the ```Bark Response``` button.
+
+## Voice to Text
+* Both the voice recorder and audio file transcriber use the ```faster-whisper``` library and GPU acceleration is as follows:
+
+  > Note, ```faster-whisper``` only supports CUDA 11.8 currently, but CUDA 12+ support is coming in the near future.
 
 <div align="center">
   <h4>⚡Acceleration for Transcription⚡</h4>
@@ -270,10 +295,6 @@ python gui.py
   </table>
 </div>
 
-## Tools
-* You can transcribe audio files to the database folder, which will then be put into the database when you create it.
-* However, just like transcribing a question, if you are using an NVIDIA GPU you must have installed ⚠️CUDA 11.8⚠️ and not CUDA 12.1 since the ```faster-whisper``` library currently doesn't support 12.1 WITHOUTH having to compile from source, which most users don't/can't do.
-
 </details>
 
 <div align="center"><h2>CONTACT</h2></div>
@@ -282,5 +303,4 @@ All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or 
 
 <div align="center">
   <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example.png" alt="Example Image">
-  <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" alt="Example Image4">
 </div>

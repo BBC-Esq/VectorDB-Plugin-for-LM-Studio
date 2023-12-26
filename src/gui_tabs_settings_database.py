@@ -59,7 +59,6 @@ class DatabaseSettingsTab(QWidget):
 
         settings_changed = False
 
-        # Update device configurations
         device_map = {
             'database_creation': (self.device_combos[0], 'currentText', str, 'Create Device'),
             'database_query': (self.device_combos[1], 'currentText', str, 'Query Device')
@@ -71,11 +70,9 @@ class DatabaseSettingsTab(QWidget):
                 settings_changed = True
                 config_data['Compute_Device'][setting] = caster(new_value)
                 
-                # Update label text to reflect new device setting
                 label = widget.parentWidget().findChildren(QLabel)[0]
                 label.setText(f"{label_prefix}: {new_value}")
 
-        # Update database settings
         for setting, widget in self.field_data.items():
             new_value = widget.text()
             if new_value and new_value != str(config_data['database'].get(setting, '')):

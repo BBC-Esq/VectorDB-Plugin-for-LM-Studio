@@ -31,10 +31,10 @@ def create_tabs():
     menu_layout = QHBoxLayout()
 
     buttons_dict = {
-        'Tips': 'tips.html',
+        'Usage': 'tips.html',
         'Settings': 'settings.html',
         'Embedding Models': 'embedding_models.html',
-        'Transcribe': 'transcribe.html'
+        'Whisper': 'transcribe.html'
     }
 
     user_guide_view = QWebEngineView()

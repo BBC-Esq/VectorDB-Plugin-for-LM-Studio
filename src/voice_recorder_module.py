@@ -2,6 +2,7 @@ import pyaudio
 import wave
 import os
 import tempfile
+from pathlib import Path
 from faster_whisper import WhisperModel
 import torch
 import gc
@@ -20,7 +21,7 @@ def my_cprint(*args, **kwargs):
 class TranscriptionThread(QThread):
     transcription_complete = Signal(str)
 
-    def __init__(self, audio_file, model): # Can add additional parameters from the transcribe method of WhisperModel class here
+    def __init__(self, audio_file, model):  # Can add additional parameters from the transcribe method of WhisperModel class here
         super().__init__()
         self.audio_file = audio_file
         self.model = model
@@ -28,9 +29,9 @@ class TranscriptionThread(QThread):
     def run(self):
         segments, _ = self.model.transcribe(self.audio_file)
         transcription_text = "\n".join([segment.text for segment in segments])
-        my_cprint("Transcription completed.", 'green')
+        my_cprint("Transcription completed.", 'white')
         self.transcription_complete.emit(transcription_text)
-        os.remove(self.audio_file)
+        Path(self.audio_file).unlink()
 
 class RecordingThread(QThread):
     def __init__(self, voice_recorder):
@@ -61,15 +62,15 @@ class VoiceRecorder:
 
     def save_audio(self):
         self.is_recording = False
-        temp_filename = tempfile.mktemp(suffix=".wav")
-        with wave.open(temp_filename, "wb") as wf:
+        temp_file = Path(tempfile.mktemp(suffix=".wav"))
+        with wave.open(str(temp_file), "wb") as wf:
             wf.setnchannels(self.channels)
             wf.setsampwidth(pyaudio.PyAudio().get_sample_size(self.format))
             wf.setframerate(self.rate)
             wf.writeframes(b"".join(self.frames))
         self.frames.clear()
 
-        self.transcription_thread = TranscriptionThread(temp_filename, self.model)
+        self.transcription_thread = TranscriptionThread(str(temp_file), self.model)
         self.transcription_thread.transcription_complete.connect(self.gui_instance.update_transcription)
         self.transcription_thread.transcription_complete.connect(self.ReleaseTranscriber)
         self.transcription_thread.start()
@@ -84,9 +85,9 @@ class VoiceRecorder:
             
             cpu_threads = max(4, os.cpu_count() - 6)
             
-            print(f"Loaded device: {transcriber_config['device']}")
-            print(f"Loaded model: {transcriber_config['model']}")
-            print(f"Loaded quant: {transcriber_config['quant']}")
+            print(f"Device = {transcriber_config['device']}")
+            print(f"Model = {transcriber_config['model']}")
+            print(f"Quant = {transcriber_config['quant']}")
             
             self.model = WhisperModel(
                 model_string,
@@ -95,6 +96,9 @@ class VoiceRecorder:
                 cpu_threads=cpu_threads
             )
             my_cprint("Whisper model loaded.", 'green')
+            
+            # attributes of whispermodel
+            # print(dir(self.model))
             
             self.is_recording = True
             self.recording_thread = RecordingThread(self)
@@ -107,11 +111,18 @@ class VoiceRecorder:
             self.save_audio()
 
     def ReleaseTranscriber(self):
+        if hasattr(self.model, 'model'):
+            del self.model.model
+        if hasattr(self.model, 'feature_extractor'):
+            del self.model.feature_extractor
+        if hasattr(self.model, 'hf_tokenizer'):
+            del self.model.hf_tokenizer
         del self.model
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
         my_cprint("Whisper model removed from memory.", 'red')
+
 
 """
                                       def VoiceRecorder
