@@ -104,15 +104,21 @@ python -m pip install --upgrade pip
 ### Step 6
 🟢 Nvidia GPU:
 ```
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+```
+pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
 ```
 🔴 AMD GPU:
 ```
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+```
+```
+pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
 ```
 🔵 CPU only:
 ```
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
 ### Step 7
 ```
@@ -124,8 +130,9 @@ sudo apt-get install python3-dev
 ```
 ### Step 9
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
+
 ### Optional Step 10
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
