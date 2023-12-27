@@ -1,7 +1,6 @@
 import os
 import platform
 import shutil
-import site
 from pathlib import Path
 
 import ctranslate2
@@ -81,19 +80,66 @@ def update_config_file(**system_info):
         yaml.safe_dump(config_data, stream)
 
 
+def find_all_target_directories_with_file(base_path, target_folder, target_file):
+    found_directories = []
+
+    for entry in base_path.rglob(target_folder):  # Search for all 'parsers' directories
+        if entry.is_dir() and entry.name.lower() == target_folder.lower():
+            # Search for the file in a case-insensitive manner
+            for file in entry.iterdir():
+                if file.is_file() and file.name.lower() == target_file.lower():
+                    found_directories.append(entry)
+                    break
+
+    return found_directories
+
+
+def get_directory_depth(directory, base_directory):
+    return len(directory.relative_to(base_directory).parts)
+
+
+def find_closest_directory(directories, base_directory):
+    depths = [(dir, get_directory_depth(dir, base_directory)) for dir in directories]
+    return min(depths, key=lambda x: x[1])[0]
+
+
+def get_base_directory():
+    script_dir = Path(__file__).parent
+    base_dir = script_dir.parent.parent  # Move up two levels
+    return base_dir
+
+
 def move_custom_pdf_loader():
-    current_dir = Path.cwd()
-    user_manual_pdf_path = current_dir / "User_Manual" / "PDF.py"
+    script_dir = Path(__file__).parent
+    user_manual_pdf_path = script_dir / "User_Manual" / "PDF.py"
 
-    site_packages_dirs = site.getsitepackages()
-    lib_path = Path(site_packages_dirs[0])
-    lib_pdf_path = lib_path / "langchain" / "document_loaders" / "parsers" / "PDF.py"
+    base_dir = get_base_directory()
+    target_folder = "parsers"
+    target_file = "pdf.py"
+    found_paths = find_all_target_directories_with_file(
+        base_dir, target_folder, target_file
+    )
 
+    if len(found_paths) == 1:
+        chosen_pdf_path = found_paths[0] / target_file
+    elif len(found_paths) > 1:
+        closest_parsers_path = find_closest_directory(found_paths, base_dir)
+        print(f"Chosen 'parsers' directory based on path depth: {closest_parsers_path}")
+        chosen_pdf_path = closest_parsers_path / target_file
+    else:
+        print("No suitable 'parsers' directory found.")
+        return
+
+    # Proceed with file size comparison and move operation
     user_manual_pdf_size = user_manual_pdf_path.stat().st_size
-    lib_pdf_size = lib_pdf_path.stat().st_size
+    chosen_pdf_size = chosen_pdf_path.stat().st_size
 
-    if user_manual_pdf_size != lib_pdf_size:
-        shutil.copy(user_manual_pdf_path, lib_pdf_path)
+    if user_manual_pdf_size != chosen_pdf_size:
+        print("Replacing the existing pdf.py with the new one...")
+        shutil.copy(user_manual_pdf_path, chosen_pdf_path)
+        print(f"PDF.py replaced at: {chosen_pdf_path}")
+    else:
+        print("No replacement needed. The files are of the same size.")
 
 
 def main():
