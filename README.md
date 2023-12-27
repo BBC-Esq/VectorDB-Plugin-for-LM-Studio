@@ -132,6 +132,9 @@ sudo apt-get install python3-dev
 ```
 pip3 install -r requirements.txt
 ```
+### Step 10
+### Step 10
+If the program does not automatically move ```pdf.py``` from the ```User Manual``` folder you must move it manually.  I've gotten reports that the folder structure might be different on non-Windows machines.  At leat on Windows, it goes to ```Lib/site-packages/langchain/document_loaders/parsers```.
 
 ### Optional Step 10
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
@@ -187,6 +190,10 @@ brew install portaudio
 ```
 pip install -r requirements.txt
 ```
+
+### Step 10
+If the program does not automatically move ```pdf.py``` from the ```User Manual``` folder you must move it manually.  I've gotten reports that the folder structure might be different on non-Windows machines.  At leat on Windows, it goes to ```Lib/site-packages/langchain/document_loaders/parsers```.
+
 ### Optional Step 10
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
