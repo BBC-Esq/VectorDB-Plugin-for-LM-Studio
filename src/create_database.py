@@ -38,11 +38,10 @@ def main():
     EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
 
     my_cprint(f"Loading documents.", "white")
-    documents = load_documents(SOURCE_DIRECTORY) # First invocation of document_processor.py script
+    documents = load_documents(SOURCE_DIRECTORY) # invoke document_processor.py; returns a list of document objects
     my_cprint(f"Successfully loaded documents.", "white")
     
-    texts = split_documents(documents) # Second invocation of document_processor.py script
-    my_cprint(f"Successfully split documents.", "white")
+    texts = split_documents(documents) # invoke document_processor.py again; returns a list of split document objects
     
     embeddings = get_embeddings(EMBEDDING_MODEL_NAME, config_data)
     my_cprint("Embedding model loaded.", "green")

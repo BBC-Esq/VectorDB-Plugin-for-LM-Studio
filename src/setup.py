@@ -67,6 +67,8 @@ def setup_windows_installation():
     os.system("python -m pip install --upgrade pip")
     install_pytorch(cuda_version, cuda_installed)
     os.system("pip install -r requirements.txt")
+    os.system("pip install bitsandbytes==0.41.2.post2 --prefer-binary --index-url=https://jllllll.github.io/bitsandbytes-windows-webui")
+    os.system("pip install -U xformers --index-url https://download.pytorch.org/whl/cu118")
 
     source_path = "User_Manual/pdf.py"
     target_path = "Lib/site-packages/langchain/document_loaders/parsers/pdf.py"

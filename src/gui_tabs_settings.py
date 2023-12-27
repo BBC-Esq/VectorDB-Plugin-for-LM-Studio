@@ -1,13 +1,17 @@
-from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout, QWidget, QMessageBox, QLabel
+from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout, QWidget, QMessageBox
 from gui_tabs_settings_server import ServerSettingsTab
 # from gui_tabs_settings_models import ModelsSettingsTab
-    # Commented out unless/until modifying BGE and Instructor settings become useful
+# Commented out unless/until modifying BGE and Instructor settings become useful
 from gui_tabs_settings_whisper import TranscriberSettingsTab
 from gui_tabs_settings_database import DatabaseSettingsTab
 from gui_tabs_settings_bark import BarkModelSettingsTab
+from gui_tabs_settings_vision import VisionSettingsTab
 
 def update_all_configs(configs):
-    updated = any(config.update_config() for config in configs.values())
+    updated = False
+    for config in configs.values():
+        updated = config.update_config() or updated
+
     if updated:
         print("config.yaml file updated")
     
@@ -26,10 +30,10 @@ class GuiSettingsTab(QWidget):
         self.layout = QVBoxLayout()
 
         classes = {
-            "Server/LLM Settings": (ServerSettingsTab, 3),
-            "Voice Recorder Settings": (TranscriberSettingsTab, 1),
-            "Database Settings": (DatabaseSettingsTab, 3),
-            "Bark Settings": (BarkModelSettingsTab, 1),
+            "SERVER/LLM": (ServerSettingsTab, 4),
+            "VOICE RECORDER": (TranscriberSettingsTab, 1),
+            "DATABASE": (DatabaseSettingsTab, 3),
+            "BARK": (BarkModelSettingsTab, 1),
         }
 
         self.groups = {}
@@ -52,6 +56,16 @@ class GuiSettingsTab(QWidget):
                 adjust_stretch(self.groups, self.layout)
             ))
 
+        # Instantiate VisionSettingsTab separately
+        visionSettings = VisionSettingsTab()
+        visionGroup = QGroupBox("VISION MODELS")
+        visionLayout = QVBoxLayout()
+        visionLayout.addWidget(visionSettings)
+        visionGroup.setLayout(visionLayout)
+        visionGroup.setCheckable(True)
+        visionGroup.setChecked(True)
+        self.layout.addWidget(visionGroup, 1)
+
         self.update_all_button = QPushButton("Update Settings")
         self.update_all_button.setStyleSheet("min-width: 200px;")
         self.update_all_button.clicked.connect(lambda: update_all_configs(self.configs))
@@ -61,11 +75,7 @@ class GuiSettingsTab(QWidget):
         center_button_layout.addWidget(self.update_all_button)
         center_button_layout.addStretch(1)
 
-        tip_label_1 = QLabel("🚨🚨<b><u>Linux/Mac users read the GitHub instructions regarding PDFs!!!</u></b>🚨🚨")
-        self.layout.addWidget(tip_label_1)
-
-        self.setLayout(self.layout)
-        
         self.layout.addLayout(center_button_layout)
         self.setLayout(self.layout)
         adjust_stretch(self.groups, self.layout)
+

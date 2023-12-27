@@ -15,7 +15,7 @@ class BarkModelSettingsTab(QWidget):
 
         # First row
         first_row_layout = QHBoxLayout()
-        self.model_size_label = QLabel("Model Size")
+        self.model_size_label = QLabel("Model")
         first_row_layout.addWidget(self.model_size_label)
         self.model_size_combo = QComboBox()
         self.model_size_combo.addItems(["normal", "small"])

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vision Model Table</title>
+    <style>
+        body {
+            background-color: #161b22;
+            color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto; /* Center table */
+        }
+
+        th, td {
+            border: 1px solid #f9f9f9; /* Text color for border */
+            text-align: center;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #104c17;
+            color: black; /* For contrast against light background */
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Model</th>
+            <th>Size</th>
+            <th>Quant</th>
+            <th>VRAM Usage</th>
+        </tr>
+        <tr>
+            <td>llava</td>
+            <td>7B</td>
+            <td>4-bit</td>
+            <td>6.5</td>
+        </tr>
+        <tr>
+            <td>bakllava</td>
+            <td>7B</td>
+            <td>4-bit</td>
+            <td>7.5</td>
+        </tr>
+        <tr>
+            <td>llava</td>
+            <td>7B</td>
+            <td>8-bit</td>
+            <td>8.6</td>
+        </tr>
+        <tr>
+            <td>llava</td>
+            <td>13B</td>
+            <td>4-bit</td>
+            <td>10.56</td>
+        </tr>
+        <tr>
+            <td>bakllava</td>
+            <td>7b</td>
+            <td>8-bit</td>
+            <td>13.8</td>
+        </tr>
+        <tr>
+            <td>llava</td>
+            <td>7b</td>
+            <td>float16</td>
+            <td>14.66</td>
+        </tr>
+        <tr>
+            <td>llava</td>
+            <td>13B</td>
+            <td>8-bit</td>
+            <td>15</td>
+        </tr>
+        <tr>
+            <td>cogvlm</td>
+            <td>18B</td>
+            <td>4-bit</td>
+            <td>15.1</td>
+        </tr>
+        <tr>
+            <td>bakllava</td>
+            <td>7b</td>
+            <td>float16</td>
+            <td>16.5</td>
+        </tr>
+        <tr>
+            <td>cogvlm</td>
+            <td>18B</td>
+            <td>8-bit</td>
+            <td>24</td>
+        </tr>
+		<tr>
+            <td>llava</td>
+            <td>13B</td>
+            <td>float16</td>
+            <td>32</td>
+        </tr>
+    </table>
+</body>
+</html>

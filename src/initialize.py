@@ -3,6 +3,8 @@ import yaml
 import platform
 import ctranslate2
 import os
+import shutil
+from pathlib import Path
 
 def get_compute_device_info():
     available_devices = ["cpu"]
@@ -60,11 +62,22 @@ def update_config_file(**system_info):
     with open(full_config_path, 'w') as stream:
         yaml.safe_dump(config_data, stream)
 
+def move_custom_pdf_loader():
+    current_dir = Path.cwd()
+    user_manual_pdf_path = current_dir / "User_Manual" / "PDF.py"
+    lib_pdf_path = current_dir / "Lib" / "site-packages" / "langchain" / "document_loaders" / "parsers" / "PDF.py"
+
+    user_manual_pdf_size = user_manual_pdf_path.stat().st_size
+    lib_pdf_size = lib_pdf_path.stat().st_size
+
+    if user_manual_pdf_size != lib_pdf_size:
+        shutil.copy(user_manual_pdf_path, lib_pdf_path)
+
 def main():
     compute_device_info = get_compute_device_info()
     platform_info = get_platform_info()
-
     update_config_file(Compute_Device=compute_device_info, Platform_Info=platform_info)
+    move_custom_pdf_loader()
 
 if __name__ == "__main__":
     main()

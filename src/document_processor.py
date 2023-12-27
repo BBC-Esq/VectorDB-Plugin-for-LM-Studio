@@ -20,18 +20,19 @@ from langchain.document_loaders import (
 )
 
 from constants import DOCUMENT_LOADERS
+from loader_vision_llava import llava_process_images
+from loader_vision_cogvlm import cogvlm_process_images
 
 ENABLE_PRINT = True
+ROOT_DIRECTORY = Path(__file__).parent
+SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
+INGEST_THREADS = os.cpu_count() or 8
 
 def my_cprint(*args, **kwargs):
     if ENABLE_PRINT:
         filename = "document_processor.py"
         modified_message = f"{filename}: {args[0]}"
         cprint(modified_message, *args[1:], **kwargs)
-
-ROOT_DIRECTORY = Path(__file__).parent
-SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
-INGEST_THREADS = os.cpu_count() or 8
 
 for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
@@ -41,9 +42,15 @@ from langchain.document_loaders import (
     UnstructuredODTLoader, UnstructuredMarkdownLoader, 
     UnstructuredExcelLoader, UnstructuredCSVLoader
 )
-from pathlib import Path
-from langchain.docstore.document import Document
-# Other necessary imports...
+
+def process_images_wrapper(config):
+    chosen_model = config["vision"]["chosen_model"]
+    if chosen_model == 'llava' or chosen_model == 'bakllava':
+        return llava_process_images()
+    elif chosen_model == 'cogvlm':
+        return cogvlm_process_images()
+    else:
+        return []
 
 def load_single_document(file_path: Path) -> Document:
     file_extension = file_path.suffix.lower()
@@ -51,9 +58,11 @@ def load_single_document(file_path: Path) -> Document:
 
     if loader_class:
         if file_extension == ".txt":
-            loader = loader_class(str(file_path), encoding='utf-8')
+            loader = loader_class(str(file_path), encoding='utf-8', autodetect_encoding=True)
         elif file_extension == ".epub":
             loader = UnstructuredEPubLoader(str(file_path), mode="single", strategy="fast")
+        elif file_extension == ".docx":
+            loader = Docx2txtLoader(str(file_path), mode="single", strategy="fast")
         elif file_extension == ".rtf":
             loader = UnstructuredRTFLoader(str(file_path), mode="single", strategy="fast")
         elif file_extension == ".odt":
@@ -71,40 +80,55 @@ def load_single_document(file_path: Path) -> Document:
 
     document = loader.load()[0]
 
-    '''
-    # Write the content to a .txt file
-    with open("output_load_single_document.txt", "w", encoding="utf-8") as output_file:
-        output_file.write(document.page_content)
-    '''
+    # with open("output_load_single_document.txt", "w", encoding="utf-8") as output_file:
+        # output_file.write(document.page_content)
+
+    # text extracted before metadata added
     return document
 
 def load_document_batch(filepaths):
     with ThreadPoolExecutor(len(filepaths)) as exe:
         futures = [exe.submit(load_single_document, name) for name in filepaths]
         data_list = [future.result() for future in futures]
-    return (data_list, filepaths)
+    return (data_list, filepaths) # "data_list" = list of all document objects created by load single document
 
 def load_documents(source_dir: Path) -> list[Document]:
     all_files = list(source_dir.iterdir())
     paths = [f for f in all_files if f.suffix in DOCUMENT_LOADERS.keys()]
     
-    n_workers = min(INGEST_THREADS, max(len(paths), 1))
-    my_cprint(f"Number of workers assigned: {n_workers}", "white")
-    chunksize = round(len(paths) / n_workers)
-    
-    if chunksize == 0:
-        raise ValueError(f"chunksize must be a non-zero integer, but got {chunksize}. len(paths): {len(paths)}, n_workers: {n_workers}")
-    
     docs = []
+
+    if paths:
+        n_workers = min(INGEST_THREADS, max(len(paths), 1))
+        my_cprint(f"Number of workers assigned: {n_workers}", "white")
+        chunksize = round(len(paths) / n_workers)
+        
+        if chunksize == 0:
+            raise ValueError(f"chunksize must be a non-zero integer, but got {chunksize}. len(paths): {len(paths)}, n_workers: {n_workers}")
+
+        with ProcessPoolExecutor(n_workers) as executor:
+            futures = [executor.submit(load_document_batch, paths[i : (i + chunksize)]) for i in range(0, len(paths), chunksize)]
+            for future in as_completed(futures):
+                contents, _ = future.result()
+                docs.extend(contents)
+                my_cprint(f"Number of NON-IMAGE files loaded: {len(docs)}", "yellow")
+
+    additional_docs = []
     
-    with ProcessPoolExecutor(n_workers) as executor:
-        futures = [executor.submit(load_document_batch, paths[i : (i + chunksize)]) for i in range(0, len(paths), chunksize)]
-        for future in as_completed(futures):
-            contents, _ = future.result()
-            docs.extend(contents)
-            my_cprint(f"Number of files loaded: {len(docs)}", "white")
-    
-    return docs # end of first invocation by create_database.py
+    my_cprint(f"Loading images, if any.", "yellow")
+
+    with open("config.yaml", "r") as config_file:
+        config = yaml.safe_load(config_file)
+
+        # Use ProcessPoolExecutor to run the selected image processing function in a separate process
+        with ProcessPoolExecutor(1) as executor:
+            future = executor.submit(process_images_wrapper, config)
+            processed_docs = future.result()  # Get the result from the future
+            additional_docs = processed_docs if processed_docs is not None else []
+
+    docs.extend(additional_docs)  # Add to pre-existing list
+
+    return docs
 
 def split_documents(documents):
     my_cprint(f"Splitting documents.", "white")
@@ -131,3 +155,8 @@ def split_documents(documents):
         my_cprint(f"Chunks between {lower_bound} and {upper_bound} characters: {count}", "white")
     
     return texts
+
+'''
+# document object structure: Document(page_content="[ALL TEXT EXTRACTED]", metadata={'source': '[FULL FILE PATH WITH DOUBLE BACKSLASHES'})
+# list structure: [Document(page_content="...", metadata={'source': '...'}), Document(page_content="...", metadata={'source': '...'})]
+'''

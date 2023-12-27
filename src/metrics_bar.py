@@ -24,11 +24,17 @@ class MetricsCollector(QThread):
         while True:
             cpu_usage = collect_cpu_metrics()
             ram_usage_percent, _ = collect_ram_metrics()
-            gpu_utilization, vram_usage_percent = collect_gpu_metrics(handle)
-            power_usage_percent, power_limit_percent = collect_power_metrics(handle)
-            
+
+            # Only collect GPU metrics if NVIDIA GPU is present
+            if is_nvidia_gpu_available():
+                gpu_utilization, vram_usage_percent = collect_gpu_metrics(handle)
+                power_usage_percent, power_limit_percent = collect_power_metrics(handle)
+            else:
+                gpu_utilization, vram_usage_percent = None, None
+                power_usage_percent, power_limit_percent = None, None
+
             self.metrics_updated.emit((cpu_usage, ram_usage_percent, gpu_utilization, vram_usage_percent, power_usage_percent, power_limit_percent))
-            time.sleep(0.5) # Update frequency
+            time.sleep(0.2)  # Update frequency
 
 class MetricsBar(QWidget):
     def __init__(self):
@@ -116,12 +122,13 @@ class MetricsBar(QWidget):
             bar.setValue(avg_value)
             label.setText(f"{avg_value}%")
 
+    # Sets number to collet in calculating the average
     def setup_metrics_buffers(self):
-        self.cpu_buffer = deque(maxlen=4)
-        self.ram_buffer = deque(maxlen=4)
-        self.gpu_buffer = deque(maxlen=4)
-        self.vram_buffer = deque(maxlen=4)
-        self.power_buffer = deque(maxlen=4)
+        self.cpu_buffer = deque(maxlen=10)
+        self.ram_buffer = deque(maxlen=10)
+        self.gpu_buffer = deque(maxlen=10)
+        self.vram_buffer = deque(maxlen=10)
+        self.power_buffer = deque(maxlen=10)
 
     def start_metrics_collector(self):
         self.metrics_collector = MetricsCollector()
@@ -142,13 +149,16 @@ def collect_ram_metrics():
     return ram.percent, ram.used
 
 def collect_gpu_metrics(handle):
+    if handle is None:
+        return None, None  # Return None values if no NVIDIA GPU is detected
     memory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
     gpu_utilization = pynvml.nvmlDeviceGetUtilizationRates(handle).gpu
-
     vram_usage_percent = (memory_info.used / memory_info.total) * 100 if memory_info.total > 0 else 0
     return gpu_utilization, vram_usage_percent
 
 def collect_power_metrics(handle):
+    if handle is None:
+        return None, None  # Return None values if no NVIDIA GPU is detected
     power_usage = pynvml.nvmlDeviceGetPowerUsage(handle) / 1000.0
     power_limit = pynvml.nvmlDeviceGetPowerManagementLimit(handle) / 1000.0
     power_percentage = (power_usage / power_limit) * 100 if power_limit > 0 else 0

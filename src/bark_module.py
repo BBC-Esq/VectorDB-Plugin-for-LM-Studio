@@ -116,8 +116,6 @@ class BarkAudio:
             finally:
                 p.terminate()
 
-        # print attributes of the BarkModel instance
-        # print(dir(self.model))
         self.release_resources()
 
     def process_text_thread(self):

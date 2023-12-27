@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QTabWidget,
-    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox, QHBoxLayout
+    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox, QHBoxLayout, QMessageBox
 )
 from PySide6.QtCore import Qt, QTimer
 import os
+from pathlib import Path
 import torch
 import yaml
 import sys
@@ -20,32 +21,20 @@ import voice_recorder_module
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
 from bark_module import BarkAudio
 from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP
-import logging
 
 class DocQA_GUI(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Initialize the system with logging
-        self.initialize_system_with_logging()
-
+        initialize_system()
         self.cumulative_response = ""
         self.metrics_bar = MetricsBar()
         self.compute_device = self.metrics_bar.determine_compute_device()
         os_name = self.metrics_bar.get_os_name()
         self.submit_button = None
         self.init_ui()
-        self.init_menu()
         self.load_config()
-
-    def initialize_system_with_logging(self):
-        try:
-            logging.info("Starting system initialization.")
-            initialize_system()
-            logging.info("System initialization completed successfully.")
-        except Exception as e:
-            logging.error(f"Error during system initialization: {e}")
-            raise
+        self.init_menu()
 
     def is_nvidia_gpu(self):
         if torch.cuda.is_available():
@@ -63,7 +52,7 @@ class DocQA_GUI(QWidget):
     def init_ui(self):
         main_splitter = QSplitter(Qt.Horizontal)
         self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
-        self.setGeometry(300, 300, 975, 975)
+        self.setGeometry(300, 300, 1060, 1060)
         self.setMinimumSize(450, 510)
 
         # LEFT FRAME
@@ -77,7 +66,7 @@ class DocQA_GUI(QWidget):
         button_data = [
             ("Download Embedding Model", lambda: download_embedding_model(self)),
             ("Choose Embedding Model Directory", select_embedding_model_directory),
-            ("Choose Documents for Database", choose_documents_directory),
+            ("Choose Documents or Images", choose_documents_directory),
             ("See Currently Chosen Documents", see_documents_directory),
             ("Create Vector Database", self.on_create_button_clicked)
         ]
@@ -150,10 +139,68 @@ class DocQA_GUI(QWidget):
         super().resizeEvent(event)
 
     def on_create_button_clicked(self):
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        config_path = os.path.join(script_dir, 'config.yaml')
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+
+        if sys.platform == "darwin" and config.get('vision', {}).get('chosen_model') == "cogvlm" and any(images_dir.iterdir()):
+            QMessageBox.warning(self, "Error", 
+                                "cogvlm not available on MacOS due to the xformers library not having a MacOS build. Please choose a different vision model for processing.")
+            return
+        
+        embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
+        if not embedding_model_name:
+            QMessageBox.warning(self, "Error", 
+                                "You must first download an embedding model, select it, and choose documents first before proceeding.")
+            return
+
+        documents_dir = Path(script_dir) / "Docs_for_DB"
+        images_dir = Path(script_dir) / "Images_for_DB"
+        if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
+            QMessageBox.warning(self, "Error", 
+                                "No documents found to process. Please select files to add to the vector database and try again.")
+            return
+
+        # New check for compute device availability
+        compute_device = config.get('Compute_Device', {}).get('available', [])
+        database_creation = config.get('Compute_Device', {}).get('database_creation')
+
+        if ("cuda" in compute_device or "mps" in compute_device) and database_creation == "cpu":
+            reply = QMessageBox.question(self, 'Warning', 
+                                         "GPU-acceleration is available and highly recommended for creating a vector database. Click OK to proceed or Cancel to go back and change the device.", 
+                                         QMessageBox.Ok | QMessageBox.Cancel)
+            if reply == QMessageBox.Cancel:
+                return
+        
         self.create_database_thread = CreateDatabaseThread(self)
         self.create_database_thread.start()
 
     def on_submit_button_clicked(self):
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        config_path = os.path.join(script_dir, 'config.yaml')
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+
+        embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
+        if not embedding_model_name:
+            QMessageBox.warning(self, "Error", 
+                                "You must first download an embedding model, select it, and choose documents first before proceeding.")
+            return
+
+        documents_dir = Path(script_dir) / "Docs_for_DB"
+        images_dir = Path(script_dir) / "Images_for_DB"
+        if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
+            QMessageBox.warning(self, "Error", 
+                                "No documents found to process. Please select files to add to the vector database and try again.")
+            return
+
+        vector_db_dir = Path(script_dir) / "Vector_DB"
+        if not any(f.suffix == '.parquet' for f in vector_db_dir.iterdir()):
+            QMessageBox.warning(self, "Error",
+                                "You must first create a vector database before clicking this button.")
+            return
+
         self.submit_button.setDisabled(True)
         self.submit_button.setText("Processing...")
         user_question = self.text_input.toPlainText()
@@ -163,11 +210,11 @@ class DocQA_GUI(QWidget):
         self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
         self.submit_button_thread.start()
 
-        # timer to reset button
+        # Timer to reset button
         self.reset_timer = QTimer(self)
         self.reset_timer.setSingleShot(True)
         self.reset_timer.timeout.connect(self.enable_submit_button)
-        self.reset_timer.start(3000)  # 3 seconds
+        self.reset_timer.start(3000)
 
     def enable_submit_button(self):
         self.submit_button.setDisabled(False)
@@ -234,7 +281,6 @@ class DocQA_GUI(QWidget):
         bark_audio.run()
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create('fusion'))
     stylesheet = load_stylesheet('custom_stylesheet_steel_ocean.css')

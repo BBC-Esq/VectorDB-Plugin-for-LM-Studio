@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QApplication, QGridLayout, QCheckBox, QFileDialog
+    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QApplication, QCheckBox, QFileDialog
 )
 from PySide6.QtCore import Qt
 import yaml
@@ -14,11 +14,15 @@ class TranscriberToolSettingsTab(QWidget):
         super().__init__()
         self.selected_audio_file = None
         self.config = self.read_config()
-        self.gpu_brand = self.config.get('Compute_Device', {}).get('gpu_brand', '').lower()
+
+        compute_device_config = self.config.get('Compute_Device', {}) or {}
+        self.gpu_brand = compute_device_config.get('gpu_brand', '').lower()
+
         self.default_device = self.config.get('transcribe_file', {}).get('device', 'cpu').lower()
         self.default_quant = self.config.get('transcribe_file', {}).get('quant', '')
         self.default_model = self.config.get('transcribe_file', {}).get('model', '')
         self.timestamps_enabled = self.config.get('transcribe_file', {}).get('timestamps', False)
+
         self.create_layout()
 
     def read_config(self):
@@ -67,24 +71,22 @@ class TranscriberToolSettingsTab(QWidget):
 
         main_layout.addLayout(hbox2)
 
-        # Third row of widgets
-        grid_layout = QGridLayout()
+        # Third row of widgets (Select Audio File and Transcribe buttons)
+        hbox3 = QHBoxLayout()
         self.select_file_button = QPushButton("Select Audio File")
         self.select_file_button.clicked.connect(self.select_audio_file)
-        grid_layout.addWidget(self.select_file_button, 0, 0)
-
-        self.select_folder_button = QPushButton("Select Folder")
-        self.select_folder_button.clicked.connect(self.select_audio_folder)
-        grid_layout.addWidget(self.select_folder_button, 0, 1)
+        hbox3.addWidget(self.select_file_button)
 
         self.transcribe_button = QPushButton("Transcribe")
         self.transcribe_button.clicked.connect(self.start_transcription)
-        grid_layout.addWidget(self.transcribe_button, 1, 0)
+        hbox3.addWidget(self.transcribe_button)
 
+        main_layout.addLayout(hbox3)
+
+        # Label for displaying the selected file path
         self.file_path_label = QLabel("No file currently selected")
-        grid_layout.addWidget(self.file_path_label, 2, 0, 1, 2)
+        main_layout.addWidget(self.file_path_label)
 
-        main_layout.addLayout(grid_layout)
         self.setLayout(main_layout)
 
     def populate_quant_combo(self, device_type):
@@ -132,21 +134,6 @@ class TranscriberToolSettingsTab(QWidget):
             short_path = "..." + os.path.join(os.path.basename(os.path.dirname(file_name)), os.path.basename(file_name))
             self.file_path_label.setText(short_path)
             self.selected_audio_file = file_name
-
-    def select_audio_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, "Select Folder")
-        if folder:
-            self.process_folder(folder)
-
-    def process_folder(self, folder):
-        supported_extensions = ('.mp3', '.wma', '.flac')
-        audio_files = [os.path.join(folder, f) for f in os.listdir(folder) if f.lower().endswith(supported_extensions)]
-        
-        for audio_file in audio_files:
-            self.selected_audio_file = audio_file
-            self.start_transcription()
-            while threading.active_count() > 1:
-                QApplication.processEvents()  # Keep the UI responsive
 
     def start_transcription(self):
         if not self.selected_audio_file:

@@ -22,4 +22,7 @@ PyYAML==6.0.1
 transformers==4.36.0
 accelerate==0.25.0
 optimum==1.15.0
-pydub==0.25.1
+einops==0.7.0
+bitsandbytes==0.41.3.post2; sys_platform == 'linux'
+bitsandbytes==0.41.3.post2; sys_platform == 'darwin'
+triton==2.1.0; sys_platform == 'linux'

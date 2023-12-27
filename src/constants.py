@@ -19,15 +19,6 @@ AVAILABLE_MODELS = [
     },
     {
         'details': {
-            'description': 'Well rounded & slight RAG improvement.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 438
-        },
-        'model': 'BAAI/llm-embedder'
-    },
-    {
-        'details': {
             'description': 'Well rounded & customizable.',
             'dimensions': 1024,
             'max_sequence': 512,

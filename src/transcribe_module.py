@@ -3,13 +3,12 @@ import yaml
 from multiprocessing import Process
 from faster_whisper import WhisperModel
 from termcolor import cprint
-from pydub import AudioSegment
 
 PRINT_ENABLED = True
 
 def my_cprint(message, color='white'):
     if PRINT_ENABLED:
-        cprint(f"TranscribeFile: {message}", color, flush=True)
+        cprint(f"transcribe_module.py: {message}", color, flush=True)
 
 class TranscribeFile:
     def __init__(self, audio_file, config_path='config.yaml'):
@@ -49,19 +48,12 @@ class TranscribeFile:
         )
         my_cprint("Whisper model loaded.", 'green')
 
-        audio = AudioSegment.from_file(self.audio_file)
-        total_duration = len(audio)
-        my_cprint(f"Total audio duration: {total_duration / 1000} seconds", 'yellow')
-
         segments_generator, _ = model.transcribe(self.audio_file, beam_size=1)
         segments = []
-        accumulated_duration = 0
 
         for segment in segments_generator:
             segments.append(segment)
-            segment_duration = segment.end - segment.start
-            accumulated_duration += segment_duration
-            my_cprint(f"Processing segment: {segment.text[:50]}... ({accumulated_duration / (total_duration / 1000) * 100:.2f}% complete)", 'blue')
+            my_cprint(segment.text, 'blue')
 
         transcription = TranscribeFile.format_transcription(segments, self.include_timestamps)
         TranscribeFile.save_transcription(self.audio_file, transcription)

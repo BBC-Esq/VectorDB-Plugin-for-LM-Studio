@@ -1,4 +1,3 @@
-import logging
 import os
 import openai
 from langchain.vectorstores import Chroma
@@ -15,25 +14,12 @@ from pathlib import Path
 from PySide6.QtWidgets import QMessageBox
 
 ENABLE_PRINT = True
-ENABLE_CUDA_PRINT = False
 
 def my_cprint(*args, **kwargs):
     if ENABLE_PRINT:
         filename = "server_connector.py"
         modified_message = f"{filename}: {args[0]}"
         cprint(modified_message, *args[1:], **kwargs)
-
-def print_cuda_memory():
-    if ENABLE_CUDA_PRINT:
-        max_allocated_memory = torch.cuda.max_memory_allocated()
-        memory_allocated = torch.cuda.memory_allocated()
-        reserved_memory = torch.cuda.memory_reserved()
-
-        my_cprint(f"Max CUDA memory allocated: {max_allocated_memory / (1024**2):.2f} MB", "green")
-        my_cprint(f"Total CUDA memory allocated: {memory_allocated / (1024**2):.2f} MB", "white")
-        my_cprint(f"Total CUDA memory reserved: {reserved_memory / (1024**2):.2f} MB", "white")
-
-print_cuda_memory()
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
@@ -64,8 +50,12 @@ def write_contexts_to_file_and_open(contexts):
     
     if os.name == 'nt':
         os.startfile(contexts_output_file_path)
-    elif os.name == 'posix':
-        subprocess.run(['open', contexts_output_file_path])
+    elif sys.platform == 'darwin':
+        subprocess.Popen(['open', str(contexts_output_file_path)])
+    elif sys.platform.startswith('linux'):
+        subprocess.Popen(['xdg-open', str(contexts_output_file_path)])
+    else:
+        raise NotImplementedError("Unsupported operating system")
 
 def connect_to_local_chatgpt(prompt):
     with open('config.yaml', 'r') as config_file:
@@ -100,7 +90,6 @@ def connect_to_local_chatgpt(prompt):
 
 def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_settings=CHROMA_SETTINGS):
     my_cprint("Attempting to connect to server.", "white")
-    print_cuda_memory()
 
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
@@ -163,15 +152,10 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
     retriever = db.as_retriever(search_kwargs={'score_threshold': score_threshold, 'k': k})
 
     my_cprint("Querying database.", "white")
-    try:
-        relevant_contexts = retriever.get_relevant_documents(query)
-        logging.info("Retrieved %d relevant contexts", len(relevant_contexts))
-    except Exception as e:
-        logging.error("Error querying database: %s", str(e))
-        raise
+    relevant_contexts = retriever.get_relevant_documents(query)
 
     if not relevant_contexts:
-        logging.warning("No relevant contexts found for the query")
+        my_cprint("No relevant contexts found for the query", "yellow")
 
     contexts = [document.page_content for document in relevant_contexts]
     metadata_list = [document.metadata for document in relevant_contexts]
