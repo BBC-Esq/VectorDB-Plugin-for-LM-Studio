@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!  Now with Vision Modles!</h1>
+  <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!  Now with Vision Models!</h1>
   <h3>Ask questions about your documents and get an answer from LM Studio!</h3>
 </div>
 <div align="center">
