@@ -3,6 +3,7 @@ import yaml
 import platform
 import ctranslate2
 from pathlib import Path
+import os
 
 def get_compute_device_info():
     available_devices = ["cpu"]
