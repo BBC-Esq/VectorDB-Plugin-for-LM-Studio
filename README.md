@@ -49,7 +49,7 @@ You <b>MUST</b> install these before installing my program:<p>
   
 ### Step 1
 🟢 Nvidia GPU ➜ [Install CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-> CUDA 12+ is currently NOT compatible since the faster-whisper library is only compatible up to CUDA 11.8.  This will be addressed in upcoming releases.<br>
+> CUDA 12+ is currently NOT compatible since the faster-whisper library is only compatible up to CUDA 11.8, but it will be soon!<br>
 
 🔴 AMD GPU - PyTorch does not currently support AMD GPUs on Windows - only Linux.  There are several possible workarounds but I'm unable to verify since I don't have an AMD GPU.  You can look [HERE](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html), [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
 ### Step 2
@@ -131,9 +131,6 @@ Run this script if you want to doublecheck that you installed the Pytorch and gp
 ```
 python check_gpu.py
 ```
-### Step 11
-🚨🚨🚨You must copy the ```pdf.py``` file within the ```User_Manual``` folder to the following folder: ```[folder holding this program]\Lib\site-packages\langchain\document_loaders\parsers```.🚨🚨🚨.<br><br>This will REPLACE the ```pdf.py``` file there.  This is crucial to get the 80x speedup on PDF loading in version 2.7.2+.  Moreover, the PDF loading WILL NOT WORK at all unless you do this properly.
-
 </details>
 
 <details>
@@ -188,9 +185,6 @@ Run this script if you want to doublecheck that you installed the Pytorch and gp
 ```
 python check_gpu.py
 ```
-### Step 11
-🚨🚨🚨You must copy the ```pdf.py``` file within the ```User_Manual``` folder to the following folder: ```[folder holding this program]\Lib\site-packages\langchain\document_loaders\parsers```.🚨🚨🚨.<br><br>This will REPLACE the ```pdf.py``` file there.  This is crucial to get the 80x speedup on PDF loading in version 2.7.2+.  Moreover, the PDF loading WILL NOT WORK at all unless you do this properly.
-
 </details>
 
 <div align="center"> <h2>USING THE PROGRAM</h2></div>
@@ -215,30 +209,29 @@ python gui.py
 * Choose the directory containing the embedding model you want to use.
   > The folders to choose from are WITHIN the ```Embedding_Models``` folder.
 
-## Adding Documents
-* Choose the documents you want to enter into the vector database.  You can select multiple documents at once and/or click this button multiple times. Symbolic links to the files are created within the ```Docs_for_DB``` folder, not the actual files.  Supported file types are ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
-  > You can also click the ```See Currently Chosen Documents``` button to drag and drop (or delete) files.
+## Adding Documents, Images, and Audio to the Database
+* Choose the documents or images you want to enter into the vector database.  You can select multiple documents at once and/or click this button multiple times. Symbolic links to the files are created within the ```Docs_for_DB``` folder instead of the actual files in order to save space.  The support file types are:
+  * Supported non-image extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+  * Supported image extensions are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
+    > Remember to test the vision model settings within the Tools Tab first.
+* The Tools Tab also contains a feature to transcribe audio files to ```.txt```, which are automatially put them into the ```Docs_for_DB``` folder for you.
 
-* Additionally, the Tools Tab contains a feature allowing you to transcribe audio files to ```.txt``` and automatially put them into the ```Docs_for_DB``` folder.
-* ⚠️ Anytime you add/remove documents you must recreate the vector database.
+⚠️ Anytime you add/remove documents you must recreate the vector database.
 
 ## Removing Documents
-* You must manually delete the symbolic link/links from the ```Docs_for_DB``` folder and recreate the vector database.
+* You must manually delete the symbolic link/links from the ```Docs_for_DB``` or ```Images_forDB``` folders and recreate the vector database.
 
 ## Creating the Databaase
 * The create database button creates the vector database!  Wait until the command prompt says "persisted" before proceeding to the next step.
 
-## Start LM Studio
+## Connecting to LM Studio
 * Start LM Studio and load a model.
 
 ## Choosing a Prompt Format
-* The Settings Tab allows you to set the prompt format matching the model used within LM Studio.
-  * ⚠️ If using ```LM Studio v0.2.9``` or earlier, this is all you need to do.
+The Settings Tab within this program allows you to set the prompt format instead of in LM Studio.  To do this disable "automatic prompt formatting" within LM Studio.  If using ```LM Studio v0.2.9``` or earlier, this is all you need to do.  However, if you are using ```LM Studio v0.2.10```, there is a known BUG preventing LM Studio from respecting the prompt format chosen in this program.  To prevent this, within LM Studio, go to the Server settings (far right side) and:
 
-  * ⚠️ If using ```v0.2.10```, there is a known BUG preventing LM Studio from respecting the prompt format chosen.  To prevent this, you must, within LM Studio go to the Server settings (far right side) and:
-    * Delete any/all text within the ```User Message Prefix``` box; and
-    * Delete any/all text within the ```User Message Suffix``` box.
-  * The program will work optimally after that.
+* ⚠️ Delete any/all text within the ```User Message Prefix``` box; and
+* ⚠️ Delete any/all text within the ```User Message Suffix``` box.
 
 ## Start the LM Studio Server
 * Click the server tab on the left side and click ```Start Server.```
@@ -248,6 +241,7 @@ python gui.py
 
 ## Test Chunks
 * If you wish to test the quality of the chunk settings check the ```Chunks Only``` checkbox.  LM Studio will not be connected to and you'll simply receive the relevant contexts from the vector database.
+* This is also good if you want to obtain more results than the context window of the LLM can handle.  For example, if you want to obtain 100 results from the vector database, which would exceed the LLM's context window of 4096.
 
 ## Test to Voice
 * This program uses Bark models to convert the response from LM Studio to audio.  You must wait until the ENTIRE response is received from the LLM and then click the ```Bark Response``` button.
@@ -296,6 +290,9 @@ python gui.py
 </div>
 
 </details>
+
+## NEW and Exciting Vision Modesl
+As of release 3.0 the program includes Vision Models to process descriptions of images that are added to the vector database and can ber searched.  For example, "Find me all pictures that depict one or more poeple doing X."
 
 <div align="center"><h2>CONTACT</h2></div>
 
