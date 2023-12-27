@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision Models</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 0;
+			background-color: #161b22;
+			color: #d0d0d0;
+		}
+
+		header {
+			text-align: center;
+			background-color: #3498db;
+			color: #fff;
+			padding: 20px;
+			position: sticky;
+			top: 0;
+			z-index: 999;
+		}
+
+		main {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+
+		img {
+			display: block;
+			margin: 0 auto;
+			max-width: 100%;
+			height: auto;
+		}
+
+		h1 {
+		  color: #333;
+		}
+
+		h2 {
+		  color: #f0f0f0;
+		  text-align: center;
+		}
+
+		p {
+			text-indent: 35px;
+		}
+
+		table {
+			border-collapse: collapse;
+			width: 80%;
+			margin: 50px auto;
+		}
+
+		th, td {
+			text-align: left;
+			padding: 8px;
+			border-bottom: 1px solid #ddd;
+		}
+
+		th {
+			background-color: #f2f2f2;
+			color: #000;
+		}
+
+		footer {
+			text-align: center;
+			background-color: #333;
+			color: #fff;
+			padding: 10px;
+		}
+		
+		code {
+			background-color: #f9f9f9;
+			border-radius: 3px;
+			padding: 2px 3px;
+			font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+			color: #333;
+		}
+	</style>
+
+</head>
+
+<body>
+    <header>
+        <h1>Vision</h1>
+    </header>
+
+    <main>
+
+        <section>
+		
+		<h2 style="color: #f0f0f0;" align="center">What are Vision Models?</h2>
+		
+		<p>Vision models are basically large language models that can analyze and extract information from a variety of images.
+		For purposes of this program, vision models are used to extract a summary of what an image depicts and add this description
+		to the vector database where it can be searched along with any traditional documents you add!</p>
+		
+		<h2 style="color: #f0f0f0;" align="left">Which Vision Models Are Available?</h2>
+		
+		<p>There are three named vision models available with this program:</p>
+		
+		<ol>
+			<li>llava</li>
+			<li>bakllava</li>
+			<li>cogvlm</li>
+		</ol>
+		
+		<p><code>llava</code> models were trailblazers in what they did and this program uses both the 7b and 13b sizes.
+		<code>llava</code> models are based on the <code>llama2</code> architecture.  <code>bakllava</code> is similar to
+		<code>llava</code> except that it's architecture is based on <code>mistral</code> and only comes in the 7b variety.
+		<code>cogvlm</code> has <u>18b parameters</u> but is my personal favorite because it produces the bset results by far.  Its
+		accuracy is over 90% in the statements its summaries I've found whereas <code>bakllava</code> is only about 70% and
+		<code>llava</code> is slightly lower than that (regardless of whether you use the 7b or 13b sizes).</p>
+		
+		<h2 style="color: #f0f0f0;" align="center">What do the Settings Mean?</h2>
+		
+		<p><code>Model</code> is obviously the model's name.  Note that you cannot use <code>cogvlm</code> on MacOS, which is
+		because it requires the <code>xformers</code> library, which does not currently make a build for MacOs.</p>
+		
+		<p><code>Size</code> refers to the number of parameters (in billions).  Larger generally means better, but in contrast to
+		differing parameters with typically large language models, I didn't notice a difference between using the <code>llava</code>
+		7b versus 13b sizes, but feel free to experiment.  The Tool Tab contains a table outlining the general VRAM requirements
+		for the various models/settings.  Remember, this is <b><u>before</u></b> accounting for overhead such as your monitor, which
+		typically amounts to <code>1-2 GB more</code></p>
+		
+		<p><code>Quant</code> refers to the quantization of the model - i.e. how much it's reduced from its original floating point
+		format.  See the tailend of the Whisper portion of the User Guide for a primer on what floating point formats are.  This
+		program uses the <code>bitsandbytes</code> library to perform the quantizations because it's the only option I was aware of
+		that could quantize <code>cogvlm</code>, which is far superior IMHO.</p>
+		
+		<h2 style="color: #f0f0f0;" align="center">Why Are Some Settings Disabled?</h2>
+		
+		<p><code>Flash Attention 2</code> is a very powerful newer technology but it requires <code>CUDA 12+</code>.  This program relies
+		exclusively on <code>CUDA 11</code> due to compatibility with the <code>faster-whisper</code> library that handles the audio
+		features.  However, <code>faster-whisper</code> should be adding <code>CUDA 12+</code> support in the near future, at which
+		time <code>Flash Attention 2</code> should be available.  <code>Batch</code> will be explained and added in a future release.</p>
+		
+		<h2 style="color: #f0f0f0;" align="center">How do I use the Vision Model?</h2>
+		
+		<p>Before <code>Release 3</code>, this program put all documents selected within the "Docs_for_DB" folder.  Now it puts any
+		images selected in the "Images_for_DB" folder.  You can manually remove images from there if need be.  Once documents and/or
+		images are selected, you simply click the <code>create database</code> button like before.  The document processor will run
+		in two steps.  First, it will load non-images and second it'll load any images.</p>
+		
+		<p>The "loading" process takes very little time for documents but a relatively long time for images.  "Loading" images involves
+		creating the summaries for each image using the selected vision model.  Make sure and test your vision model settings within
+		the Tools Tab before committing to processing, for example, 100 images.</p>
+		
+		<p>After both documents and images are "loaded" they are added to the vectorstore just the same as prior release of this
+		program.</p>
+		
+		<p>Once the database is "persisted," try searching for images that depict a certain thing.  Also, you can check the
+		<code>chunks only</code> checkbox to actually see the results returned to the database instead of connecting to LM Studio.
+		This is extremely useful to fine-tune your settings...including both the chunking/overlap settings as well as the Vision
+		model settings.</p>
+		
+		<p>PRO TIP: Make sure and set your chunking settings to larger than the summaries that are provided by the vision model.
+		Doing this prevents the summary for a particular image from EVER being split.  In short, each and every chunk consist of the
+		<u>entire summary</u> provided by the vision model!  This tends to be 400-800 chunk size depending on the vision model
+		settings.</p>
+		
+		<h2 style="color: #f0f0f0;" align="center">Can I Change What the Vision Model Does?</h2>
+		
+		<p>For this initial release, I hardcoded the questions asked of the vision models within the following scripts:</p>
+		
+		<ol>
+			<li><code>vision_cogvlm_module.py</code></li>
+			<li><code>vision_llava_module.py</code></li>
+			<li><code>loader_vision_cogvlm.py</code></li>
+			<li><code>loader_vision_llava.py</code></li>
+		</ol>
+		
+		<p>You can go into these scripts and modify the question sent to the vision model, but make sure the prompt format remains
+		the same.  In future releases I will likely add the functionality to experiement with different questions within the
+		grapical user interface to achieve better results.</p>
+
+	</main>
+
+    <footer>
+        www.chintellalaw.com
+    </footer>
+</body>
+</html>
