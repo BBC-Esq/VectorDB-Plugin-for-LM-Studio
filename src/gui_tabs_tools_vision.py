@@ -58,9 +58,9 @@ class VisionToolSettingsTab(QWidget):
         with open('config.yaml', 'r') as file:
             updated_config = yaml.safe_load(file)
 
-        if sys.platform == "darwin" and updated_config.get('vision', {}).get('chosen_model') == "cogvlm" and any(images_dir.iterdir()):
+        if sys.platform == "darwin" and any(images_dir.iterdir()):
             QMessageBox.warning(self, "Error",
-                                "cogvlm not available on MacOS due to the xformers library not having a MacOS build. Please choose a different vision model for processing.")
+                                "Image processing has been disabled for MacOS for the time being until a fix can be implemented.  Please remove all files from the 'Images_for_DB' folder and try again.")
             return
 
         chosen_model = updated_config['vision']['chosen_model']
