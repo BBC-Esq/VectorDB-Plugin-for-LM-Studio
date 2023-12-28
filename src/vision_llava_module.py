@@ -12,7 +12,7 @@ import platform
 def get_best_device():
     if torch.cuda.is_available():
         return 'cuda'
-    elif 'mps' in torch.backends.backends and torch.backends.mps.is_available():
+    elif hasattr(torch, 'has_mps') and torch.has_mps():
         return 'mps'
     elif hasattr(torch.version, 'hip') and torch.version.hip and platform.system() == 'Linux':
         return 'cuda'
