@@ -16,7 +16,8 @@ class TranscriberToolSettingsTab(QWidget):
         self.config = self.read_config()
 
         compute_device_config = self.config.get('Compute_Device', {}) or {}
-        self.gpu_brand = compute_device_config.get('gpu_brand', '').lower()
+        gpu_brand = compute_device_config.get('gpu_brand', '')
+        self.gpu_brand = gpu_brand.lower() if gpu_brand is not None else ''
 
         self.default_device = self.config.get('transcribe_file', {}).get('device', 'cpu').lower()
         self.default_quant = self.config.get('transcribe_file', {}).get('quant', '')
