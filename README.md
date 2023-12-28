@@ -311,7 +311,7 @@ The Settings Tab within this program allows you to set the prompt format instead
 
 </details>
 
-## NEW and Exciting Vision Modesl
+## NEW and Exciting Vision Models
 As of release 3.0 the program includes Vision Models to process descriptions of images that are added to the vector database and can ber searched.  For example, "Find me all pictures that depict one or more poeple doing X."
 
 <div align="center"><h2>CONTACT</h2></div>
