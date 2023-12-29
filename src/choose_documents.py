@@ -6,7 +6,7 @@ import sys
 
 def choose_documents_directory():
     allowed_extensions = ['.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', '.rtf', '.odt',
-                          '.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+                          '.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff', '.html', '.htm', '.md']
     current_dir = Path(__file__).parent.resolve()
     docs_folder = current_dir / "Docs_for_DB"
     images_folder = current_dir / "Images_for_DB"

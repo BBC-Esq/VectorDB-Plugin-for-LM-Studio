@@ -286,6 +286,8 @@ DOCUMENT_LOADERS = {
     ".rtf": "UnstructuredRTFLoader",
     ".odt": "UnstructuredODTLoader",
     ".md": "UnstructuredMarkdownLoader",
+    ".html": "UnstructuredHTMLLoader",
+    ".html": "UnstructuredHTMLLoader",
 }
 
 # Define model names
