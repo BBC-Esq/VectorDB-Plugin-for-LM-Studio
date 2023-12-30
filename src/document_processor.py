@@ -17,6 +17,7 @@ from langchain.document_loaders import (
     UnstructuredRTFLoader,
     UnstructuredODTLoader,
     UnstructuredMarkdownLoader,
+    UnstructuredHTMLLoader,
 )
 
 from constants import DOCUMENT_LOADERS
@@ -88,6 +89,8 @@ def load_single_document(file_path: Path) -> Document:
             )
         elif file_extension == ".xlsx" or file_extension == ".xlsd":
             loader = UnstructuredExcelLoader(str(file_path), mode="single")
+        elif file_extension == ".html" or file_extension == ".htm":
+            loader = UnstructuredHTMLLoader(str(file_path), mode="single", strategy="fast")
         elif file_extension == ".csv":
             loader = UnstructuredCSVLoader(str(file_path), mode="single")
         else:
