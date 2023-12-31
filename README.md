@@ -137,9 +137,6 @@ You must run:
 ```
 python replace_pdf.py
 ```
-* This script is supposed to move the ```pdf.py``` file within the ```User_Manual``` folder to replace a file of the same name used by ```Langchain```.  On Windows, the Langchain file to be replaced is located in the following path within the ```src``` folder:
-  * ```Lib/site-packages/langchain/document_loaders/parsers```.
-* However, at this time I am unable to verify the correct path structure on Linux and MacOS.  Therefore, to correctly process PDF files AT ALL you must manually locate the appropriate "parsers" folder within Langchain's dependency files and replace the ```pdf.py``` file there, with the ```pdf.py``` within the ```User_Manual``` folder.
 ### Optional Step 11
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
@@ -199,10 +196,6 @@ You must run:
 ```
 python replace_pdf.py
 ```
-* This script is supposed to move the ```pdf.py``` file within the ```User_Manual``` folder to replace a file of the same name used by ```Langchain```.  On Windows, the Langchain file to be replaced is located in the following path within the ```src``` folder:
-  * ```Lib/site-packages/langchain/document_loaders/parsers```.
-* However, at this time I am unable to verify the correct path structure on Linux and MacOS.  Therefore, to correctly process PDF files AT ALL you must manually locate the appropriate "parsers" folder within Langchain's dependency files and replace the ```pdf.py``` file there, with the ```pdf.py``` within the ```User_Manual``` folder.
-
 ### Optional Step 11
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
