@@ -137,6 +137,7 @@ You must run:
 ```
 python replace_pdf.py
 ```
+If the program does not automatically move pdf.py from the User Manual folder you must move it manually. I've gotten reports that the folder structure might be different on non-Windows machines. At leat on Windows, it goes to Lib/site-packages/langchain/document_loaders/parsers.
 ### Optional Step 11
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
@@ -197,10 +198,9 @@ You must run:
 python replace_pdf.py
 ```
 
-### Step 11
 If the program does not automatically move ```pdf.py``` from the ```User Manual``` folder you must move it manually.  I've gotten reports that the folder structure might be different on non-Windows machines.  At leat on Windows, it goes to ```Lib/site-packages/langchain/document_loaders/parsers```.
 
-### Optional Step 10
+### Optional Step 11
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
