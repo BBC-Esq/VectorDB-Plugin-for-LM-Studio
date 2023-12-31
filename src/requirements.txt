@@ -1,5 +1,5 @@
 openai==0.28.0
-langchain==0.0.341
+langchain==0.0.341; sys_platform =='win32'
 chromadb==0.3.29
 PyMuPDF==1.23.7
 InstructorEmbedding==1.0.1
@@ -19,6 +19,7 @@ faster-whisper==0.10.0
 termcolor==2.3.0
 pypandoc==1.12
 PyYAML==6.0.1
+Markdown==3.5.1
 transformers==4.36.0
 accelerate==0.25.0
 optimum==1.15.0
@@ -26,3 +27,4 @@ einops==0.7.0
 bitsandbytes==0.41.3.post2; sys_platform == 'linux'
 bitsandbytes==0.41.3.post2; sys_platform == 'darwin'
 triton==2.1.0; sys_platform == 'linux'
+watchdog==3.0.0

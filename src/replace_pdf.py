@@ -1,68 +1,77 @@
+import subprocess
+import os
 import shutil
-from pathlib import Path
 import hashlib
+import sys
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
-def find_all_target_directories_with_file(base_path, target_folder, target_file):
-    found_directories = []
-    
-    for entry in base_path.rglob(target_folder):  # Search for all 'parsers' directories
-        if entry.is_dir() and entry.name.lower() == target_folder.lower():
-            for file in entry.iterdir():
-                if file.is_file() and file.name.lower() == target_file.lower():
-                    found_directories.append(entry)
-                    break
-    
-    return found_directories
+package_name = "langchain==0.0.341"
 
-def get_directory_depth(directory, base_directory):
-    return len(directory.relative_to(base_directory).parts)
+install_command = ["pip", "install", package_name]
 
-def find_closest_directory(directories, base_directory):
-    depths = [(dir, get_directory_depth(dir, base_directory)) for dir in directories]
-    return min(depths, key=lambda x: x[1])[0]
+created_directories = []
 
-def hash_file(filepath):
-    """Compute the SHA-256 hash of a file."""
+def track_directory_creation(event_type, src_path):
+    if event_type == "created" and os.path.isdir(src_path):
+        created_directories.append(src_path)
+
+class DirectoryCreationHandler(FileSystemEventHandler):
+    def on_created(self, event):
+        track_directory_creation("created", event.src_path)
+
+observer = Observer()
+observer.schedule(DirectoryCreationHandler(), path='.', recursive=True)
+observer.start()
+
+try:
+    subprocess.check_call(install_command)
+except subprocess.CalledProcessError:
+    print(f"Failed to install {package_name}")
+    observer.stop()
+    observer.join()
+    sys.exit()
+
+observer.stop()
+observer.join()
+
+filtered_directories = []
+
+for directory in created_directories:
+    if "site-packages/langchain" in directory.replace("\\", "/"):
+        base_path = directory.split("site-packages\\langchain")[0]
+        filtered_directories.append(base_path)
+
+base_path = filtered_directories[0].replace("\\", "/") if filtered_directories else ""
+final_path = f"{base_path}site-packages/langchain/document_loaders/parsers/pdf.py"
+
+print(f"Target path: {final_path}")
+
+def calculate_hash(file_path):
     hasher = hashlib.sha256()
-    with open(filepath, 'rb') as f:
-        buf = f.read()
+    with open(file_path, 'rb') as file:
+        buf = file.read()
         hasher.update(buf)
     return hasher.hexdigest()
 
-def replace_pdf_in_parsers():
-    script_dir = Path(__file__).parent
-    user_manual_pdf_path = script_dir / "User_Manual" / "PDF.py"
+source_path = "User_Manual/pdf.py"
+print(f"Source path: {source_path}")
 
-    if not user_manual_pdf_path.exists():
-        print("No 'pdf.py' file found in 'User_Manual' directory.")
-        return
+try:
+    source_hash = calculate_hash(source_path)
+    try:
+        target_hash = calculate_hash(final_path)
+    except FileNotFoundError:
+        target_hash = None
 
-    base_dir = script_dir.parent  # Move up one level from the script's location
-    target_folder = "parsers"
-    target_file = "pdf.py"
-    found_paths = find_all_target_directories_with_file(base_dir, target_folder, target_file)
-
-    if not found_paths:
-        print("No suitable 'parsers' directory found.")
-        return
-
-    if len(found_paths) == 1:
-        chosen_pdf_path = found_paths[0] / target_file
+    if source_hash != target_hash:
+        shutil.copy(source_path, final_path)
+        print("File copied as the hashes are different.")
     else:
-        closest_parsers_path = find_closest_directory(found_paths, base_dir)
-        print(f"Chosen 'parsers' directory based on path depth: {closest_parsers_path}")
-        chosen_pdf_path = closest_parsers_path / target_file
+        print("Files are identical. No action taken.")
+except FileNotFoundError:
+    print("Warning: pdf.py not found in User_Manual folder.")
+except Exception as e:
+    print(f"An error occurred: {e}")
 
-    # Hash comparison and replacement
-    user_manual_pdf_hash = hash_file(user_manual_pdf_path)
-    chosen_pdf_hash = hash_file(chosen_pdf_path)
-
-    if user_manual_pdf_hash != chosen_pdf_hash:
-        print("Replacing the existing pdf.py with the new one...")
-        shutil.copy(user_manual_pdf_path, chosen_pdf_path)
-        print(f"PDF.py replaced at: {chosen_pdf_path}")
-    else:
-        print("No replacement needed. The files are identical.")
-
-if __name__ == "__main__":
-    replace_pdf_in_parsers()
+print(f"Installation and file copying completed successfully.")
