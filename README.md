@@ -137,7 +137,13 @@ You must run:
 ```
 python replace_pdf.py
 ```
-### Optional Step 11
+
+### Step 11
+```
+sudo apt -y install libxcb-cursor0
+```
+
+### Optional Step 12
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
