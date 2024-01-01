@@ -1,41 +1,27 @@
+from PySide6.QtWidgets import (
+    QApplication, QWidget, QPushButton, QVBoxLayout, QTabWidget,
+    QTextEdit, QSplitter, QFrame, QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox, QHBoxLayout, QMessageBox
+)
+from PySide6.QtCore import Qt, QTimer
 import os
-import sys
-import threading
 from pathlib import Path
-
 import torch
 import yaml
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import (
-    QApplication,
-    QCheckBox,
-    QFrame,
-    QGridLayout,
-    QHBoxLayout,
-    QLabel,
-    QMenuBar,
-    QMessageBox,
-    QPushButton,
-    QSplitter,
-    QStyleFactory,
-    QTabWidget,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
-
-import voice_recorder_module
-from bark_module import BarkAudio
-from choose_documents import choose_documents_directory, see_documents_directory
-from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP
-from download_model import download_embedding_model
-from gui_tabs import create_tabs
-from gui_threads import CreateDatabaseThread, SubmitButtonThread
+import sys
+import platform
+import threading
 from initialize import main as initialize_system
 from metrics_bar import MetricsBar
+from download_model import download_embedding_model
 from select_model import select_embedding_model_directory
-from utilities import list_theme_files, load_stylesheet, make_theme_changer
-
+from choose_documents import choose_documents_directory, see_documents_directory
+import create_database
+from gui_tabs import create_tabs
+from gui_threads import CreateDatabaseThread, SubmitButtonThread
+import voice_recorder_module
+from utilities import list_theme_files, make_theme_changer, load_stylesheet
+from bark_module import BarkAudio
+from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP
 
 class DocQA_GUI(QWidget):
     def __init__(self):
@@ -56,37 +42,37 @@ class DocQA_GUI(QWidget):
             gpu_name = torch.cuda.get_device_name(0)
             return "nvidia" in gpu_name.lower()
         return False
-
+    
     def load_config(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        config_path = os.path.join(script_dir, "config.yaml")
-        with open(config_path, "r") as file:
+        config_path = os.path.join(script_dir, 'config.yaml')
+        with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
-        self.test_embeddings_checkbox.setChecked(config.get("test_embeddings", False))
+        self.test_embeddings_checkbox.setChecked(config.get('test_embeddings', False))
 
     def init_ui(self):
         main_splitter = QSplitter(Qt.Horizontal)
-        self.setWindowTitle("LM Studio ChromaDB Plugin - www.chintellalaw.com")
+        self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
         self.setGeometry(300, 300, 1060, 1060)
         self.setMinimumSize(450, 510)
 
         # LEFT FRAME
         self.left_frame = QFrame()
         grid_layout = QGridLayout()
-
+        
         tab_widget = create_tabs()
         grid_layout.addWidget(tab_widget, 0, 0, 1, 2)
-
+        
         # Buttons data
         button_data = [
             ("Download Embedding Model", lambda: download_embedding_model(self)),
             ("Choose Embedding Model Directory", select_embedding_model_directory),
             ("Choose Documents or Images", choose_documents_directory),
             ("See Currently Chosen Documents", see_documents_directory),
-            ("Create Vector Database", self.on_create_button_clicked),
+            ("Create Vector Database", self.on_create_button_clicked)
         ]
         button_positions = [(1, 0), (1, 1), (2, 0), (2, 1), (3, 0)]
-
+        
         # Create and add buttons
         for position, (text, handler) in zip(button_positions, button_data):
             button = QPushButton(text)
@@ -116,9 +102,7 @@ class DocQA_GUI(QWidget):
         checkbox_button_hbox = QHBoxLayout()
         self.test_embeddings_checkbox = QCheckBox("Chunks Only")
         self.test_embeddings_checkbox.setToolTip(CHUNKS_ONLY_TOOLTIP)
-        self.test_embeddings_checkbox.stateChanged.connect(
-            self.on_test_embeddings_changed
-        )
+        self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
         checkbox_button_hbox.addWidget(self.test_embeddings_checkbox)
         bark_button = QPushButton("Bark Response")
         bark_button.setToolTip(SPEAK_RESPONSE_TOOLTIP)
@@ -135,14 +119,14 @@ class DocQA_GUI(QWidget):
 
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(main_splitter)
-
+        
         # Metrics bar
         main_layout.addWidget(self.metrics_bar)
         self.metrics_bar.setMaximumHeight(75 if self.is_nvidia_gpu() else 30)
 
     def init_menu(self):
         self.menu_bar = QMenuBar(self)
-        self.theme_menu = self.menu_bar.addMenu("Themes")
+        self.theme_menu = self.menu_bar.addMenu('Themes')
 
         self.theme_files = list_theme_files()
 
@@ -157,92 +141,65 @@ class DocQA_GUI(QWidget):
 
     def on_create_button_clicked(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        config_path = os.path.join(script_dir, "config.yaml")
-        documents_dir = Path(script_dir) / "Docs_for_DB"
-        images_dir = Path(script_dir) / "Images_for_DB"
-        with open(config_path, "r") as file:
+        config_path = os.path.join(script_dir, 'config.yaml')
+        with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
 
-        if (
-            sys.platform == "darwin"
-            and Path(images_dir).exists()
-            and any(images_dir.iterdir())
-        ):
-            QMessageBox.warning(
-                self,
-                "Error",
-                "Image processing has been disabled for MacOS for the time being until a fix can be implemented.  Please remove all files from the 'Images_for_DB' folder and try again.",
-            )
+        if platform.system() == "Darwin" and any(images_dir.iterdir()):
+            QMessageBox.warning(self, "Error", 
+                                "Image processing has been disabled for MacOS for the time being until a fix can be implemented.  Please remove all files from the 'Images_for_DB' folder and try again.")
             return
-
-        embedding_model_name = config.get("EMBEDDING_MODEL_NAME")
+        
+        embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
         if not embedding_model_name:
-            QMessageBox.warning(
-                self,
-                "Error",
-                "You must first download an embedding model, select it, and choose documents first before proceeding.",
-            )
-            return
-
-        if Path(documents_dir).exists() and not any(documents_dir.iterdir()):
-            QMessageBox.warning(
-                self,
-                "Error",
-                "No documents found to process. Please select files to add to the vector database and try again.",
-            )
-            return
-
-        # New check for compute device availability
-        compute_device = config.get("Compute_Device", {}).get("available", [])
-        database_creation = config.get("Compute_Device", {}).get("database_creation")
-
-        if (
-            "cuda" in compute_device or "mps" in compute_device
-        ) and database_creation == "cpu":
-            reply = QMessageBox.question(
-                self,
-                "Warning",
-                "GPU-acceleration is available and highly recommended for creating a vector database. Click OK to proceed or Cancel to go back and change the device.",
-                QMessageBox.Ok | QMessageBox.Cancel,
-            )
-            if reply == QMessageBox.Cancel:
-                return
-
-        self.create_database_thread = CreateDatabaseThread(self)
-        self.create_database_thread.start()
-
-    def on_submit_button_clicked(self):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        config_path = os.path.join(script_dir, "config.yaml")
-        with open(config_path, "r") as file:
-            config = yaml.safe_load(file)
-
-        embedding_model_name = config.get("EMBEDDING_MODEL_NAME")
-        if not embedding_model_name:
-            QMessageBox.warning(
-                self,
-                "Error",
-                "You must first download an embedding model, select it, and choose documents first before proceeding.",
-            )
+            QMessageBox.warning(self, "Error", 
+                                "You must first download an embedding model, select it, and choose documents first before proceeding.")
             return
 
         documents_dir = Path(script_dir) / "Docs_for_DB"
         images_dir = Path(script_dir) / "Images_for_DB"
         if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
-            QMessageBox.warning(
-                self,
-                "Error",
-                "No documents found to process. Please select files to add to the vector database and try again.",
-            )
+            QMessageBox.warning(self, "Error", 
+                                "No documents found to process. Please select files to add to the vector database and try again.")
+            return
+
+        # New check for compute device availability
+        compute_device = config.get('Compute_Device', {}).get('available', [])
+        database_creation = config.get('Compute_Device', {}).get('database_creation')
+
+        if ("cuda" in compute_device or "mps" in compute_device) and database_creation == "cpu":
+            reply = QMessageBox.question(self, 'Warning', 
+                                         "GPU-acceleration is available and highly recommended for creating a vector database. Click OK to proceed or Cancel to go back and change the device.", 
+                                         QMessageBox.Ok | QMessageBox.Cancel)
+            if reply == QMessageBox.Cancel:
+                return
+        
+        self.create_database_thread = CreateDatabaseThread(self)
+        self.create_database_thread.start()
+
+    def on_submit_button_clicked(self):
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        config_path = os.path.join(script_dir, 'config.yaml')
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+
+        embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
+        if not embedding_model_name:
+            QMessageBox.warning(self, "Error", 
+                                "You must first download an embedding model, select it, and choose documents first before proceeding.")
+            return
+
+        documents_dir = Path(script_dir) / "Docs_for_DB"
+        images_dir = Path(script_dir) / "Images_for_DB"
+        if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
+            QMessageBox.warning(self, "Error", 
+                                "No documents found to process. Please select files to add to the vector database and try again.")
             return
 
         vector_db_dir = Path(script_dir) / "Vector_DB"
-        if not any(f.suffix == ".parquet" for f in vector_db_dir.iterdir()):
-            QMessageBox.warning(
-                self,
-                "Error",
-                "You must first create a vector database before clicking this button.",
-            )
+        if not any(f.suffix == '.parquet' for f in vector_db_dir.iterdir()):
+            QMessageBox.warning(self, "Error",
+                                "You must first create a vector database before clicking this button.")
             return
 
         self.submit_button.setDisabled(True)
@@ -266,14 +223,14 @@ class DocQA_GUI(QWidget):
 
     def on_test_embeddings_changed(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        config_path = os.path.join(script_dir, "config.yaml")
+        config_path = os.path.join(script_dir, 'config.yaml')
 
-        with open(config_path, "r") as file:
+        with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
 
-        config["test_embeddings"] = self.test_embeddings_checkbox.isChecked()
+        config['test_embeddings'] = self.test_embeddings_checkbox.isChecked()
 
-        with open(config_path, "w") as file:
+        with open(config_path, 'w') as file:
             yaml.dump(config, file)
 
     def update_response(self, response):
@@ -324,11 +281,10 @@ class DocQA_GUI(QWidget):
         bark_audio = BarkAudio()
         bark_audio.run()
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app = QApplication(sys.argv)
-    app.setStyle(QStyleFactory.create("fusion"))
-    stylesheet = load_stylesheet("custom_stylesheet_steel_ocean.css")
+    app.setStyle(QStyleFactory.create('fusion'))
+    stylesheet = load_stylesheet('custom_stylesheet_steel_ocean.css')
     app.setStyleSheet(stylesheet)
     ex = DocQA_GUI()
     ex.show()

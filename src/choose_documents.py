@@ -2,14 +2,12 @@ import subprocess
 import os
 from pathlib import Path
 from PySide6.QtWidgets import QApplication, QFileDialog, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout
-import sys
+import platform
 
 def choose_documents_directory():
     allowed_extensions = ['.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', '.rtf', '.odt',
                           '.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff', '.html', '.htm', '.md']
     current_dir = Path(__file__).parent.resolve()
-    docs_folder = current_dir / "Docs_for_DB"
-    images_folder = current_dir / "Images_for_DB"
     file_dialog = QFileDialog()
     file_dialog.setFileMode(QFileDialog.ExistingFiles)
     file_paths, _ = file_dialog.getOpenFileNames(None, "Choose Documents and Images for Database", str(current_dir))
@@ -21,12 +19,18 @@ def choose_documents_directory():
         for file_path in file_paths:
             extension = Path(file_path).suffix.lower()
             if extension in allowed_extensions:
+                # Determine target folder without creating it
                 if extension in ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']:
-                    target_folder = images_folder
+                    target_folder = current_dir / "Images_for_DB"
                 else:
-                    target_folder = docs_folder
-                target_folder.mkdir(parents=True, exist_ok=True)
+                    target_folder = current_dir / "Docs_for_DB"
+
+                # Check and unlink existing symlink if necessary
                 symlink_target = target_folder / Path(file_path).name
+                if symlink_target.exists():
+                    symlink_target.unlink()
+
+                # Create new symlink
                 symlink_target.symlink_to(file_path)
             else:
                 incompatible_files.append(Path(file_path).name)
@@ -62,14 +66,12 @@ def see_documents_directory():
     current_dir = Path(__file__).parent.resolve()
     docs_folder = current_dir / "Docs_for_DB"
 
-    docs_folder.mkdir(parents=True, exist_ok=True)
-
-    # Cross-platform directory opening
-    if os.name == 'nt':  # Windows
+    os_name = platform.system()
+    if os_name == 'Windows':
         subprocess.Popen(['explorer', str(docs_folder)])
-    elif sys.platform == 'darwin':  # macOS
+    elif os_name == 'Darwin':
         subprocess.Popen(['open', str(docs_folder)])
-    elif sys.platform.startswith('linux'):  # Linux
+    elif os_name == 'Linux':
         subprocess.Popen(['xdg-open', str(docs_folder)])
 
 if __name__ == '__main__':

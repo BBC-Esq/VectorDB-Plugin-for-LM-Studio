@@ -7,7 +7,7 @@ import multiprocessing
 import vision_llava_module
 import vision_cogvlm_module
 from pathlib import Path
-import sys
+import platform
 
 class VisionToolSettingsTab(QWidget):
     def __init__(self):
@@ -58,7 +58,7 @@ class VisionToolSettingsTab(QWidget):
         with open('config.yaml', 'r') as file:
             updated_config = yaml.safe_load(file)
 
-        if sys.platform == "darwin" and any(images_dir.iterdir()):
+        if platform.system() == "Darwin" and any(images_dir.iterdir()):  # Using platform.system()
             QMessageBox.warning(self, "Error",
                                 "Image processing has been disabled for MacOS for the time being until a fix can be implemented.  Please remove all files from the 'Images_for_DB' folder and try again.")
             return

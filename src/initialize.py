@@ -61,10 +61,18 @@ def update_config_file(**system_info):
     with open(full_config_path, 'w') as stream:
         yaml.safe_dump(config_data, stream)
 
+def check_for_necessary_folders_and_files():
+    required_folders = ["Docs_for_DB", "Images_for_DB"]
+    for folder in required_folders:
+        path = Path(folder)
+        if not path.is_dir():
+            path.mkdir()
+
 def main():
     compute_device_info = get_compute_device_info()
     platform_info = get_platform_info()
     update_config_file(Compute_Device=compute_device_info, Platform_Info=platform_info)
+    check_for_necessary_folders_and_files()
 
 if __name__ == "__main__":
     main()

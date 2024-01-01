@@ -3,6 +3,7 @@ import subprocess
 import os
 import ctypes
 import shutil
+import hashlib
 
 def user_confirmation(message):
     return ctypes.windll.user32.MessageBoxW(0, message, "Confirmation", 1) == 1
@@ -73,12 +74,32 @@ def setup_windows_installation():
     source_path = "User_Manual/pdf.py"
     target_path = "Lib/site-packages/langchain/document_loaders/parsers/pdf.py"
 
+    def calculate_hash(file_path):
+        hasher = hashlib.sha256()
+        with open(file_path, 'rb') as file:
+            buf = file.read()
+            hasher.update(buf)
+        return hasher.hexdigest()
+
     try:
-        shutil.copy(source_path, target_path)
+        source_hash = calculate_hash(source_path)
+        print(f"Hash of source file: {source_hash}")
+        try:
+            target_hash = calculate_hash(target_path)
+            print(f"Hash of target file: {target_hash}")
+        except FileNotFoundError:
+            target_hash = None
+
+        if source_hash != target_hash:
+            shutil.copy(source_path, target_path)
+            print("File moved as the hashes are different.")
+        else:
+            print("Files are identical. No action taken.")
+
     except FileNotFoundError:
         print("Warning: pdf.py not found in User_Manual folder.")
     except Exception as e:
-        print(f"An error occurred while moving pdf.py: {e}")
+        print(f"An error occurred: {e}")
 
     print("Installation completed successfully.")
     print("Run 'Python gui.py' to start program.")

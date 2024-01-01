@@ -49,7 +49,7 @@ def llava_process_images():
     chosen_model = config['vision']['chosen_model']
     chosen_size = config['vision']['chosen_size']
     chosen_quant = config['vision']['chosen_quant']
-
+    
     model_id = ""
     if chosen_model == 'llava' and chosen_size == '7b':
         model_id = "llava-hf/llava-1.5-7b-hf"
@@ -68,7 +68,7 @@ def llava_process_images():
     # Load the model
     if chosen_model == 'llava' and chosen_quant == 'float16':
         model = LlavaForConditionalGeneration.from_pretrained(
-            model_id,
+            "llava-hf/llava-1.5-7b-hf",
             torch_dtype=torch.float16,
             low_cpu_mem_usage=True,
             resume_download=True
@@ -177,7 +177,6 @@ def llava_process_images():
     print(f"Total image processing time: {total_time_taken:.2f} seconds")
     print(f"Tokens per second: {total_tokens / total_time_taken:.2f}")
 
-    # cleanup
     del model
     del processor
     if torch.cuda.is_available():

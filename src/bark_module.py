@@ -1,3 +1,4 @@
+# Import necessary libraries including tqdm
 import warnings
 import threading
 import queue
@@ -10,6 +11,7 @@ import gc
 import yaml
 from termcolor import cprint
 import platform
+from tqdm import tqdm  # Importing tqdm for the progress bar
 
 warnings.filterwarnings("ignore", message="torch.nn.utils.weight_norm is deprecated in favor of torch.nn.utils.parametrizations.weight_norm.")
 
@@ -37,7 +39,6 @@ class BarkAudio:
 
     def initialize_model_and_processor(self):
         os_name = platform.system().lower()
-
         # set compute device
         if torch.cuda.is_available():
             if torch.version.hip and os_name == 'linux':
@@ -125,8 +126,8 @@ class BarkAudio:
                 break
 
             sentences = re.split(r'[.!?;]+', text_prompt)
-
-            for sentence in sentences:
+            # Adding tqdm progress bar
+            for sentence in tqdm(sentences, desc="Processing Sentences"):
                 if sentence.strip():
                     voice_preset = self.config['speaker']
                     inputs = self.processor(text=sentence, voice_preset=voice_preset, return_tensors="pt")

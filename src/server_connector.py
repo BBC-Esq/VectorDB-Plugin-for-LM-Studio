@@ -45,7 +45,7 @@ def format_metadata_as_citations(metadata_list):
 def write_contexts_to_file_and_open(contexts):
     with contexts_output_file_path.open('w', encoding='utf-8') as file:
         for index, context in enumerate(contexts, start=1):
-            file.write(f"------------ Context {index} ---------------\n\n\n")
+            file.write(f"------------ Context {index} ---------------\n\n")
             file.write(context + "\n\n\n")
     
     if os.name == 'nt':
