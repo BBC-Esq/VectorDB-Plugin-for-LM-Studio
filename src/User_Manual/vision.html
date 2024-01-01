@@ -113,7 +113,7 @@
 		<p><code>llava</code> models were trailblazers in what they did and this program uses both the 7b and 13b sizes.
 		<code>llava</code> models are based on the <code>llama2</code> architecture.  <code>bakllava</code> is similar to
 		<code>llava</code> except that it's architecture is based on <code>mistral</code> and only comes in the 7b variety.
-		<code>cogvlm</code> has <u>18b parameters</u> but is my personal favorite because it produces the bset results by far.  Its
+		<code>cogvlm</code> has <u>18b parameters</u> but is my personal favorite because it produces the best results by far.  Its
 		accuracy is over 90% in the statements its summaries I've found whereas <code>bakllava</code> is only about 70% and
 		<code>llava</code> is slightly lower than that (regardless of whether you use the 7b or 13b sizes).</p>
 		
@@ -149,7 +149,7 @@
 		
 		<p>The "loading" process takes very little time for documents but a relatively long time for images.  "Loading" images involves
 		creating the summaries for each image using the selected vision model.  Make sure and test your vision model settings within
-		the Tools Tab before committing to processing, for example, 100 images.</p>
+		the Tools Tab before committing to processing 1000 images, for example.</p>
 		
 		<p>After both documents and images are "loaded" they are added to the vectorstore just the same as prior release of this
 		program.</p>
@@ -160,7 +160,7 @@
 		model settings.</p>
 		
 		<p>PRO TIP: Make sure and set your chunking settings to larger than the summaries that are provided by the vision model.
-		Doing this prevents the summary for a particular image from EVER being split.  In short, each and every chunk consist of the
+		Doing this prevents the summary for a particular image from EVER being split.  In short, each and every chunk consists of the
 		<u>entire summary</u> provided by the vision model!  This tends to be 400-800 chunk size depending on the vision model
 		settings.</p>
 		
@@ -176,7 +176,7 @@
 		</ol>
 		
 		<p>You can go into these scripts and modify the question sent to the vision model, but make sure the prompt format remains
-		the same.  In future releases I will likely add the functionality to experiement with different questions within the
+		the same.  In future releases I will likely add the functionality to experiment with different questions within the
 		grapical user interface to achieve better results.</p>
 
 	</main>
