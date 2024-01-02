@@ -23,6 +23,7 @@ from langchain.document_loaders import (
 from constants import DOCUMENT_LOADERS
 from loader_vision_llava import llava_process_images
 from loader_vision_cogvlm import cogvlm_process_images
+from loader_salesforce import salesforce_process_images
 
 ENABLE_PRINT = True
 ROOT_DIRECTORY = Path(__file__).parent
@@ -46,10 +47,13 @@ from langchain.document_loaders import (
 
 def process_images_wrapper(config):
     chosen_model = config["vision"]["chosen_model"]
+
     if chosen_model == 'llava' or chosen_model == 'bakllava':
         return llava_process_images()
     elif chosen_model == 'cogvlm':
         return cogvlm_process_images()
+    elif chosen_model == 'salesforce':
+        return salesforce_process_images()
     else:
         return []
 
@@ -88,6 +92,7 @@ def load_single_document(file_path: Path) -> Document:
 
     # text extracted before metadata added
     return document
+
 
 def load_document_batch(filepaths):
     with ThreadPoolExecutor(len(filepaths)) as exe:

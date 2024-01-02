@@ -58,7 +58,7 @@ class VisionToolSettingsTab(QWidget):
         with open('config.yaml', 'r') as file:
             updated_config = yaml.safe_load(file)
 
-        if platform.system() == "Darwin" and any(images_dir.iterdir()):  # Using platform.system()
+        if platform.system() == "Darwin" and any(images_dir.iterdir()):
             QMessageBox.warning(self, "Error",
                                 "Image processing has been disabled for MacOS for the time being until a fix can be implemented.  Please remove all files from the 'Images_for_DB' folder and try again.")
             return
@@ -69,6 +69,10 @@ class VisionToolSettingsTab(QWidget):
             processing_function = vision_llava_module.llava_process_images
         elif chosen_model == 'cogvlm':
             processing_function = vision_cogvlm_module.cogvlm_process_images
+        elif chosen_model == 'salesforce':
+            QMessageBox.warning(self, "Testing Salesforce",
+                                "Testing Salesforce is not allowed here. It is too lightweight and should run on any semi-modern CPU and/or GPU. If your system can't handle processing multiple images with Salesforce, it's time to upgrade your computer.")
+            return
         else:
             print("Error: Invalid model selected.")
             return

@@ -40,7 +40,7 @@ class VisionSettingsTab(QWidget):
         gridLayout.setAlignment(label_batch, Qt.AlignCenter)
 
         self.modelComboBox = QComboBox()
-        self.modelComboBox.addItems(["llava", "bakllava", "cogvlm"])
+        self.modelComboBox.addItems(["salesforce", "llava", "bakllava", "cogvlm"])
         gridLayout.addWidget(self.modelComboBox, 1, 1)
 
         self.sizeComboBox = QComboBox()
