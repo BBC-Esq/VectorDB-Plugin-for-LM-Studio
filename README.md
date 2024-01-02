@@ -1,6 +1,6 @@
 <div align="center">
   <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!  Now with Vision Models!</h1>
-  <h3>Ask questions about your documents and get an answer from LM Studio!</h3>
+  <h3>Ask questions about your documents and get an answer from LM Studio!<br>(https://www.youtube.com/watch?v=KXYH8zqN8c8)</h3>
 </div>
 <div align="center">
   <h4>⚡GPU Acceleration for Database⚡</h4>
