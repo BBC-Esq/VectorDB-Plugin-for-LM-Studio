@@ -1,5 +1,6 @@
 from pathlib import Path
 from PySide6.QtWidgets import QApplication
+import shutil
 
 def validate_symbolic_links(source_directory):
     source_path = Path(source_directory)
@@ -29,6 +30,21 @@ def make_theme_changer(theme_name):
         stylesheet = load_stylesheet(theme_name)
         QApplication.instance().setStyleSheet(stylesheet)
     return change_theme
+
+def backup_database():
+    source_directory = Path('Vector_DB')
+    backup_directory = Path('Vector_DB_Backup')
+
+    if backup_directory.exists():
+        for item in backup_directory.iterdir():
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+    else:
+        backup_directory.mkdir(parents=True, exist_ok=True)
+
+    shutil.copytree(source_directory, backup_directory, dirs_exist_ok=True)
 
 if __name__ == '__main__':
     source_directory = "Docs_for_DB"

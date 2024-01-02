@@ -11,13 +11,11 @@ from utilities import validate_symbolic_links
 from termcolor import cprint
 from pathlib import Path
 import os
-
-ENABLE_PRINT = True
+from utilities import backup_database
 
 def my_cprint(*args, **kwargs):
-    if ENABLE_PRINT:
-        modified_message = f"create_database.py: {args[0]}"
-        cprint(modified_message, *args[1:], **kwargs)
+    modified_message = f"create_database.py: {args[0]}"
+    cprint(modified_message, *args[1:], **kwargs)
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
@@ -64,6 +62,8 @@ def main():
     my_cprint("Persisting database.", "white")
     db.persist()
     my_cprint("Database persisted.", "white")
+    
+    backup_database()
     
     del embeddings.client
     del embeddings

@@ -62,7 +62,7 @@ def update_config_file(**system_info):
         yaml.safe_dump(config_data, stream)
 
 def check_for_necessary_folders_and_files():
-    required_folders = ["Docs_for_DB", "Images_for_DB"]
+    required_folders = ["Docs_for_DB", "Images_for_DB", "Vector_DB_Backup", "Vector_DB"]
     for folder in required_folders:
         path = Path(folder)
         if not path.is_dir():
