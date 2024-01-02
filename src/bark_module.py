@@ -11,7 +11,7 @@ import gc
 import yaml
 from termcolor import cprint
 import platform
-from tqdm import tqdm  # Importing tqdm for the progress bar
+from tqdm import tqdm
 
 warnings.filterwarnings("ignore", message="torch.nn.utils.weight_norm is deprecated in favor of torch.nn.utils.parametrizations.weight_norm.")
 

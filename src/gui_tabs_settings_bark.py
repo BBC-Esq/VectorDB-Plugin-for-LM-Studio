@@ -80,15 +80,17 @@ class BarkModelSettingsTab(QWidget):
         self.cpu_offload_checkbox.stateChanged.connect(self.update_config)
 
     def update_config(self):
-        if os.path.exists('config.yaml'):
+        config_file_path = 'config.yaml'
+        if os.path.exists(config_file_path):
             try:
-                with open('config.yaml', 'r') as f:
+                with open(config_file_path, 'r') as f:
                     config = yaml.safe_load(f)
             except Exception as e:
                 config = {}
         else:
             config = {}
 
+        # Update only the 'bark' section of the config
         bark_config = config.get('bark', {})
         bark_config['size'] = self.model_size_combo.currentText()
         bark_config['model_precision'] = self.quant_combo.currentText()
@@ -97,9 +99,8 @@ class BarkModelSettingsTab(QWidget):
         bark_config['enable_cpu_offload'] = self.cpu_offload_checkbox.isChecked()
         config['bark'] = bark_config
 
-        with open('config.yaml', 'w') as f:
+        with open(config_file_path, 'w') as f:
             yaml.dump(config, f, default_flow_style=False)
-
 
 if __name__ == "__main__":
     import sys

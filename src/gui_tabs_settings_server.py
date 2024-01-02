@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox, QComboBox
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
+import os
 
 class ServerSettingsTab(QWidget):
     def __init__(self):
@@ -38,7 +39,7 @@ class ServerSettingsTab(QWidget):
         layout.addWidget(prompt_format_label, 2, 0)
         
         self.prompt_format_combobox = QComboBox()
-        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat", "Orca2", "Llava 13B", "Obsidian 3B", "Phi-2"])
+        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat/SOLAR", "Orca2", "Llava 13B", "Obsidian 3B", "Phi-2"])
         layout.addWidget(self.prompt_format_combobox, 2, 1)
         self.prompt_format_combobox.currentIndexChanged.connect(self.update_prefix_suffix)
 
@@ -86,7 +87,7 @@ class ServerSettingsTab(QWidget):
         key_mapping = {
             "ChatML": ("prefix_chat_ml", "suffix_chat_ml"),
             "Llama2/Mistral": ("prefix_llama2_and_mistral", "suffix_llama2_and_mistral"),
-            "Neural Chat": ("prefix_neural_chat", "suffix_neural_chat"),
+            "Neural Chat/SOLAR": ("prefix_neural_chat", "suffix_neural_chat"),
             "Orca2": ("prefix_orca2", "suffix_orca2"),
             "Llava 13B": ("prefix_llava_13B", "suffix_llava_13B"),
             "Obsidian 3B": ("prefix_obsidian_3B", "suffix_obsidian_3B"),
@@ -99,9 +100,15 @@ class ServerSettingsTab(QWidget):
         self.widgets['suffix']['edit'].setText(self.config_data.get('server', {}).get(suffix_key, ''))
 
     def update_config(self):
-        with open('config.yaml', 'r') as file:
-            config_data = yaml.safe_load(file)
+        config_file_path = 'config.yaml'
+        if os.path.exists(config_file_path):
+            try:
+                with open(config_file_path, 'r') as file:
+                    config_data = yaml.safe_load(file)
+            except Exception as e:
+                config_data = {}
 
+        # Update specific sections of the config
         updated = False
         for setting, widget in self.widgets.items():
             new_value = widget['edit'].text()
@@ -114,17 +121,13 @@ class ServerSettingsTab(QWidget):
                 else:
                     config_data['server'][setting] = new_value
 
-                widget['label'].setText(f"{setting.capitalize()}: {new_value}")
-                widget['edit'].clear()
-
         current_disable_state = self.disable_checkbox.isChecked()
         if current_disable_state != self.initial_disable_state:
             updated = True
             config_data['server']['prompt_format_disabled'] = current_disable_state
-            self.initial_disable_state = current_disable_state
 
         if updated:
-            with open('config.yaml', 'w') as file:
+            with open(config_file_path, 'w') as file:
                 yaml.safe_dump(config_data, file)
 
         return updated

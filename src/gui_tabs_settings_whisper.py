@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt
 import ctranslate2
 import yaml
 from voice_recorder_module import VoiceRecorder
+import os
 
 class TranscriberSettingsTab(QWidget):
     
@@ -85,11 +86,18 @@ class TranscriberSettingsTab(QWidget):
         self.setLayout(layout)
     
     def update_config(self):
-        with open('config.yaml', 'r') as f:
-            config_data = yaml.safe_load(f)
-            transcriber_data = config_data.get('transcriber', {})
+        config_file_path = 'config.yaml'
+        if os.path.exists(config_file_path):
+            try:
+                with open(config_file_path, 'r') as f:
+                    config_data = yaml.safe_load(f)
+            except Exception as e:
+                config_data = {}
 
+        # Update only the 'transcriber' section of the config
+        transcriber_config = config_data.get('transcriber', {})
         settings_changed = False
+
         update_map = {
             'model': (self.model_combo, 'currentText', str),
             'quant': (self.quantization_combo, 'currentText', str),
@@ -98,14 +106,16 @@ class TranscriberSettingsTab(QWidget):
 
         for setting, (widget, getter, caster) in update_map.items():
             new_value = getattr(widget, getter)()
-            if new_value is not None and str(new_value) != str(transcriber_data.get(setting, '')):
+            if new_value is not None and str(new_value) != str(transcriber_config.get(setting, '')):
                 settings_changed = True
-                transcriber_data[setting] = caster(new_value)
-                
+                transcriber_config[setting] = caster(new_value)
+
         if settings_changed:
-            config_data['transcriber'] = transcriber_data
-            with open('config.yaml', 'w') as f:
+            config_data['transcriber'] = transcriber_config
+
+            with open(config_file_path, 'w') as f:
                 yaml.dump(config_data, f)
+
         return settings_changed
 
 if __name__ == "__main__":

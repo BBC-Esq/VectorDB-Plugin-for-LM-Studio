@@ -11,12 +11,23 @@ def select_embedding_model_directory():
     chosen_directory = QFileDialog.getExistingDirectory(None, "Select Embedding Model Directory", str(initial_dir))
     
     if chosen_directory:
-        config_data = load_config()
+        config_file_path = Path("config.yaml")
+        if config_file_path.exists():
+            try:
+                with open(config_file_path, 'r') as file:
+                    config_data = yaml.safe_load(file)
+            except Exception as e:
+                config_data = {}
+
+        # Update only the 'EMBEDDING_MODEL_NAME' key in the config
         config_data["EMBEDDING_MODEL_NAME"] = chosen_directory
-        with open(Path("config.yaml"), 'w') as file:
+
+        # Write back the entire config (more efficient approach would be needed for a large config)
+        with open(config_file_path, 'w') as file:
             yaml.dump(config_data, file)
 
         print(f"Selected directory: {chosen_directory}")
+
 
 if __name__ == '__main__':
     app = QApplication([])

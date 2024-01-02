@@ -82,12 +82,20 @@ class VisionToolSettingsTab(QWidget):
         if file_path:
             self.folderPathLabel.setText(file_path)
 
-            with open('config.yaml', 'r') as file:
-                config = yaml.safe_load(file)
+            config_file_path = 'config.yaml'
+            if os.path.exists(config_file_path):
+                try:
+                    with open(config_file_path, 'r') as file:
+                        config = yaml.safe_load(file)
+                except Exception as e:
+                    config = {}
 
-            config['vision']['test_image'] = file_path
+            # Update only the 'test_image' key in the 'vision' section of the config
+            vision_config = config.get('vision', {})
+            vision_config['test_image'] = file_path
+            config['vision'] = vision_config
 
-            with open('config.yaml', 'w') as file:
+            with open(config_file_path, 'w') as file:
                 yaml.dump(config, file)
 
 class ProcessingThread(QThread):

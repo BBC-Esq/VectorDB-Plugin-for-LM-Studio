@@ -1,6 +1,10 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QSizePolicy, QComboBox
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QSizePolicy, QComboBox, QPushButton, QMessageBox
 from PySide6.QtGui import QIntValidator, QDoubleValidator
+from PySide6.QtCore import Slot
 import yaml
+from pathlib import Path
+import shutil
+import os
 
 class DatabaseSettingsTab(QWidget):
     def __init__(self):
@@ -51,6 +55,12 @@ class DatabaseSettingsTab(QWidget):
 
         v_layout.addLayout(h_layout1)
         v_layout.addLayout(h_layout2)
+
+        # Restore Database Backup Button
+        self.restore_button = QPushButton("Restore Database Backup")
+        self.restore_button.clicked.connect(self.restore_database_backup)
+        v_layout.addWidget(self.restore_button)
+
         self.setLayout(v_layout)
 
     def update_config(self):
@@ -86,3 +96,34 @@ class DatabaseSettingsTab(QWidget):
                 yaml.safe_dump(config_data, f)
 
         return settings_changed
+
+    @Slot()
+    def restore_database_backup(self):
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle("Restore Database Backup")
+        msg_box.setText("This will replace the contents of the 'Vector_DB' folder with the contents of the 'Vector_DB_Backup' folder, which you should only do if you know 100% that you've successfully created a vector database but it's not correctly retrieving for some unexplained reason. Click OK to proceed or cancel to go back.")
+        msg_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+        response = msg_box.exec()
+        if response == QMessageBox.Ok:
+            self.perform_restore()
+        else:
+            return
+
+    def perform_restore(self):
+        source_directory = Path('Vector_DB')
+        backup_directory = Path('Vector_DB_Backup')
+
+        if not backup_directory.exists() or not any(backup_directory.iterdir()):
+            QMessageBox.information(self, "Restore Database Backup", "There are no contents in the 'Vector_DB_Backup' folder.")
+            return
+
+        if source_directory.exists():
+            for item in source_directory.iterdir():
+                if item.is_dir():
+                    shutil.rmtree(item)
+                else:
+                    item.unlink()
+
+        shutil.copytree(backup_directory, source_directory, dirs_exist_ok=True)
+        QMessageBox.information(self, "Restore Database Backup", "Database restored successfully.")
