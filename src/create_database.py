@@ -12,6 +12,13 @@ from termcolor import cprint
 from pathlib import Path
 import os
 from utilities import backup_database
+import logging
+
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(name)s - %(pathname)s:%(lineno)s - %(funcName)s'
+)
+logging.getLogger('chromadb.db.duckdb').setLevel(logging.WARNING)
 
 def my_cprint(*args, **kwargs):
     modified_message = f"create_database.py: {args[0]}"
