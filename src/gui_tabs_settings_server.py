@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox, QComboBox
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
-import os
+from pathlib import Path
 
 class ServerSettingsTab(QWidget):
     def __init__(self):
@@ -81,6 +81,10 @@ class ServerSettingsTab(QWidget):
         self.widgets[setting]['edit'] = edit
         return edit
 
+    def refresh_labels(self):
+        self.widgets['prefix']['label'].setText(f"Prefix: {self.config_data.get('server', {}).get('prefix', '')}")
+        self.widgets['suffix']['label'].setText(f"Suffix: {self.config_data.get('server', {}).get('suffix', '')}")
+    
     def update_prefix_suffix(self, index):
         option = self.prompt_format_combobox.currentText()
 
@@ -100,10 +104,10 @@ class ServerSettingsTab(QWidget):
         self.widgets['suffix']['edit'].setText(self.config_data.get('server', {}).get(suffix_key, ''))
 
     def update_config(self):
-        config_file_path = 'config.yaml'
-        if os.path.exists(config_file_path):
+        config_file_path = Path('config.yaml')
+        if config_file_path.exists():
             try:
-                with open(config_file_path, 'r') as file:
+                with config_file_path.open('r') as file:
                     config_data = yaml.safe_load(file)
             except Exception as e:
                 config_data = {}
@@ -127,7 +131,10 @@ class ServerSettingsTab(QWidget):
             config_data['server']['prompt_format_disabled'] = current_disable_state
 
         if updated:
-            with open(config_file_path, 'w') as file:
+            with config_file_path.open('w') as file:
                 yaml.safe_dump(config_data, file)
+
+            self.config_data = config_data
+            self.refresh_labels()
 
         return updated

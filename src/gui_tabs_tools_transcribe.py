@@ -1,9 +1,10 @@
+from functools import partial
 from PySide6.QtWidgets import (
     QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QApplication, QCheckBox, QFileDialog
 )
 from PySide6.QtCore import Qt
 import yaml
-import os
+from pathlib import Path
 from constants import WHISPER_MODEL_NAMES
 from transcribe_module import TranscribeFile
 import threading
@@ -129,10 +130,11 @@ class TranscriberToolSettingsTab(QWidget):
         self.update_config_file()
 
     def select_audio_file(self):
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Audio File", current_dir)
+        current_dir = Path(__file__).resolve().parent
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Audio File", str(current_dir))
         if file_name:
-            short_path = "..." + os.path.join(os.path.basename(os.path.dirname(file_name)), os.path.basename(file_name))
+            file_path = Path(file_name)
+            short_path = "..." + str(Path(file_path.parent.name) / file_path.name)
             self.file_path_label.setText(short_path)
             self.selected_audio_file = file_name
 
@@ -146,7 +148,7 @@ class TranscriberToolSettingsTab(QWidget):
             transcriber.start_transcription()
 
         threading.Thread(target=transcription_thread, daemon=True).start()
-        print(f"Transcription process for {os.path.basename(self.selected_audio_file)} started.")
+        print(f"Transcription process for {Path(self.selected_audio_file).name} started.")
 
 if __name__ == "__main__":
     app = QApplication([])

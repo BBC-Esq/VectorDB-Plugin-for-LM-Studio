@@ -2,7 +2,7 @@ from functools import partial
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QTextEdit, QTabWidget, QVBoxLayout, QWidget, QGroupBox, QPushButton, QHBoxLayout
 from PySide6.QtCore import QUrl
-import os
+from pathlib import Path
 from gui_tabs_settings import GuiSettingsTab
 from gui_tabs_tools import GuiSettingsTab as ToolsSettingsTab
 
@@ -17,7 +17,7 @@ def create_tabs():
     tab_font.setPointSize(13)
     tab_widget.setFont(tab_font)
 
-    user_manual_folder = os.path.join(os.path.dirname(__file__), 'User_Manual')
+    user_manual_folder = Path(__file__).parent / 'User_Manual'
 
     # SETTINGS TAB
     settings_tab = GuiSettingsTab()
@@ -43,8 +43,8 @@ def create_tabs():
 
     for button_name, html_file in buttons_dict.items():
         button = QPushButton(button_name)
-        button_url = os.path.join(user_manual_folder, html_file)
-        button.clicked.connect(partial(load_url, user_guide_view, button_url))
+        button_url = user_manual_folder / html_file
+        button.clicked.connect(partial(load_url, user_guide_view, str(button_url)))
         menu_layout.addWidget(button)
 
     menu_group.setLayout(menu_layout)

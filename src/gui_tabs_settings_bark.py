@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QApplication, QCheckBox
 import yaml
-import os
+from pathlib import Path
 
 class BarkModelSettingsTab(QWidget):
     
@@ -55,9 +55,10 @@ class BarkModelSettingsTab(QWidget):
         self.setLayout(main_layout)
 
     def load_config_and_set_values(self):
-        if os.path.exists('config.yaml'):
+        config_file_path = Path('config.yaml')
+        if config_file_path.exists():
             try:
-                with open('config.yaml', 'r') as f:
+                with open(config_file_path, 'r') as f:
                     config = yaml.safe_load(f)
             except Exception as e:
                 config = None
@@ -80,8 +81,8 @@ class BarkModelSettingsTab(QWidget):
         self.cpu_offload_checkbox.stateChanged.connect(self.update_config)
 
     def update_config(self):
-        config_file_path = 'config.yaml'
-        if os.path.exists(config_file_path):
+        config_file_path = Path('config.yaml')
+        if config_file_path.exists():
             try:
                 with open(config_file_path, 'r') as f:
                     config = yaml.safe_load(f)

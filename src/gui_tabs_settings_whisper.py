@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 import ctranslate2
 import yaml
 from voice_recorder_module import VoiceRecorder
-import os
+from pathlib import Path
 
 class TranscriberSettingsTab(QWidget):
     
@@ -86,8 +86,8 @@ class TranscriberSettingsTab(QWidget):
         self.setLayout(layout)
     
     def update_config(self):
-        config_file_path = 'config.yaml'
-        if os.path.exists(config_file_path):
+        config_file_path = Path('config.yaml')
+        if config_file_path.exists():
             try:
                 with open(config_file_path, 'r') as f:
                     config_data = yaml.safe_load(f)

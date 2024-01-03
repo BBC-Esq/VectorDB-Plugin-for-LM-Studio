@@ -44,7 +44,7 @@ class DocQA_GUI(QWidget):
         return False
     
     def load_config(self):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
+        script_dir = Path(__file__).resolve().parent
         config_path = os.path.join(script_dir, 'config.yaml')
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
@@ -53,7 +53,7 @@ class DocQA_GUI(QWidget):
     def init_ui(self):
         main_splitter = QSplitter(Qt.Horizontal)
         self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
-        self.setGeometry(300, 300, 1060, 1060)
+        self.setGeometry(300, 300, 1077, 1077)
         self.setMinimumSize(450, 510)
 
         # LEFT FRAME

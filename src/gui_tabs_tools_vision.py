@@ -2,7 +2,6 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QFileDi
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtCore import Qt, QThread, QUrl
 import yaml
-import os
 import multiprocessing
 import vision_llava_module
 import vision_cogvlm_module
@@ -37,8 +36,9 @@ class VisionToolSettingsTab(QWidget):
 
         # Initialize the WebEngineView
         self.webView = QWebEngineView()
-        html_file_path = os.path.join(os.path.dirname(__file__), 'vision_model_table.html')
-        self.webView.setUrl(QUrl.fromLocalFile(html_file_path))
+        script_dir = Path(__file__).resolve().parent
+        html_file_path = script_dir / 'vision_model_table.html'
+        self.webView.setUrl(QUrl.fromLocalFile(str(html_file_path)))
         mainVLayout.addWidget(self.webView)
 
     def confirmationBeforeProcessing(self):
@@ -52,15 +52,15 @@ class VisionToolSettingsTab(QWidget):
             self.startProcessing()
     
     def startProcessing(self):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        images_dir = Path(script_dir) / "Images_for_DB"
+        script_dir = Path(__file__).resolve().parent
+        images_dir = script_dir / "Images_for_DB"
 
         with open('config.yaml', 'r') as file:
             updated_config = yaml.safe_load(file)
 
         if platform.system() == "Darwin" and any(images_dir.iterdir()):
             QMessageBox.warning(self, "Error",
-                                "Image processing has been disabled for MacOS for the time being until a fix can be implemented.  Please remove all files from the 'Images_for_DB' folder and try again.")
+                                "Image processing has been disabled for MacOS for the time being until a fix can be implemented. Please remove all files from the 'Images_for_DB' folder and try again.")
             return
 
         chosen_model = updated_config['vision']['chosen_model']
@@ -86,8 +86,8 @@ class VisionToolSettingsTab(QWidget):
         if file_path:
             self.folderPathLabel.setText(file_path)
 
-            config_file_path = 'config.yaml'
-            if os.path.exists(config_file_path):
+            config_file_path = Path('config.yaml')
+            if config_file_path.exists():
                 try:
                     with open(config_file_path, 'r') as file:
                         config = yaml.safe_load(file)

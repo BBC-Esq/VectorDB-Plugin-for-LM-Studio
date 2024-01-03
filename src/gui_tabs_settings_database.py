@@ -4,7 +4,6 @@ from PySide6.QtCore import Slot
 import yaml
 from pathlib import Path
 import shutil
-import os
 
 class DatabaseSettingsTab(QWidget):
     def __init__(self):

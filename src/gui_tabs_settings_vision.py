@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QLabel, QGridLayout, QVBoxLayout, QComboBox, QCheckBox, QSpinBox, QWidget
 from PySide6.QtCore import Qt
 import yaml
-import os
+from pathlib import Path
 
 class VisionSettingsTab(QWidget):
     def __init__(self):
@@ -94,8 +94,8 @@ class VisionSettingsTab(QWidget):
         self.updateConfigFile()
 
     def updateConfigFile(self):
-        config_file_path = 'config.yaml'
-        if os.path.exists(config_file_path):
+        config_file_path = Path('config.yaml')
+        if config_file_path.exists():
             try:
                 with open(config_file_path, 'r') as file:
                     current_config = yaml.safe_load(file)
