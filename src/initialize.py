@@ -4,6 +4,7 @@ import platform
 import ctranslate2
 from pathlib import Path
 import os
+import shutil
 
 def get_compute_device_info():
     available_devices = ["cpu"]
@@ -68,11 +69,37 @@ def check_for_necessary_folders_and_files():
         if not path.is_dir():
             path.mkdir()
 
+def restore_vector_db_backup():
+    # Paths to the folders
+    backup_folder = Path('Vector_DB_Backup')
+    destination_folder = Path('Vector_DB')
+
+    # Check for two .parquet files in the backup folder
+    backup_files = list(backup_folder.glob('*.parquet'))
+    if len(backup_files) != 2:
+        return
+
+    # Delete everything in the destination folder
+    for item in destination_folder.iterdir():
+        if item.is_dir():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+
+    # Copy everything from the backup folder to the destination folder
+    for item in backup_folder.iterdir():
+        dest_path = destination_folder / item.name
+        if item.is_dir():
+            shutil.copytree(item, dest_path)
+        else:
+            shutil.copy2(item, dest_path)
+
 def main():
     compute_device_info = get_compute_device_info()
     platform_info = get_platform_info()
     update_config_file(Compute_Device=compute_device_info, Platform_Info=platform_info)
     check_for_necessary_folders_and_files()
+    restore_vector_db_backup()
 
 if __name__ == "__main__":
     main()
