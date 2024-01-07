@@ -19,7 +19,6 @@ def choose_documents_directory():
         for file_path in file_paths:
             extension = Path(file_path).suffix.lower()
             if extension in allowed_extensions:
-                # Determine target folder without creating it
                 if extension in ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']:
                     target_folder = current_dir / "Images_for_DB"
                 else:
@@ -65,14 +64,18 @@ def choose_documents_directory():
 def see_documents_directory():
     current_dir = Path(__file__).parent.resolve()
     docs_folder = current_dir / "Docs_for_DB"
+    images_folder = current_dir / "Images_for_DB"
 
     os_name = platform.system()
     if os_name == 'Windows':
         subprocess.Popen(['explorer', str(docs_folder)])
+        subprocess.Popen(['explorer', str(images_folder)])
     elif os_name == 'Darwin':
         subprocess.Popen(['open', str(docs_folder)])
+        subprocess.Popen(['open', str(images_folder)])
     elif os_name == 'Linux':
         subprocess.Popen(['xdg-open', str(docs_folder)])
+        subprocess.Popen(['xdg-open', str(images_folder)])
 
 if __name__ == '__main__':
     app = QApplication([])
