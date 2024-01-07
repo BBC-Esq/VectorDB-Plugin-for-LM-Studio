@@ -273,8 +273,7 @@ AVAILABLE_MODELS = [
 
 DOCUMENT_LOADERS = {
     ".pdf": "PyMuPDFLoader",
-    ".docx": "UnstructuredWordDocumentLoader",
-    ".doc": "UnstructuredWordDocumentLoader",
+    ".docx": "Docx2txtLoader",
     ".txt": "TextLoader",
     ".enex": "EverNoteLoader",
     ".epub": "UnstructuredEPubLoader",
