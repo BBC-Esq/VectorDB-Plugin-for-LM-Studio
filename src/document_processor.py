@@ -7,7 +7,7 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import (
     PyMuPDFLoader,
-    Docx2txtLoader,
+    UnstructuredWordDocumentLoader,
     TextLoader,
     EverNoteLoader,
     UnstructuredEPubLoader,
@@ -67,7 +67,7 @@ def load_single_document(file_path: Path) -> Document:
         elif file_extension == ".epub":
             loader = UnstructuredEPubLoader(str(file_path), mode="single", strategy="fast")
         elif file_extension == ".docx":
-            loader = Docx2txtLoader(str(file_path), mode="single", strategy="fast")
+            loader = UnstructuredWordDocumentLoader(str(file_path), mode="single", strategy="fast")
         elif file_extension == ".rtf":
             loader = UnstructuredRTFLoader(str(file_path), mode="single", strategy="fast")
         elif file_extension == ".odt":
