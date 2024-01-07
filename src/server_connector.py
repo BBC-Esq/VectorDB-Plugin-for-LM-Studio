@@ -12,6 +12,7 @@ import tempfile
 import subprocess
 from pathlib import Path
 from PySide6.QtWidgets import QMessageBox
+import sys
 
 ENABLE_PRINT = True
 
@@ -43,6 +44,8 @@ def format_metadata_as_citations(metadata_list):
     return "\n".join(citations)
 
 def write_contexts_to_file_and_open(contexts):
+    contexts_output_file_path = Path('contexts.txt')
+
     with contexts_output_file_path.open('w', encoding='utf-8') as file:
         for index, context in enumerate(contexts, start=1):
             file.write(f"------------ Context {index} ---------------\n\n")
@@ -51,9 +54,9 @@ def write_contexts_to_file_and_open(contexts):
     if os.name == 'nt':
         os.startfile(contexts_output_file_path)
     elif sys.platform == 'darwin':
-        subprocess.Popen(['open', str(contexts_output_file_path)])
+        os.system(f'open {contexts_output_file_path}')
     elif sys.platform.startswith('linux'):
-        subprocess.Popen(['xdg-open', str(contexts_output_file_path)])
+        os.system(f'xdg-open {contexts_output_file_path}')
     else:
         raise NotImplementedError("Unsupported operating system")
 

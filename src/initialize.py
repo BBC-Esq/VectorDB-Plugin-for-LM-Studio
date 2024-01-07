@@ -3,7 +3,6 @@ import yaml
 import platform
 import ctranslate2
 from pathlib import Path
-import os
 import shutil
 
 def get_compute_device_info():
@@ -36,7 +35,7 @@ def get_supported_quantizations(device_type):
     return sorted_types
 
 def update_config_file(**system_info):
-    full_config_path = os.path.abspath('config.yaml')
+    full_config_path = Path('config.yaml').resolve()
     
     with open(full_config_path, 'r') as stream:
         config_data = yaml.safe_load(stream)
@@ -94,11 +93,19 @@ def restore_vector_db_backup():
         else:
             shutil.copy2(item, dest_path)
 
+def delete_chat_history():
+    script_dir = Path(__file__).resolve().parent
+    chat_history_path = script_dir / 'chat_history.txt'
+
+    if chat_history_path.exists():
+        chat_history_path.unlink()
+
 def main():
     compute_device_info = get_compute_device_info()
     platform_info = get_platform_info()
     update_config_file(Compute_Device=compute_device_info, Platform_Info=platform_info)
     check_for_necessary_folders_and_files()
+    delete_chat_history()
     restore_vector_db_backup()
 
 if __name__ == "__main__":

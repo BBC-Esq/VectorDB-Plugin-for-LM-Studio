@@ -15,30 +15,8 @@ from PySide6.QtWidgets import (
 
 
 def choose_documents_directory():
-    allowed_extensions = [
-        ".pdf",
-        ".docx",
-        ".epub",
-        ".txt",
-        ".enex",
-        ".eml",
-        ".msg",
-        ".csv",
-        ".xls",
-        ".xlsx",
-        ".rtf",
-        ".odt",
-        ".png",
-        ".jpg",
-        ".jpeg",
-        ".bmp",
-        ".gif",
-        ".tif",
-        ".tiff",
-        ".html",
-        ".htm",
-        ".md",
-    ]
+    allowed_extensions = ['.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', '.rtf', '.odt',
+                          '.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff', '.html', '.htm', '.md', '.doc']
     current_dir = Path(__file__).parent.resolve()
     file_dialog = QFileDialog()
     file_dialog.setFileMode(QFileDialog.ExistingFiles)
