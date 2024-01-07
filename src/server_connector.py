@@ -12,6 +12,7 @@ import tempfile
 import subprocess
 from pathlib import Path
 from PySide6.QtWidgets import QMessageBox
+import sys
 
 ENABLE_PRINT = True
 
