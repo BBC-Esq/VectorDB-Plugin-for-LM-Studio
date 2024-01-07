@@ -273,6 +273,14 @@ class DocQA_GUI(QWidget):
         return row_widget
 
     def on_bark_button_clicked(self):
+        script_dir = Path(__file__).resolve().parent
+        chat_history_path = script_dir / 'chat_history.txt'
+
+        if not chat_history_path.exists():
+            QMessageBox.warning(self, "Error", 
+                                "You must connect to LM Studio and get a response first before attempting to hear the response.")
+            return
+
         bark_thread = threading.Thread(target=self.run_bark_module)
         bark_thread.daemon = True
         bark_thread.start()
