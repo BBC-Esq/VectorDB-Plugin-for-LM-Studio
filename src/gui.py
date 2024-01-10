@@ -178,6 +178,9 @@ class DocQA_GUI(QWidget):
         self.read_only_text.setPlainText(self.cumulative_response)
         self.submit_button.setDisabled(False)
 
+    def update_transcription(self, text):
+        self.text_input.setPlainText(text)
+    
     def closeEvent(self, event):
         self.metrics_bar.stop_metrics_collector()
         event.accept()
