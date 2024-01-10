@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QSizePolicy, QComboBox
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QSizePolicy, QComboBox, QPushButton
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtCore import Slot
 import yaml

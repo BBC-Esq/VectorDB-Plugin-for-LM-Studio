@@ -69,23 +69,22 @@ def check_for_necessary_folders_and_files():
             path.mkdir()
 
 def restore_vector_db_backup():
-    # Paths to the folders
     backup_folder = Path('Vector_DB_Backup')
     destination_folder = Path('Vector_DB')
 
-    # Check for two .parquet files in the backup folder
+    # Check for two .parquet files in backup folder
     backup_files = list(backup_folder.glob('*.parquet'))
     if len(backup_files) != 2:
         return
 
-    # Delete everything in the destination folder
+    # Delete destination folder files
     for item in destination_folder.iterdir():
         if item.is_dir():
             shutil.rmtree(item)
         else:
             item.unlink()
 
-    # Copy everything from the backup folder to the destination folder
+    # Copy backup folder files to the destination folder
     for item in backup_folder.iterdir():
         dest_path = destination_folder / item.name
         if item.is_dir():

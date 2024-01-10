@@ -30,10 +30,10 @@ class GuiSettingsTab(QWidget):
         self.layout = QVBoxLayout()
 
         classes = {
-            "SERVER/LLM": (ServerSettingsTab, 4),
+            "SERVER/LLM": (ServerSettingsTab, 5),
             "VOICE RECORDER": (TranscriberSettingsTab, 1),
             "DATABASE": (DatabaseSettingsTab, 3),
-            "BARK": (BarkModelSettingsTab, 1),
+            "BARK": (BarkModelSettingsTab, 2),
         }
 
         self.groups = {}
@@ -64,7 +64,7 @@ class GuiSettingsTab(QWidget):
         visionGroup.setLayout(visionLayout)
         visionGroup.setCheckable(True)
         visionGroup.setChecked(True)
-        self.layout.addWidget(visionGroup, 1)
+        self.layout.addWidget(visionGroup, 2)
 
         self.update_all_button = QPushButton("Update Settings")
         self.update_all_button.setStyleSheet("min-width: 200px;")

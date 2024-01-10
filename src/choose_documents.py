@@ -61,22 +61,6 @@ def choose_documents_directory():
             if user_choice == QDialog.Rejected:
                 return
 
-def see_documents_directory():
-    current_dir = Path(__file__).parent.resolve()
-    docs_folder = current_dir / "Docs_for_DB"
-    images_folder = current_dir / "Images_for_DB"
-
-    os_name = platform.system()
-    if os_name == 'Windows':
-        subprocess.Popen(['explorer', str(docs_folder)])
-        subprocess.Popen(['explorer', str(images_folder)])
-    elif os_name == 'Darwin':
-        subprocess.Popen(['open', str(docs_folder)])
-        subprocess.Popen(['open', str(images_folder)])
-    elif os_name == 'Linux':
-        subprocess.Popen(['xdg-open', str(docs_folder)])
-        subprocess.Popen(['xdg-open', str(images_folder)])
-
 if __name__ == '__main__':
     app = QApplication([])
     choose_documents_directory()

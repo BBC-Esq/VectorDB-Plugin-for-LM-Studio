@@ -1,6 +1,9 @@
 from pathlib import Path
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMessageBox
 import shutil
+import platform
+import os
+import yaml
 
 def validate_symbolic_links(source_directory):
     source_path = Path(source_directory)
@@ -46,11 +49,55 @@ def backup_database():
 
     shutil.copytree(source_directory, backup_directory, dirs_exist_ok=True)
 
+def open_file(file_path):
+    if platform.system() == "Windows":
+        os.startfile(file_path)
+    elif platform.system() == "Darwin":
+        subprocess.Popen(["open", file_path])
+    else:
+        subprocess.Popen(["xdg-open", file_path])
+
+def delete_file(file_path):
+    try:
+        os.remove(file_path)
+    except OSError as e:
+        print(f"Error: {e.strerror}")
+
+def check_preconditions_for_db_creation(script_dir):
+    import yaml
+    from PySide6.QtWidgets import QMessageBox
+
+    config_path = script_dir / 'config.yaml'
+    with open(config_path, 'r') as file:
+        config = yaml.safe_load(file)
+
+    if platform.system() == "Darwin" and any((script_dir / "Images_for_DB").iterdir()):
+        return False, "Image processing has been disabled for MacOS for the time being until a fix can be implemented. Please remove all files from the 'Images_for_DB' folder and try again."
+
+    embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
+    if not embedding_model_name:
+        return False, "You must first download an embedding model, select it, and choose documents first before proceeding."
+
+    documents_dir = script_dir / "Docs_for_DB"
+    images_dir = script_dir / "Images_for_DB"
+    if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
+        return False, "No documents found to process. Please select files to add to the vector database and try again."
+
+    compute_device = config.get('Compute_Device', {}).get('available', [])
+    database_creation = config.get('Compute_Device', {}).get('database_creation')
+    if ("cuda" in compute_device or "mps" in compute_device) and database_creation == "cpu":
+        reply = QMessageBox.question(None, 'Warning', 
+                                     "GPU-acceleration is available and highly recommended for creating a vector database. Click OK to proceed or Cancel to go back and change the device.", 
+                                     QMessageBox.Ok | QMessageBox.Cancel)
+        if reply == QMessageBox.Cancel:
+            return False, ""
+
+    return True, ""
+
 if __name__ == '__main__':
     source_directory = "Docs_for_DB"
     validate_symbolic_links(source_directory)
 
-    
 '''
 # Print GPU memory stats in script
 def print_cuda_memory_usage():

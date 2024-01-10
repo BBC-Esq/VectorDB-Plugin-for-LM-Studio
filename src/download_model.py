@@ -1,9 +1,14 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QRadioButton, QPushButton, QButtonGroup, QLabel, QGridLayout
 import subprocess
 import threading
 from pathlib import Path
 from constants import AVAILABLE_MODELS
+
+class ModelDownloadedSignal(QObject):
+    downloaded = Signal(str)
+
+model_downloaded_signal = ModelDownloadedSignal()
 
 class DownloadModelDialog(QDialog):
     def __init__(self, parent=None):
@@ -105,6 +110,7 @@ def download_embedding_model(parent):
             def download_model():
                 subprocess.run(["git", "clone", model_url, str(target_directory)])
                 print(f"{selected_model['model']} has been downloaded and is ready to use!")
+                model_downloaded_signal.downloaded.emit(selected_model['model'])
 
             download_thread = threading.Thread(target=download_model)
             download_thread.start()

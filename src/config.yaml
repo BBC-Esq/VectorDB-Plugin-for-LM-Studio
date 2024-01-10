@@ -4,7 +4,7 @@ Compute_Device:
   database_creation: cpu
   database_query: cpu
   gpu_brand: 
-EMBEDDING_MODEL_NAME: 
+EMBEDDING_MODEL_NAME: null
 Platform_Info:
   os: 
 Supported_CTranslate2_Quantizations:
@@ -23,12 +23,12 @@ Supported_CTranslate2_Quantizations:
 bark:
   enable_cpu_offload: false
   model_precision: float32
-  size: normal
-  speaker: v2/en_speaker_7
+  size: small
+  speaker: v2/en_speaker_6
   use_better_transformer: true
 database:
   chunk_overlap: 250
-  chunk_size: 800
+  chunk_size: 750
   contexts: 6
   similarity: 0.9
 embedding-models:
@@ -50,7 +50,7 @@ server:
   prefix_obsidian_3B: <|im_start|>user\n
   prefix_orca2: <|im_start|>user
   prefix_phi2: 'Instruct:'
-  prompt_format_disabled: true
+  prompt_format_disabled: false
   suffix: '### Assistant:'
   suffix_chat_ml: <|im_end|>
   suffix_llama2_and_mistral: '[/INST]'
@@ -70,7 +70,7 @@ transcribe_file:
   device: cpu
   file: null
   model: medium.en
-  quant: float16
+  quant: float32
   timestamps: true
 transcriber:
   device: cpu
@@ -108,4 +108,4 @@ vision:
     - float32
     available_sizes:
     - 470m
-  test_image: 
+  test_image: null

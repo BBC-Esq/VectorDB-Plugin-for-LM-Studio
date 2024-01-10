@@ -47,7 +47,6 @@ class ServerSettingsTab(QWidget):
         layout.addWidget(disable_label, 2, 2)
 
         self.disable_checkbox = QCheckBox()
-        self.initial_disable_state = self.prompt_format_disabled
         self.disable_checkbox.setChecked(self.prompt_format_disabled)
         layout.addWidget(self.disable_checkbox, 2, 3)
 
@@ -87,7 +86,6 @@ class ServerSettingsTab(QWidget):
     
     def update_prefix_suffix(self, index):
         option = self.prompt_format_combobox.currentText()
-
         key_mapping = {
             "ChatML": ("prefix_chat_ml", "suffix_chat_ml"),
             "Llama2/Mistral": ("prefix_llama2_and_mistral", "suffix_llama2_and_mistral"),
@@ -97,9 +95,7 @@ class ServerSettingsTab(QWidget):
             "Obsidian 3B": ("prefix_obsidian_3B", "suffix_obsidian_3B"),
             "Phi-2": ("prefix_phi2", "suffix_phi2"),
         }
-
         prefix_key, suffix_key = key_mapping.get(option, ("", ""))
-
         self.widgets['prefix']['edit'].setText(self.config_data.get('server', {}).get(prefix_key, ''))
         self.widgets['suffix']['edit'].setText(self.config_data.get('server', {}).get(suffix_key, ''))
 
@@ -112,7 +108,6 @@ class ServerSettingsTab(QWidget):
             except Exception as e:
                 config_data = {}
 
-        # Update specific sections of the config
         updated = False
         for setting, widget in self.widgets.items():
             new_value = widget['edit'].text()
@@ -120,21 +115,26 @@ class ServerSettingsTab(QWidget):
                 updated = True
                 if setting == 'port':
                     config_data['server']['connection_str'] = self.connection_str.replace(self.current_port, new_value)
-                elif setting in ['max_tokens', 'temperature']:
-                    config_data['server'][f'model_{setting}'] = int(new_value) if setting == 'max_tokens' else float(new_value)
+                    self.widgets['port']['label'].setText(f"Port: {new_value}")
+                elif setting == 'max_tokens':
+                    config_data['server']['model_max_tokens'] = int(new_value)
+                    self.widgets['max_tokens']['label'].setText(f"Max Tokens: {new_value}")
+                elif setting == 'temperature':
+                    config_data['server']['model_temperature'] = float(new_value)
+                    self.widgets['temperature']['label'].setText(f"Temperature: {new_value}")
                 else:
                     config_data['server'][setting] = new_value
+                    self.widgets[setting]['label'].setText(f"{setting.capitalize()}: {new_value}")
 
-        current_disable_state = self.disable_checkbox.isChecked()
-        if current_disable_state != self.initial_disable_state:
+                widget['edit'].clear()  # Clear the QLineEdit widget
+
+        checkbox_state = self.disable_checkbox.isChecked()
+        if checkbox_state != config_data.get('server', {}).get('prompt_format_disabled', False):
+            config_data['server']['prompt_format_disabled'] = checkbox_state
             updated = True
-            config_data['server']['prompt_format_disabled'] = current_disable_state
 
         if updated:
             with config_file_path.open('w') as file:
                 yaml.safe_dump(config_data, file)
-
-            self.config_data = config_data
-            self.refresh_labels()
 
         return updated
