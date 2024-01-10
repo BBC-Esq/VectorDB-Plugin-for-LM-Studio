@@ -225,38 +225,38 @@ python gui.py
 * Read the User Guide before proceeding further!
 
 ## Download Embedding Model
-* Choose the embedding model you want to download.  Do not attempt to create the vector database until the command prompt says that the model is ready to use.
+* Within the ```Vector Models tab```, choose the embedding model you want to download.
 
 ## Set Model Directory
-* Choose the directory containing the embedding model you want to use.
-  > The folders to choose from are WITHIN the ```Embedding_Models``` folder.
+* Within the ```Databases Tab```, choose the directory containing the embedding model you want to use from among the ones you've already downloaded.
+  > Do not choose the ```Embedding_Models``` itself.
 
 ## Adding Documents, Images, and Audio to the Database
-* Choose the documents or images you want to enter into the vector database.  You can select multiple documents at once and/or click this button multiple times. Symbolic links to the files are created within the ```Docs_for_DB``` folder instead of the actual files in order to save space.  The support file types are:
-  * Supported non-image extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
-  * Supported image extensions are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
+* Click the ```Choose Documents or Images``` button to add image or non-image files.
+  * * Supported non-image extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+  * * Supported image extensions are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
+* In the ```Tools Tab``` you can transcribe an audio file into ```.txt``` to be put into the vector databse if you want.
     > Remember to test the vision model settings within the Tools Tab first.
-* The Tools Tab also contains a feature to transcribe audio files to ```.txt```, which are automatially put them into the ```Docs_for_DB``` folder for you.
-
-⚠️ Anytime you add/remove documents you must recreate the vector database.
+* ⚠️ Anytime you add/remove documents you must recreate the vector database.
 
 ## Removing Documents
-* You must manually delete the symbolic link/links from the ```Docs_for_DB``` or ```Images_forDB``` folders and recreate the vector database.
+* Within the ```Databases Tab``` you can select or more files, right click, and delete.
 
 ## Creating the Databaase
-* The create database button creates the vector database!  Wait until the command prompt says "persisted" before proceeding to the next step.
+* Clicks the ```Create Vector Database``` button.  Wait until the command prompt says "persisted" before proceeding to the next step.
 
 ## Connecting to LM Studio
 * Start LM Studio and load a model.
 
 ## Choosing a Prompt Format
-The Settings Tab within this program allows you to set the prompt format instead of in LM Studio.  To do this disable "automatic prompt formatting" within LM Studio.  If using ```LM Studio v0.2.9``` or earlier, this is all you need to do.  However, if you are using ```LM Studio v0.2.10```, there is a known BUG preventing LM Studio from respecting the prompt format chosen in this program.  To prevent this, within LM Studio, go to the Server settings (far right side) and:
-
+The LLM within LM Studio works best with the appropriate "prompt format."  Within the ```Settings Tab``` choose the appropriate prompt format or enter one manually.  However, you must first disable "automatic prompt formatting" within LM Studio; there is a toggle to do this.
+  > You don't need to do this if you're using ```LM Studio v0.2.9``` or earlier.
+Additionally, within ```LM Studio v0.2.10``` there is a known bug preventing LM Studio from respecting the prompt format you choose.  Therefore, within LM Studio, you must also go to the Server settings (far right side) and:
 * ⚠️ Delete any/all text within the ```User Message Prefix``` box; and
 * ⚠️ Delete any/all text within the ```User Message Suffix``` box.
 
 ## Start the LM Studio Server
-* Click the server tab on the left side and click ```Start Server.```
+* Within LM Studio, open the server tab on the left side and click ```Start Server.```
 
 ## Search Database
 * Type (or speak) your question and click ```Submit Questions.```
