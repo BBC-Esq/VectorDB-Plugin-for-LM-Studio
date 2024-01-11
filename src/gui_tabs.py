@@ -25,6 +25,18 @@ def create_tabs():
     settings_tab = GuiSettingsTab()
     tab_widget.addTab(settings_tab, 'Settings')
 
+    # VECTOR MODELS TAB
+    vector_models_tab = VectorModelsTab()
+    tab_widget.addTab(vector_models_tab, 'Vector Models')
+
+    # DATABASES TAB
+    databases_tab = DatabasesTab()
+    tab_widget.addTab(databases_tab, 'Databases')
+
+    # TOOLS TAB
+    tools_tab = ToolsSettingsTab()
+    tab_widget.addTab(tools_tab, 'Tools')
+
     # USER GUIDE TAB
     user_guide_tab = QWidget()
     user_guide_layout = QVBoxLayout()
@@ -63,18 +75,6 @@ def create_tabs():
 
     user_guide_tab.setLayout(user_guide_layout)
     tab_widget.addTab(user_guide_tab, 'User Guide')
-    
-    # TOOLS TAB
-    tools_tab = ToolsSettingsTab()
-    tab_widget.addTab(tools_tab, 'Tools')
-
-    # DATABASES TAB
-    databases_tab = DatabasesTab()
-    tab_widget.addTab(databases_tab, 'Databases')
-
-    # VECTOR MODELS TAB
-    vector_models_tab = VectorModelsTab()
-    tab_widget.addTab(vector_models_tab, 'Vector Models')
 
     return tab_widget
 
