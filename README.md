@@ -233,7 +233,7 @@ python gui.py
 
 ## Adding Documents, Images, and Audio to the Database
 * Click the ```Choose Documents or Images``` button to add image or non-image files.
-  * * Supported non-image extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+  * * Supported non-image extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
   * * Supported image extensions are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
 * In the ```Tools Tab``` you can transcribe an audio file into ```.txt``` to be put into the vector databse if you want.
     > Remember to test the vision model settings within the Tools Tab first.
