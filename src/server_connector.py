@@ -6,21 +6,13 @@ from chromadb.config import Settings
 import yaml
 import torch
 from transformers import AutoTokenizer
-from termcolor import cprint
 import gc
 import tempfile
 import subprocess
 from pathlib import Path
 from PySide6.QtWidgets import QMessageBox
 import sys
-
-ENABLE_PRINT = True
-
-def my_cprint(*args, **kwargs):
-    if ENABLE_PRINT:
-        filename = "server_connector.py"
-        modified_message = f"{filename}: {args[0]}"
-        cprint(modified_message, *args[1:], **kwargs)
+from utilities import my_cprint
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
@@ -33,6 +25,9 @@ CHROMA_SETTINGS = Settings(
 
 contexts_output_file_path = ROOT_DIRECTORY / "contexts.txt"
 metadata_output_file_path = ROOT_DIRECTORY / "metadata.txt"
+
+# Global stop flag
+stop_streaming = False
 
 def save_metadata_to_file(metadata_list, output_file_path):
     with output_file_path.open('w', encoding='utf-8') as output_file:
@@ -61,6 +56,8 @@ def write_contexts_to_file_and_open(contexts):
         raise NotImplementedError("Unsupported operating system")
 
 def connect_to_local_chatgpt(prompt):
+    global stop_streaming
+
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
         server_config = config.get('server', {})
@@ -87,11 +84,16 @@ def connect_to_local_chatgpt(prompt):
         messages=[{"role": "user", "content": formatted_prompt}], stream=True
     )
     for chunk in response:
+        if stop_streaming:
+            yield None
+            break
         if 'choices' in chunk and len(chunk['choices']) > 0 and 'delta' in chunk['choices'][0] and 'content' in chunk['choices'][0]['delta']:
             chunk_message = chunk['choices'][0]['delta']['content']
             yield chunk_message
 
 def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_settings=CHROMA_SETTINGS):
+    global stop_streaming
+    stop_streaming = False  # Reset the flag each time function is called
     my_cprint("Attempting to connect to server.", "white")
 
     with open('config.yaml', 'r') as config_file:
@@ -115,6 +117,7 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
     model_kwargs = {"device": compute_device}
 
     my_cprint("Embedding model loaded.", "green")
+    
     if "instructor" in EMBEDDING_MODEL_NAME:
         embed_instruction = config_data['instructor'].get('embed_instruction')
         query_instruction = config_data['instructor'].get('query_instruction')
@@ -153,7 +156,7 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
     my_cprint("Database initialized.", "white")
 
     retriever = db.as_retriever(search_kwargs={'score_threshold': score_threshold, 'k': k})
-
+    
     my_cprint("Querying database.", "white")
     relevant_contexts = retriever.get_relevant_documents(query)
 
@@ -170,7 +173,7 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
         return {"answer": "Contexts written to temporary file and opened", "sources": relevant_contexts}
 
     prepend_string = "Only base your answer to the following question on the provided context/contexts accompanying this question.  If you cannot answer based on the included context/contexts alone, please state so."
-    augmented_query = "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
+    augmented_query = prepend_string + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
 
     my_cprint(f"Number of relevant contexts: {len(relevant_contexts)}", "white")
 
@@ -182,6 +185,8 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
     full_response = []
 
     for chunk_message in response_json:
+        if chunk_message is None:
+            break  # Stop if the special signal is received
         if full_response and isinstance(full_response[-1], str):
             full_response[-1] += chunk_message
         else:
@@ -196,8 +201,7 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
 
     yield "\n\n"
     
-    # LLM's response complete
-    # format and append citations
+    # LLM response; format and append citations
     citations = format_metadata_as_citations(metadata_list)
     
     unique_citations = []
@@ -215,6 +219,50 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
 
     return {"answer": response_json, "sources": relevant_contexts}
 
+def stop_interaction():
+    global stop_streaming
+    stop_streaming = True
+
 if __name__ == "__main__":
     user_input = "Your query here"
     ask_local_chatgpt(user_input)
+
+
+''' Search by metadata and minimum relevance score threshold
+
+    docsearch = VectorStoreRetriever(
+    vectorstore=your_vector_store_instance,
+    search_type='similarity_score_threshold',
+    search_kwargs={'filter': {'field_name': 'field_value', 'field2': 'value2'},
+                   'score_threshold': 0.7}  # Adjust the threshold as needed
+)
+
+Filter by multiple metadata fields:
+
+search_kwargs={'filter': {'field1': 'value1', 'field2': 'value2'}}
+
+From the langchain library, this relies on vectorstores.py and chroma.py
+
+# Another example using my specific document metadata extracted:
+
+retriever = db.as_retriever(search_kwargs={
+    'score_threshold': score_threshold, 
+    'k': k,
+    'filter': {
+        'file_path': '/path/to/specific/directory/',
+        'file_type': '.pdf',
+        'file_name': 'example_document',
+        'file_size': {'$gt': 1024},  # Example: file size greater than 1024 bytes
+        'creation_date': {'$gt': '2022-01-01'},  # Example: created after January 1, 2022
+        'modification_date': {'$gt': '2022-01-01'},  # Example: modified after January 1, 2022
+        'image': 'False'
+    }
+})
+
+$gt is used as an example operator for "greater than". You'll need to replace it with the correct operator used in DuckDB and ClickHouse.
+
+# Use a filter to only retrieve documents from a specific paper
+docsearch.as_retriever(
+    search_kwargs={'filter': {'paper_title':'GPT-4 Technical Report'}}
+)
+'''

@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget, QTextEdit, QSplitter, QFrame, 
     QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox, QHBoxLayout, QMessageBox, QPushButton
 )
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, QThread, Signal
 import os
 from pathlib import Path
 import torch
@@ -13,11 +13,38 @@ import threading
 from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from gui_tabs import create_tabs
-from gui_threads import SubmitButtonThread
 import voice_recorder_module
-from utilities import list_theme_files, make_theme_changer, load_stylesheet
+import server_connector
+from utilities import list_theme_files, make_theme_changer, load_stylesheet, check_preconditions_for_submit_question
 from bark_module import BarkAudio
 from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP
+
+class SubmitButtonThread(QThread):
+    responseSignal = Signal(str)
+    errorSignal = Signal()
+    stop_requested = False  # Stop flag
+
+    def __init__(self, user_question, parent=None, callback=None):
+        super(SubmitButtonThread, self).__init__(parent)
+        self.user_question = user_question
+        self.callback = callback
+
+    def run(self):
+        try:
+            response = server_connector.ask_local_chatgpt(self.user_question)
+            for response_chunk in response:
+                if SubmitButtonThread.stop_requested:
+                    break
+                self.responseSignal.emit(response_chunk)
+            if self.callback:
+                self.callback()
+        except Exception as err:
+            self.errorSignal.emit()
+            print(err)
+
+    @classmethod
+    def request_stop(cls):
+        cls.stop_requested = True
 
 class DocQA_GUI(QWidget):
     def __init__(self):
@@ -76,6 +103,10 @@ class DocQA_GUI(QWidget):
         self.submit_button.clicked.connect(self.on_submit_button_clicked)
         right_vbox.addWidget(self.submit_button)
 
+        self.stop_button = QPushButton("Stop Interaction")
+        self.stop_button.clicked.connect(self.on_stop_button_clicked)
+        right_vbox.addWidget(self.stop_button)
+
         # Test Embeddings checkbox and Bark button
         checkbox_button_hbox = QHBoxLayout()
         self.test_embeddings_checkbox = QCheckBox("Chunks Only")
@@ -118,28 +149,13 @@ class DocQA_GUI(QWidget):
         super().resizeEvent(event)
 
     def on_submit_button_clicked(self):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        config_path = os.path.join(script_dir, 'config.yaml')
-        with open(config_path, 'r') as file:
-            config = yaml.safe_load(file)
+        SubmitButtonThread.stop_requested = False  # Reset the stop flag
+        script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
-        embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
-        if not embedding_model_name:
-            QMessageBox.warning(self, "Error", 
-                                "You must first download an embedding model, select it, and choose documents first before proceeding.")
-            return
-
-        documents_dir = Path(script_dir) / "Docs_for_DB"
-        images_dir = Path(script_dir) / "Images_for_DB"
-        if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
-            QMessageBox.warning(self, "Error", 
-                                "No documents found to process. Please select files to add to the vector database and try again.")
-            return
-
-        vector_db_dir = Path(script_dir) / "Vector_DB"
-        if not any(f.suffix == '.parquet' for f in vector_db_dir.iterdir()):
-            QMessageBox.warning(self, "Error",
-                                "You must first create a vector database before clicking this button.")
+        # check preconditions
+        is_valid, error_message = check_preconditions_for_submit_question(script_dir)
+        if not is_valid:
+            QMessageBox.warning(self, "Error", error_message)
             return
 
         self.submit_button.setDisabled(True)
@@ -151,11 +167,14 @@ class DocQA_GUI(QWidget):
         self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
         self.submit_button_thread.start()
 
-        # Timer to reset button
+        # 3 second timer
         self.reset_timer = QTimer(self)
         self.reset_timer.setSingleShot(True)
         self.reset_timer.timeout.connect(self.enable_submit_button)
         self.reset_timer.start(3000)
+
+    def on_stop_button_clicked(self):
+        SubmitButtonThread.request_stop()
 
     def enable_submit_button(self):
         self.submit_button.setDisabled(False)
