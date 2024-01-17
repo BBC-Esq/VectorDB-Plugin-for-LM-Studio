@@ -214,7 +214,7 @@ python check_gpu.py
   <summary>🖥️INSTRUCTIONS🖥️</summary>
 
 ## Activate Virtual Environment
-* You do not have to create a virtual environment except when installing the program, but you must activate the virtual environment each time by opening a command prompt/terminal from within the ```src``` folder and running thw appropriate command above based on your platform.
+* You do not have to create a virtual environment except when first installing the program, but you must activate the virtual environment each time by opening a command prompt/terminal from within the ```src``` folder and running the appropriate command above for your platform.
 ## Start the Program
 ```
 python gui.py
@@ -222,27 +222,27 @@ python gui.py
 > Only systems with an Nvidia GPU will display gpu power, usage, and VRAM metrics.
 
 # 🔥Important🔥
-* Read the User Guide before swnding me questions.
+* Read the User Guide before sending me questions.
 
-## Download Embedding Model
-* In the ```Vector Models tab```, choose the embedding model you want to download.
+## Download Vector Model
+* In the ```Vector Models``` tab, choose the embedding model you want to download.
 
-## Set Model Directory
-* In the ```Databases Tab```, choose the directory containing the embedding model you want to use to create the database.  It can be any of the models you've already downloaded.
+## Set Vector Model
+* In the ```Databases Tab```, choose the directory containing the vector model you want to use to create the database.  It can be any of the models you've already downloaded.
   > Do not choose the ```Embedding_Models``` folder itself.
 
 ## Set Chunk Size and Overlap
 * Making sure to read the User Manual, set the chunk size and chunk overlap.  Remember, anytime you want to change these two settings or add/remove documents, you must re-create the database for the chages to take effect.
 
 ## Add Files to be Vectorized
-* Click the ```Choose Documents or Images``` button to add images or non-image files.
+* Click the ```Choose Documents or Images``` button to add files.
   * * Supported non-image extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
   * * Supported image extensions are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
-* In the ```Tools Tab``` you also transcribe one or more audio files into ```.txt``` files to be put into the vector databse.
-    > From the Tools Tab, remember to test the vision model you want to use before processing a large number of images.
+* In the ```Tools Tab```, you can also transcribe one or more audio files into ```.txt``` files to be put into the vector databse.
+    > Also, in the Tools Tab, don't forget to test the vision model you want to use before processing a large number of images.
 
-## Removing Documents
-* In the ```Databases Tab```, select one or more files, right click, and delete.
+## Removing Files
+* In the ```Databases Tab```, select one or more files, right click, and delete.  Re-create the database.
 
 ## Creating the Databaase
 * Click the ```Create Vector Database``` button.  Wait until the command prompt says "persisted" before proceeding to the next step.
@@ -251,23 +251,23 @@ python gui.py
 * Start LM Studio and load a model.
 
 ## Choosing a Prompt Format
-The LLM within LM Studio works best with an appropriate "prompt format."  In the ```Settings Tab```, choose the prompt format from the pulldown menu or enter one manually.  In order for prompt formatting to work, however, you must disable the "automatic prompt formatting" setting in the "Server" portion of LM Studio.
-  > You don't need to do this if you're using ```LM Studio v0.2.9``` or earlier.
-Morever, in ```LM Studio v0.2.10``` specifically, there is a bug preventing LM Studio from respecting the prompt format you choose in this program.  However, you can fix this by going to the Server settings (far right side) and:
+The LLM within LM Studio works best with an appropriate "prompt format."  In the ```Settings Tab``` in my program, choose the prompt format from the pulldown menu or enter one manually.  In order for prompt formatting to work, however, you must disable the "automatic prompt formatting" setting in the "Server" portion of LM Studio.
+  > You do not need to do this if you're using ```LM Studio v0.2.9``` or earlier.
+Morever, there is a bug specific to ```LM Studio v0.2.10``` preventing LM Studio from respecting the prompt format you choose.  However, you can fix this by going to the Server settings (far right side) and:
 * ⚠️ Delete any/all text within the ```User Message Prefix``` box; and
 * ⚠️ Delete any/all text within the ```User Message Suffix``` box.
 
 ## Start the LM Studio Server
-* In the Served tab,  click ```Start Server.```
+* In the Server tab,  click ```Start Server.```
 
 ## Search Database
 * Type (or speak) your question and click ```Submit Questions.```
 
 ## Test Chunks
-* If you wish to test the quality of the chunk settings check the ```Chunks Only``` checkbox.  This program will not connect to LM Studio and instead simply provide you with the chunks it extracts from the vector database. LM Studio will not be connected to and you'll simply receive the relevant contexts from the vector database.
+* If you wish to test the quality of the chunk settings, check the ```Chunks Only``` checkbox.  This means the program will not connect to LM Studio and will instead simply provide you with the chunks retrieved from the vector database.
 
 ## Text to Voice
-* This program uses Bark models to convert the response from LM Studio to audio.  You must wait until the ENTIRE response is received, however, before clicking the ```Bark Response``` button.
+* This program uses "Bark" models to convert the response from LM Studio into audio.  You must wait until the ENTIRE response is received, however, before clicking the ```Bark Response``` button.
 
 ## Voice to Text
 * Both the voice recorder and audio file transcriber use the ```faster-whisper``` library, and GPU acceleration is as follows:
