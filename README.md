@@ -24,7 +24,7 @@
         <td>AMD</td>
         <td>❌</td>
         <td>✅</td>
-        <td>ROCm 5.6 (5.7 unknown)</td>
+        <td>ROCm 5.6 (5.7 untested)</td>
       </tr>
       <tr>
         <td>Apple/Metal</td>
@@ -49,11 +49,11 @@ You <b>MUST</b> install these before installing my program:<p>
   
 ### Step 1
 🟢 Nvidia GPU ➜ [Install CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-> CUDA 12+ is currently NOT compatible since the faster-whisper library is only compatible up to CUDA 11.8, but it will be soon!<br>
+> CUDA 12+ is currently NOT compatible since the faster-whisper library is only compatible up to CUDA 11.8, but it will hopefully be upgraded soon!<br>
 
-🔴 AMD GPU - PyTorch does not currently support AMD GPUs on Windows - only Linux.  There are several possible workarounds but I'm unable to verify since I don't have an AMD GPU.  You can look [HERE](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html), [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
+🔴 AMD GPU - PyTorch currently pnly supports AMD gpu-acceleration on Linux, not Windows, and obly if ROCm is properly installed. There are several possible workarounds but I'm unable to verify since I don't have an AMD GPU nor use Linux.  You can look [HERE](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html), [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
 ### Step 2
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone before an official release is created.
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
 ### Step 3
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
@@ -83,10 +83,10 @@ python check_gpu.py
 ### Step 1
 🟢 Nvidia GPUs ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)<br>
 🔴 AMD GPUs ➜ Install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html).
-> [THIS REPO](https://github.com/nktice/AMD-AI) might also help if AMD's instructions aren't clear.
+> [THIS REPO](https://github.com/nktice/AMD-AI) also has instructions.
 
 ### Step 2
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone before an official release is created.
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
 ### Step 3
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
@@ -144,7 +144,7 @@ sudo apt -y install libxcb-cursor0
 ```
 
 ### Optional Step 12
-Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
+Run this script if you want to doublecheck wherher you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
 ```
@@ -154,11 +154,11 @@ python check_gpu.py
   <summary>🍎APPLE INSTRUCTIONS🍎</summary>
 
 ### Step 1
-All Macs with MacOS 12.3+ come with 🔘 Metal/MPS, which is Apple's implementation of gpu-acceleration (like CUDA for Nvidia and ROCm for AMD).  I'm not sure if it's possible to install on an older MacOS since I don't have an Apple.
+All Macs with MacOS 12.3+ come with 🔘 MPS (aka "Metal"), which is basically a dedicated portion of Apple CPUs that act as a GPU and provide gpu-acceleration similiar to Nvidia/AMD.
 ### Step 2
 Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 ### Step 3
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone before an official release is created.
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
 ### Step 4
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
@@ -177,7 +177,7 @@ python -m pip install --upgrade pip
 ```
 pip3 install torch torchvision torchaudio
 ```
-* And if that fails OR YOU GET CUDA-RELATED ERRORS when creating the database (e.g. if using M1, which is ARM-based), run:
+* If the above command fails for some reason or, when trying to create the vector database you get an error that mentions Pytorch and CUDA, you can try these commands instead:
 ```
 pip uninstall torch torchvision torchaudio
 ```
@@ -198,7 +198,7 @@ brew install portaudio
 pip install -r requirements.txt
 ```
 ### Step 10
-You must run:
+Upgrade PDF loader by running:
 ```
 python replace_pdf.py
 ```
@@ -214,62 +214,63 @@ python check_gpu.py
   <summary>🖥️INSTRUCTIONS🖥️</summary>
 
 ## Activate Virtual Environment
-* Open a command prompt/terminal from within the ```src``` folder and activate the virtual environment (see installation instructions above).
+* You do not have to create a virtual environment except when installing the program, but you must activate the virtual environment each time by opening a command prompt/terminal from within the ```src``` folder and running thw appropriate command above based on your platform.
 ## Start the Program
 ```
 python gui.py
 ```
-> NOTE - only systems running Windows with an Nvidia GPU will display metrics in the GUI.
+> Only systems with an Nvidia GPU will display gpu power, usage, and VRAM metrics.
 
 # 🔥Important🔥
-* Read the User Guide before proceeding further!
+* Read the User Guide before swnding me questions.
 
 ## Download Embedding Model
-* Within the ```Vector Models tab```, choose the embedding model you want to download.
+* In the ```Vector Models tab```, choose the embedding model you want to download.
 
 ## Set Model Directory
-* Within the ```Databases Tab```, choose the directory containing the embedding model you want to use from among the ones you've already downloaded.
-  > Do not choose the ```Embedding_Models``` itself.
+* In the ```Databases Tab```, choose the directory containing the embedding model you want to use to create the database.  It can be any of the models you've already downloaded.
+  > Do not choose the ```Embedding_Models``` folder itself.
 
-## Adding Documents, Images, and Audio to the Database
-* Click the ```Choose Documents or Images``` button to add image or non-image files.
+## Set Chunk Size and Overlap
+* Making sure to read the User Manual, set the chunk size and chunk overlap.  Remember, anytime you want to change these two settings or add/remove documents, you must re-create the database for the chages to take effect.
+
+## Add Files to be Vectorized
+* Click the ```Choose Documents or Images``` button to add images or non-image files.
   * * Supported non-image extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
   * * Supported image extensions are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
-* In the ```Tools Tab``` you can transcribe an audio file into ```.txt``` to be put into the vector databse if you want.
-    > Remember to test the vision model settings within the Tools Tab first.
-* ⚠️ Anytime you add/remove documents you must recreate the vector database.
+* In the ```Tools Tab``` you also transcribe one or more audio files into ```.txt``` files to be put into the vector databse.
+    > From the Tools Tab, remember to test the vision model you want to use before processing a large number of images.
 
 ## Removing Documents
-* Within the ```Databases Tab``` you can select or more files, right click, and delete.
+* In the ```Databases Tab```, select one or more files, right click, and delete.
 
 ## Creating the Databaase
-* Clicks the ```Create Vector Database``` button.  Wait until the command prompt says "persisted" before proceeding to the next step.
+* Click the ```Create Vector Database``` button.  Wait until the command prompt says "persisted" before proceeding to the next step.
 
 ## Connecting to LM Studio
 * Start LM Studio and load a model.
 
 ## Choosing a Prompt Format
-The LLM within LM Studio works best with the appropriate "prompt format."  Within the ```Settings Tab``` choose the appropriate prompt format or enter one manually.  However, you must first disable "automatic prompt formatting" within LM Studio; there is a toggle to do this.
+The LLM within LM Studio works best with an appropriate "prompt format."  In the ```Settings Tab```, choose the prompt format from the pulldown menu or enter one manually.  In order for prompt formatting to work, however, you must disable the "automatic prompt formatting" setting in the "Server" portion of LM Studio.
   > You don't need to do this if you're using ```LM Studio v0.2.9``` or earlier.
-Additionally, within ```LM Studio v0.2.10``` there is a known bug preventing LM Studio from respecting the prompt format you choose.  Therefore, within LM Studio, you must also go to the Server settings (far right side) and:
+Morever, in ```LM Studio v0.2.10``` specifically, there is a bug preventing LM Studio from respecting the prompt format you choose in this program.  However, you can fix this by going to the Server settings (far right side) and:
 * ⚠️ Delete any/all text within the ```User Message Prefix``` box; and
 * ⚠️ Delete any/all text within the ```User Message Suffix``` box.
 
 ## Start the LM Studio Server
-* Within LM Studio, open the server tab on the left side and click ```Start Server.```
+* In the Served tab,  click ```Start Server.```
 
 ## Search Database
 * Type (or speak) your question and click ```Submit Questions.```
 
 ## Test Chunks
-* If you wish to test the quality of the chunk settings check the ```Chunks Only``` checkbox.  LM Studio will not be connected to and you'll simply receive the relevant contexts from the vector database.
-* This is also good if you want to obtain more results than the context window of the LLM can handle.  For example, if you want to obtain 100 results from the vector database, which would exceed the LLM's context window of 4096.
+* If you wish to test the quality of the chunk settings check the ```Chunks Only``` checkbox.  This program will not connect to LM Studio and instead simply provide you with the chunks it extracts from the vector database. LM Studio will not be connected to and you'll simply receive the relevant contexts from the vector database.
 
-## Test to Voice
-* This program uses Bark models to convert the response from LM Studio to audio.  You must wait until the ENTIRE response is received from the LLM and then click the ```Bark Response``` button.
+## Text to Voice
+* This program uses Bark models to convert the response from LM Studio to audio.  You must wait until the ENTIRE response is received, however, before clicking the ```Bark Response``` button.
 
 ## Voice to Text
-* Both the voice recorder and audio file transcriber use the ```faster-whisper``` library and GPU acceleration is as follows:
+* Both the voice recorder and audio file transcriber use the ```faster-whisper``` library, and GPU acceleration is as follows:
 
   > Note, ```faster-whisper``` only supports CUDA 11.8 currently, but CUDA 12+ support is coming in the near future.
 
@@ -314,7 +315,7 @@ Additionally, within ```LM Studio v0.2.10``` there is a known bug preventing LM 
 </details>
 
 ## NEW and Exciting Vision Models
-As of release 3.0 the program includes Vision Models to process descriptions of images that are added to the vector database and can ber searched.  For example, "Find me all pictures that depict one or more people doing X."
+As of release 3.0 the program includes Vision Models that will generate summaries of what each picture depicts, which are then added to the vector database.
 
 <div align="center"><h2>CONTACT</h2></div>
 
