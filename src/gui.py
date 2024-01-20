@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QTabWidget, QTextEdit, QSplitter, QFrame, 
+    QApplication, QWidget, QVBoxLayout, QTabWidget, QTextEdit, QSplitter, QFrame,
     QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox, QHBoxLayout, QMessageBox, QPushButton
 )
-from PySide6.QtCore import Qt, QTimer, QThread, Signal
+from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtCore import Qt, QTimer, QThread, Signal, QByteArray
 import os
 from pathlib import Path
 import torch
@@ -10,6 +11,7 @@ import yaml
 import sys
 import platform
 import threading
+import base64
 from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from gui_tabs import create_tabs
@@ -17,12 +19,11 @@ import voice_recorder_module
 import server_connector
 from utilities import list_theme_files, make_theme_changer, load_stylesheet, check_preconditions_for_submit_question
 from bark_module import BarkAudio
-from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP
+from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP, IMAGE_STOP_SIGN
 
 class SubmitButtonThread(QThread):
     responseSignal = Signal(str)
-    errorSignal = Signal()
-    stop_requested = False  # Stop flag
+    stop_requested = False
 
     def __init__(self, user_question, parent=None, callback=None):
         super(SubmitButtonThread, self).__init__(parent)
@@ -54,7 +55,6 @@ class DocQA_GUI(QWidget):
         self.cumulative_response = ""
         self.metrics_bar = MetricsBar()
         self.compute_device = self.metrics_bar.determine_compute_device()
-        self.submit_button = None
         self.init_ui()
         self.load_config()
         self.init_menu()
@@ -99,27 +99,49 @@ class DocQA_GUI(QWidget):
         right_vbox.addWidget(self.read_only_text, 4)
         right_vbox.addWidget(self.text_input, 1)
 
+        # Horizontal layout for submit and stop buttons
+        submit_stop_layout = QHBoxLayout()
         self.submit_button = QPushButton("Submit Questions")
         self.submit_button.clicked.connect(self.on_submit_button_clicked)
-        right_vbox.addWidget(self.submit_button)
+        submit_stop_layout.addWidget(self.submit_button)
 
-        self.stop_button = QPushButton("Stop Interaction")
+        self.stop_button = QPushButton()
+        stop_icon_data = base64.b64decode(IMAGE_STOP_SIGN)
+        stop_icon_pixmap = QPixmap()
+        stop_icon_pixmap.loadFromData(stop_icon_data)
+        self.stop_button.setIcon(QIcon(stop_icon_pixmap))
         self.stop_button.clicked.connect(self.on_stop_button_clicked)
-        right_vbox.addWidget(self.stop_button)
+        submit_stop_layout.addWidget(self.stop_button)
 
-        # Test Embeddings checkbox and Bark button
-        checkbox_button_hbox = QHBoxLayout()
-        self.test_embeddings_checkbox = QCheckBox("Chunks Only")
-        self.test_embeddings_checkbox.setToolTip(CHUNKS_ONLY_TOOLTIP)
-        self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
-        checkbox_button_hbox.addWidget(self.test_embeddings_checkbox)
+        submit_stop_layout.setStretchFactor(self.submit_button, 5)
+        submit_stop_layout.setStretchFactor(self.stop_button, 1)
+
+        right_vbox.addLayout(submit_stop_layout)
+
+        # Horizontal layout for bark and new stop button
+        bark_new_stop_layout = QHBoxLayout()
         bark_button = QPushButton("Bark Response")
         bark_button.setToolTip(SPEAK_RESPONSE_TOOLTIP)
         bark_button.clicked.connect(self.on_bark_button_clicked)
-        checkbox_button_hbox.addWidget(bark_button)
-        right_vbox.addLayout(checkbox_button_hbox)
+        bark_new_stop_layout.addWidget(bark_button)
 
-        # Create and add button row
+        new_stop_button = QPushButton()
+        new_stop_button.setIcon(QIcon(stop_icon_pixmap))  # Using the same icon
+        # No functionality assigned yet
+        bark_new_stop_layout.addWidget(new_stop_button)
+
+        bark_new_stop_layout.setStretchFactor(bark_button, 5)
+        bark_new_stop_layout.setStretchFactor(new_stop_button, 1)
+
+        right_vbox.addLayout(bark_new_stop_layout)
+
+        # Test Embeddings checkbox
+        self.test_embeddings_checkbox = QCheckBox("Chunks Only")
+        self.test_embeddings_checkbox.setToolTip(CHUNKS_ONLY_TOOLTIP)
+        self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
+        right_vbox.addWidget(self.test_embeddings_checkbox)
+
+        # Create and add button row for recording
         button_row_widget = self.create_button_row()
         right_vbox.addWidget(button_row_widget)
 
@@ -149,7 +171,7 @@ class DocQA_GUI(QWidget):
         super().resizeEvent(event)
 
     def on_submit_button_clicked(self):
-        SubmitButtonThread.stop_requested = False  # Reset the stop flag
+        SubmitButtonThread.stop_requested = False
         script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
         # check preconditions
@@ -164,7 +186,6 @@ class DocQA_GUI(QWidget):
         self.submit_button_thread = SubmitButtonThread(user_question, self)
         self.cumulative_response = ""
         self.submit_button_thread.responseSignal.connect(self.update_response)
-        self.submit_button_thread.errorSignal.connect(self.enable_submit_button)
         self.submit_button_thread.start()
 
         # 3 second timer
