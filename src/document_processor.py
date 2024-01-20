@@ -1,6 +1,6 @@
 import os
 import yaml
-from termcolor import cprint
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
 from pathlib import Path
 from langchain.docstore.document import Document
@@ -24,26 +24,15 @@ from constants import DOCUMENT_LOADERS
 from loader_vision_llava import llava_process_images
 from loader_vision_cogvlm import cogvlm_process_images
 from loader_salesforce import salesforce_process_images
+from extract_metadata import extract_document_metadata
+from utilities import my_cprint
 
-ENABLE_PRINT = True
 ROOT_DIRECTORY = Path(__file__).parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
 INGEST_THREADS = os.cpu_count() or 8
 
-def my_cprint(*args, **kwargs):
-    if ENABLE_PRINT:
-        filename = "document_processor.py"
-        modified_message = f"{filename}: {args[0]}"
-        cprint(modified_message, *args[1:], **kwargs)
-
 for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
-
-from langchain.document_loaders import (
-    UnstructuredEPubLoader, UnstructuredRTFLoader, 
-    UnstructuredODTLoader, UnstructuredMarkdownLoader, 
-    UnstructuredExcelLoader, UnstructuredCSVLoader
-)
 
 def process_images_wrapper(config):
     chosen_model = config["vision"]["chosen_model"]
@@ -61,6 +50,7 @@ def load_single_document(file_path: Path) -> Document:
     file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
 
+    # specific loader parameters
     if loader_class:
         if file_extension == ".txt":
             loader = loader_class(str(file_path), encoding='utf-8', autodetect_encoding=True)
@@ -76,7 +66,7 @@ def load_single_document(file_path: Path) -> Document:
             loader = UnstructuredMarkdownLoader(str(file_path), mode="single", strategy="fast")
         elif file_extension == ".xlsx" or file_extension == ".xlsd":
             loader = UnstructuredExcelLoader(str(file_path), mode="single")
-        elif file_extension == ".html" or file_extension == ".htm":
+        elif file_extension == ".html":
             loader = UnstructuredHTMLLoader(str(file_path), mode="single", strategy="fast")
         elif file_extension == ".csv":
             loader = UnstructuredCSVLoader(str(file_path), mode="single")
@@ -87,12 +77,13 @@ def load_single_document(file_path: Path) -> Document:
 
     document = loader.load()[0]
 
+    metadata = extract_document_metadata(file_path) # get metadata
+    document.metadata.update(metadata)
+
     # with open("output_load_single_document.txt", "w", encoding="utf-8") as output_file:
-        # output_file.write(document.page_content)
-
-    # text extracted before metadata added
+    # output_file.write(document.page_content)
+    
     return document
-
 
 def load_document_batch(filepaths):
     with ThreadPoolExecutor(len(filepaths)) as exe:
@@ -102,7 +93,8 @@ def load_document_batch(filepaths):
 
 def load_documents(source_dir: Path) -> list[Document]:
     all_files = list(source_dir.iterdir())
-    paths = [f for f in all_files if f.suffix in DOCUMENT_LOADERS.keys()]
+    # Adjust for case-insensitive extension matching
+    paths = [f for f in all_files if f.suffix.lower() in (key.lower() for key in DOCUMENT_LOADERS.keys())]
     
     docs = []
 
@@ -128,7 +120,7 @@ def load_documents(source_dir: Path) -> list[Document]:
     with open("config.yaml", "r") as config_file:
         config = yaml.safe_load(config_file)
 
-        # Use ProcessPoolExecutor to run the selected image processing function in a separate process
+        # Use ProcessPoolExecutor for processing images
         with ProcessPoolExecutor(1) as executor:
             future = executor.submit(process_images_wrapper, config)
             processed_docs = future.result()

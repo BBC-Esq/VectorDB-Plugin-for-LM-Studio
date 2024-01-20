@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget, QTextEdit, QSplitter, QFrame,
     QStyleFactory, QLabel, QGridLayout, QMenuBar, QCheckBox, QHBoxLayout, QMessageBox, QPushButton
 )
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon, QPixmap, QClipboard
 from PySide6.QtCore import Qt, QTimer, QThread, Signal, QByteArray
 import os
 from pathlib import Path
@@ -20,27 +20,33 @@ import server_connector
 from utilities import list_theme_files, make_theme_changer, load_stylesheet, check_preconditions_for_submit_question
 from bark_module import BarkAudio
 from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP, IMAGE_STOP_SIGN
+import openai
 
 class SubmitButtonThread(QThread):
     responseSignal = Signal(str)
+    errorSignal = Signal(str)
     stop_requested = False
 
-    def __init__(self, user_question, parent=None, callback=None):
+    def __init__(self, user_question, chunks_only, parent=None, callback=None):
         super(SubmitButtonThread, self).__init__(parent)
         self.user_question = user_question
+        self.chunks_only = chunks_only
         self.callback = callback
 
     def run(self):
         try:
-            response = server_connector.ask_local_chatgpt(self.user_question)
+            response = server_connector.ask_local_chatgpt(self.user_question, self.chunks_only)
             for response_chunk in response:
                 if SubmitButtonThread.stop_requested:
                     break
                 self.responseSignal.emit(response_chunk)
             if self.callback:
                 self.callback()
+        except openai.error.APIConnectionError as err:
+            self.errorSignal.emit("Connection to server failed. Please ensure the external server is running.")
+            print(err)
         except Exception as err:
-            self.errorSignal.emit()
+            self.errorSignal.emit("An unspecified error occurred: " + str(err))
             print(err)
 
     @classmethod
@@ -56,7 +62,6 @@ class DocQA_GUI(QWidget):
         self.metrics_bar = MetricsBar()
         self.compute_device = self.metrics_bar.determine_compute_device()
         self.init_ui()
-        self.load_config()
         self.init_menu()
 
     def is_nvidia_gpu(self):
@@ -64,16 +69,10 @@ class DocQA_GUI(QWidget):
             gpu_name = torch.cuda.get_device_name(0)
             return "nvidia" in gpu_name.lower()
 
-    def load_config(self):
-        script_dir = Path(__file__).resolve().parent
-        config_path = os.path.join(script_dir, 'config.yaml')
-        with open(config_path, 'r') as file:
-            config = yaml.safe_load(file)
-        self.test_embeddings_checkbox.setChecked(config.get('test_embeddings', False))
-
     def init_ui(self):
         main_splitter = QSplitter(Qt.Horizontal)
         self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
+        # GUI dimensions
         self.setGeometry(300, 300, 1077, 1077)
         self.setMinimumSize(450, 510)
 
@@ -96,10 +95,10 @@ class DocQA_GUI(QWidget):
 
         self.text_input = QTextEdit()
 
+        # widget stretch factors
         right_vbox.addWidget(self.read_only_text, 4)
         right_vbox.addWidget(self.text_input, 1)
 
-        # Horizontal layout for submit and stop buttons
         submit_stop_layout = QHBoxLayout()
         self.submit_button = QPushButton("Submit Questions")
         self.submit_button.clicked.connect(self.on_submit_button_clicked)
@@ -113,35 +112,34 @@ class DocQA_GUI(QWidget):
         self.stop_button.clicked.connect(self.on_stop_button_clicked)
         submit_stop_layout.addWidget(self.stop_button)
 
-        submit_stop_layout.setStretchFactor(self.submit_button, 5)
+        # widget stretch factors
+        submit_stop_layout.setStretchFactor(self.submit_button, 6)
         submit_stop_layout.setStretchFactor(self.stop_button, 1)
 
         right_vbox.addLayout(submit_stop_layout)
 
-        # Horizontal layout for bark and new stop button
-        bark_new_stop_layout = QHBoxLayout()
+        row_two_layout = QHBoxLayout()
+        
+        self.test_embeddings_checkbox = QCheckBox("Chunks Only")
+        self.test_embeddings_checkbox.setToolTip(CHUNKS_ONLY_TOOLTIP)
+        row_two_layout.addWidget(self.test_embeddings_checkbox)
+        
+        self.copy_response_button = QPushButton("Copy Response")
+        self.copy_response_button.clicked.connect(self.on_copy_response_clicked)
+        row_two_layout.addWidget(self.copy_response_button)
+
         bark_button = QPushButton("Bark Response")
         bark_button.setToolTip(SPEAK_RESPONSE_TOOLTIP)
         bark_button.clicked.connect(self.on_bark_button_clicked)
-        bark_new_stop_layout.addWidget(bark_button)
+        row_two_layout.addWidget(bark_button)
 
-        new_stop_button = QPushButton()
-        new_stop_button.setIcon(QIcon(stop_icon_pixmap))  # Using the same icon
-        # No functionality assigned yet
-        bark_new_stop_layout.addWidget(new_stop_button)
+        # widget stretch factors
+        row_two_layout.setStretchFactor(self.test_embeddings_checkbox, 2)
+        row_two_layout.setStretchFactor(self.copy_response_button, 3)
+        row_two_layout.setStretchFactor(bark_button, 5)
 
-        bark_new_stop_layout.setStretchFactor(bark_button, 5)
-        bark_new_stop_layout.setStretchFactor(new_stop_button, 1)
+        right_vbox.addLayout(row_two_layout)
 
-        right_vbox.addLayout(bark_new_stop_layout)
-
-        # Test Embeddings checkbox
-        self.test_embeddings_checkbox = QCheckBox("Chunks Only")
-        self.test_embeddings_checkbox.setToolTip(CHUNKS_ONLY_TOOLTIP)
-        self.test_embeddings_checkbox.stateChanged.connect(self.on_test_embeddings_changed)
-        right_vbox.addWidget(self.test_embeddings_checkbox)
-
-        # Create and add button row for recording
         button_row_widget = self.create_button_row()
         right_vbox.addWidget(button_row_widget)
 
@@ -151,10 +149,19 @@ class DocQA_GUI(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(main_splitter)
 
-        # Metrics bar
         main_layout.addWidget(self.metrics_bar)
+        # metrics bar height
         self.metrics_bar.setMaximumHeight(75 if self.is_nvidia_gpu() else 30)
 
+    def on_copy_response_clicked(self):
+        response_text = self.read_only_text.toPlainText()
+        clipboard = QApplication.clipboard()  # Get the clipboard instance
+        if response_text:
+            clipboard.setText(response_text)  # Set the text to clipboard
+            QMessageBox.information(self, "Information", "Response copied to clipboard.")
+        else:
+            QMessageBox.warning(self, "Warning", "There is no response from the LLM to copy.")
+    
     def init_menu(self):
         self.menu_bar = QMenuBar(self)
         self.theme_menu = self.menu_bar.addMenu('Themes')
@@ -174,7 +181,6 @@ class DocQA_GUI(QWidget):
         SubmitButtonThread.stop_requested = False
         script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
-        # check preconditions
         is_valid, error_message = check_preconditions_for_submit_question(script_dir)
         if not is_valid:
             QMessageBox.warning(self, "Error", error_message)
@@ -183,12 +189,13 @@ class DocQA_GUI(QWidget):
         self.submit_button.setDisabled(True)
         self.submit_button.setText("Processing...")
         user_question = self.text_input.toPlainText()
-        self.submit_button_thread = SubmitButtonThread(user_question, self)
+        chunks_only_state = self.test_embeddings_checkbox.isChecked()
+        self.submit_button_thread = SubmitButtonThread(user_question, chunks_only_state, self)
         self.cumulative_response = ""
         self.submit_button_thread.responseSignal.connect(self.update_response)
+        self.submit_button_thread.errorSignal.connect(self.show_error_message)
         self.submit_button_thread.start()
 
-        # 3 second timer
         self.reset_timer = QTimer(self)
         self.reset_timer.setSingleShot(True)
         self.reset_timer.timeout.connect(self.enable_submit_button)
@@ -201,22 +208,13 @@ class DocQA_GUI(QWidget):
         self.submit_button.setDisabled(False)
         self.submit_button.setText("Submit Questions")
 
-    def on_test_embeddings_changed(self):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        config_path = os.path.join(script_dir, 'config.yaml')
-
-        with open(config_path, 'r') as file:
-            config = yaml.safe_load(file)
-
-        config['test_embeddings'] = self.test_embeddings_checkbox.isChecked()
-
-        with open(config_path, 'w') as file:
-            yaml.dump(config, file)
-
     def update_response(self, response):
         self.cumulative_response += response
         self.read_only_text.setPlainText(self.cumulative_response)
         self.submit_button.setDisabled(False)
+
+    def show_error_message(self, message):
+        QMessageBox.warning(self, "Error", message)
 
     def update_transcription(self, text):
         self.text_input.setPlainText(text)

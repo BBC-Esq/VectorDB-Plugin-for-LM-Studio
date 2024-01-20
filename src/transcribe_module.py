@@ -2,13 +2,7 @@ import os
 import yaml
 from multiprocessing import Process
 from faster_whisper import WhisperModel
-from termcolor import cprint
-
-PRINT_ENABLED = True
-
-def my_cprint(message, color='white'):
-    if PRINT_ENABLED:
-        cprint(f"transcribe_module.py: {message}", color, flush=True)
+from utilities import my_cprint
 
 class TranscribeFile:
     def __init__(self, audio_file, config_path='config.yaml'):

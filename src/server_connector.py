@@ -26,7 +26,6 @@ CHROMA_SETTINGS = Settings(
 contexts_output_file_path = ROOT_DIRECTORY / "contexts.txt"
 metadata_output_file_path = ROOT_DIRECTORY / "metadata.txt"
 
-# Global stop flag
 stop_streaming = False
 
 def save_metadata_to_file(metadata_list, output_file_path):
@@ -91,14 +90,10 @@ def connect_to_local_chatgpt(prompt):
             chunk_message = chunk['choices'][0]['delta']['content']
             yield chunk_message
 
-def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_settings=CHROMA_SETTINGS):
+def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTORY), client_settings=CHROMA_SETTINGS):
     global stop_streaming
-    stop_streaming = False  # Reset the flag each time function is called
+    stop_streaming = False
     my_cprint("Attempting to connect to server.", "white")
-
-    with open('config.yaml', 'r') as config_file:
-        config = yaml.safe_load(config_file)
-        test_embeddings = config.get('test_embeddings', False)
 
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
@@ -168,7 +163,7 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
 
     save_metadata_to_file(metadata_list, metadata_output_file_path)
 
-    if test_embeddings:
+    if chunks_only:
         write_contexts_to_file_and_open(contexts)
         return {"answer": "Contexts written to temporary file and opened", "sources": relevant_contexts}
 
@@ -186,7 +181,7 @@ def ask_local_chatgpt(query, persist_directory=str(PERSIST_DIRECTORY), client_se
 
     for chunk_message in response_json:
         if chunk_message is None:
-            break  # Stop if the special signal is received
+            break
         if full_response and isinstance(full_response[-1], str):
             full_response[-1] += chunk_message
         else:

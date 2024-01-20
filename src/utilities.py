@@ -4,6 +4,10 @@ import shutil
 import platform
 import os
 import yaml
+import gc
+import pynvml
+import sys
+from termcolor import cprint
 
 def validate_symbolic_links(source_directory):
     source_path = Path(source_directory)
@@ -66,6 +70,8 @@ def delete_file(file_path):
 def check_preconditions_for_db_creation(script_dir):
     import yaml
     from PySide6.QtWidgets import QMessageBox
+    import platform
+    from pathlib import Path
 
     config_path = script_dir / 'config.yaml'
     with open(config_path, 'r') as file:
@@ -92,20 +98,47 @@ def check_preconditions_for_db_creation(script_dir):
         if reply == QMessageBox.Cancel:
             return False, ""
 
+    # New check for confirming the database creation due to potential time consumption
+    confirmation_reply = QMessageBox.question(None, 'Confirmation', 
+                                             "Creating a vector database can take a significant amount of time and cannot be cancelled mid-processing. Click OK to proceed or Cancel to back out.",
+                                             QMessageBox.Ok | QMessageBox.Cancel)
+    if confirmation_reply == QMessageBox.Cancel:
+        return False, "Database creation cancelled by user."
+
     return True, ""
 
-if __name__ == '__main__':
-    source_directory = "Docs_for_DB"
-    validate_symbolic_links(source_directory)
 
-'''
-# Print GPU memory stats in script
+def check_preconditions_for_submit_question(script_dir):
+    config_path = script_dir / 'config.yaml'
+    with open(config_path, 'r') as file:
+        config = yaml.safe_load(file)
+
+    embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
+    if not embedding_model_name:
+        return False, "You must first download an embedding model, select it, and choose documents first before proceeding."
+
+    documents_dir = script_dir / "Docs_for_DB"
+    images_dir = script_dir / "Images_for_DB"
+    if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
+        return False, "No documents found to process. Please select files to add to the vector database and try again."
+
+    vector_db_dir = script_dir / "Vector_DB"
+    if not any(f.suffix == '.parquet' for f in vector_db_dir.iterdir()):
+        return False, "You must first create a vector database before clicking this button."
+
+    return True, ""
+
 def print_cuda_memory_usage():
+    '''
+    Example:
+
+    from utilities import print_cuda_memory_usage
+    print_cuda_memory_usage()
+    '''
     try:
         pynvml.nvmlInit()
         handle = pynvml.nvmlDeviceGetHandleByIndex(0)
 
-        # NVML memory information
         memory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
         print(f"Memory Total: {memory_info.total / 1024**2} MB") 
         print(f"Memory Used: {memory_info.used / 1024**2} MB")
@@ -117,13 +150,25 @@ def print_cuda_memory_usage():
     finally:
         pynvml.nvmlShutdown()
 
-# Check for references to an object when trying to clear memory
-script_dir = os.path.dirname(__file__)
-referrers_file_path = os.path.join(script_dir, "references.txt")
+def check_for_object_references(obj):
+    '''
+    Example:
 
-with open(referrers_file_path, "w") as file:
-    referrers = gc.get_referrers(model)
-    file.write(f"Number of references found: {len(referrers)}\n")
-    for ref in referrers:
-        file.write(str(ref) + "\n")
-'''
+    from utilities import check_for_object_references
+    my_list = [1, 2, 3, 4, 5]
+    check_for_object_references(my_list)
+    '''
+    script_dir = os.path.dirname(__file__)
+    referrers_file_path = os.path.join(script_dir, "references.txt")
+
+    with open(referrers_file_path, "w") as file:
+        referrers = gc.get_referrers(obj)
+        file.write(f"Number of references found: {len(referrers)}\n")
+        for ref in referrers:
+            file.write(str(ref) + "\n")
+
+def my_cprint(*args, **kwargs):
+    filename = os.path.basename(sys._getframe(1).f_code.co_filename)
+    modified_message = f"{filename}: {args[0]}"
+    kwargs['flush'] = True
+    cprint(modified_message, *args[1:], **kwargs)

@@ -7,17 +7,10 @@ import yaml
 from tqdm import tqdm
 import datetime
 from langchain.docstore.document import Document
-from termcolor import cprint
 import gc
 import platform
-
-ENABLE_PRINT = True
-
-def my_cprint(*args, **kwargs):
-    if ENABLE_PRINT:
-        filename = "loader_vision_llava.py"
-        modified_message = f"{filename}: {args[0]}"
-        cprint(modified_message, *args[1:], **kwargs)
+from extract_metadata import extract_image_metadata
+from utilities import my_cprint
 
 def get_best_device():
     if torch.cuda.is_available():
@@ -33,11 +26,6 @@ def llava_process_images():
     script_dir = os.path.dirname(__file__)
     image_dir = os.path.join(script_dir, "Images_for_DB")
     documents = []
-
-    if not os.path.exists(image_dir):
-        os.makedirs(image_dir)
-        print("No files were detected. The 'Images_for_DB' directory was created.")
-        return
 
     if not os.listdir(image_dir):
         print("No files detected in the 'Images_for_DB' directory.")
@@ -128,10 +116,6 @@ def llava_process_images():
     with tqdm(total=len(os.listdir(image_dir)), unit="image") as progress_bar:
         for file_name in os.listdir(image_dir):
             full_path = os.path.join(image_dir, file_name)
-            file_type = os.path.splitext(file_name)[1]
-            file_size = os.path.getsize(full_path)
-            creation_date = datetime.datetime.fromtimestamp(os.path.getctime(full_path)).isoformat()
-            modification_date = datetime.datetime.fromtimestamp(os.path.getmtime(full_path)).isoformat()
             prompt = "USER: <image>\nDescribe in detail what this image depicts in as much detail as possible.\nASSISTANT:"
 
             try:
@@ -149,20 +133,12 @@ def llava_process_images():
                         inputs = processor(prompt, raw_image, return_tensors='pt').to(device, torch.float32)
 
                     output = model.generate(**inputs, max_new_tokens=200, do_sample=True)
-                    full_response = processor.decode(output[0][2:], skip_special_tokens=True, do_sample=True)# can add num_beams=5
+                    full_response = processor.decode(output[0][2:], skip_special_tokens=True, do_sample=True)  # can add num_beams=5
                     model_response = full_response.split("ASSISTANT: ")[-1]
                     
                     # Create a Document object
                     extracted_text = model_response
-                    extracted_metadata = {
-                        "file_path": full_path,
-                        "file_type": file_type,
-                        "file_name": file_name,
-                        "file_size": file_size,
-                        "creation_date": creation_date,
-                        "modification_date": modification_date,
-                        "image": "True"
-                    }
+                    extracted_metadata = extract_image_metadata(full_path, file_name) # get metadata
                     document = Document(page_content=extracted_text, metadata=extracted_metadata)
                     documents.append(document)
 

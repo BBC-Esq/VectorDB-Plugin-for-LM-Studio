@@ -1,4 +1,3 @@
-# Import necessary libraries including tqdm
 import warnings
 import threading
 import queue
@@ -9,19 +8,11 @@ import re
 import pyaudio
 import gc
 import yaml
-from termcolor import cprint
 import platform
 from tqdm import tqdm
+from utilities import my_cprint
 
 warnings.filterwarnings("ignore", message="torch.nn.utils.weight_norm is deprecated in favor of torch.nn.utils.parametrizations.weight_norm.")
-
-ENABLE_PRINT = True
-
-def my_cprint(*args, **kwargs):
-    if ENABLE_PRINT:
-        filename = "bark_module.py"
-        modified_message = f"{filename}: {args[0]}"
-        cprint(modified_message, *args[1:], **kwargs)
 
 class BarkAudio:
     def __init__(self):
@@ -43,11 +34,9 @@ class BarkAudio:
         if torch.cuda.is_available():
             if torch.version.hip and os_name == 'linux':
                 self.device = "cuda:0"
-            elif torch.version.cuda and os_name == 'windows':
+            elif torch.version.cuda:
                 self.device = "cuda:0"
             elif torch.version.hip and os_name == 'windows':
-                self.device = "cpu"
-            else:
                 self.device = "cpu"
         elif torch.backends.mps.is_available():
             self.device = "mps"

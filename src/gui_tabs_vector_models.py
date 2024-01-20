@@ -12,7 +12,7 @@ class VectorModelsTab(QWidget):
 
         self.available_models = AVAILABLE_MODELS
         self.group_boxes = {}
-        self.downloaded_labels = {}  # Dictionary to store references to downloaded labels
+        self.downloaded_labels = {}
         self.stretch_factors = {
             'BAAI': 4,
             'hkunlp': 4,

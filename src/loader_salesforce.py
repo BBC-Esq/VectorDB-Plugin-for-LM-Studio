@@ -8,6 +8,7 @@ from tqdm import tqdm
 from langchain.docstore.document import Document
 import platform
 import gc
+from extract_metadata import extract_image_metadata  # Importing the new function
 
 def get_best_device():
     if torch.cuda.is_available():
@@ -24,14 +25,9 @@ def salesforce_process_images():
     image_dir = os.path.join(script_dir, "Images_for_DB")
     documents = []
 
-    if not os.path.exists(image_dir):
-        os.makedirs(image_dir)
-        print("The 'Images_for_DB' directory was created as it was not detected.")
-        return documents
-
     if not os.listdir(image_dir):
         print("No files detected in the 'Images_for_DB' directory.")
-        return documents
+        return
 
     device = get_best_device()
     processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
@@ -51,15 +47,7 @@ def salesforce_process_images():
                     total_tokens += output[0].shape[0]
 
                     # Create a Document object for each image
-                    extracted_metadata = {
-                        "file_path": full_path,
-                        "file_name": file_name,
-                        "file_type": os.path.splitext(file_name)[1],
-                        "file_size": os.path.getsize(full_path),
-                        "creation_date": datetime.datetime.fromtimestamp(os.path.getctime(full_path)).isoformat(),
-                        "modification_date": datetime.datetime.fromtimestamp(os.path.getmtime(full_path)).isoformat(),
-                        "caption": caption
-                    }
+                    extracted_metadata = extract_image_metadata(full_path, file_name)  # obtain metadata
                     document = Document(page_content=caption, metadata=extracted_metadata)
                     documents.append(document)
 

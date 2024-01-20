@@ -8,10 +8,9 @@ from chromadb.config import Settings
 from document_processor import load_documents, split_documents
 import torch
 from utilities import validate_symbolic_links
-from termcolor import cprint
 from pathlib import Path
 import os
-from utilities import backup_database
+from utilities import backup_database, my_cprint
 import logging
 
 logging.basicConfig(
@@ -19,10 +18,6 @@ logging.basicConfig(
     format='%(name)s - %(pathname)s:%(lineno)s - %(funcName)s'
 )
 logging.getLogger('chromadb.db.duckdb').setLevel(logging.WARNING)
-
-def my_cprint(*args, **kwargs):
-    modified_message = f"create_database.py: {args[0]}"
-    cprint(modified_message, *args[1:], **kwargs)
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
@@ -45,7 +40,7 @@ def main():
     my_cprint(f"Loading documents.", "white")
     documents = load_documents(SOURCE_DIRECTORY) # invoke document_processor.py; returns a list of document objects
     if documents is None or len(documents) == 0:
-        cprint("No documents to load.", "red")
+        my_cprint("No documents to load.", "red")
         return
     my_cprint(f"Successfully loaded documents.", "white")
     
@@ -78,7 +73,7 @@ def main():
     gc.collect()
     my_cprint("Embedding model removed from memory.", "red")
 
-def get_embeddings(EMBEDDING_MODEL_NAME, config_data, normalize_embeddings=False):
+def get_embeddings(EMBEDDING_MODEL_NAME, config_data):
     my_cprint("Creating embeddings.", "white")
     
     compute_device = config_data['Compute_Device']['database_creation']
@@ -90,9 +85,8 @@ def get_embeddings(EMBEDDING_MODEL_NAME, config_data, normalize_embeddings=False
         return HuggingFaceInstructEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": compute_device},
-            encode_kwargs={"normalize_embeddings": normalize_embeddings},
             embed_instruction=embed_instruction,
-            query_instruction=query_instruction
+            query_instruction=query_instruction # cache_folder=, encode_kwargs=
         )
 
     elif "bge" in EMBEDDING_MODEL_NAME:
@@ -101,16 +95,13 @@ def get_embeddings(EMBEDDING_MODEL_NAME, config_data, normalize_embeddings=False
         return HuggingFaceBgeEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": compute_device},
-            query_instruction=query_instruction,
-            encode_kwargs={"normalize_embeddings": normalize_embeddings}
+            query_instruction=query_instruction # encode_kwargs=, cache_folder=
         )
     
     else:
-        
         return HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
-            model_kwargs={"device": compute_device},
-            encode_kwargs={"normalize_embeddings": normalize_embeddings}
+            model_kwargs={"device": compute_device} # encode_kwargs=, cache_folder=, multi_process=
         )
 
 if __name__ == "__main__":
