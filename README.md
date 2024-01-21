@@ -41,6 +41,9 @@ You <b>MUST</b> install these before installing my program:<p>
 2) [Git](https://git-scm.com/downloads)
 3) [Git Large File Storage](https://git-lfs.com/).
 4) [Pandoc](https://github.com/jgm/pandoc).
+5) [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (IF YOU GET AN ERROR INSTALLING '''HNSWLIB''')
+   > This requires installing [Visual Studio](https://visualstudio.microsoft.com/).  MOREOVER, when installing the "build tools," you must select and install the "C++" extension AND click the three SDK checkboxes on the right side as well.
+   > This is an unconfirmed requirement, but I am including it becuase some people have reported a problem installing everything due to hnswlib.
 
 <div align="center"> <h2>INSTALLATION</h2></div>
 
