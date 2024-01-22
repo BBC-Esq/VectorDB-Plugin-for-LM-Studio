@@ -45,7 +45,7 @@ You <b>MUST</b> install these before installing my program:<p>
    > Some WINDOWS users have reported installation errors mentioning ```hnswlib```, ```numpy``` or other libraries.  If you encounter this, you can try installing Microsoft Build Tools at the link above.  This may or may not require [Visual Studio](https://visualstudio.microsoft.com/).  Moreover, when installing Build Tools you must check the box for "Desktop development with C++" extension.  If this still doesn't work, try installing again but additionally checking the four boxes on the right that state "SDK."
 
 <details>
-  <summary>EXAMPLE IMAGE</summary>
+  <summary>EXAMPLE ON WINDOWS</summary>
 <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
 </details>
 
