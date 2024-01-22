@@ -99,9 +99,11 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
         config = yaml.safe_load(config_file)
         try:
             EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
+            search_term = config['database'].get('search_term', '').lower()
+            images_only = config['database'].get('images_only', False)  # Read images_only setting
         except KeyError:
             msg_box = QMessageBox()
-            msg_box.setText("Must download and choose an embedding model to use first!")
+            msg_box.setText("Configuration error: Missing required keys in config.yaml")
             msg_box.exec()
             raise
         compute_device = config['Compute_Device']['database_query']
@@ -150,27 +152,33 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 
     my_cprint("Database initialized.", "white")
 
-    retriever = db.as_retriever(search_kwargs={'score_threshold': score_threshold, 'k': k})
-    
+    retriever = db.as_retriever(search_kwargs={
+        'score_threshold': score_threshold, 
+        'k': k,
+        'filter': {'image': str(images_only)}
+    })
+
     my_cprint("Querying database.", "white")
     relevant_contexts = retriever.get_relevant_documents(query)
 
-    if not relevant_contexts:
-        my_cprint("No relevant contexts found for the query", "yellow")
+    filtered_contexts = [doc for doc in relevant_contexts if search_term in doc.page_content.lower()]
 
-    contexts = [document.page_content for document in relevant_contexts]
-    metadata_list = [document.metadata for document in relevant_contexts]
+    if not filtered_contexts:
+        my_cprint("No relevant contexts found for the query after applying the filter", "yellow")
+
+    contexts = [document.page_content for document in filtered_contexts]
+    metadata_list = [document.metadata for document in filtered_contexts]
 
     save_metadata_to_file(metadata_list, metadata_output_file_path)
 
     if chunks_only:
         write_contexts_to_file_and_open(contexts)
-        return {"answer": "Contexts written to temporary file and opened", "sources": relevant_contexts}
+        return {"answer": "Contexts written to temporary file and opened", "sources": filtered_contexts}
 
     prepend_string = "Only base your answer to the following question on the provided context/contexts accompanying this question.  If you cannot answer based on the included context/contexts alone, please state so."
     augmented_query = prepend_string + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
 
-    my_cprint(f"Number of relevant contexts: {len(relevant_contexts)}", "white")
+    my_cprint(f"Number of relevant contexts: {len(filtered_contexts)}", "white")
 
     total_tokens = sum(len(tokenizer.encode(context)) for context in contexts)
     my_cprint(f"Total number of tokens in contexts: {total_tokens}", "white")
@@ -196,7 +204,6 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 
     yield "\n\n"
     
-    # LLM response; format and append citations
     citations = format_metadata_as_citations(metadata_list)
     
     unique_citations = []
@@ -212,16 +219,16 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
     gc.collect()
     my_cprint("Embedding model removed from memory.", "red")
 
-    return {"answer": response_json, "sources": relevant_contexts}
+    return {"answer": response_json, "sources": filtered_contexts}
 
 def stop_interaction():
     global stop_streaming
     stop_streaming = True
 
+
 if __name__ == "__main__":
     user_input = "Your query here"
     ask_local_chatgpt(user_input)
-
 
 ''' Search by metadata and minimum relevance score threshold
 

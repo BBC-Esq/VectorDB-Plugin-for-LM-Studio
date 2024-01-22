@@ -1,8 +1,6 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QSizePolicy, QComboBox
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QSizePolicy, QComboBox, QPushButton
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
-from pathlib import Path
-import shutil
 
 class DatabaseSettingsTab(QWidget):
     def __init__(self):
@@ -14,9 +12,12 @@ class DatabaseSettingsTab(QWidget):
             self.compute_device_options = config_data['Compute_Device']['available']
             self.database_creation_device = config_data['Compute_Device']['database_creation']
             self.database_query_device = config_data['Compute_Device']['database_query']
+            self.search_term = config_data['database'].get('search_term', '')
 
-        v_layout, h_layout1 = QVBoxLayout(), QHBoxLayout()
+        v_layout = QVBoxLayout()
         h_layout_device = QHBoxLayout()
+        h_layout_settings = QHBoxLayout()
+        h_layout_search_term = QHBoxLayout()
 
         self.field_data = {}
         self.label_data = {}
@@ -34,7 +35,6 @@ class DatabaseSettingsTab(QWidget):
 
         v_layout.addLayout(h_layout_device)
 
-        # Database query settings
         database_settings_group = ['similarity', 'contexts']
 
         for setting in database_settings_group:
@@ -45,12 +45,30 @@ class DatabaseSettingsTab(QWidget):
             edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             label = QLabel(f"{setting.replace('_', ' ').capitalize()}: {current_value}")
             label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            h_layout1.addWidget(label)
-            h_layout1.addWidget(edit)
+            h_layout_settings.addWidget(label)
+            h_layout_settings.addWidget(edit)
             self.field_data[setting] = edit
             self.label_data[setting] = label
 
-        v_layout.addLayout(h_layout1)
+        v_layout.addLayout(h_layout_settings)
+
+        self.search_term_edit = QLineEdit()
+        self.search_term_edit.setPlaceholderText("Enter new search term...")
+        self.search_term_edit.setText(self.search_term)
+        self.search_term_label = QLabel(f"Search Filter: {self.search_term}")
+        h_layout_search_term.addWidget(self.search_term_label)
+        h_layout_search_term.addWidget(self.search_term_edit)
+
+        self.filter_button = QPushButton("Clear Filter")
+        self.filter_button.clicked.connect(self.reset_search_term)
+        h_layout_search_term.addWidget(self.filter_button)
+        
+        self.file_type_combo = QComboBox()
+        self.file_type_combo.addItems(["All Files", "Images Only", "Non-Images Only"])
+        h_layout_search_term.addWidget(self.file_type_combo)
+
+        v_layout.addLayout(h_layout_search_term)
+
         self.setLayout(v_layout)
 
     def update_config(self):
@@ -73,16 +91,45 @@ class DatabaseSettingsTab(QWidget):
                 label = widget.parentWidget().findChildren(QLabel)[0]
                 label.setText(f"{label_prefix}: {new_value}")
 
-        for setting, widget in self.field_data.items():
+        database_settings = {'search_term': self.search_term_edit, **self.field_data}
+
+        for setting, widget in database_settings.items():
             new_value = widget.text()
             if new_value and new_value != str(config_data['database'].get(setting, '')):
                 settings_changed = True
-                config_data['database'][setting] = float(new_value) if setting == 'similarity' else int(new_value)
-                self.label_data[setting].setText(f"{setting.replace('_', ' ').capitalize()}: {new_value}")
+                config_data['database'][setting] = float(new_value) if setting == 'similarity' else new_value
+                if setting == 'search_term':
+                    self.search_term_label.setText(f"Search Term: {new_value}")
+                else:
+                    self.label_data[setting].setText(f"{setting.replace('_', ' ').capitalize()}: {new_value}")
                 widget.clear()
+
+        file_type_map = {
+            "All Files": '',
+            "Images Only": True,
+            "Non-Images Only": False
+        }
+
+        file_type_selection = self.file_type_combo.currentText()
+        images_only_value = file_type_map[file_type_selection]
+
+        if images_only_value != config_data['database'].get('images_only', ''):
+            settings_changed = True
+            config_data['database']['images_only'] = images_only_value
 
         if settings_changed:
             with open('config.yaml', 'w') as f:
                 yaml.safe_dump(config_data, f)
 
         return settings_changed
+
+    def reset_search_term(self):
+        with open('config.yaml', 'r') as f:
+            config_data = yaml.safe_load(f)
+
+        config_data['database']['search_term'] = ''
+        with open('config.yaml', 'w') as f:
+            yaml.safe_dump(config_data, f)
+
+        self.search_term_label.setText("Search Term: ")
+        self.search_term_edit.clear()

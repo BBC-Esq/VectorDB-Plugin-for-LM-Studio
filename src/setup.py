@@ -50,6 +50,8 @@ def manual_installation_confirmation():
         return False
     if not user_confirmation("Have you installed Pandoc? Click OK to confirm, or Cancel to exit installation.  Pandoc can be downloaded here: https://pandoc.org/"):
         return False
+    if not user_confirmation("Have you installed Microsoft Build Tools and Visual Studio? Click OK to confirm, or Cancel to exit installation."):
+        return False
     return True
 
 def install_pytorch(cuda_version, cuda_installed):

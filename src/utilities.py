@@ -98,7 +98,6 @@ def check_preconditions_for_db_creation(script_dir):
         if reply == QMessageBox.Cancel:
             return False, ""
 
-    # New check for confirming the database creation due to potential time consumption
     confirmation_reply = QMessageBox.question(None, 'Confirmation', 
                                              "Creating a vector database can take a significant amount of time and cannot be cancelled mid-processing. Click OK to proceed or Cancel to back out.",
                                              QMessageBox.Ok | QMessageBox.Cancel)
@@ -106,7 +105,6 @@ def check_preconditions_for_db_creation(script_dir):
         return False, "Database creation cancelled by user."
 
     return True, ""
-
 
 def check_preconditions_for_submit_question(script_dir):
     config_path = script_dir / 'config.yaml'
@@ -130,8 +128,6 @@ def check_preconditions_for_submit_question(script_dir):
 
 def print_cuda_memory_usage():
     '''
-    Example:
-
     from utilities import print_cuda_memory_usage
     print_cuda_memory_usage()
     '''
@@ -152,8 +148,6 @@ def print_cuda_memory_usage():
 
 def check_for_object_references(obj):
     '''
-    Example:
-
     from utilities import check_for_object_references
     my_list = [1, 2, 3, 4, 5]
     check_for_object_references(my_list)

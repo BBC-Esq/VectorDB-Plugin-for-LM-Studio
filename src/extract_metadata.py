@@ -33,15 +33,3 @@ def extract_document_metadata(file_path):
         "modification_date": modification_date,
         "image": "False"
     }
-
-
-    """
-    Extract metadata from an image file.
-
-    Parameters:
-    file_path (str): Full path to the image file.
-    file_name (str): Name of the image file.
-
-    Returns:
-    dict: A dictionary containing extracted metadata.
-    """

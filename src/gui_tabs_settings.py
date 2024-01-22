@@ -1,9 +1,8 @@
 from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout, QWidget, QMessageBox
 from gui_tabs_settings_server import ServerSettingsTab
-# from gui_tabs_settings_models import ModelsSettingsTab
-# Commented out unless/until modifying BGE and Instructor settings become useful
 from gui_tabs_settings_whisper import TranscriberSettingsTab
-from gui_tabs_settings_database import DatabaseSettingsTab
+from gui_tabs_settings_database_create import ChunkSettingsTab
+from gui_tabs_settings_database_query import DatabaseSettingsTab
 from gui_tabs_settings_bark import BarkModelSettingsTab
 from gui_tabs_settings_vision import VisionSettingsTab
 
@@ -30,9 +29,10 @@ class GuiSettingsTab(QWidget):
         self.layout = QVBoxLayout()
 
         classes = {
-            "SERVER/LLM": (ServerSettingsTab, 5),
+            "SERVER/LLM": (ServerSettingsTab, 4),
             "VOICE RECORDER": (TranscriberSettingsTab, 1),
-            "DATABASE": (DatabaseSettingsTab, 3),
+            "DATABASE QUERY": (DatabaseSettingsTab, 3),
+            "DATABASE CREATION": (ChunkSettingsTab, 1),
             "BARK": (BarkModelSettingsTab, 2),
         }
 
@@ -56,7 +56,7 @@ class GuiSettingsTab(QWidget):
                 adjust_stretch(self.groups, self.layout)
             ))
 
-        # Instantiate VisionSettingsTab separately
+        # VisionSettingsTab
         visionSettings = VisionSettingsTab()
         visionGroup = QGroupBox("VISION MODELS")
         visionLayout = QVBoxLayout()

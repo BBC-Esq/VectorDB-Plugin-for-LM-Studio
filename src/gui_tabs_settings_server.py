@@ -55,10 +55,8 @@ class ServerSettingsTab(QWidget):
         layout.addWidget(self.create_label('suffix', settings_dict), 4, 0)
         layout.addWidget(self.create_edit('suffix', settings_dict), 4, 1)
         
-        new_tip_label1 = QLabel("<b>For the prefix/suffix to work you must delete any/all text</b>")
-        new_tip_label2 = QLabel("<b>in 'User Message Prefix' and 'Suffix' boxes within LM Studio.</b>")
+        new_tip_label1 = QLabel("<b>REMEMBER, you must clear the  prefix/suffix box within LM Studio.</b>")
         layout.addWidget(new_tip_label1, 5, 0, 1, 4)
-        layout.addWidget(new_tip_label2, 6, 0, 1, 4)
 
         self.setLayout(layout)
 

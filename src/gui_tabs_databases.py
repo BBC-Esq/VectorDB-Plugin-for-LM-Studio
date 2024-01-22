@@ -7,12 +7,13 @@ from pathlib import Path
 import yaml
 from download_model import download_embedding_model
 from choose_documents_and_vector_model import select_embedding_model_directory, choose_documents_directory
-import create_database
+import database_interactions
 from utilities import check_preconditions_for_db_creation, open_file, delete_file
 
 class CreateDatabaseThread(QThread):
     def run(self):
-        create_database.main()
+        create_vector_db = database_interactions.CreateVectorDB()
+        create_vector_db.run()
 
 class DatabasesTab(QWidget):
     def __init__(self):
@@ -21,7 +22,7 @@ class DatabasesTab(QWidget):
         self.layout = QVBoxLayout(self)
 
         # Group box
-        self.documents_group_box = QGroupBox("Docs_for_DB")
+        self.documents_group_box = QGroupBox("Documents")
         self.documents_group_box.setCheckable(True)
         self.documents_group_box.setChecked(True)
         self.documents_layout = QVBoxLayout()
@@ -31,7 +32,7 @@ class DatabasesTab(QWidget):
         self.layout.addWidget(self.documents_group_box)
 
         # Group box
-        self.images_group_box = QGroupBox("Images_for_DB")
+        self.images_group_box = QGroupBox("Images")
         self.images_group_box.setCheckable(True)
         self.images_group_box.setChecked(True)
         self.images_layout = QVBoxLayout()
@@ -48,12 +49,12 @@ class DatabasesTab(QWidget):
         self.buttons_layout = QHBoxLayout()
 
         # Choose docs
-        self.choose_docs_button = QPushButton("Choose Documents or Images")
+        self.choose_docs_button = QPushButton("Choose Files")
         self.choose_docs_button.clicked.connect(choose_documents_directory)
         self.buttons_layout.addWidget(self.choose_docs_button)
 
         # Choose model directory
-        self.choose_model_dir_button = QPushButton("Choose Vector Model")
+        self.choose_model_dir_button = QPushButton("Choose Model")
         self.choose_model_dir_button.clicked.connect(select_embedding_model_directory)
         self.buttons_layout.addWidget(self.choose_model_dir_button)
 

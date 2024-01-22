@@ -25,6 +25,7 @@ import openai
 class SubmitButtonThread(QThread):
     responseSignal = Signal(str)
     errorSignal = Signal(str)
+    finishedSignal = Signal()
     stop_requested = False
 
     def __init__(self, user_question, chunks_only, parent=None, callback=None):
@@ -42,11 +43,9 @@ class SubmitButtonThread(QThread):
                 self.responseSignal.emit(response_chunk)
             if self.callback:
                 self.callback()
+            self.finishedSignal.emit()
         except openai.error.APIConnectionError as err:
             self.errorSignal.emit("Connection to server failed. Please ensure the external server is running.")
-            print(err)
-        except Exception as err:
-            self.errorSignal.emit("An unspecified error occurred: " + str(err))
             print(err)
 
     @classmethod
@@ -95,7 +94,7 @@ class DocQA_GUI(QWidget):
 
         self.text_input = QTextEdit()
 
-        # widget stretch factors
+        # stretch factors
         right_vbox.addWidget(self.read_only_text, 4)
         right_vbox.addWidget(self.text_input, 1)
 
@@ -105,6 +104,7 @@ class DocQA_GUI(QWidget):
         submit_stop_layout.addWidget(self.submit_button)
 
         self.stop_button = QPushButton()
+        self.stop_button.setDisabled(True)
         stop_icon_data = base64.b64decode(IMAGE_STOP_SIGN)
         stop_icon_pixmap = QPixmap()
         stop_icon_pixmap.loadFromData(stop_icon_data)
@@ -112,7 +112,7 @@ class DocQA_GUI(QWidget):
         self.stop_button.clicked.connect(self.on_stop_button_clicked)
         submit_stop_layout.addWidget(self.stop_button)
 
-        # widget stretch factors
+        # stretch factors
         submit_stop_layout.setStretchFactor(self.submit_button, 6)
         submit_stop_layout.setStretchFactor(self.stop_button, 1)
 
@@ -133,10 +133,10 @@ class DocQA_GUI(QWidget):
         bark_button.clicked.connect(self.on_bark_button_clicked)
         row_two_layout.addWidget(bark_button)
 
-        # widget stretch factors
+        # stretch factors
         row_two_layout.setStretchFactor(self.test_embeddings_checkbox, 2)
         row_two_layout.setStretchFactor(self.copy_response_button, 3)
-        row_two_layout.setStretchFactor(bark_button, 5)
+        row_two_layout.setStretchFactor(bark_button, 3)
 
         right_vbox.addLayout(row_two_layout)
 
@@ -150,17 +150,17 @@ class DocQA_GUI(QWidget):
         main_layout.addWidget(main_splitter)
 
         main_layout.addWidget(self.metrics_bar)
-        # metrics bar height
+
         self.metrics_bar.setMaximumHeight(75 if self.is_nvidia_gpu() else 30)
 
     def on_copy_response_clicked(self):
         response_text = self.read_only_text.toPlainText()
-        clipboard = QApplication.clipboard()  # Get the clipboard instance
+        clipboard = QApplication.clipboard()
         if response_text:
-            clipboard.setText(response_text)  # Set the text to clipboard
+            clipboard.setText(response_text)
             QMessageBox.information(self, "Information", "Response copied to clipboard.")
         else:
-            QMessageBox.warning(self, "Warning", "There is no response from the LLM to copy.")
+            QMessageBox.warning(self, "Warning", "No response to copy.")
     
     def init_menu(self):
         self.menu_bar = QMenuBar(self)
@@ -178,6 +178,7 @@ class DocQA_GUI(QWidget):
         super().resizeEvent(event)
 
     def on_submit_button_clicked(self):
+        self.stop_button.setDisabled(False)
         SubmitButtonThread.stop_requested = False
         script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -194,6 +195,7 @@ class DocQA_GUI(QWidget):
         self.cumulative_response = ""
         self.submit_button_thread.responseSignal.connect(self.update_response)
         self.submit_button_thread.errorSignal.connect(self.show_error_message)
+        self.submit_button_thread.finishedSignal.connect(self.on_task_completed)
         self.submit_button_thread.start()
 
         self.reset_timer = QTimer(self)
@@ -203,6 +205,10 @@ class DocQA_GUI(QWidget):
 
     def on_stop_button_clicked(self):
         SubmitButtonThread.request_stop()
+        self.stop_button.setDisabled(True)
+
+    def on_task_completed(self):
+        self.stop_button.setDisabled(True)
 
     def enable_submit_button(self):
         self.submit_button.setDisabled(False)
@@ -215,6 +221,7 @@ class DocQA_GUI(QWidget):
 
     def show_error_message(self, message):
         QMessageBox.warning(self, "Error", message)
+        self.stop_button.setDisabled(True)
 
     def update_transcription(self, text):
         self.text_input.setPlainText(text)
@@ -225,25 +232,24 @@ class DocQA_GUI(QWidget):
     
     def create_button_row(self):
         voice_recorder = voice_recorder_module.VoiceRecorder(self)
+        self.is_recording = False
 
-        def start_recording():
-            voice_recorder.start_recording()
+        def toggle_recording():
+            if self.is_recording:
+                voice_recorder.stop_recording()
+                record_button.setText("Record Question (click to record)")
+            else:
+                voice_recorder.start_recording()
+                record_button.setText("Recording...(click to stop recording)")
+            self.is_recording = not self.is_recording
 
-        def stop_recording():
-            voice_recorder.stop_recording()
-
-        start_button = QPushButton("Start Recording")
-        start_button.clicked.connect(start_recording)
-
-        stop_button = QPushButton("Stop Recording")
-        stop_button.clicked.connect(stop_recording)
+        record_button = QPushButton("Record Question (click to record)")
+        record_button.clicked.connect(toggle_recording)
 
         hbox = QHBoxLayout()
-        hbox.addWidget(start_button)
-        hbox.addWidget(stop_button)
+        hbox.addWidget(record_button)
 
-        hbox.setStretchFactor(start_button, 3)
-        hbox.setStretchFactor(stop_button, 3)
+        hbox.setStretchFactor(record_button, 3)
 
         row_widget = QWidget()
         row_widget.setLayout(hbox)
@@ -256,7 +262,7 @@ class DocQA_GUI(QWidget):
 
         if not chat_history_path.exists():
             QMessageBox.warning(self, "Error", 
-                                "You must connect to LM Studio and get a response first before attempting to hear the response.")
+                                "No response to play.")
             return
 
         bark_thread = threading.Thread(target=self.run_bark_module)

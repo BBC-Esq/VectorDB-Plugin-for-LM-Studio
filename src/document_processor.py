@@ -50,7 +50,6 @@ def load_single_document(file_path: Path) -> Document:
     file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
 
-    # specific loader parameters
     if loader_class:
         if file_extension == ".txt":
             loader = loader_class(str(file_path), encoding='utf-8', autodetect_encoding=True)
@@ -93,7 +92,6 @@ def load_document_batch(filepaths):
 
 def load_documents(source_dir: Path) -> list[Document]:
     all_files = list(source_dir.iterdir())
-    # Adjust for case-insensitive extension matching
     paths = [f for f in all_files if f.suffix.lower() in (key.lower() for key in DOCUMENT_LOADERS.keys())]
     
     docs = []
@@ -120,7 +118,7 @@ def load_documents(source_dir: Path) -> list[Document]:
     with open("config.yaml", "r") as config_file:
         config = yaml.safe_load(config_file)
 
-        # Use ProcessPoolExecutor for processing images
+        # Use ProcessPoolExecutor to process images
         with ProcessPoolExecutor(1) as executor:
             future = executor.submit(process_images_wrapper, config)
             processed_docs = future.result()
@@ -139,6 +137,10 @@ def split_documents(documents):
     
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     texts = text_splitter.split_documents(documents)
+
+    # Add 'text' attribute to metadata of each split document
+    #for document in texts:
+        #document.metadata["text"] = document.page_content
     
     my_cprint(f"Number of Chunks: {len(texts)}", "white")
     
@@ -147,7 +149,7 @@ def split_documents(documents):
     average_size = sum(chunk_sizes) / len(texts)
     max_size = max(chunk_sizes)
     
-    size_ranges = range(1, max_size+1, 100)
+    size_ranges = range(1, max_size + 1, 100)
     for size_range in size_ranges:
         lower_bound = size_range
         upper_bound = size_range + 99

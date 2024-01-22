@@ -76,7 +76,7 @@ class TranscriberSettingsTab(QWidget):
         self.device_combo.addItems(device_options)
         layout.addWidget(self.device_combo, 0, 5)
 
-        # Set column stretch
+        # column stretch
         for i in range(6):  # Assuming 6 columns (label + combo) x 3
             layout.setColumnStretch(i, 1)
 
@@ -94,7 +94,6 @@ class TranscriberSettingsTab(QWidget):
             except Exception as e:
                 config_data = {}
 
-        # Update only the 'transcriber' section of the config
         transcriber_config = config_data.get('transcriber', {})
         settings_changed = False
 
