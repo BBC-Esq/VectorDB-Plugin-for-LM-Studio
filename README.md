@@ -41,7 +41,7 @@ You <b>MUST</b> install these before installing my program:<p>
 2) [Git](https://git-scm.com/downloads)
 3) [Git Large File Storage](https://git-lfs.com/).
 4) [Pandoc](https://github.com/jgm/pandoc).
-5) 🔥 Unconfirmed...[Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+5) [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (🔥 Unconfirmed 🔥)
    > Some WINDOWS users have reported installation errors mentioning ```hnswlib```, ```numpy``` or other libraries.  If you encounter this, you can try installing Microsoft Build Tools at the link above.  This may or may not require [Visual Studio](https://visualstudio.microsoft.com/).  Moreover, when installing Build Tools you must check the box for "Desktop development with C++" extension.  If this still doesn't work, try installing again but additionally checking the four boxes on the right that state "SDK."
 
 <details>
