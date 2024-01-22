@@ -101,7 +101,7 @@
 		for this to work.  For example, Intel CPUs that have the letter "F" at the end do not contain integrated graphics.</p>
 		
 		<p>Please note, however, that some motherboards automatically disable the graphics adapters if a GPU is installed.  The
-		motherboard manufacturer basically assumes that all monitors will be plugged into the GPU.  However, you can change
+		motherboard manufacturer basically assumes that all monitors will be plugged into the GPU.  You can change
 		this behavior by entering BIOS and re-enable the graphics ports coming from your motherboard.  Check your motherboard's
 		documentation on how to do this because each BIOS is slightly different.</p>
 		
@@ -116,9 +116,9 @@
 		"ejecting" the LLM within LM Studio prior to creating the vector database.  After the database is created you can simply
 		reload the LLM within LM Studio.</p>
 		
-		<p>Do not use GPU-acceleration when querying the vector database.  Querying the database requires 10,000x LESS
+		<p>Do not use GPU-acceleration when querying the vector database.  Querying the database requires 1,000x LESS
 		(no exaggeration) compute power compared to creating the database.  Therefore, you can easily query the embedding model
-		using your CPU (and hence not VRAM).  This will ensure that the LLM within LM Studio is entirely within VRAM.</p>
+		using your CPU (and hence not use VRAM).  This will ensure that the LLM within LM Studio is entirely within VRAM.</p>
 		
 		<p>If you don't have a GPU (and can't use VRAM) you're forced to manager your system memory.</p>
 		

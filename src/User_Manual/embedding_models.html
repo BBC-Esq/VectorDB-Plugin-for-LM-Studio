@@ -171,7 +171,7 @@
 </ol>
 	
 	<p><b>To get the most out of this program, it's crucial to choose the right embedding model.  Remember, the LLM's
-	response is only as good as the context you provide via the embedding model.</b></p>
+	response is only as good as the context you provide it via the embedding model.</b></p>
 
 	<h2 id="model">Choosing the Correct Model</h2>
 	
@@ -181,75 +181,79 @@
 	
 	<h2 id="semantic">Semantic Search</h2>
 	
-	<p>Semantic search generally refers to obtaining results that are similar to your query.  This includes RAG and other
-	tasks, but this program is geared towards RAG.  All of the embedding models with the "Semantic search" description
-	will perform reasonably well for this with a few nuances.</p>
+	<p>Semantic search is a general term that refers to obtaining results that are responsive to your query.  This includes results
+	that are responsive to your question but also results that are similar to your question.  This obviously includes retrievel
+	augmented generation (RAG), which this program is geared towards.  Semantic search models are nuanced.</p>
 	
 	<p>Models with <code>msmarco</code> in their name are specifically trained to provide longer results when
-	given a short question:</p>
+	given a short question.  This is called "asymmetric" semantic search because the results you expect are a lot
+	longer than the question you pose.  For example:</p>
 	
 	<p><b>Tell me everything that this legal treatise say about the elements of a defamation claim?</b></p>
 	<p><b>What are all the kinds of troubles that the main character from the book experiences?</b></p>
 	
-	<p>This is called "asymmetric semantic search.  Other models with the "Semantic search" description are GENERALLY
-	"symmetric semantic search," which means that they tend to produce results of the same length of your question.</p>
+	<p>On the other hand, "symmetric semantic search" means that the results will tend to be a similar length.</p>
 	
-	<p>In addition, models with <code>multi-qa</code> in their name have specifically been trained on question answering
-	and are similar in function to <code>msmarco</code> models.  You'll just have to experiment with the different
-	models as well as how you structure your query.</p>
+	<p>Models with <code>multi-qa</code> in their name have specifically been trained on question answering
+	and are similar in function to <code>msmarco</code> models.  Experiement to see which models give the best results
+	based off the style of text entered into the database.  Also, experiment with the structure of your query.</p>
 	
-	<p>With that being said, more recent larger models like ones beginning with <code>gtr</code> (to give one example)
-	claim to be just as efficient as "specialist" models.  The recent trend has been for larger models good at everything.</p>
+	<p>Recent larger models like ones beginning with <code>gtr</code> (to give one example) claim to be just as efficient
+	as "specialist" models.  The recent trend has been for larger models good at everything.</p>
 	
 	<h2 id="clustering">Clustering or Semantic Search</h2>
 	
-	<p>Models with the description of "clustering or semantic search" basically means "well rounded."  They are good at
-	question answering as well as other tasks, but for purposes of this program you should think of them as "well rounded."</p>
-	
-	<p>The <code>all-mpnet-base-v2</code> model is widely considered the best of its size in this category, and some claim
-	that it performs better than models in the "Semantic Search" category, for example.	And as previously stated, the larger
-	models might outperform, or vice versa.  Just experiment.</p>
+	<p>Models with the description of "clustering or semantic search" means they are good at question answering as
+	well as other tasks, but for purposes of this program you should think of them as "well rounded."  The
+	<code>all-mpnet-base-v2</code> model is widely considered the best of its size in this category, and some claim
+	that it performs better than models in the "Semantic Search" category.</p>
 	
 	<h2 id="sentence_similarity">Sentence Similarity</h2>
 	
-	<p>There are only three models with this description.  They focus on providing sentences that are very similar to
-	your question/sentence as possible; for example:</p>
+	<p>There are only three models with this description, which focusese on providing sentences that are very similar to
+	the sentece you pose; for example:</p>
 	
 	<p><b>Quote for me all sentences that discuss the main character in this book eating food.</b></p>
 	<p><b>Provide me all sentences verbatim of a court discussing the elements of a defamation claim.</b></p>
 	
-	<p>The search results should be multiple chunks with highly relevant sentences (as opposed to answering a question):</p>
+	<p>The search results should be multiple chunks with highly relevant sentences (as opposed to answering a question).
+	If you're using these sentences you should severaly reduce the chunk size since each "chunk" returned should be
+	a sentence - e.g. a setting of 200 is a good place to start experimenting.</p>
 	
 	<h2 id="rounded">Well Rounded</h2>
 	
-	<p>Self-explanatory.  But again, the larger models sometimes perform just as good as the specialist models.</p>
-	
-	<p>The "customizable" description means that you can modify an "instruction" parameter when running the model.  However, I
-	removed this setting from the Settings tab to conserve space since I never saw the need based off of my searched.  If you
-	want to add it back, feel free to modify <code>gui_tabs_settings_models.py</code> to make the setting visible again.
-	Only the <code>instructor</code> and <code>bge</code> models use this parameter.</p>
+	<p>Self-explanatory, but again, the larger models sometimes perform just as good as the specialist models.</p>
 	
 	<h2 id="dimensions">Max Sequence and Dimensions</h2>
 	
-	<p>The "max sequence" of an embedding model refers to the maximum number of tokens (not characters) that it can process at
-	once.  A model's "dimensions" refers to how nuanced a meaning it can extract from text.  A higher "dimensions" means that
+	<p>The "max sequence" of an embedding model refers to the maximum number of <code>tokens</code> (not characters) that it can process at
+	a time.  A model's "dimensions" refers to how nuanced a meaning it can extract from text.  A higher "dimensions" means that
 	the model can discern nuanced meanings from very similar text and provide more accurate results.</p>
 	
-	<p>Within the "Settings" tab, you should set the chunk size to one-fourth (1/4) of the "max sequence" (it's OK to do less)
-	of the embedding model that you plan to use.  This is because approximately four characters equals one (1) token.
-	If the chunks you feed the embedding model are larger than its "max sequence" they will simply be truncated, meaning
-	that you lose valuable data.  There will not be an error for you to notice this happening.  For example, if you set
-	the chunk size to 1200, make sure that the embedding model you choose has a "max sequence" of at least 300.</p>
+	<p>Within the "Settings" tab, you should set the chunk size to no more than one-fourth (1/4) of the "max sequence"
+	(it's okay to do less) of the embedding model that you plan to use.  Approximately four characters equals one (1) token.
+	Therefore, if you set the chunk size too large (e.g. 2000) you'll likely exceed the vector model's max sequence.
+	This won't cause an error, but the chunk will simply be truncated, hampering your search results.  For example, if the vector
+	model you're using has a max sequence of 300 try not to set the chunk size to more than 1,200.</p>
 	
 	<h2 id="total_context">Total Program Context</h2>
 	
-	<p>Finally, be mindful of the total context (in tokens) available from the LLM within LM Studio (typically 4096).
-	My program prints in the command prompt the total number of tokens being sent to the LLM within LM Studio.
-	To calculate how many tokens the LLM has left to provide a response, simply simply subtract it's maximum context
-	length by how many tokens you sent it (plus your relatively small query itself).  For example, if your query and
-	the contexts from the vector database equal 1000 tokens, the LLM will have 3096 tokens left to provide a response.</p>
+	<p>Remember that the LLM within LM Studio has a context length as well (also in tokens).  Most mainstream models are
+	4096, which is plenty, but you can easily exceed this if you increase the number of "contexts" obtained from the
+	vector database.  For example, if you set "contexts" at 20 and each context (i.e. "chunk") has a length of 500 characters,
+	that's a total of approximately 2,500 tokens.  These tokens, along with your question, are sent to the LLM for a response
+	and it'll have the remainder of 4096 to provide it.  Plan accordingly.</p>
 	
-	<p>You can then adjust the chunk size or the number of chunks to make sure the LLM has enough context to respond.</p>
+	<p>Ideally, it's better to focus on crafting better queries, using an appropriate embedding model, and using an
+	appropriate chunk size and overlap rather than the sheer number of contexts.  If become proficient, you should get a
+	chunk with the relevant information in no more than the first 5-6 contexts.</p>
+	
+	<p>However, it's possible to use this program without LM Studio.  For example, if you're using one of the "Sentence Similarity"
+	models described above.  In this instance, you may want 100 "contexts" returned and not need a response from the LLM.  You can
+	click the "chunks only" checkbox to obtain this no problem.</p>
+	
+	<p>Another use case is creating a vector database of only images (or only searching images).  You may want any and all image
+	chunks that relate to a certain topic.  You can use the "chunks only" checkbox and set the "contexts" to 1000+ for this.</p>
 
 </main>
 

@@ -151,29 +151,35 @@
 	
 	<p>https://suno-ai.notion.site/8b8e8749ed514b0cbf3f699013548683?v=bc67cff786b04b50b3ceb756fd05f68c</p>
 	
-	<h2><u>Database Settings</u></h2>
-    <p><code>Chunk Size</code> and <code>Chunk Overlap</code>: These two settings refer to how the "RecursiveCharacterTextSplitter"
-	splits the text that you extract from the various documents you want to put into the vector database.  These settings are in
+	<h2><u>Database Query Settings</u></h2>
+	<p><code>Create Device</code> will be populated with "cpu", "cuda" or "mps" based on your system.  Same with <code>Query
+	Device</code>
+	
+	<p><code>Similarity</code> refers to how responsive a chunk/context must be to be included, regardless of how many contexts
+	you specify need to be returned.</p>
+	
+	<p><code>Contexts</code> refers to the number of chunks/contexts you want returned, provided they all have the requisite
+	similarity score.</p>
+	
+	<p><code>Search Filter</code> is extremely powerful.  It only returns chunks that contain a search term you provide.  If you
+	do not want a search filter, simply click the "Clear Filter" button.</p>
+	
+	<p><code>Allfiles/Images-Only/Non-Images Only</code> is also powerful.  If you have images and non-images in the database
+	it allows you to only search one or both.</p>
+
+	<h2><u>Database Creation Settings</u></h2>
+	
+	<p><code>Chunk Size</code> and <code>Chunk Overlap</code>refer to how the "RecursiveCharacterTextSplitter"
+	splits the text that you extract from the various documents (and images) you put into the vector database.  These settings are in
 	"characters," NOT tokens.  The chunks of text are then vectorized by the embedding model and put into the database.  Feel free to
 	experiment with different settings.  Different settings might work better with different styles of text.</p>
-	
-	<p>However, make sure that the chunk size does not exceed the <code>max sequence</code> of the embedding model you are using.
-	Each embedding model has a <code>max sequence</code>, which you can view by clicking the "<u>Download Embedding Model</u>" button.
-	This limit determines the maximum length (in tokens, NOT characters) that the model can process at a time.  Thus, if you
-	choose a "chunk size" of 1,200, for example, make sure the embedding model you choose has a <code>max sequence</code> of
-	at least 300.  This is based off of the rule of thumb that a token is approximately 4 characters.</p>
-	
-	<p><code>Contexts</code>: Refers to how many "chunks" you want to retrieve and send to the LLM for a response.  Make sure
-	that the number of contexts, multiplied by the "chunk size," doesn't exceed the LLM's maximum context limit set within
-	LM Studio.  Also, make sure and leave enough context for the LLM to provide a response.</p>
 
 	<p>For example, if the LLM's limit is 4096 and you send 10 "contexts" each having 1,200 characters (i.e. 300 tokens) you've
 	already used up 3,000 tokens of the LLM's 4096 limit.  This would leave 1096 tokens for the LLM's response, which is usually
 	(but not always) sufficient to answer your question.</p>
 	
-	<p><code>Chunks Only</code>: Checking this checkbox will return only the relevant chunks of text from the vector database and
-	will not connect to the LLM.  This is extremely useful to text the chunk size/overlap settings to ensure that you're getting
-	relevant chunks before connecting to the LLM.</p>
+	<p><code>Chunks Only</code> is located near the Submit Questions button.  It allows you to only return the relevant chunks of text
+	from the vector database and not connect to the LLM.  This is extremely useful to text the chunk size/overlap settings.</p>
 	
 	<h2>Break in Case of Emergency</h2>
 	<p>Settings for this program are stored in <code>config.yaml</code>.  If you mistakenly change a setting or lose this file,
