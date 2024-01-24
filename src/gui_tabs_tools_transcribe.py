@@ -5,7 +5,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 import yaml
 from pathlib import Path
-from constants import WHISPER_MODEL_NAMES
 from transcribe_module import TranscribeFile
 import threading
 
@@ -38,7 +37,7 @@ class TranscriberToolSettingsTab(QWidget):
         hbox1 = QHBoxLayout()
         hbox1.addWidget(QLabel("Model"))
         self.model_combo = QComboBox()
-        self.model_combo.addItems([model for model in WHISPER_MODEL_NAMES if model not in ["tiny", "tiny.en", "base", "base.en"]])
+        self.model_combo.addItems(["whisper-small.en", "whisper-medium.en", "whisper-large-v2"])
         self.model_combo.setCurrentText(self.default_model)
         self.model_combo.currentTextChanged.connect(self.update_model_in_config)
         hbox1.addWidget(self.model_combo)
@@ -73,7 +72,7 @@ class TranscriberToolSettingsTab(QWidget):
 
         main_layout.addLayout(hbox2)
 
-        # Third row of widgets (Select Audio File and Transcribe buttons)
+        # Third row of widgets
         hbox3 = QHBoxLayout()
         self.select_file_button = QPushButton("Select Audio File")
         self.select_file_button.clicked.connect(self.select_audio_file)
@@ -85,7 +84,6 @@ class TranscriberToolSettingsTab(QWidget):
 
         main_layout.addLayout(hbox3)
 
-        # Label for displaying the selected file path
         self.file_path_label = QLabel("No file currently selected")
         main_layout.addWidget(self.file_path_label)
 

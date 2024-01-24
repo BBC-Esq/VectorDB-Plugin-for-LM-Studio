@@ -108,3 +108,32 @@ class CreateVectorDB:
 if __name__ == "__main__":
     create_vector_db = CreateVectorDB()
     create_vector_db.run()
+
+# To delete entries based on the "hash" metadata attribute, you can use this as_retriever method to create a retriever that filters documents based on their metadata. Once you retrieve the documents with the specific hash, you can then extract their IDs and use the delete method to remove them from the vectorstore.
+
+# Here is how you might implement this in your CreateVectorDB class:
+
+# python
+
+# class CreateVectorDB:
+    # # ... [other methods] ...
+
+    # def delete_entries_by_hash(self, target_hash):
+        # my_cprint(f"Deleting entries with hash: {target_hash}", "red")
+
+        # # Initialize the retriever with a filter for the specific hash
+        # retriever = self.db.as_retriever(search_kwargs={'filter': {'hash': target_hash}})
+
+        # # Retrieve documents with the specific hash
+        # documents = retriever.search("")
+
+        # # Extract IDs from the documents
+        # ids_to_delete = [doc.id for doc in documents]
+
+        # # Delete entries with the extracted IDs
+        # if ids_to_delete:
+            # self.db.delete(ids=ids_to_delete)
+            # my_cprint(f"Deleted {len(ids_to_delete)} entries from the database.", "green")
+        # else:
+            # my_cprint("No entries found with the specified hash.", "yellow")
+

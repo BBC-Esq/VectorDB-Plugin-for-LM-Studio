@@ -73,7 +73,7 @@ class VoiceRecorder:
                 config_data = yaml.safe_load(stream)
             
             transcriber_config = config_data['transcriber']
-            model_string = f"ctranslate2-4you/whisper-{transcriber_config['model']}-ct2-{transcriber_config['quant']}"
+            model_string = f"ctranslate2-4you/{transcriber_config['model']}-ct2-{transcriber_config['quant']}"
             
             cpu_threads = max(4, os.cpu_count() - 6)
             

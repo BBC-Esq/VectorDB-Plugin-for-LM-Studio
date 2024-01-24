@@ -21,9 +21,7 @@ from langchain.document_loaders import (
 )
 
 from constants import DOCUMENT_LOADERS
-from loader_vision_llava import llava_process_images
-from loader_vision_cogvlm import cogvlm_process_images
-from loader_salesforce import salesforce_process_images
+from loader_images import loader_cogvlm, loader_llava, loader_salesforce
 from extract_metadata import extract_document_metadata
 from utilities import my_cprint
 
@@ -34,15 +32,18 @@ INGEST_THREADS = os.cpu_count() or 8
 for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
 
-def process_images_wrapper(config):
+def choose_image_loader(config):
     chosen_model = config["vision"]["chosen_model"]
 
     if chosen_model == 'llava' or chosen_model == 'bakllava':
-        return llava_process_images()
+        image_loader = loader_llava()
+        return image_loader.llava_process_images()
     elif chosen_model == 'cogvlm':
-        return cogvlm_process_images()
+        image_loader = loader_cogvlm()
+        return image_loader.cogvlm_process_images()
     elif chosen_model == 'salesforce':
-        return salesforce_process_images()
+        image_loader = loader_salesforce()
+        return image_loader.salesforce_process_images()
     else:
         return []
 
@@ -76,11 +77,8 @@ def load_single_document(file_path: Path) -> Document:
 
     document = loader.load()[0]
 
-    metadata = extract_document_metadata(file_path) # get metadata
+    metadata = extract_document_metadata(file_path)
     document.metadata.update(metadata)
-
-    # with open("output_load_single_document.txt", "w", encoding="utf-8") as output_file:
-    # output_file.write(document.page_content)
     
     return document
 
@@ -88,7 +86,7 @@ def load_document_batch(filepaths):
     with ThreadPoolExecutor(len(filepaths)) as exe:
         futures = [exe.submit(load_single_document, name) for name in filepaths]
         data_list = [future.result() for future in futures]
-    return (data_list, filepaths) # "data_list" = list of all document objects created by load single document
+    return (data_list, filepaths)
 
 def load_documents(source_dir: Path) -> list[Document]:
     all_files = list(source_dir.iterdir())
@@ -118,9 +116,9 @@ def load_documents(source_dir: Path) -> list[Document]:
     with open("config.yaml", "r") as config_file:
         config = yaml.safe_load(config_file)
 
-        # Use ProcessPoolExecutor to process images
+        # ProcessPoolExecutor to process images
         with ProcessPoolExecutor(1) as executor:
-            future = executor.submit(process_images_wrapper, config)
+            future = executor.submit(choose_image_loader, config)
             processed_docs = future.result()
             additional_docs = processed_docs if processed_docs is not None else []
 
@@ -137,10 +135,6 @@ def split_documents(documents):
     
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     texts = text_splitter.split_documents(documents)
-
-    # Add 'text' attribute to metadata of each split document
-    #for document in texts:
-        #document.metadata["text"] = document.page_content
     
     my_cprint(f"Number of Chunks: {len(texts)}", "white")
     
@@ -157,8 +151,3 @@ def split_documents(documents):
         my_cprint(f"Chunks between {lower_bound} and {upper_bound} characters: {count}", "white")
     
     return texts
-
-'''
-# document object structure: Document(page_content="[ALL TEXT EXTRACTED]", metadata={'source': '[FULL FILE PATH WITH DOUBLE BACKSLASHES'})
-# list structure: [Document(page_content="...", metadata={'source': '...'}), Document(page_content="...", metadata={'source': '...'})]
-'''

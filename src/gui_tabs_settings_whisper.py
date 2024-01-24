@@ -57,7 +57,7 @@ class TranscriberSettingsTab(QWidget):
         model_label = QLabel("Model")
         layout.addWidget(model_label, 0, 0)
         self.model_combo = QComboBox()
-        self.model_combo.addItems(["tiny", "tiny.en", "base", "base.en", "small", "small.en", "medium", "medium.en", "large-v2"])
+        self.model_combo.addItems(["whisper-tiny.en", "whisper-base.en", "whisper-small.en", "whisper-medium.en", "whisper-large-v2"])
         layout.addWidget(self.model_combo, 0, 1)
 
         # Quantization
@@ -116,12 +116,3 @@ class TranscriberSettingsTab(QWidget):
                 yaml.dump(config_data, f)
 
         return settings_changed
-
-if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication
-    import sys
-
-    app = QApplication(sys.argv)
-    transcriber_settings_tab = TranscriberSettingsTab()
-    transcriber_settings_tab.show()
-    sys.exit(app.exec())

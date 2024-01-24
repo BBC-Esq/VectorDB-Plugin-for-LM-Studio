@@ -100,7 +100,7 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
         try:
             EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
             search_term = config['database'].get('search_term', '').lower()
-            images_only = config['database'].get('images_only', False)  # Read images_only setting
+            document_types = config['database'].get('document_types', '')  # Change here
         except KeyError:
             msg_box = QMessageBox()
             msg_box.setText("Configuration error: Missing required keys in config.yaml")
@@ -111,8 +111,6 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
         score_threshold = float(config['database']['similarity'])
         k = int(config['database']['contexts'])
 
-    model_kwargs = {"device": compute_device}
-
     my_cprint("Embedding model loaded.", "green")
     
     if "instructor" in EMBEDDING_MODEL_NAME:
@@ -121,7 +119,7 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 
         embeddings = HuggingFaceInstructEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
-            model_kwargs=model_kwargs,
+            model_kwargs={"device": compute_device},
             embed_instruction=embed_instruction,
             query_instruction=query_instruction
         )
@@ -131,14 +129,14 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 
         embeddings = HuggingFaceBgeEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
-            model_kwargs=model_kwargs,
+            model_kwargs={"device": compute_device},
             query_instruction=query_instruction
         )
 
     else:
         embeddings = HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
-            model_kwargs=model_kwargs
+            model_kwargs={"device": compute_device}
         )
 
     tokenizer_path = "./Tokenizer"
@@ -152,10 +150,15 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 
     my_cprint("Database initialized.", "white")
 
+    if document_types:
+        search_filter = {'document_type': document_types}
+    else:
+        search_filter = {}
+
     retriever = db.as_retriever(search_kwargs={
         'score_threshold': score_threshold, 
         'k': k,
-        'filter': {'image': str(images_only)}
+        'filter': search_filter
     })
 
     my_cprint("Querying database.", "white")
@@ -224,7 +227,6 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 def stop_interaction():
     global stop_streaming
     stop_streaming = True
-
 
 if __name__ == "__main__":
     user_input = "Your query here"

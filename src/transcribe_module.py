@@ -14,7 +14,7 @@ class TranscribeFile:
         self.cpu_threads = max(4, os.cpu_count() - 4)
 
         self.model_config = {
-            'model_name': f"ctranslate2-4you/whisper-{config['model']}-ct2-{config['quant']}",
+            'model_name': f"ctranslate2-4you/{config['model']}-ct2-{config['quant']}",
             'device': config['device'],
             'compute_type': config['quant'],
             'cpu_threads': self.cpu_threads
@@ -42,7 +42,7 @@ class TranscribeFile:
         )
         my_cprint("Whisper model loaded.", 'green')
 
-        segments_generator, _ = model.transcribe(self.audio_file, beam_size=1)
+        segments_generator, _ = model.transcribe(self.audio_file, beam_size=5)
         segments = []
 
         for segment in segments_generator:

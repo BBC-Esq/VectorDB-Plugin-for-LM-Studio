@@ -13,6 +13,7 @@ class DatabaseSettingsTab(QWidget):
             self.database_creation_device = config_data['Compute_Device']['database_creation']
             self.database_query_device = config_data['Compute_Device']['database_query']
             self.search_term = config_data['database'].get('search_term', '')
+            self.document_type = config_data['database'].get('document_types', '')
 
         v_layout = QVBoxLayout()
         h_layout_device = QHBoxLayout()
@@ -64,7 +65,17 @@ class DatabaseSettingsTab(QWidget):
         h_layout_search_term.addWidget(self.filter_button)
         
         self.file_type_combo = QComboBox()
-        self.file_type_combo.addItems(["All Files", "Images Only", "Non-Images Only"])
+        file_type_items = ["All Files", "Images Only", "Documents Only"]
+        self.file_type_combo.addItems(file_type_items)
+
+        if self.document_type == 'image':
+            default_index = file_type_items.index("Images Only")
+        elif self.document_type == 'document':
+            default_index = file_type_items.index("Documents Only")
+        else:
+            default_index = file_type_items.index("All Files")
+        self.file_type_combo.setCurrentIndex(default_index)
+
         h_layout_search_term.addWidget(self.file_type_combo)
 
         v_layout.addLayout(h_layout_search_term)
@@ -106,16 +117,16 @@ class DatabaseSettingsTab(QWidget):
 
         file_type_map = {
             "All Files": '',
-            "Images Only": True,
-            "Non-Images Only": False
+            "Images Only": 'image',
+            "Documents Only": 'document'
         }
 
         file_type_selection = self.file_type_combo.currentText()
-        images_only_value = file_type_map[file_type_selection]
+        document_type_value = file_type_map[file_type_selection]
 
-        if images_only_value != config_data['database'].get('images_only', ''):
+        if document_type_value != config_data['database'].get('document_types', ''):
             settings_changed = True
-            config_data['database']['images_only'] = images_only_value
+            config_data['database']['document_types'] = document_type_value
 
         if settings_changed:
             with open('config.yaml', 'w') as f:
