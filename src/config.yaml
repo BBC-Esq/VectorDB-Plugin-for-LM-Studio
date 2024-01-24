@@ -1,10 +1,10 @@
 Compute_Device:
   available:
   - cpu
-  database_creation: cpu
+  database_creation: CPU
   database_query: cpu
-  gpu_brand: 
-EMBEDDING_MODEL_NAME: null
+  gpu_brand:
+EMBEDDING_MODEL_NAME: 
 Platform_Info:
   os: 
 Supported_CTranslate2_Quantizations:
@@ -27,10 +27,10 @@ bark:
   speaker: v2/en_speaker_6
   use_better_transformer: true
 database:
-  chunk_overlap: 200
-  chunk_size: 800
-  contexts: '8'
-  images_only: ''
+  chunk_overlap: 300
+  chunk_size: 900
+  contexts: 8
+  document_types: ''
   search_term: ''
   similarity: 0.9
 embedding-models:
@@ -70,12 +70,12 @@ styles:
 transcribe_file:
   device: cpu
   file: null
-  model: small.en
-  quant: float32
+  model: whisper-large-v2
+  quant: float16
   timestamps: true
 transcriber:
   device: cpu
-  model: small.en
+  model: whisper-small.en
   quant: float32
 vision:
   bakllava:
@@ -86,9 +86,9 @@ vision:
     available_sizes:
     - 7b
   batch: null
-  chosen_model: salesforce
-  chosen_quant: float32
-  chosen_size: 470m
+  chosen_model: cogvlm
+  chosen_quant: 8-bit
+  chosen_size: 17.6b
   cogvlm:
     available_quants:
     - 4-bit
