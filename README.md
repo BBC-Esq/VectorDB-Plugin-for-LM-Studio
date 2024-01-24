@@ -91,6 +91,7 @@ python check_gpu.py
 🟢 Nvidia GPUs ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)<br>
 🔴 AMD GPUs ➜ Install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html).
 > [THIS REPO](https://github.com/nktice/AMD-AI) also has instructions.
+> Also, although I'm unable to test on my system...[here are some "wheels"](https://github.com/jllllll/llama-cpp-python-cuBLAS-wheels/releases/tag/rocm) that I believe should work.  However, you'd have to search and find the right one for your system.
 
 ### Step 2
 Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
