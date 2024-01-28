@@ -21,6 +21,7 @@ from utilities import list_theme_files, make_theme_changer, load_stylesheet, che
 from bark_module import BarkAudio
 from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP, IMAGE_STOP_SIGN
 import openai
+import multiprocessing
 
 class SubmitButtonThread(QThread):
     responseSignal = Signal(str)
@@ -273,7 +274,12 @@ class DocQA_GUI(QWidget):
         bark_audio = BarkAudio()
         bark_audio.run()
 
+def main():
+    # Set the multiprocessing start method to 'spawn'
+    multiprocessing.set_start_method('spawn')
+
 if __name__ == '__main__':
+    main()
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create('fusion'))
     stylesheet = load_stylesheet('custom_stylesheet_steel_ocean.css')
