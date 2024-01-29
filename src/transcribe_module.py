@@ -6,7 +6,7 @@ from utilities import my_cprint
 
 class TranscribeFile:
     def __init__(self, audio_file, config_path='config.yaml'):
-        with open(config_path, 'r') as file:
+        with open(config_path, 'r', encoding='utf-8') as file:
             config = yaml.safe_load(file)['transcribe_file']
 
         self.audio_file = audio_file
@@ -29,8 +29,7 @@ class TranscribeFile:
 
     def start_transcription(self):
         my_cprint("Starting transcription process...", 'white')
-        self.transcription_process = Process(
-            target=self.transcribe)
+        self.transcription_process = Process(target=self.transcribe)
         self.transcription_process.start()
 
     def transcribe(self):
@@ -57,13 +56,12 @@ class TranscribeFile:
     def format_transcription(segments, include_timestamps):
         transcription = []
         for segment in segments:
+            formatted_segment = segment.text
             if include_timestamps:
                 start_time = TranscribeFile.format_time(segment.start)
                 end_time = TranscribeFile.format_time(segment.end)
-                formatted_segment = f"{start_time} - {end_time} {segment.text}"
-                transcription.append(formatted_segment)
-            else:
-                transcription.append(segment.text)
+                formatted_segment = f"{start_time} - {end_time} {formatted_segment}"
+            transcription.append(formatted_segment)
         
         return "\n".join(transcription)
 
@@ -74,8 +72,7 @@ class TranscribeFile:
         seconds = int(seconds % 60)
         if hours > 0:
             return f"{hours}:{minutes:02d}:{seconds:02d}"
-        else:
-            return f"{minutes}:{seconds:02d}"
+        return f"{minutes}:{seconds:02d}"
 
     @staticmethod
     def save_transcription(audio_file, transcription_text):

@@ -33,12 +33,3 @@ class GuiSettingsTab(QWidget):
 
         self.setLayout(self.layout)
         adjust_stretch(self.groups, self.layout)
-
-if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication
-    import sys
-
-    app = QApplication(sys.argv)
-    window = GuiSettingsTab()
-    window.show()
-    sys.exit(app.exec())

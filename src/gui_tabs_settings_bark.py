@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QApplication, QCheckBox
+from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QCheckBox
 import yaml
 from pathlib import Path
 
@@ -102,11 +102,3 @@ class BarkModelSettingsTab(QWidget):
 
         with open(config_file_path, 'w') as f:
             yaml.dump(config, f, default_flow_style=False)
-
-if __name__ == "__main__":
-    import sys
-
-    app = QApplication(sys.argv)
-    bark_model_settings_tab = BarkModelSettingsTab()
-    bark_model_settings_tab.show()
-    sys.exit(app.exec())

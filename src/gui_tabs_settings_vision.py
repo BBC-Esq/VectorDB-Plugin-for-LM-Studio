@@ -8,7 +8,7 @@ class VisionSettingsTab(QWidget):
         super().__init__()
 
         # Read YAML file
-        with open('config.yaml', 'r') as file:
+        with open('config.yaml', 'r', encoding='utf-8') as file:
             self.config = yaml.safe_load(file)
 
         # Main layout
@@ -97,17 +97,16 @@ class VisionSettingsTab(QWidget):
         config_file_path = Path('config.yaml')
         if config_file_path.exists():
             try:
-                with open(config_file_path, 'r') as file:
+                with open(config_file_path, 'r', encoding='utf-8') as file:
                     current_config = yaml.safe_load(file)
-            except Exception as e:
+            except Exception:
                 current_config = {}
 
-        # Update only the 'vision' section of the config
         vision_config = current_config.get('vision', {})
         vision_config['chosen_model'] = self.config['vision']['chosen_model']
         vision_config['chosen_size'] = self.config['vision']['chosen_size']
         vision_config['chosen_quant'] = self.config['vision']['chosen_quant']
         current_config['vision'] = vision_config
 
-        with open(config_file_path, 'w') as file:
+        with open(config_file_path, 'w', encoding='utf-8') as file:
             yaml.dump(current_config, file)

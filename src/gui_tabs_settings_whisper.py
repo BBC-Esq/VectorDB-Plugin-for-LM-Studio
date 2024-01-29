@@ -11,7 +11,7 @@ class TranscriberSettingsTab(QWidget):
         super().__init__()
         self.create_layout()
 
-        with open('config.yaml', 'r') as f:
+        with open('config.yaml', 'r', encoding='utf-8') as f:
             config_data = yaml.safe_load(f)
             transcriber_data = config_data.get('transcriber', {})
 
@@ -89,9 +89,9 @@ class TranscriberSettingsTab(QWidget):
         config_file_path = Path('config.yaml')
         if config_file_path.exists():
             try:
-                with open(config_file_path, 'r') as f:
+                with open(config_file_path, 'r', encoding='utf-8') as f:
                     config_data = yaml.safe_load(f)
-            except Exception as e:
+            except Exception:
                 config_data = {}
 
         transcriber_config = config_data.get('transcriber', {})
@@ -112,7 +112,7 @@ class TranscriberSettingsTab(QWidget):
         if settings_changed:
             config_data['transcriber'] = transcriber_config
 
-            with open(config_file_path, 'w') as f:
+            with open(config_file_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config_data, f)
 
         return settings_changed

@@ -273,9 +273,8 @@ class DocQA_GUI(QWidget):
     def run_bark_module(self):
         bark_audio = BarkAudio()
         bark_audio.run()
-
+    
 def main():
-    # Set the multiprocessing start method to 'spawn'
     multiprocessing.set_start_method('spawn')
 
 if __name__ == '__main__':

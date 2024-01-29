@@ -69,7 +69,7 @@ class VoiceRecorder:
 
     def start_recording(self):
         if not self.is_recording:
-            with open("config.yaml", 'r') as stream:
+            with open("config.yaml", 'r', encoding='utf-8') as stream:
                 config_data = yaml.safe_load(stream)
             
             transcriber_config = config_data['transcriber']

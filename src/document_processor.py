@@ -111,7 +111,7 @@ def load_documents(source_dir: Path) -> list[Document]:
 
     additional_docs = []
     
-    my_cprint(f"Loading images, if any.", "yellow")
+    my_cprint("Loading images, if any.", "yellow")
 
     with open("config.yaml", "r") as config_file:
         config = yaml.safe_load(config_file)
@@ -127,8 +127,8 @@ def load_documents(source_dir: Path) -> list[Document]:
     return docs
 
 def split_documents(documents):
-    my_cprint(f"Splitting documents.", "white")
-    with open("config.yaml", "r") as config_file:
+    my_cprint("Splitting documents.", "white")
+    with open("config.yaml", "r", encoding='utf-8') as config_file:
         config = yaml.safe_load(config_file)
         chunk_size = config["database"]["chunk_size"]
         chunk_overlap = config["database"]["chunk_overlap"]

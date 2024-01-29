@@ -25,12 +25,11 @@ class BarkAudio:
         self.lock = threading.Lock()
 
     def load_config(self):
-        with open('config.yaml', 'r') as file:
+        with open('config.yaml', 'r', encoding='utf-8') as file:
             self.config = yaml.safe_load(file)['bark']
 
     def initialize_model_and_processor(self):
         os_name = platform.system().lower()
-        # set compute device
         if torch.cuda.is_available():
             if torch.version.hip and os_name == 'linux':
                 self.device = "cuda:0"
@@ -55,7 +54,7 @@ class BarkAudio:
             self.processor = AutoProcessor.from_pretrained("suno/bark")
             my_cprint("Bark processor loaded.", "green")
         
-        # load bark models
+        # load bark model
         if self.config['size'] == 'small' and self.config['model_precision'] == 'float16':
             self.model = BarkModel.from_pretrained("suno/bark-small", torch_dtype=torch.float16).to(self.device)
             my_cprint("Bark model loaded.", "green")
@@ -101,7 +100,7 @@ class BarkAudio:
                 stream.write(audio_array.tobytes())
                 stream.stop_stream()
                 stream.close()
-            except Exception as e:
+            except Exception:
                 pass
             finally:
                 p.terminate()
@@ -115,7 +114,6 @@ class BarkAudio:
                 break
 
             sentences = re.split(r'[.!?;]+', text_prompt)
-            # Adding tqdm progress bar
             for sentence in tqdm(sentences, desc="Processing Sentences"):
                 if sentence.strip():
                     voice_preset = self.config['speaker']
@@ -123,7 +121,7 @@ class BarkAudio:
 
                     try:
                         speech_output = self.model.generate(**inputs.to(self.device), pad_token_id=0, do_sample=True)
-                    except Exception as e:
+                    except Exception:
                         continue
 
                     audio_array = speech_output[0].cpu().numpy()
@@ -166,7 +164,3 @@ class BarkAudio:
             torch.cuda.empty_cache()
         gc.collect()
         my_cprint("Bark models removed from memory.", "red")
-
-if __name__ == "__main__":
-    bark_audio = BarkAudio()
-    bark_audio.run()

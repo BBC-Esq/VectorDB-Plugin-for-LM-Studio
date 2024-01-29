@@ -58,7 +58,7 @@ class loader_cogvlm:
             
         print("Selected model: cogvlm")
         print(f"Selected quant: {chosen_quant}")
-        my_cprint(f"Vision model loaded.", "green")    
+        my_cprint("Vision model loaded.", "green")    
     
         return model, tokenizer
 
@@ -128,7 +128,7 @@ class loader_cogvlm:
             torch.cuda.empty_cache()
         gc.collect()
 
-        my_cprint(f"Vision model removed from memory.", "red")
+        my_cprint("Vision model removed from memory.", "red")
 
         return documents
 

@@ -1,5 +1,5 @@
 from pathlib import Path
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QMessageBox
 import shutil
 import platform
 import os
@@ -53,26 +53,27 @@ def backup_database():
 
     shutil.copytree(source_directory, backup_directory, dirs_exist_ok=True)
 
+# gui_tabs_databases.py
 def open_file(file_path):
-    if platform.system() == "Windows":
-        os.startfile(file_path)
-    elif platform.system() == "Darwin":
-        subprocess.Popen(["open", file_path])
-    else:
-        subprocess.Popen(["xdg-open", file_path])
+    try:
+        if platform.system() == "Windows":
+            os.startfile(file_path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", file_path])
+        else:
+            subprocess.Popen(["xdg-open", file_path])
+    except OSError:
+        QMessageBox.warning(None, "Error", "No default viewer detected.")
 
+# gui_tabs_databases.py
 def delete_file(file_path):
     try:
         os.remove(file_path)
-    except OSError as e:
-        print(f"Error: {e.strerror}")
+    except OSError:
+        QMessageBox.warning(None, "Unable to delete file(s), please delete manually.")
 
+# database_interactions.py
 def check_preconditions_for_db_creation(script_dir):
-    import yaml
-    from PySide6.QtWidgets import QMessageBox
-    import platform
-    from pathlib import Path
-
     config_path = script_dir / 'config.yaml'
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
@@ -106,6 +107,7 @@ def check_preconditions_for_db_creation(script_dir):
 
     return True, ""
 
+# gui.py
 def check_preconditions_for_submit_question(script_dir):
     config_path = script_dir / 'config.yaml'
     with open(config_path, 'r') as file:
@@ -126,6 +128,12 @@ def check_preconditions_for_submit_question(script_dir):
 
     return True, ""
 
+def my_cprint(*args, **kwargs):
+    filename = os.path.basename(sys._getframe(1).f_code.co_filename)
+    modified_message = f"{filename}: {args[0]}"
+    kwargs['flush'] = True
+    cprint(modified_message, *args[1:], **kwargs)
+    
 def print_cuda_memory_usage():
     '''
     from utilities import print_cuda_memory_usage
@@ -155,14 +163,8 @@ def check_for_object_references(obj):
     script_dir = os.path.dirname(__file__)
     referrers_file_path = os.path.join(script_dir, "references.txt")
 
-    with open(referrers_file_path, "w") as file:
+    with open(referrers_file_path, "w", encoding='utf-8') as file:
         referrers = gc.get_referrers(obj)
         file.write(f"Number of references found: {len(referrers)}\n")
         for ref in referrers:
             file.write(str(ref) + "\n")
-
-def my_cprint(*args, **kwargs):
-    filename = os.path.basename(sys._getframe(1).f_code.co_filename)
-    modified_message = f"{filename}: {args[0]}"
-    kwargs['flush'] = True
-    cprint(modified_message, *args[1:], **kwargs)

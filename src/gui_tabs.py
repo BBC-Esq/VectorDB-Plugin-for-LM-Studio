@@ -77,12 +77,3 @@ def create_tabs():
     tab_widget.addTab(user_guide_tab, 'User Guide')
 
     return tab_widget
-
-if __name__ == '__main__':
-    from PySide6.QtWidgets import QApplication
-    import sys
-
-    app = QApplication(sys.argv)
-    main_widget = create_tabs()
-    main_widget.show()
-    sys.exit(app.exec())

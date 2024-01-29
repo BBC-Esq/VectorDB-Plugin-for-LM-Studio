@@ -37,7 +37,7 @@ def get_supported_quantizations(device_type):
 def update_config_file(**system_info):
     full_config_path = Path('config.yaml').resolve()
     
-    with open(full_config_path, 'r') as stream:
+    with open(full_config_path, 'r', encoding='utf-8') as stream:
         config_data = yaml.safe_load(stream)
 
     compute_device_info = system_info.get('Compute_Device', {})
@@ -55,10 +55,10 @@ def update_config_file(**system_info):
     }
 
     for key, value in system_info.items():
-        if key != 'Compute_Device' and key != 'Supported_CTranslate2_Quantizations':
+        if key not in ('Compute_Device', 'Supported_CTranslate2_Quantizations'):
             config_data[key] = value
 
-    with open(full_config_path, 'w') as stream:
+    with open(full_config_path, 'w', encoding='utf-8') as stream:
         yaml.safe_dump(config_data, stream)
 
 def check_for_necessary_folders_and_files():

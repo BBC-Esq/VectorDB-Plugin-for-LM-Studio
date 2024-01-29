@@ -39,7 +39,7 @@ class ServerSettingsTab(QWidget):
         layout.addWidget(prompt_format_label, 2, 0)
         
         self.prompt_format_combobox = QComboBox()
-        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat/SOLAR", "Orca2", "Llava 13B", "Obsidian 3B", "Phi-2"])
+        self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat/SOLAR", "Orca2", "StableLM-Zephyr"])
         layout.addWidget(self.prompt_format_combobox, 2, 1)
         self.prompt_format_combobox.currentIndexChanged.connect(self.update_prefix_suffix)
 
@@ -89,9 +89,7 @@ class ServerSettingsTab(QWidget):
             "Llama2/Mistral": ("prefix_llama2_and_mistral", "suffix_llama2_and_mistral"),
             "Neural Chat/SOLAR": ("prefix_neural_chat", "suffix_neural_chat"),
             "Orca2": ("prefix_orca2", "suffix_orca2"),
-            "Llava 13B": ("prefix_llava_13B", "suffix_llava_13B"),
-            "Obsidian 3B": ("prefix_obsidian_3B", "suffix_obsidian_3B"),
-            "Phi-2": ("prefix_phi2", "suffix_phi2"),
+            "StableLM-Zephyr": ("prefix_stablelm-zephyr", "suffix_stablelm-zephyr"),
         }
         prefix_key, suffix_key = key_mapping.get(option, ("", ""))
         self.widgets['prefix']['edit'].setText(self.config_data.get('server', {}).get(prefix_key, ''))
@@ -124,7 +122,7 @@ class ServerSettingsTab(QWidget):
                     config_data['server'][setting] = new_value
                     self.widgets[setting]['label'].setText(f"{setting.capitalize()}: {new_value}")
 
-                widget['edit'].clear()  # Clear the QLineEdit widget
+                widget['edit'].clear()
 
         checkbox_state = self.disable_checkbox.isChecked()
         if checkbox_state != config_data.get('server', {}).get('prompt_format_disabled', False):

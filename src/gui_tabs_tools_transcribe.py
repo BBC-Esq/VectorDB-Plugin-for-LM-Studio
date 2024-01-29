@@ -1,6 +1,6 @@
 from functools import partial
 from PySide6.QtWidgets import (
-    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QApplication, QCheckBox, QFileDialog
+    QLabel, QComboBox, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QCheckBox, QFileDialog
 )
 from PySide6.QtCore import Qt
 import yaml
@@ -147,9 +147,3 @@ class TranscriberToolSettingsTab(QWidget):
 
         threading.Thread(target=transcription_thread, daemon=True).start()
         print(f"Transcription process for {Path(self.selected_audio_file).name} started.")
-
-if __name__ == "__main__":
-    app = QApplication([])
-    window = TranscriberToolSettingsTab()
-    window.show()
-    app.exec()

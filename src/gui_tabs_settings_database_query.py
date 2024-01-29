@@ -83,7 +83,7 @@ class DatabaseSettingsTab(QWidget):
         self.setLayout(v_layout)
 
     def update_config(self):
-        with open('config.yaml', 'r') as f:
+        with open('config.yaml', 'r', encoding='utf-8') as f:
             config_data = yaml.safe_load(f)
 
         settings_changed = False
@@ -129,17 +129,18 @@ class DatabaseSettingsTab(QWidget):
             config_data['database']['document_types'] = document_type_value
 
         if settings_changed:
-            with open('config.yaml', 'w') as f:
+            with open('config.yaml', 'w', encoding='utf-8') as f:
                 yaml.safe_dump(config_data, f)
 
         return settings_changed
 
     def reset_search_term(self):
-        with open('config.yaml', 'r') as f:
+        with open('config.yaml', 'r', encoding='utf-8') as f:
             config_data = yaml.safe_load(f)
 
         config_data['database']['search_term'] = ''
-        with open('config.yaml', 'w') as f:
+        
+        with open('config.yaml', 'w', encoding='utf-8') as f:
             yaml.safe_dump(config_data, f)
 
         self.search_term_label.setText("Search Term: ")

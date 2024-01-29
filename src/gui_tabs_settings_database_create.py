@@ -6,7 +6,7 @@ class ChunkSettingsTab(QWidget):
     def __init__(self):
         super(ChunkSettingsTab, self).__init__()
 
-        with open('config.yaml', 'r') as f:
+        with open('config.yaml', 'r', encoding='utf-8') as f:
             config_data = yaml.safe_load(f)
             self.database_config = config_data['database']
 
@@ -35,7 +35,7 @@ class ChunkSettingsTab(QWidget):
         self.setLayout(v_layout)
 
     def update_config(self):
-        with open('config.yaml', 'r') as f:
+        with open('config.yaml', 'r', encoding='utf-8') as f:
             config_data = yaml.safe_load(f)
 
         settings_changed = False
@@ -49,7 +49,7 @@ class ChunkSettingsTab(QWidget):
                 widget.clear()
 
         if settings_changed:
-            with open('config.yaml', 'w') as f:
+            with open('config.yaml', 'w', encoding='utf-8') as f:
                 yaml.safe_dump(config_data, f)
 
         return settings_changed

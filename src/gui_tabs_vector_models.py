@@ -6,7 +6,7 @@ from download_model import download_embedding_model, model_downloaded_signal
 
 class VectorModelsTab(QWidget):
     def __init__(self, parent=None):
-        super(VectorModelsTab, self).__init__(parent)
+        super().__init__(parent)  # Updated to Python 3 style super()
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
@@ -28,7 +28,8 @@ class VectorModelsTab(QWidget):
         if not embedding_models_dir.exists():
             embedding_models_dir.mkdir(parents=True)
 
-        existing_directories = set([d.name for d in embedding_models_dir.iterdir() if d.is_dir()])
+        # Updated to set comprehension
+        existing_directories = {d.name for d in embedding_models_dir.iterdir() if d.is_dir()}
 
         headers = ["Model Name", "Dimensions", "Max Sequence", "Size (MB)", "Downloaded"]
 
@@ -100,8 +101,9 @@ class VectorModelsTab(QWidget):
         self.update()
 
     def update_model_downloaded_status(self, model_name):
+        # Updated to set comprehension
         embedding_models_dir = Path('Embedding_Models')
-        existing_directories = set([d.name for d in embedding_models_dir.iterdir() if d.is_dir()])
+        existing_directories = {d.name for d in embedding_models_dir.iterdir() if d.is_dir()}
         model_directory_name = model_name.replace("/", "--")
 
         if model_directory_name in existing_directories:
