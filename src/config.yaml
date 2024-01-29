@@ -1,12 +1,12 @@
 Compute_Device:
   available:
   - cpu
-  database_creation: CPU
+  database_creation: cpu
   database_query: cpu
-  gpu_brand:
+  gpu_brand: 
 EMBEDDING_MODEL_NAME: 
 Platform_Info:
-  os: 
+  os:
 Supported_CTranslate2_Quantizations:
   CPU:
   - float32
@@ -29,10 +29,10 @@ bark:
 database:
   chunk_overlap: 300
   chunk_size: 900
-  contexts: 8
+  contexts: '10'
   document_types: ''
   search_term: ''
-  similarity: 0.9
+  similarity: 0.3
 embedding-models:
   bge:
     query_instruction: 'Represent this sentence for searching relevant passages:'
@@ -47,20 +47,16 @@ server:
   prefix: '### User:'
   prefix_chat_ml: <|im_start|>
   prefix_llama2_and_mistral: '[INST]'
-  prefix_llava_13B: '### Instruction:\\n'
   prefix_neural_chat: '### User:'
-  prefix_obsidian_3B: <|im_start|>user\n
   prefix_orca2: <|im_start|>user
-  prefix_phi2: 'Instruct:'
+  prefix_stablelm-zephyr: <|user|>
   prompt_format_disabled: false
   suffix: '### Assistant:'
   suffix_chat_ml: <|im_end|>
   suffix_llama2_and_mistral: '[/INST]'
-  suffix_llava_13B: \\n### Response:\\n
   suffix_neural_chat: '### Assistant:'
-  suffix_obsidian_3B: '\n###\n<|im_start|>assistant:'
   suffix_orca2: <|im_end|><|im_start|>assistant
-  suffix_phi2: 'Output:'
+  suffix_stablelm-zephyr: <|endoftext|> <|assistant|>
 styles:
   button: 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic";
     width: 29;'
@@ -86,9 +82,9 @@ vision:
     available_sizes:
     - 7b
   batch: null
-  chosen_model: cogvlm
-  chosen_quant: 8-bit
-  chosen_size: 17.6b
+  chosen_model: salesforce
+  chosen_quant: float32
+  chosen_size: 470m
   cogvlm:
     available_quants:
     - 4-bit
@@ -109,4 +105,4 @@ vision:
     - float32
     available_sizes:
     - 470m
-  test_image: null
+  test_image: 
