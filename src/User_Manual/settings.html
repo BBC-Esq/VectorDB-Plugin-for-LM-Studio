@@ -155,14 +155,22 @@
 	<p><code>Create Device</code> will be populated with "cpu", "cuda" or "mps" based on your system.  Same with <code>Query
 	Device</code>
 	
-	<p><code>Similarity</code> refers to how responsive a chunk/context must be to be included, regardless of how many contexts
-	you specify need to be returned.</p>
+	<p><code>Contexts</code> refers to the maximum number of chunks/contexts you want returned as long as they satisfy the
+	<code>similarity</code> and <code>Search Filter</code> settings.</p>
 	
-	<p><code>Contexts</code> refers to the number of chunks/contexts you want returned, provided they all have the requisite
-	similarity score.</p>
+	<p><code>Similarity</code> refers to how relevant a chunk/context must be to be included in the results obtained from the
+	database.  For example, .1 is a low-relevance while .9 would be very high.  A setting of "1" signifies a perfect relevance and should NOT be used.  IMPORTANT: Even if there are more chunks that have the <code>similarity</code> threshold, the maximum number of chunks returned is still governed by the <code>contexts</code> setting.  ADDITIONALLY: Even if all of the chunks meeting the
+	<code>similarity</code> setting are returned (e.g. by setting the <code>contexts</code> to an extremely high number), the
+	<code>Search Filter</code> would still limit both the chunks sent to the LLM as well as displayed when the "chunks only" checkbox
+	is checked.</p>
 	
-	<p><code>Search Filter</code> is extremely powerful.  It only returns chunks that contain a search term you provide.  If you
-	do not want a search filter, simply click the "Clear Filter" button.</p>
+	<p><code>Search Filter</code> is extremely powerful.  After the <code>contexts</code> and <code>similarity</code> settings are
+	applied, it subsequently filters the remaining chunks by requiring them to have VERBATIM the keyword you specify in each chunk.
+	IMPORTANT: While it is verbatim it is not case-sensitive.  For example, hypothetically, specifying a search filter of "child"
+	would require each chunk (after <code>contexts</code> and <code>similarity</code> apply) to contain "child;" otherwise, the
+	chunk would not be sent to the LLM nor would it be displayed if the "chunks only" checkbox was checked.  It is "verbatim" as in
+	"children" and "child's", for example, would not satisfy the "child" filter.  However, it is case-insensitive in that "Child,"
+	"child" or "cHiLD" would all satisfy the filter.</p>
 	
 	<p><code>Allfiles/Images-Only/Non-Images Only</code> is also powerful.  If you have images and non-images in the database
 	it allows you to only search one or both.</p>
