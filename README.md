@@ -326,7 +326,7 @@ Morever, there is a bug specific to ```LM Studio v0.2.10``` preventing LM Studio
 </details>
 
 ## NEW and Exciting Vision Models
-As of release 3.0 the program includes Vision Models that will generate summaries of what each picture depicts, which are then added to the vector database.
+As of release 3.0 the program includes Vision Models that will generate summaries of what each picture depicts, which are then added to the vector database.  I wrote a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) on this as well.
 
 <div align="center"><h2>CONTACT</h2></div>
 
