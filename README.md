@@ -114,6 +114,7 @@ python -m pip install --upgrade pip
 ```
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
+  > If this gives an error you'll have to go [HERE](https://download.pytorch.org/whl) and manually "pip install" the appropriate wheels for your setup.  Make sure and install ```torch```, ```torchaudio```, and ```torchvision```.
 ```
 pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
 ```
@@ -121,6 +122,7 @@ pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
 ```
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
 ```
+  > If this gives an error you'll have to go [HERE](https://download.pytorch.org/whl) and manually "pip install" the appropriate wheels for your setup.  Make sure and install ```torch```, ```torchaudio```, and ```torchvision```.
 ```
 pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
 ```
@@ -189,7 +191,7 @@ pip3 install torch torchvision torchaudio
 ```
 pip uninstall torch torchvision torchaudio
 ```
-The reinstall using this:
+Then reinstall using this:
 ```
 pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 -f https://download.pytorch.org/whl/cpu/torch_stable.html
 ```
