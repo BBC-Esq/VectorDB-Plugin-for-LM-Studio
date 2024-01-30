@@ -240,7 +240,7 @@ python gui.py
   > Do not choose the ```Embedding_Models``` folder itself.
 
 ## Set Chunk Size and Overlap
-* Making sure to read the User Manual, set the chunk size and chunk overlap.  Remember, anytime you want to change these two settings or add/remove documents, you must re-create the database for the chages to take effect.
+* Making sure to read the User Manual, set the chunk size and chunk overlap.  Remember, anytime you want to change these two settings or add/remove documents, you must re-create the database for the changes to take effect.
 
 ## Add Files to be Vectorized
 * Click the ```Choose Documents or Images``` button to add files.
