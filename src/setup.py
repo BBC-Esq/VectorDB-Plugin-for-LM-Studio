@@ -55,11 +55,19 @@ def manual_installation_confirmation():
     return True
 
 def install_pytorch(cuda_version, cuda_installed):
+    major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if cuda_installed:
         if cuda_version == "11.8":
-            os.system("pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
-        else:
-            os.system("pip install torch torchvision torchaudio")
+            if major == 3 and minor == 11:
+                os.system("pip install https://download.pytorch.org/whl/cu118/torch-2.1.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=623af3c2b94c58951b71e247f39b1b7377cc94d13162a548c59ed9cf81b2b0b2")
+                os.system("pip install https://download.pytorch.org/whl/cu118/torchvision-0.16.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=036391a65f3c2ac6dbe4b73ea0acc303dd1c0a667e2a3592a194b2d2db377da1")
+                os.system("pip install https://download.pytorch.org/whl/cu118/torchaudio-2.1.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=598e885648ac94c24920104f185e72fe9f4a9519c2d29b009e47cbc0866e6244")
+            elif major == 3 and minor == 10:
+                os.system("pip install https://download.pytorch.org/whl/cu118/torch-2.1.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=0ddfa0336d678316ff4c35172d85cddab5aa5ded4f781158e725096926491db9")
+                os.system("pip install https://download.pytorch.org/whl/cu118/torchvision-0.16.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=689f2458e8924c47b7ba9f50dca353423b75214184b905d540f69d9b962b2fdf")
+                os.system("pip install https://download.pytorch.org/whl/cu118/torchaudio-2.1.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=0d02bc0336ee4b3553f0d13f88f61121db2fc21de7b147f4957ecdbcc1dc1c89")
+    else:
+        os.system("pip install torch torchvision torchaudio")
 
 def setup_windows_installation():
     if not check_python_version_and_confirm():
