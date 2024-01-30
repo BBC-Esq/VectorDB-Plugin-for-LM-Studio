@@ -1,5 +1,5 @@
 from pathlib import Path
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox, QApplication
 import shutil
 import platform
 import os
