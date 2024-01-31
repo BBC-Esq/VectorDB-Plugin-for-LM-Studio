@@ -62,7 +62,7 @@ def choose_documents_directory():
                 return
 
 def load_config():
-    with open(Path("config.yaml"), 'r') as stream:
+    with open(Path("config.yaml"), 'r', encoding='utf-8') as stream:
         return yaml.safe_load(stream)
 
 def select_embedding_model_directory():
@@ -73,14 +73,14 @@ def select_embedding_model_directory():
         config_file_path = Path("config.yaml")
         if config_file_path.exists():
             try:
-                with open(config_file_path, 'r') as file:
+                with open(config_file_path, 'r', encoding='utf-8') as file:
                     config_data = yaml.safe_load(file)
-            except Exception as e:
+            except Exception:
                 config_data = {}
 
         config_data["EMBEDDING_MODEL_NAME"] = chosen_directory
 
-        with open(config_file_path, 'w') as file:
+        with open(config_file_path, 'w', encoding='utf-8') as file:
             yaml.dump(config_data, file)
 
-        print(f"Selected directory: {chosen_directory}")
+        print(f"Selected directory: {chosen_directory}") 

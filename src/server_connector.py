@@ -43,7 +43,7 @@ def write_contexts_to_file_and_open(contexts):
     with contexts_output_file_path.open('w', encoding='utf-8') as file:
         for index, context in enumerate(contexts, start=1):
             file.write(f"------------ Context {index} ---------------\n\n")
-            file.write(context + "\n\n\n")
+            file.write(context + "\n\n")
     
     if os.name == 'nt':
         os.startfile(contexts_output_file_path)
@@ -86,38 +86,17 @@ def connect_to_local_chatgpt(prompt):
         if stop_streaming:
             yield None
             break
+        # parse chunks and yield message
         if 'choices' in chunk and len(chunk['choices']) > 0 and 'delta' in chunk['choices'][0] and 'content' in chunk['choices'][0]['delta']:
             chunk_message = chunk['choices'][0]['delta']['content']
             yield chunk_message
 
-def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTORY), client_settings=CHROMA_SETTINGS):
-    global stop_streaming
-    stop_streaming = False
-    my_cprint("Attempting to connect to server.", "white")
-
-    with open('config.yaml', 'r') as config_file:
-        config = yaml.safe_load(config_file)
-        try:
-            EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
-            search_term = config['database'].get('search_term', '').lower()
-            document_types = config['database'].get('document_types', '')  # Change here
-        except KeyError:
-            msg_box = QMessageBox()
-            msg_box.setText("Configuration error: Missing required keys in config.yaml")
-            msg_box.exec()
-            raise
-        compute_device = config['Compute_Device']['database_query']
-        config_data = config.get('embedding-models', {})
-        score_threshold = float(config['database']['similarity'])
-        k = int(config['database']['contexts'])
-
-    my_cprint("Embedding model loaded.", "green")
-    
+def initialize_vector_model(EMBEDDING_MODEL_NAME, config_data, compute_device):
     if "instructor" in EMBEDDING_MODEL_NAME:
         embed_instruction = config_data['instructor'].get('embed_instruction')
         query_instruction = config_data['instructor'].get('query_instruction')
 
-        embeddings = HuggingFaceInstructEmbeddings(
+        return HuggingFaceInstructEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": compute_device},
             embed_instruction=embed_instruction,
@@ -127,33 +106,24 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
     elif "bge" in EMBEDDING_MODEL_NAME:
         query_instruction = config_data['bge'].get('query_instruction')
 
-        embeddings = HuggingFaceBgeEmbeddings(
+        return HuggingFaceBgeEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": compute_device},
             query_instruction=query_instruction
         )
 
     else:
-        embeddings = HuggingFaceEmbeddings(
+        return HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": compute_device}
         )
-
-    tokenizer_path = "./Tokenizer"
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
-
+        
+def initialize_database(embeddings, persist_directory, client_settings, score_threshold, k, search_filter):
     db = Chroma(
         persist_directory=persist_directory,
         embedding_function=embeddings,
         client_settings=client_settings,
     )
-
-    my_cprint("Database initialized.", "white")
-
-    if document_types:
-        search_filter = {'document_type': document_types}
-    else:
-        search_filter = {}
 
     retriever = db.as_retriever(search_kwargs={
         'score_threshold': score_threshold, 
@@ -161,24 +131,79 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
         'filter': search_filter
     })
 
+    return db, retriever
+
+def retrieve_and_filter_contexts(query, config, embeddings, db):
+    search_term = config['database'].get('search_term', '').lower()
+    document_types = config['database'].get('document_types', '')
+    score_threshold = float(config['database']['similarity'])
+    k = int(config['database']['contexts'])
+
+    if document_types:
+        search_filter = {'document_type': document_types}
+    else:
+        search_filter = {}
+
+    retriever = db.as_retriever(
+        search_type="similarity_score_threshold",
+        search_kwargs={
+            'score_threshold': score_threshold, 
+            'k': k,
+            'filter': search_filter
+        }
+    )
+
     my_cprint("Querying database.", "white")
     relevant_contexts = retriever.get_relevant_documents(query)
 
     filtered_contexts = [doc for doc in relevant_contexts if search_term in doc.page_content.lower()]
 
     if not filtered_contexts:
-        my_cprint("No relevant contexts found for the query after applying the filter", "yellow")
+        my_cprint("No relevant contexts/chunks found.  Make sure the following settings are not too restrictive: (1) Similarity, (2) Contexts, and (3) Search Filter", "yellow")
+
+    return filtered_contexts
+
+def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTORY), client_settings=CHROMA_SETTINGS):
+    global stop_streaming
+    stop_streaming = False
+    my_cprint("Attempting to connect to server.", "white")
+
+    with open('config.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    
+    EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
+    compute_device = config['Compute_Device']['database_query']
+    config_data = config.get('embedding-models', {})
+
+    embeddings = initialize_vector_model(EMBEDDING_MODEL_NAME, config_data, compute_device)
+    my_cprint("Embedding model loaded.", "green")
+
+    tokenizer_path = "./Tokenizer"
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+
+    # Initialize Database
+    db = Chroma(
+        persist_directory=persist_directory,
+        embedding_function=embeddings,
+        client_settings=client_settings,
+    )
+    my_cprint("Database initialized.", "white")
+
+    # Retrieve and filter contexts
+    filtered_contexts = retrieve_and_filter_contexts(query, config, embeddings, db)
 
     contexts = [document.page_content for document in filtered_contexts]
     metadata_list = [document.metadata for document in filtered_contexts]
 
+    # Save metadata to file
     save_metadata_to_file(metadata_list, metadata_output_file_path)
 
     if chunks_only:
         write_contexts_to_file_and_open(contexts)
         return {"answer": "Contexts written to temporary file and opened", "sources": filtered_contexts}
 
-    prepend_string = "Only base your answer to the following question on the provided context/contexts accompanying this question.  If you cannot answer based on the included context/contexts alone, please state so."
+    # Prepare the augmented query
+    prepend_string = "Only base your answer to the following question on the provided context/contexts accompanying this question. If you cannot answer based on the included context/contexts alone, please state so."
     augmented_query = prepend_string + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
 
     my_cprint(f"Number of relevant contexts: {len(filtered_contexts)}", "white")
@@ -186,10 +211,10 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
     total_tokens = sum(len(tokenizer.encode(context)) for context in contexts)
     my_cprint(f"Total number of tokens in contexts: {total_tokens}", "white")
 
+    # Connect to local ChatGPT and process response
     response_json = connect_to_local_chatgpt(augmented_query)
 
     full_response = []
-
     for chunk_message in response_json:
         if chunk_message is None:
             break
@@ -200,15 +225,16 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 
         yield chunk_message
 
+    # Write chat history
     chat_history_file_path = ROOT_DIRECTORY / 'chat_history.txt'
     with chat_history_file_path.open('w', encoding='utf-8') as file:
         for message in full_response:
             file.write(message)
 
     yield "\n\n"
-    
+
+    # Generate and yield citations
     citations = format_metadata_as_citations(metadata_list)
-    
     unique_citations = []
     for citation in citations.split("\n"):
         if citation not in unique_citations:
@@ -227,10 +253,6 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 def stop_interaction():
     global stop_streaming
     stop_streaming = True
-
-if __name__ == "__main__":
-    user_input = "Your query here"
-    ask_local_chatgpt(user_input)
 
 ''' Search by metadata and minimum relevance score threshold
 

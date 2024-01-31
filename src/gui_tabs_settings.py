@@ -78,4 +78,3 @@ class GuiSettingsTab(QWidget):
         self.layout.addLayout(center_button_layout)
         self.setLayout(self.layout)
         adjust_stretch(self.groups, self.layout)
-

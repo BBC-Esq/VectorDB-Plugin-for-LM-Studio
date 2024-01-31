@@ -7,10 +7,9 @@ from langchain.vectorstores import Chroma
 from chromadb.config import Settings
 from document_processor import load_documents, split_documents
 import torch
-from utilities import validate_symbolic_links
+from utilities import validate_symbolic_links, backup_database, my_cprint
 from pathlib import Path
 import os
-from utilities import backup_database, my_cprint
 import logging
 
 logging.basicConfig(
@@ -19,13 +18,46 @@ logging.basicConfig(
 )
 logging.getLogger('chromadb.db.duckdb').setLevel(logging.WARNING)
 
+def load_config(root_directory):
+    with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
+        return yaml.safe_load(stream)
+
+def create_embeddings(embedding_model_name, config_data):
+    my_cprint("Creating embeddings.", "white")
+    compute_device = config_data['Compute_Device']['database_creation']
+
+    if "instructor" in embedding_model_name:
+        embed_instruction = config_data['embedding-models']['instructor'].get('embed_instruction')
+        query_instruction = config_data['embedding-models']['instructor'].get('query_instruction')
+
+        return HuggingFaceInstructEmbeddings(
+            model_name=embedding_model_name,
+            model_kwargs={"device": compute_device},
+            embed_instruction=embed_instruction,
+            query_instruction=query_instruction # cache_folder=, encode_kwargs=
+        )
+
+    elif "bge" in embedding_model_name:
+        query_instruction = config_data['embedding-models']['bge'].get('query_instruction')
+
+        return HuggingFaceBgeEmbeddings(
+            model_name=embedding_model_name,
+            model_kwargs={"device": compute_device},
+            query_instruction=query_instruction # encode_kwargs=, cache_folder=
+        )
+
+    else:
+        return HuggingFaceEmbeddings(
+            model_name=embedding_model_name,
+            model_kwargs={"device": compute_device} # encode_kwargs=, cache_folder=, multi_process=
+        )
+
 class CreateVectorDB:
     def __init__(self):
         self.ROOT_DIRECTORY = Path(__file__).resolve().parent
         self.SOURCE_DIRECTORY = self.ROOT_DIRECTORY / "Docs_for_DB"
         self.PERSIST_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB"
         self.INGEST_THREADS = os.cpu_count() or 8
-
         self.CHROMA_SETTINGS = Settings(
             chroma_db_impl="duckdb+parquet",
             persist_directory=str(self.PERSIST_DIRECTORY),
@@ -33,21 +65,19 @@ class CreateVectorDB:
         )
 
     def run(self):
-        with open(self.ROOT_DIRECTORY / "config.yaml", 'r') as stream:
-            config_data = yaml.safe_load(stream)
-
+        config_data = load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
 
-        my_cprint(f"Loading documents.", "white")
-        documents = load_documents(self.SOURCE_DIRECTORY)  # invoke document_processor.py; returns a list of document objects
+        my_cprint("Loading documents.", "white")
+        documents = load_documents(self.SOURCE_DIRECTORY) # returns a list of full-text document objects
         if documents is None or len(documents) == 0:
             my_cprint("No documents to load.", "red")
             return
-        my_cprint(f"Successfully loaded documents.", "white")
+        my_cprint("Successfully loaded documents.", "white")
 
-        texts = split_documents(documents) # invoke document_processor.py again; returns a list of split document objects
+        texts = split_documents(documents) # returns a list of chunked document objects
 
-        embeddings = self.get_embeddings(EMBEDDING_MODEL_NAME, config_data)
+        embeddings = create_embeddings(EMBEDDING_MODEL_NAME, config_data)
         my_cprint("Embedding model loaded.", "green")
 
         if self.PERSIST_DIRECTORY.exists():
@@ -73,41 +103,6 @@ class CreateVectorDB:
         torch.cuda.empty_cache()
         gc.collect()
         my_cprint("Embedding model removed from memory.", "red")
-
-    def get_embeddings(self, EMBEDDING_MODEL_NAME, config_data):
-        my_cprint("Creating embeddings.", "white")
-
-        compute_device = config_data['Compute_Device']['database_creation']
-
-        if "instructor" in EMBEDDING_MODEL_NAME:
-            embed_instruction = config_data['embedding-models']['instructor'].get('embed_instruction')
-            query_instruction = config_data['embedding-models']['instructor'].get('query_instruction')
-
-            return HuggingFaceInstructEmbeddings(
-                model_name=EMBEDDING_MODEL_NAME,
-                model_kwargs={"device": compute_device},
-                embed_instruction=embed_instruction,
-                query_instruction=query_instruction # cache_folder=, encode_kwargs=
-            )
-
-        elif "bge" in EMBEDDING_MODEL_NAME:
-            query_instruction = config_data['embedding-models']['bge'].get('query_instruction')
-
-            return HuggingFaceBgeEmbeddings(
-                model_name=EMBEDDING_MODEL_NAME,
-                model_kwargs={"device": compute_device},
-                query_instruction=query_instruction # encode_kwargs=, cache_folder=
-            )
-
-        else:
-            return HuggingFaceEmbeddings(
-                model_name=EMBEDDING_MODEL_NAME,
-                model_kwargs={"device": compute_device} # encode_kwargs=, cache_folder=, multi_process=
-            )
-
-if __name__ == "__main__":
-    create_vector_db = CreateVectorDB()
-    create_vector_db.run()
 
 # To delete entries based on the "hash" metadata attribute, you can use this as_retriever method to create a retriever that filters documents based on their metadata. Once you retrieve the documents with the specific hash, you can then extract their IDs and use the delete method to remove them from the vectorstore.
 

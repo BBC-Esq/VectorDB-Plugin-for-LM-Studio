@@ -94,7 +94,6 @@ class VisionToolSettingsTab(QWidget):
                 except Exception as e:
                     config = {}
 
-            # Update only the 'test_image' key in the 'vision' section of the config
             vision_config = config.get('vision', {})
             vision_config['test_image'] = file_path
             config['vision'] = vision_config

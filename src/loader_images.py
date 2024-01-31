@@ -123,6 +123,7 @@ class loader_cogvlm:
         print(f"Total image processing time: {total_time_taken:.2f} seconds")
 
         del model
+        del tokenizer
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
