@@ -118,6 +118,9 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 ```
 pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
 ```
+```
+pip install -U triton -- index-url https://download.pytorch.org/whl/cu118/
+```
 🔴 AMD GPU:
 ```
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
@@ -125,6 +128,9 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
   > If this gives an error you'll have to go [HERE](https://download.pytorch.org/whl/cu118) and manually "pip install" the appropriate wheels for your setup.  Make sure and install ```torch```, ```torchaudio```, and ```torchvision```.
 ```
 pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
+```
+```
+pip install -U pytorch-triton-rocm -- index-url https://download.pytorch.org/whl/cu118/
 ```
 🔵 CPU only:
 ```
