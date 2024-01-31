@@ -1,23 +1,34 @@
 import sys
 import subprocess
 import os
-import ctypes
 import shutil
 import hashlib
+import tkinter as tk
+from tkinter import messagebox
 
-def user_confirmation(message):
-    return ctypes.windll.user32.MessageBoxW(0, message, "Confirmation", 1) == 1
+def tkinter_message_box(title, message, type="info", yes_no=False):
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    if type == "info":
+        messagebox.showinfo(title, message)
+    elif type == "error":
+        messagebox.showerror(title, message)
+    elif type == "yesno" and yes_no:
+        response = messagebox.askyesno(title, message)
+        root.destroy()
+        return response
+    root.destroy()
 
 def check_python_version_and_confirm():
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if major < 3 or (major == 3 and minor < 10):
-        ctypes.windll.user32.MessageBoxW(0, "This program is currently only compatible with Python 3.10 or 3.11.", "Python Version Error", 0)
+        tkinter_message_box("Python Version Error", "This program is currently only compatible with Python 3.10 or 3.11.", type="error")
         return False
     elif major >= 3 and minor >= 12:
-        ctypes.windll.user32.MessageBoxW(0, "Python 3.12+ detected. PyTorch is not currently compatible with Python 3.12 - exiting installer.", "Python Version Error", 0)
+        tkinter_message_box("Python Version Error", "Python 3.12+ detected. PyTorch is not currently compatible with Python 3.12 - exiting installer.", type="error")
         return False
     else:
-        return user_confirmation(f"Python version {sys.version.split()[0]} detected. Click OK to proceed with the installation, or Cancel to stop.")
+        return tkinter_message_box("Confirmation", f"Python version {sys.version.split()[0]} detected. Click OK to proceed with the installation, or Cancel to stop.", type="yesno", yes_no=True)
 
 def check_cuda_version():
     try:
@@ -33,24 +44,24 @@ def check_cuda_version():
 def display_cuda_message():
     cuda_version = check_cuda_version()
     if cuda_version is None:
-        proceed_without_cuda = ctypes.windll.user32.MessageBoxW(0, "No CUDA installation detected. Would you like to proceed with a CPU-only installation?", "CUDA Check", 1) == 1
+        proceed_without_cuda = tkinter_message_box("CUDA Check", "No CUDA installation detected. Would you like to proceed with a CPU-only installation?", type="yesno", yes_no=True)
         return None, proceed_without_cuda
     elif cuda_version == "11.8":
-        return "11.8", user_confirmation("You have the correct CUDA version (11.8). Click OK to proceed with the installation.")
+        return "11.8", tkinter_message_box("CUDA Check", "You have the correct CUDA version (11.8). Click OK to proceed with the installation.", type="yesno", yes_no=True)
     elif cuda_version == "12.1":
-        return "12.1", user_confirmation("CUDA version 12.1 detected. CUDA 11.8 is required. Click OK to proceed with CPU-only installation of PyTorch or Cancel to exit installer.")
+        return "12.1", tkinter_message_box("CUDA Check", "CUDA version 12.1 detected. CUDA 11.8 is required. Click OK to proceed with CPU-only installation of PyTorch or Cancel to exit installer.", type="yesno", yes_no=True)
     else:
-        update_cuda = ctypes.windll.user32.MessageBoxW(0, f"Incorrect version of CUDA installed (Version: {cuda_version}). Would you like to proceed with a CPU-only installation?", "CUDA Check", 1) == 1
+        update_cuda = tkinter_message_box("CUDA Check", f"Incorrect version of CUDA installed (Version: {cuda_version}). Would you like to proceed with a CPU-only installation?", type="yesno", yes_no=True)
         return None, update_cuda
 
 def manual_installation_confirmation():
-    if not user_confirmation("Have you installed Git? Click OK to confirm, or Cancel to exit installation.  Git can be dowloaded here: https://git-scm.com/"):
+    if not tkinter_message_box("Confirmation", "Have you installed Git? Click OK to confirm, or Cancel to exit installation.  Git can be dowloaded here: https://git-scm.com/", type="yesno", yes_no=True):
         return False
-    if not user_confirmation("Have you installed Git Large File Storage? Click OK to confirm, or Cancel to exit installation.  Git Large File Storage can be downloaded here: https://git-lfs.com/"):
+    if not tkinter_message_box("Confirmation", "Have you installed Git Large File Storage? Click OK to confirm, or Cancel to exit installation.  Git Large File Storage can be downloaded here: https://git-lfs.com/", type="yesno", yes_no=True):
         return False
-    if not user_confirmation("Have you installed Pandoc? Click OK to confirm, or Cancel to exit installation.  Pandoc can be downloaded here: https://pandoc.org/"):
+    if not tkinter_message_box("Confirmation", "Have you installed Pandoc? Click OK to confirm, or Cancel to exit installation.  Pandoc can be downloaded here: https://pandoc.org/", type="yesno", yes_no=True):
         return False
-    if not user_confirmation("Have you installed Microsoft Build Tools and Visual Studio? Click OK to confirm, or Cancel to exit installation."):
+    if not tkinter_message_box("Confirmation", "Have you installed Microsoft Build Tools and Visual Studio? Click OK to confirm, or Cancel to exit installation.  Microsoft Build Tools can be downloaded here: https://visualstudio.microsoft.com/visual-cpp-build-tools/", type="yesno", yes_no=True):
         return False
     return True
 
@@ -79,7 +90,21 @@ def setup_windows_installation():
     install_pytorch(cuda_version, cuda_installed)
     os.system("pip install -r requirements.txt")
     os.system("pip install bitsandbytes==0.41.2.post2 --prefer-binary --index-url=https://jllllll.github.io/bitsandbytes-windows-webui")
-    os.system("pip install -U xformers --index-url https://download.pytorch.org/whl/cu118")
+
+    major, minor = map(int, sys.version.split()[0].split('.')[:2])
+    if cuda_installed:
+        if cuda_version == "11.8":
+            if major == 3 and minor == 10:
+                os.system("pip install https://download.pytorch.org/whl/cu118/xformers-0.0.23.post1%2Bcu118-cp310-cp310-win_amd64.whl#sha256=bb845f1dfe21dec3ccaf2c94adabf46bd604ac5bbfb35379340816914b1ce00a")
+            elif major == 3 and minor == 11:
+                os.system("pip install https://download.pytorch.org/whl/cu118/xformers-0.0.23.post1%2Bcu118-cp311-cp311-win_amd64.whl#sha256=8c232bccf88e19de91b545a2b29886c5684bf5d1f7014b6a3d126e481b5e01ee")
+            else:
+                print("Unsupported Python version. Please install Python 3.10 or 3.11.")
+                return
+        else:
+            print("Unsupported CUDA version.  Please install CUDA 11.8.")
+    else:
+        print("No CUDA detected.  Not installing xformers.")
 
     source_path = "User_Manual/pdf.py"
     target_path = "Lib/site-packages/langchain/document_loaders/parsers/pdf.py"
