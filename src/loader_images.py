@@ -31,7 +31,6 @@ def get_best_device():
 
 class loader_cogvlm:
     def initialize_model_and_tokenizer(self, config):
-        # Initialization logic for the model and tokenizer
         tokenizer = LlamaTokenizer.from_pretrained('lmsys/vicuna-7b-v1.5')
 
         if config['vision']['chosen_model'] == 'cogvlm' and config['vision']['chosen_quant'] == '4-bit':
@@ -133,18 +132,7 @@ class loader_cogvlm:
         return documents
 
 class loader_llava:
-    def llava_process_images(self):
-        script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Images_for_DB")
-        documents = []
-
-        if not os.listdir(image_dir):
-            print("No files detected in the 'Images_for_DB' directory.")
-            return
-
-        with open('config.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-
+    def initialize_model_and_tokenizer(self, config):
         chosen_model = config['vision']['chosen_model']
         chosen_size = config['vision']['chosen_size']
         chosen_quant = config['vision']['chosen_quant']
@@ -160,18 +148,17 @@ class loader_llava:
         print(f"Selected model: {chosen_model}")
         print(f"Selected size: {chosen_size}")
         print(f"Selected quant: {chosen_quant}")
-        
+
         device = get_best_device()
         print(f"Using device: {device}")
 
         if chosen_model == 'llava' and chosen_quant == 'float16':
             model = LlavaForConditionalGeneration.from_pretrained(
-                "llava-hf/llava-1.5-7b-hf",
+                model_id,
                 torch_dtype=torch.float16,
                 low_cpu_mem_usage=True,
                 resume_download=True
             ).to(device)
-
         elif chosen_model == 'llava' and chosen_quant == '8-bit':
             model = LlavaForConditionalGeneration.from_pretrained(
                 model_id,
@@ -180,7 +167,6 @@ class loader_llava:
                 load_in_8bit=True,
                 resume_download=True
             )
-
         elif chosen_model == 'llava' and chosen_quant == '4-bit':
             model = LlavaForConditionalGeneration.from_pretrained(
                 model_id,
@@ -189,7 +175,6 @@ class loader_llava:
                 load_in_4bit=True,
                 resume_download=True
             )
-
         elif chosen_model == 'bakllava' and chosen_quant == 'float16':
             model = LlavaForConditionalGeneration.from_pretrained(
                 model_id,
@@ -197,7 +182,6 @@ class loader_llava:
                 low_cpu_mem_usage=True,
                 resume_download=True
             ).to(device)
-
         elif chosen_model == 'bakllava' and chosen_quant == '8-bit':
             model = LlavaForConditionalGeneration.from_pretrained(
                 model_id,
@@ -206,7 +190,6 @@ class loader_llava:
                 load_in_8bit=True,
                 resume_download=True
             )
-
         elif chosen_model == 'bakllava' and chosen_quant == '4-bit':
             model = LlavaForConditionalGeneration.from_pretrained(
                 model_id,
@@ -216,9 +199,24 @@ class loader_llava:
                 resume_download=True
             )
 
-        my_cprint(f"Vision model loaded.", "green")
-
         processor = AutoProcessor.from_pretrained(model_id, resume_download=True)
+
+        my_cprint("Vision model loaded.", "green")
+        return model, processor, device, chosen_quant
+
+    def llava_process_images(self):
+        script_dir = os.path.dirname(__file__)
+        image_dir = os.path.join(script_dir, "Images_for_DB")
+        documents = []
+
+        if not os.listdir(image_dir):
+            print("No files detected in the 'Images_for_DB' directory.")
+            return
+
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+
+        model, processor, device, chosen_quant = self.initialize_model_and_tokenizer(config)
 
         total_start_time = time.time()
         total_tokens = 0
@@ -230,20 +228,19 @@ class loader_llava:
 
                 try:
                     with Image.open(full_path) as raw_image:
+                        inputs = processor(prompt, raw_image, return_tensors='pt').to(device)
+
                         if chosen_quant == 'bfloat16' and chosen_model == 'bakllava':
-                            inputs = processor(prompt, raw_image, return_tensors='pt').to(device, torch.bfloat16)
+                            inputs = inputs.to(torch.bfloat16)
                         elif chosen_quant == 'float16':
-                            inputs = processor(prompt, raw_image, return_tensors='pt').to(device, torch.float16)
+                            inputs = inputs.to(torch.float16)
                         elif chosen_quant == '8-bit':
-                            if chosen_model == 'llava':
-                                inputs = processor(prompt, raw_image, return_tensors='pt').to(device, torch.float16)
-                            elif chosen_model == 'bakllava':
-                                inputs = processor(prompt, raw_image, return_tensors='pt').to(device, torch.bfloat16)
+                            inputs = inputs.to(torch.float16)
                         elif chosen_quant == '4-bit':
-                            inputs = processor(prompt, raw_image, return_tensors='pt').to(device, torch.float32)
+                            inputs = inputs.to(torch.float32)
 
                         output = model.generate(**inputs, max_new_tokens=200, do_sample=True)
-                        full_response = processor.decode(output[0][2:], skip_special_tokens=True, do_sample=True)  # can add num_beams=5
+                        full_response = processor.decode(output[0][2:], skip_special_tokens=True, do_sample=True)
                         model_response = full_response.split("ASSISTANT: ")[-1]
                         
                         extracted_text = model_response
@@ -267,12 +264,19 @@ class loader_llava:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
-        
-        my_cprint(f"Vision model removed from memory.", "red")
-        
+
+        my_cprint("Vision model removed from memory.", "red")
+
         return documents
 
 class loader_salesforce:
+    def initialize_model_and_processor(self):
+        device = get_best_device()
+        processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+        model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large").to(device)
+
+        return model, processor, device
+
     def salesforce_process_images(self):
         script_dir = os.path.dirname(__file__)
         image_dir = os.path.join(script_dir, "Images_for_DB")
@@ -282,9 +286,7 @@ class loader_salesforce:
             print("No files detected in the 'Images_for_DB' directory.")
             return
 
-        device = get_best_device()
-        processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
-        model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large").to(device)
+        model, processor, device = self.initialize_model_and_processor()
 
         total_tokens = 0
         total_start_time = time.time()
@@ -318,5 +320,7 @@ class loader_salesforce:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
+        
+        my_cprint("Vision model removed from memory.", "red")
 
         return documents
