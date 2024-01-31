@@ -24,7 +24,7 @@
         <td>AMD</td>
         <td>❌</td>
         <td>✅</td>
-        <td>ROCm 5.6 (5.7 untested)</td>
+        <td>ROCm 5.6</td>
       </tr>
       <tr>
         <td>Apple/Metal</td>
@@ -42,12 +42,18 @@ You <b>MUST</b> install these before installing my program:<p>
 3) [Git Large File Storage](https://git-lfs.com/).
 4) [Pandoc](https://github.com/jgm/pandoc).
 5) [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (🔥 Unconfirmed 🔥)
-   > Some WINDOWS users have reported installation errors mentioning ```hnswlib```, ```numpy``` or other libraries.  If you encounter this, you can try installing Microsoft Build Tools at the link above.  This may or may not require [Visual Studio](https://visualstudio.microsoft.com/).  Moreover, when installing Build Tools you must check the box for "Desktop development with C++" extension.  If this still doesn't work, try installing again but additionally checking the four boxes on the right that state "SDK."
+   > Some Windows users have reported installation errors regarding ```hnswlib```, ```numpy``` or other libraries.  If you encounter this, try installing Microsoft Build Tools.  This may or may not require [Visual Studio](https://visualstudio.microsoft.com/).  If installing in tandem with Visual Studio, check the box for "Desktop development with C++" extension.  If this still doesn't work, try installing again but additionally checking the four boxes on the right that state "SDK."
 
 <details>
   <summary>EXAMPLE ON WINDOWS</summary>
 <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
 </details>
+
+6) Nvidia GPU acceleration (Windows or Linux) requires [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+7) AMD GPU acceleration on Linux requires [ROCm 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html)
+   > ROCm 5.7 support coming soon.
+
+   > PyTorch does not support AMD GPUs on Windows yet.
 
 <div align="center"> <h2>INSTALLATION</h2></div>
 
@@ -56,9 +62,9 @@ You <b>MUST</b> install these before installing my program:<p>
   
 ### Step 1
 🟢 Nvidia GPU ➜ [Install CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-> CUDA 12+ is currently NOT compatible since the faster-whisper library is only compatible up to CUDA 11.8, but it will hopefully be upgraded soon!<br>
+> CUDA 12+ support is coming as soon as the faster-whisper library supports it.<br>
 
-🔴 AMD GPU - PyTorch currently pnly supports AMD gpu-acceleration on Linux, not Windows, and obly if ROCm is properly installed. There are several possible workarounds but I'm unable to verify since I don't have an AMD GPU nor use Linux.  You can look [HERE](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html), [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
+🔴 AMD GPU - PyTorch currently does not support AMD gpu-acceleration on Windows. There are several unofficial workarounds but I'm unable to verify since I don't have an AMD GPU nor use Linux. See [HERE](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html), [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
 ### Step 2
 Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
 ### Step 3
