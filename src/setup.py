@@ -96,8 +96,10 @@ def setup_windows_installation():
         if cuda_version == "11.8":
             if major == 3 and minor == 10:
                 os.system("pip install https://download.pytorch.org/whl/cu118/xformers-0.0.23.post1%2Bcu118-cp310-cp310-win_amd64.whl#sha256=bb845f1dfe21dec3ccaf2c94adabf46bd604ac5bbfb35379340816914b1ce00a")
+                os.system("pip install nvidia-ml-py==12.535.108")
             elif major == 3 and minor == 11:
                 os.system("pip install https://download.pytorch.org/whl/cu118/xformers-0.0.23.post1%2Bcu118-cp311-cp311-win_amd64.whl#sha256=8c232bccf88e19de91b545a2b29886c5684bf5d1f7014b6a3d126e481b5e01ee")
+                os.system("pip install nvidia-ml-py==12.535.108")
             else:
                 print("Unsupported Python version. Please install Python 3.10 or 3.11.")
                 return
