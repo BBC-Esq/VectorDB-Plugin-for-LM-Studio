@@ -205,9 +205,9 @@ pip uninstall torch torchvision torchaudio
 ```
 Then reinstall using this:
 ```
-pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 -f https://download.pytorch.org/whl/cpu/torch_stable.html
+pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 -f https://download.pytorch.org/whl/cpu/torch_stable.html
 ```
-  > If this still fails, you can try going [HERE](https://download.pytorch.org/whl/cu118) and manually "pip install" the appropriate wheels for your setup.  Make sure and install ```torch```, ```torchaudio```, and ```torchvision```.
+  > If this still fails, you can try going [HERE](https://download.pytorch.org/whl/cu118) and manually "pip3 install" the appropriate wheels for your setup.  Make sure and install ```torch```, ```torchaudio```, and ```torchvision```.
 ### Step 8
 ```
 brew install portaudio
