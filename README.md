@@ -127,6 +127,9 @@ pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
 ```
 pip install -U triton -- index-url https://download.pytorch.org/whl/cu118/
 ```
+```
+pip install nvidia-ml-py==12.535.108
+```
 🔴 AMD GPU:
 ```
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
