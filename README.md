@@ -118,9 +118,8 @@ python -m pip install --upgrade pip
 ### Step 6
 🟢 Nvidia GPU:
 ```
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
 ```
-  > If this gives an error you'll have to go [HERE](https://download.pytorch.org/whl/cu118) and manually "pip install" the appropriate wheels for your setup.  Make sure and install ```torch```, ```torchaudio```, and ```torchvision```.
 ```
 pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
 ```
@@ -132,18 +131,11 @@ pip install nvidia-ml-py==12.535.108
 ```
 🔴 AMD GPU:
 ```
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-```
-  > If this gives an error you'll have to go [HERE](https://download.pytorch.org/whl/cu118) and manually "pip install" the appropriate wheels for your setup.  Make sure and install ```torch```, ```torchaudio```, and ```torchvision```.
-```
-pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
-```
-```
-pip install -U pytorch-triton-rocm -- index-url https://download.pytorch.org/whl/cu118/
+pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/rocm5.6
 ```
 🔵 CPU only:
 ```
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cpu
 ```
 ### Step 7
 ```
@@ -200,17 +192,8 @@ python -m pip install --upgrade pip
 ```
 ### Step 7
 ```
-pip3 install torch torchvision torchaudio
+pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2
 ```
-* If the above command fails for some reason or, when trying to create the vector database you get an error that mentions Pytorch and CUDA, you can try these commands instead:
-```
-pip uninstall torch torchvision torchaudio
-```
-Then reinstall using this:
-```
-pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 -f https://download.pytorch.org/whl/cpu/torch_stable.html
-```
-  > If this still fails, you can try going [HERE](https://download.pytorch.org/whl/cu118) and manually "pip3 install" the appropriate wheels for your setup.  Make sure and install ```torch```, ```torchaudio```, and ```torchvision```.
 ### Step 8
 ```
 brew install portaudio
