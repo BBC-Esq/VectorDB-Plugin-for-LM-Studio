@@ -121,17 +121,29 @@ python -m pip install --upgrade pip
 pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
 ```
 ```
-pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu118
+pip3 install -U xformers==0.0.23.post1
 ```
 ```
-pip install -U triton -- index-url https://download.pytorch.org/whl/cu118/
+pip3 install -U triton==2.1.0
 ```
 ```
-pip install nvidia-ml-py==12.535.108
+pip3 install nvidia-ml-py==12.535.108
+```
+```
+pi3 install bitsandbytes==0.41.2.post2
 ```
 🔴 AMD GPU:
 ```
 pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/rocm5.6
+```
+```
+pip3 install -U xformers==0.0.23.post1 --index-url https://download.pytorch.org/whl/rocm5.6
+```
+```
+pip3 install -U python-triton-rocm==2.1.0
+```
+```
+pip3 install bitsandbytes==0.41.2.post2
 ```
 🔵 CPU only:
 ```
