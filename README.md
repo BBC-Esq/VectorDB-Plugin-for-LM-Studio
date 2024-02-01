@@ -129,8 +129,13 @@ pip3 install -U https://download.pytorch.org/whl/cu118/xformers-0.0.23%2Bcu118-c
 ```
 > Only use if running Python 3.11.
 ```
-pip3 install -U triton==2.1.0
+pip3 install https://download.pytorch.org/whl/triton-2.1.0-0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=66439923a30d5d48399b08a9eae10370f6c261a5ec864a64983bae63152d39d7
 ```
+> If running Python 3.10
+```
+pip3 install https://download.pytorch.org/whl/triton-2.1.0-0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl#sha256=919b06453f0033ea52c13eaf7833de0e57db3178d23d4e04f9fc71c4f2c32bf8
+```
+> If running Python 3.10
 ```
 pip3 install nvidia-ml-py==12.535.108
 ```
@@ -145,8 +150,14 @@ pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url http
 pip3 install -U xformers==0.0.23.post1 --index-url https://download.pytorch.org/whl/rocm5.6
 ```
 ```
-pip3 install -U python-triton-rocm==2.1.0
+pip3 install https://download.pytorch.org/whl/pytorch_triton_rocm-2.1.0-cp310-cp310-linux_x86_64.whl#sha256=12fbf2ded4e5efcab0ff9ecc2de17f667dc4ef0a8a952ab9b549344ca4feb19e
 ```
+> Only if running Python 3.10.
+
+```
+pip3 install https://download.pytorch.org/whl/pytorch_triton_rocm-2.1.0-cp311-cp311-linux_x86_64.whl#sha256=317686e3b0b72c0c4162fe7893cbcc8ba37c1ab6bee3d0830b547dcc97c208e1
+```
+> Only if running Python 3.11.
 ```
 pip3 install bitsandbytes==0.41.2.post2
 ```
