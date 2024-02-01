@@ -23,6 +23,5 @@ transformers==4.36.0
 accelerate==0.25.0
 optimum==1.15.0
 einops==0.7.0
-bitsandbytes==0.41.3.post2; sys_platform == 'linux'
 watchdog==3.0.0
 scipy==1.11.4
