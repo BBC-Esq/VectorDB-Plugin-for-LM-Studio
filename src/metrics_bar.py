@@ -4,7 +4,6 @@ from collections import deque
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QWidget, QGridLayout, QProgressBar, QLabel
 import psutil
-import pynvml
 import torch
 import platform
 
@@ -12,6 +11,7 @@ def is_nvidia_gpu_available():
     return torch.cuda.is_available() and "nvidia" in torch.cuda.get_device_name(0).lower()
 
 if is_nvidia_gpu_available():
+    import pynvml
     pynvml.nvmlInit()
     handle = pynvml.nvmlDeviceGetHandleByIndex(0)
 else:
