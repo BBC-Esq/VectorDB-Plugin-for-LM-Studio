@@ -118,11 +118,16 @@ python -m pip install --upgrade pip
 ### Step 6
 🟢 Nvidia GPU:
 ```
-pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2
 ```
 ```
-pip3 install -U xformers==0.0.23.post1
+pip3 install -U https://download.pytorch.org/whl/cu118/xformers-0.0.23%2Bcu118-cp310-cp310-manylinux2014_x86_64.whl#sha256=5cbda33632505f634aee52ae55832ebd4010e64fe656c45ca477cd0b55b26d8f
 ```
+> Only use if running Python 3.10.
+```
+pip3 install -U https://download.pytorch.org/whl/cu118/xformers-0.0.23%2Bcu118-cp311-cp311-manylinux2014_x86_64.whl#sha256=cf614b8ea3ff4635440f82095b7cae6583a49fa4161e4b3e50a6ab5cc31771d5
+```
+> Only use if running Python 3.11.
 ```
 pip3 install -U triton==2.1.0
 ```
