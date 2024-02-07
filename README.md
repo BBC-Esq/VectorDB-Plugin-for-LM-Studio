@@ -40,7 +40,7 @@ You <b>MUST</b> install these before installing my program:<p>
 1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/) (PyTorch is NOT compatible with 3.12, at least as of 12/19/2023).
 2) [Git](https://git-scm.com/downloads)
 3) [Git Large File Storage](https://git-lfs.com/).
-4) [Pandoc](https://github.com/jgm/pandoc).
+4) [Pandoc](https://github.com/jgm/pandoc/releases).
 5) [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (🔥 Unconfirmed 🔥)
    > Some Windows users have reported installation errors regarding ```hnswlib```, ```numpy``` or other libraries.  If you encounter this, try installing Microsoft Build Tools.  This may or may not require [Visual Studio](https://visualstudio.microsoft.com/).  If installing in tandem with Visual Studio, check the box for "Desktop development with C++" extension.  If this still doesn't work, try installing again but additionally checking the four boxes on the right that state "SDK."
 
