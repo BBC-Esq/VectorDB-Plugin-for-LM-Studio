@@ -263,7 +263,7 @@ Morever, there is a bug specific to ```LM Studio v0.2.10``` preventing LM Studio
 ## Voice to Text
 * Both the voice recorder and audio file transcriber use the ```faster-whisper``` library, and GPU acceleration is as follows:
 
-  > Note, ```faster-whisper``` only supports CUDA 11.8 currently, but CUDA 12+ support is coming in the near future.
+  > Note, ```faster-whisper``` only supports CUDA 11.8 currently (CUDA 12+ coming soon).
 
 <div align="center">
   <h4>⚡Acceleration for Transcription⚡</h4>
