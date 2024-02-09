@@ -37,12 +37,13 @@ def format_metadata_as_citations(metadata_list):
     citations = [Path(metadata['file_path']).name for metadata in metadata_list]
     return "\n".join(citations)
 
-def write_contexts_to_file_and_open(contexts):
+def write_contexts_to_file_and_open(contexts, metadata_list):
     contexts_output_file_path = Path('contexts.txt')
 
     with contexts_output_file_path.open('w', encoding='utf-8') as file:
-        for index, context in enumerate(contexts, start=1):
-            file.write(f"------------ Context {index} ---------------\n\n")
+        for index, (context, metadata) in enumerate(zip(contexts, metadata_list), start=1):
+            file_name = Path(metadata['file_path']).name  # Extract file name from metadata
+            file.write(f"---------- Context {index} | From File: {file_name} ----------\n\n")
             file.write(context + "\n\n")
     
     if os.name == 'nt':
@@ -199,7 +200,7 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
     save_metadata_to_file(metadata_list, metadata_output_file_path)
 
     if chunks_only:
-        write_contexts_to_file_and_open(contexts)
+        write_contexts_to_file_and_open(contexts, metadata_list)
         return {"answer": "Contexts written to temporary file and opened", "sources": filtered_contexts}
 
     # Prepare the augmented query
