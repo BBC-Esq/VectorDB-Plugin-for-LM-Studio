@@ -10,12 +10,13 @@ class DatabaseSettingsTab(QWidget):
             config_data = yaml.safe_load(f)
             self.database_config = config_data['database']
             self.compute_device_options = config_data['Compute_Device']['available']
-            self.database_creation_device = config_data['Compute_Device']['database_creation']
+            # Remove database_creation_device loading
             self.database_query_device = config_data['Compute_Device']['database_query']
             self.search_term = config_data['database'].get('search_term', '')
             self.document_type = config_data['database'].get('document_types', '')
 
         v_layout = QVBoxLayout()
+        # Adjust layout to include only query device selection
         h_layout_device = QHBoxLayout()
         h_layout_settings = QHBoxLayout()
         h_layout_search_term = QHBoxLayout()
@@ -23,16 +24,14 @@ class DatabaseSettingsTab(QWidget):
         self.field_data = {}
         self.label_data = {}
 
-        # Create Device ComboBoxes
-        device_labels = [f"Create Device {self.database_creation_device}", f"Query Device {self.database_query_device}"]
-        self.device_combos = [QComboBox() for _ in device_labels]
-
-        for label_text, combo in zip(device_labels, self.device_combos):
-            label = QLabel(label_text)
-            combo.addItems(self.compute_device_options)
-            combo.setCurrentIndex(self.compute_device_options.index(label_text.split()[-1]))
-            h_layout_device.addWidget(label)
-            h_layout_device.addWidget(combo)
+        # Adjust to include only Query Device ComboBox
+        query_device_label = QLabel(f"Query Device: {self.database_query_device}")
+        self.query_device_combo = QComboBox()
+        self.query_device_combo.addItems(self.compute_device_options)
+        if self.database_query_device in self.compute_device_options:
+            self.query_device_combo.setCurrentIndex(self.compute_device_options.index(self.database_query_device))
+        h_layout_device.addWidget(query_device_label)
+        h_layout_device.addWidget(self.query_device_combo)
 
         v_layout.addLayout(h_layout_device)
 
@@ -88,19 +87,11 @@ class DatabaseSettingsTab(QWidget):
 
         settings_changed = False
 
-        device_map = {
-            'database_creation': (self.device_combos[0], 'currentText', str, 'Create Device'),
-            'database_query': (self.device_combos[1], 'currentText', str, 'Query Device')
-        }
-
-        for setting, (widget, getter, caster, label_prefix) in device_map.items():
-            new_value = getattr(widget, getter)()
-            if new_value != config_data['Compute_Device'].get(setting, ''):
-                settings_changed = True
-                config_data['Compute_Device'][setting] = caster(new_value)
-                
-                label = widget.parentWidget().findChildren(QLabel)[0]
-                label.setText(f"{label_prefix}: {new_value}")
+        # Update for query device selection only
+        new_query_device = self.query_device_combo.currentText()
+        if new_query_device != config_data['Compute_Device'].get('database_query', ''):
+            settings_changed = True
+            config_data['Compute_Device']['database_query'] = new_query_device
 
         database_settings = {'search_term': self.search_term_edit, **self.field_data}
 
