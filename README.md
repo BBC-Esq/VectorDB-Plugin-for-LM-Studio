@@ -282,7 +282,7 @@ Morever, there is a bug specific to ```LM Studio v0.2.10``` preventing LM Studio
       <tr>
         <td>Nvidia GPU</td>
         <td>✅</td>
-        <td>Requires CUDA 11.8 (not 12.1)</td>
+        <td>Requires CUDA 11.8</td>
       </tr>
       <tr>
         <td>AMD GPU</td>
