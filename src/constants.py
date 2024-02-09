@@ -55,42 +55,6 @@ AVAILABLE_MODELS = [
     },
     {
         'details': {
-            'description': 'Well rounded',
-            'dimensions': 312,
-            'max_sequence': 512,
-            'size_mb': 58
-        },
-        'model': 'jinaai/jina-embedding-t-en-v1'
-    },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 512,
-            'max_sequence': 512,
-            'size_mb': 141
-        },
-        'model': 'jinaai/jina-embedding-s-en-v1'
-    },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 439
-        },
-        'model': 'jinaai/jina-embedding-b-en-v1'
-    },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 1340
-        },
-        'model': 'jinaai/jina-embedding-l-en-v1'
-    },
-    {
-        'details': {
             'description': 'Clustering or semantic search',
             'dimensions': 768,
             'max_sequence': 512,
@@ -160,6 +124,15 @@ AVAILABLE_MODELS = [
             'size_mb': 2480
         },
         'model': 'sentence-transformers/gtr-t5-xl'
+    },
+        {
+        'details': {
+            'description': 'Semantic search.',
+            'dimensions': 768,
+            'max_sequence': 512,
+            'size_mb': 9230
+        },
+        'model': 'sentence-transformers/gtr-t5-xxl'
     },
     {
         'details': {
@@ -259,6 +232,15 @@ AVAILABLE_MODELS = [
             'size_mb': 2480
         },
         'model': 'sentence-transformers/sentence-t5-xl'
+    },
+        {
+        'details': {
+            'description': 'Sentence similarity',
+            'dimensions': 768,
+            'max_sequence': 256,
+            'size_mb': 9230
+        },
+        'model': 'sentence-transformers/sentence-t5-xxl'
     },
     {
         'details': {
