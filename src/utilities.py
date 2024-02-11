@@ -5,9 +5,14 @@ import platform
 import os
 import yaml
 import gc
-import pynvml
 import sys
 from termcolor import cprint
+
+def is_nvidia_gpu_available():
+    return torch.cuda.is_available() and "nvidia" in torch.cuda.get_device_name(0).lower()
+
+if is_nvidia_gpu_available():
+    import pynvml
 
 def validate_symbolic_links(source_directory):
     source_path = Path(source_directory)
