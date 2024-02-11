@@ -7,6 +7,7 @@ import yaml
 import gc
 import sys
 from termcolor import cprint
+import torch
 
 def is_nvidia_gpu_available():
     return torch.cuda.is_available() and "nvidia" in torch.cuda.get_device_name(0).lower()
