@@ -7,6 +7,7 @@ from gui_tabs_settings import GuiSettingsTab
 from gui_tabs_tools import GuiSettingsTab as ToolsSettingsTab
 from gui_tabs_databases import DatabasesTab
 from gui_tabs_vector_models import VectorModelsTab
+from gui_tabs_database import DatabaseTab
 
 def load_url(view, url):
     view.setUrl(QUrl.fromLocalFile(url))
@@ -40,6 +41,10 @@ def create_tabs():
     # USER GUIDE TAB
     user_guide_tab = QWidget()
     user_guide_layout = QVBoxLayout()
+    
+    # TEST TAB
+    database_tab = DatabaseTab()
+    tab_widget.addTab(database_tab, 'TEST')
 
     menu_group = QGroupBox("")
     menu_layout = QHBoxLayout()

@@ -168,3 +168,16 @@ def check_for_object_references(obj):
         file.write(f"Number of references found: {len(referrers)}\n")
         for ref in referrers:
             file.write(str(ref) + "\n")
+
+def get_cuda_compute_capabilities():
+    ccs = []
+    for i in range(torch.cuda.device_count()):
+        cc_major, cc_minor = torch.cuda.get_device_capability(torch.cuda.device(i))
+        ccs.append(f"{cc_major}.{cc_minor}")
+
+    return ccs
+
+def get_cuda_version():
+    major, minor = map(int, torch.version.cuda.split("."))
+
+    return f'{major}{minor}'

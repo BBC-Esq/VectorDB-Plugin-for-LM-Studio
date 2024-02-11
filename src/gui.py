@@ -213,7 +213,7 @@ class DocQA_GUI(QWidget):
 
     def enable_submit_button(self):
         self.submit_button.setDisabled(False)
-        self.submit_button.setText("Submit Questions")
+        self.submit_button.setText("Submit Question")
 
     def update_response(self, response):
         self.cumulative_response += response

@@ -106,7 +106,6 @@ class CreateVectorDB:
         gc.collect()
         my_cprint("Embedding model removed from memory.", "red")
 
-
 # To delete entries based on the "hash" metadata attribute, you can use this as_retriever method to create a retriever that filters documents based on their metadata. Once you retrieve the documents with the specific hash, you can then extract their IDs and use the delete method to remove them from the vectorstore.
 
     # def delete_entries_by_hash(self, target_hash):
