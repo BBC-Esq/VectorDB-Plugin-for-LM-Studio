@@ -97,7 +97,7 @@ def setup_windows_installation():
     os.system("python -m pip install --upgrade pip")
     install_pytorch(cuda_version, cuda_installed)
     os.system("pip install -r requirements.txt")
-    os.system("c.BITSANDBYTES_INSTALL_COMMAND)
+    os.system(c.BITSANDBYTES_INSTALL_COMMAND)
 
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if cuda_installed:
