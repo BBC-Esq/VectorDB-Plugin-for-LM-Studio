@@ -5,10 +5,11 @@ import shutil
 import hashlib
 import tkinter as tk
 from tkinter import messagebox
+import constants as c
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
     root = tk.Tk()
-    root.withdraw()  # Hide the main window
+    root.withdraw()
     if type == "info":
         messagebox.showinfo(title, message)
     elif type == "error":
@@ -55,13 +56,13 @@ def display_cuda_message():
         return None, update_cuda
 
 def manual_installation_confirmation():
-    if not tkinter_message_box("Confirmation", "Have you installed Git? Click OK to confirm, or Cancel to exit installation.  Git can be dowloaded here: https://git-scm.com/", type="yesno", yes_no=True):
+    if not tkinter_message_box("Confirmation", c.MESSAGE_GIT, type="yesno", yes_no=True):
         return False
-    if not tkinter_message_box("Confirmation", "Have you installed Git Large File Storage? Click OK to confirm, or Cancel to exit installation.  Git Large File Storage can be downloaded here: https://git-lfs.com/", type="yesno", yes_no=True):
+    if not tkinter_message_box("Confirmation", c.MESSAGE_GIT_LFS, type="yesno", yes_no=True):
         return False
-    if not tkinter_message_box("Confirmation", "Have you installed Pandoc? Click OK to confirm, or Cancel to exit installation.  Pandoc can be downloaded here: https://pandoc.org/", type="yesno", yes_no=True):
+    if not tkinter_message_box("Confirmation", c.MESSAGE_PANDOC, type="yesno", yes_no=True):
         return False
-    if not tkinter_message_box("Confirmation", "Have you installed Microsoft Build Tools and Visual Studio? Click OK to confirm, or Cancel to exit installation.  Microsoft Build Tools can be downloaded here: https://visualstudio.microsoft.com/visual-cpp-build-tools/", type="yesno", yes_no=True):
+    if not tkinter_message_box("Confirmation", c.MESSAGE_MS_BUILD_TOOLS, type="yesno", yes_no=True):
         return False
     return True
 
@@ -70,15 +71,22 @@ def install_pytorch(cuda_version, cuda_installed):
     if cuda_installed:
         if cuda_version == "11.8":
             if major == 3 and minor == 11:
-                os.system("pip install https://download.pytorch.org/whl/cu118/torch-2.1.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=623af3c2b94c58951b71e247f39b1b7377cc94d13162a548c59ed9cf81b2b0b2")
-                os.system("pip install https://download.pytorch.org/whl/cu118/torchvision-0.16.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=036391a65f3c2ac6dbe4b73ea0acc303dd1c0a667e2a3592a194b2d2db377da1")
-                os.system("pip install https://download.pytorch.org/whl/cu118/torchaudio-2.1.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=598e885648ac94c24920104f185e72fe9f4a9519c2d29b009e47cbc0866e6244")
+                os.system(c.PYTORCH_CUDA_11_8_CP311)
+                os.system(c.PYTORCH_CUDA_11_8_TORCHVISION_CP311)
+                os.system(c.PYTORCH_CUDA_11_8_TORCHAUDIO_CP311)
             elif major == 3 and minor == 10:
-                os.system("pip install https://download.pytorch.org/whl/cu118/torch-2.1.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=0ddfa0336d678316ff4c35172d85cddab5aa5ded4f781158e725096926491db9")
-                os.system("pip install https://download.pytorch.org/whl/cu118/torchvision-0.16.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=689f2458e8924c47b7ba9f50dca353423b75214184b905d540f69d9b962b2fdf")
-                os.system("pip install https://download.pytorch.org/whl/cu118/torchaudio-2.1.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=0d02bc0336ee4b3553f0d13f88f61121db2fc21de7b147f4957ecdbcc1dc1c89")
+                os.system(c.PYTORCH_CUDA_11_8_CP310)
+                os.system(c.PYTORCH_CUDA_11_8_TORCHVISION_CP310)
+                os.system(c.PYTORCH_CUDA_11_8_TORCHAUDIO_CP310)
     else:
-        os.system("pip install torch torchvision torchaudio")
+        if major == 3 and minor == 11:
+            os.system(c.PYTORCH_CPU_CP311)
+            os.system(c.PYTORCH_CPU_TORCHAUDIO_CP311)
+            os.system(c.PYTORCH_CPU_TORCHVISION_CP311)
+        elif major == 3 and minor == 10:
+            os.system(c.PYTORCH_CPU_CP310)
+            os.system(c.PYTORCH_CPU_TORCHAUDIO_CP310)
+            os.system(c.PYTORCH_CPU_TORCHVISION_CP310)
 
 def setup_windows_installation():
     if not check_python_version_and_confirm():
@@ -89,17 +97,17 @@ def setup_windows_installation():
     os.system("python -m pip install --upgrade pip")
     install_pytorch(cuda_version, cuda_installed)
     os.system("pip install -r requirements.txt")
-    os.system("pip install bitsandbytes==0.41.2.post2 --prefer-binary --index-url=https://jllllll.github.io/bitsandbytes-windows-webui")
+    os.system("c.BITSANDBYTES_INSTALL_COMMAND)
 
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if cuda_installed:
         if cuda_version == "11.8":
             if major == 3 and minor == 10:
-                os.system("pip install https://download.pytorch.org/whl/cu118/xformers-0.0.23.post1%2Bcu118-cp310-cp310-win_amd64.whl#sha256=bb845f1dfe21dec3ccaf2c94adabf46bd604ac5bbfb35379340816914b1ce00a")
-                os.system("pip install nvidia-ml-py==12.535.108")
+                os.system(c.XFORMERS_CUDA_11_8_CP310)
+                os.system(c.NVIDIA_ML_PY_CP310)
             elif major == 3 and minor == 11:
-                os.system("pip install https://download.pytorch.org/whl/cu118/xformers-0.0.23.post1%2Bcu118-cp311-cp311-win_amd64.whl#sha256=8c232bccf88e19de91b545a2b29886c5684bf5d1f7014b6a3d126e481b5e01ee")
-                os.system("pip install nvidia-ml-py==12.535.108")
+                os.system(c.XFORMERS_CUDA_11_8_CP311)
+                os.system(c.NVIDIA_ML_PY_CP311)
             else:
                 print("Unsupported Python version. Please install Python 3.10 or 3.11.")
                 return
@@ -108,9 +116,6 @@ def setup_windows_installation():
     else:
         print("No CUDA detected.  Not installing xformers.")
 
-    source_path = "User_Manual/pdf.py"
-    target_path = "Lib/site-packages/langchain/document_loaders/parsers/pdf.py"
-
     def calculate_hash(file_path):
         hasher = hashlib.sha256()
         with open(file_path, 'rb') as file:
@@ -118,27 +123,50 @@ def setup_windows_installation():
             hasher.update(buf)
         return hasher.hexdigest()
 
-    try:
-        source_hash = calculate_hash(source_path)
-        print(f"Hash of source file: {source_hash}")
-        try:
-            target_hash = calculate_hash(target_path)
-            print(f"Hash of target file: {target_hash}")
-        except FileNotFoundError:
-            target_hash = None
+    def find_site_packages_path():
+        for path in sys.path:
+            if "site-packages" in path.lower():
+                return path
+        return None
 
-        if source_hash != target_hash:
-            shutil.copy(source_path, target_path)
-            print("File moved as the hashes are different.")
+    def construct_target_path(base_path):
+        target_sub_path = os.path.join("langchain", "document_loaders", "parsers")
+        parts = target_sub_path.split(os.sep)
+        for part in parts:
+            found = next((d for d in os.listdir(base_path) if d.lower() == part.lower()), None)
+            if found:
+                base_path = os.path.join(base_path, found)
+            else:
+                print(f"Expected directory '{part}' not found under '{base_path}'.")
+                return None
+        return os.path.join(base_path, "pdf.py")
+
+    site_packages_path = find_site_packages_path()
+    if site_packages_path:
+        target_pdf_path = construct_target_path(site_packages_path)
+        if target_pdf_path:
+            source_path = "User_Manual/pdf.py"
+            try:
+                source_hash = calculate_hash(source_path)
+                print(f"Hash of source file: {source_hash}")
+                try:
+                    target_hash = calculate_hash(target_pdf_path)
+                    print(f"Hash of target file: {target_hash}")
+                except FileNotFoundError:
+                    target_hash = None
+
+                if source_hash != target_hash:
+                    shutil.copy(source_path, target_pdf_path)
+                    print("PDF.py file moved as the hashes are different.")
+                else:
+                    print("PDF.py files are identical. No action taken.")
+            except FileNotFoundError:
+                print("Warning: Source PDF.py not found in User_Manual folder.")
+            except Exception as e:
+                print(f"An error occurred: {e}")
         else:
-            print("Files are identical. No action taken.")
-
-    except FileNotFoundError:
-        print("Warning: pdf.py not found in User_Manual folder.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-    print("Installation completed successfully.")
-    print("Run 'Python gui.py' to start program.")
+            print("Target path for PDF.py could not be constructed.")
+    else:
+        print("Site-packages directory not found.")
 
 setup_windows_installation()
