@@ -6,6 +6,7 @@ import hashlib
 import tkinter as tk
 from tkinter import messagebox
 import constants as c
+from replace_pdf import replace_pdf_file
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
     root = tk.Tk()
@@ -116,57 +117,6 @@ def setup_windows_installation():
     else:
         print("No CUDA detected.  Not installing xformers.")
 
-    def calculate_hash(file_path):
-        hasher = hashlib.sha256()
-        with open(file_path, 'rb') as file:
-            buf = file.read()
-            hasher.update(buf)
-        return hasher.hexdigest()
-
-    def find_site_packages_path():
-        for path in sys.path:
-            if "site-packages" in path.lower():
-                return path
-        return None
-
-    def construct_target_path(base_path):
-        target_sub_path = os.path.join("langchain", "document_loaders", "parsers")
-        parts = target_sub_path.split(os.sep)
-        for part in parts:
-            found = next((d for d in os.listdir(base_path) if d.lower() == part.lower()), None)
-            if found:
-                base_path = os.path.join(base_path, found)
-            else:
-                print(f"Expected directory '{part}' not found under '{base_path}'.")
-                return None
-        return os.path.join(base_path, "pdf.py")
-
-    site_packages_path = find_site_packages_path()
-    if site_packages_path:
-        target_pdf_path = construct_target_path(site_packages_path)
-        if target_pdf_path:
-            source_path = "User_Manual/pdf.py"
-            try:
-                source_hash = calculate_hash(source_path)
-                print(f"Hash of source file: {source_hash}")
-                try:
-                    target_hash = calculate_hash(target_pdf_path)
-                    print(f"Hash of target file: {target_hash}")
-                except FileNotFoundError:
-                    target_hash = None
-
-                if source_hash != target_hash:
-                    shutil.copy(source_path, target_pdf_path)
-                    print("PDF.py file moved as the hashes are different.")
-                else:
-                    print("PDF.py files are identical. No action taken.")
-            except FileNotFoundError:
-                print("Warning: Source PDF.py not found in User_Manual folder.")
-            except Exception as e:
-                print(f"An error occurred: {e}")
-        else:
-            print("Target path for PDF.py could not be constructed.")
-    else:
-        print("Site-packages directory not found.")
+    replace_pdf_file()
 
 setup_windows_installation()

@@ -1,77 +1,71 @@
-import subprocess
-import os
-import shutil
 import hashlib
+from pathlib import Path
+import shutil
 import sys
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
-package_name = "langchain==0.0.341"
+class DependencyUpdater:
+    def __init__(self):
+        self.site_packages_path = self.get_site_packages_path()
 
-install_command = ["pip", "install", package_name]
+    def get_site_packages_path(self):
+        paths = sys.path
+        site_packages_paths = [Path(path) for path in paths if 'site-packages' in path.lower()]
+        return site_packages_paths[0] if site_packages_paths else None
 
-created_directories = []
+    def find_dependency_path(self, dependency_path_segments):
+        current_path = self.site_packages_path
+        if current_path and current_path.exists():
+            for segment in dependency_path_segments:
+                next_path = next((current_path / child for child in current_path.iterdir() if child.name.lower() == segment.lower()), None)
+                if next_path is None:
+                    return None
+                current_path = next_path
+            return current_path
+        return None
 
-def track_directory_creation(event_type, src_path):
-    if event_type == "created" and os.path.isdir(src_path):
-        created_directories.append(src_path)
+    @staticmethod
+    def hash_file(filepath):
+        hasher = hashlib.sha256()
+        with open(filepath, 'rb') as afile:
+            buf = afile.read()
+            hasher.update(buf)
+        return hasher.hexdigest()
 
-class DirectoryCreationHandler(FileSystemEventHandler):
-    def on_created(self, event):
-        track_directory_creation("created", event.src_path)
+    @staticmethod
+    def copy_and_overwrite_if_necessary(source_path, target_path):
+        if not target_path.exists() or DependencyUpdater.hash_file(source_path) != DependencyUpdater.hash_file(target_path):
+            shutil.copy(source_path, target_path)
+            print(f"{source_path} has been updated.")
+        else:
+            print(f"{source_path} is already up to date.")
 
-observer = Observer()
-observer.schedule(DirectoryCreationHandler(), path='.', recursive=True)
-observer.start()
+    def update_file_in_dependency(self, source_folder, file_name, dependency_path_segments):
+        target_path = self.find_dependency_path(dependency_path_segments)
+        if target_path is None:
+            print("Target dependency path not found.")
+            return
+        
+        source_path = Path(__file__).parent / source_folder / file_name
+        if not source_path.exists():
+            print(f"{file_name} not found in {source_folder}.")
+            return
 
-try:
-    subprocess.check_call(install_command)
-except subprocess.CalledProcessError:
-    print(f"Failed to install {package_name}")
-    observer.stop()
-    observer.join()
-    sys.exit()
+        target_file = None
+        for child in target_path.iterdir():
+            if child.is_file() and child.name.lower() == file_name.lower():
+                target_file = child
+                break
+        
+        if target_file:
+            target_file_path = target_file
+        else:
+            target_file_path = target_path / file_name
 
-observer.stop()
-observer.join()
+        self.copy_and_overwrite_if_necessary(source_path, target_file_path)
 
-filtered_directories = []
+def replace_pdf_file():
+    updater = DependencyUpdater()
+    updater.update_file_in_dependency("user_manual", "pdf.py", ["langchain", "document_loaders", "parsers"])
 
-for directory in created_directories:
-    if "site-packages/langchain" in directory.replace("\\", "/"):
-        base_path = directory.split("site-packages\\langchain")[0]
-        filtered_directories.append(base_path)
-
-base_path = filtered_directories[0].replace("\\", "/") if filtered_directories else ""
-final_path = f"{base_path}site-packages/langchain/document_loaders/parsers/pdf.py"
-
-print(f"Target path: {final_path}")
-
-def calculate_hash(file_path):
-    hasher = hashlib.sha256()
-    with open(file_path, 'rb') as file:
-        buf = file.read()
-        hasher.update(buf)
-    return hasher.hexdigest()
-
-source_path = "User_Manual/pdf.py"
-print(f"Source path: {source_path}")
-
-try:
-    source_hash = calculate_hash(source_path)
-    try:
-        target_hash = calculate_hash(final_path)
-    except FileNotFoundError:
-        target_hash = None
-
-    if source_hash != target_hash:
-        shutil.copy(source_path, final_path)
-        print("File copied as the hashes are different.")
-    else:
-        print("Files are identical. No action taken.")
-except FileNotFoundError:
-    print("Warning: pdf.py not found in User_Manual folder.")
-except Exception as e:
-    print(f"An error occurred: {e}")
-
-print(f"Installation and file copying completed successfully.")
+if __name__ == "__main__":
+    replace_pdf_file()

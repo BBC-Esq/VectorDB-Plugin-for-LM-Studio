@@ -1,5 +1,5 @@
 openai==0.28.0
-langchain==0.0.341; sys_platform =='win32'
+langchain==0.0.341
 chromadb==0.3.29
 PyMuPDF==1.23.7
 InstructorEmbedding==1.0.1
@@ -23,5 +23,4 @@ transformers==4.36.0
 accelerate==0.25.0
 optimum==1.15.0
 einops==0.7.0
-watchdog==3.0.0
 scipy==1.11.4
