@@ -9,10 +9,16 @@ import sys
 from termcolor import cprint
 import torch
 
-def is_nvidia_gpu_available():
-    return torch.cuda.is_available() and "nvidia" in torch.cuda.get_device_name(0).lower()
+def load_config(config_file):
+    with open(config_file, 'r') as file:
+        return yaml.safe_load(file)
 
-if is_nvidia_gpu_available():
+def is_nvidia_gpu_available(config):
+    return config["Compute_Device"]["gpu_brand"].upper() == "NVIDIA"
+
+config = load_config('config.yaml')
+
+if is_nvidia_gpu_available(config):
     import pynvml
 
 def validate_symbolic_links(source_directory):
@@ -141,10 +147,6 @@ def my_cprint(*args, **kwargs):
     cprint(modified_message, *args[1:], **kwargs)
     
 def print_cuda_memory_usage():
-    '''
-    from utilities import print_cuda_memory_usage
-    print_cuda_memory_usage()
-    '''
     try:
         pynvml.nvmlInit()
         handle = pynvml.nvmlDeviceGetHandleByIndex(0)
@@ -159,21 +161,6 @@ def print_cuda_memory_usage():
 
     finally:
         pynvml.nvmlShutdown()
-
-def check_for_object_references(obj):
-    '''
-    from utilities import check_for_object_references
-    my_list = [1, 2, 3, 4, 5]
-    check_for_object_references(my_list)
-    '''
-    script_dir = os.path.dirname(__file__)
-    referrers_file_path = os.path.join(script_dir, "references.txt")
-
-    with open(referrers_file_path, "w", encoding='utf-8') as file:
-        referrers = gc.get_referrers(obj)
-        file.write(f"Number of references found: {len(referrers)}\n")
-        for ref in referrers:
-            file.write(str(ref) + "\n")
 
 def get_cuda_compute_capabilities():
     ccs = []

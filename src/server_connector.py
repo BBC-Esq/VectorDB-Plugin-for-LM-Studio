@@ -42,7 +42,7 @@ def write_contexts_to_file_and_open(contexts, metadata_list):
 
     with contexts_output_file_path.open('w', encoding='utf-8') as file:
         for index, (context, metadata) in enumerate(zip(contexts, metadata_list), start=1):
-            file_name = Path(metadata['file_path']).name
+            file_name = metadata.get('file_name')
             file.write(f"---------- Context {index} | From File: {file_name} ----------\n\n")
             file.write(context + "\n\n")
     
@@ -87,6 +87,7 @@ def connect_to_local_chatgpt(prompt):
         if stop_streaming:
             yield None
             break
+        # parse chunks and yield message
         if 'choices' in chunk and len(chunk['choices']) > 0 and 'delta' in chunk['choices'][0] and 'content' in chunk['choices'][0]['delta']:
             chunk_message = chunk['choices'][0]['delta']['content']
             yield chunk_message
@@ -254,7 +255,21 @@ def stop_interaction():
     global stop_streaming
     stop_streaming = True
 
-'''
+''' Search by metadata and minimum relevance score threshold
+
+    docsearch = VectorStoreRetriever(
+    vectorstore=your_vector_store_instance,
+    search_type='similarity_score_threshold',
+    search_kwargs={'filter': {'field_name': 'field_value', 'field2': 'value2'},
+                   'score_threshold': 0.7}  # Adjust the threshold as needed
+)
+
+Filter by multiple metadata fields:
+
+search_kwargs={'filter': {'field1': 'value1', 'field2': 'value2'}}
+
+From the langchain library, this relies on vectorstores.py and chroma.py
+
 # Another example using my specific document metadata extracted:
 
 retriever = db.as_retriever(search_kwargs={
@@ -270,6 +285,8 @@ retriever = db.as_retriever(search_kwargs={
         'image': 'False'
     }
 })
+
+$gt is used as an example operator for "greater than". You'll need to replace it with the correct operator used in DuckDB and ClickHouse.
 
 # Use a filter to only retrieve documents from a specific paper
 docsearch.as_retriever(

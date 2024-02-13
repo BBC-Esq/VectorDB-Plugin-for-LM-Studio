@@ -14,7 +14,8 @@ class ChunkSettingsTab(QWidget):
 
         v_layout = QVBoxLayout()
 
-        self.device_label = QLabel(f"Create Device: {self.database_creation_device}")
+        # Compute Device ComboBox and Label
+        self.device_label = QLabel(f"Create Device: {self.database_creation_device}")  # Make it an instance attribute
         self.device_combo = QComboBox()
         self.device_combo.addItems(self.compute_device_options)
         if self.database_creation_device in self.compute_device_options:
@@ -53,13 +54,16 @@ class ChunkSettingsTab(QWidget):
 
         settings_changed = False
 
+        # Update compute device selection
         new_device = self.device_combo.currentText()
         if new_device != self.database_creation_device:
             settings_changed = True
             config_data['Compute_Device']['database_creation'] = new_device
-            self.database_creation_device = new_device
+            self.database_creation_device = new_device  # Update the instance attribute
+            # Update the QLabel to reflect the new device selection
             self.device_label.setText(f"Create Device: {new_device}")
 
+        # Update chunk settings
         for setting, widget in self.field_data.items():
             new_value = widget.text()
             if new_value and new_value != str(self.database_config.get(setting, '')):

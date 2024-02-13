@@ -63,7 +63,7 @@ class CreateVectorDB:
                 model_name=embedding_model_name,
                 model_kwargs={"device": compute_device} # encode_kwargs=, cache_folder=, multi_process=
             )
-
+    
     def run(self):
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
@@ -91,7 +91,7 @@ class CreateVectorDB:
             persist_directory=str(self.PERSIST_DIRECTORY),
             client_settings=self.CHROMA_SETTINGS,
             # collection_name="Test123",
-            # collection_metadata (Optional[Dict])
+            # collection_metadata (Optional[Dict]),
         )
 
         my_cprint("Persisting database.", "white")
@@ -107,6 +107,9 @@ class CreateVectorDB:
         my_cprint("Embedding model removed from memory.", "red")
 
 # To delete entries based on the "hash" metadata attribute, you can use this as_retriever method to create a retriever that filters documents based on their metadata. Once you retrieve the documents with the specific hash, you can then extract their IDs and use the delete method to remove them from the vectorstore.
+
+# class CreateVectorDB:
+    # # ... [other methods] ...
 
     # def delete_entries_by_hash(self, target_hash):
         # my_cprint(f"Deleting entries with hash: {target_hash}", "red")

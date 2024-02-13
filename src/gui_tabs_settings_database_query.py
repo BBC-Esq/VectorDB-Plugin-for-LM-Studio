@@ -10,11 +10,13 @@ class DatabaseSettingsTab(QWidget):
             config_data = yaml.safe_load(f)
             self.database_config = config_data['database']
             self.compute_device_options = config_data['Compute_Device']['available']
+            # Remove database_creation_device loading
             self.database_query_device = config_data['Compute_Device']['database_query']
             self.search_term = config_data['database'].get('search_term', '')
             self.document_type = config_data['database'].get('document_types', '')
 
         v_layout = QVBoxLayout()
+        # Adjust layout to include only query device selection
         h_layout_device = QHBoxLayout()
         h_layout_settings = QHBoxLayout()
         h_layout_search_term = QHBoxLayout()
@@ -22,7 +24,7 @@ class DatabaseSettingsTab(QWidget):
         self.field_data = {}
         self.label_data = {}
 
-        self.query_device_label = QLabel(f"Query Device: {self.database_query_device}")  # Make query_device_label an instance attribute
+        self.query_device_label = QLabel(f"Query Device: {self.database_query_device}")
         self.query_device_combo = QComboBox()
         self.query_device_combo.addItems(self.compute_device_options)
         if self.database_query_device in self.compute_device_options:
@@ -84,11 +86,11 @@ class DatabaseSettingsTab(QWidget):
 
         settings_changed = False
 
+        # Update for query device selection only
         new_query_device = self.query_device_combo.currentText()
         if new_query_device != config_data['Compute_Device'].get('database_query', ''):
             settings_changed = True
             config_data['Compute_Device']['database_query'] = new_query_device
-            # Update the QLabel to reflect the new query device immediately
             self.query_device_label.setText(f"Query Device: {new_query_device}")
 
         database_settings = {'search_term': self.search_term_edit, **self.field_data}

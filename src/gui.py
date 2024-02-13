@@ -100,7 +100,7 @@ class DocQA_GUI(QWidget):
         right_vbox.addWidget(self.text_input, 1)
 
         submit_stop_layout = QHBoxLayout()
-        self.submit_button = QPushButton("Submit Questions")
+        self.submit_button = QPushButton("Submit Question")
         self.submit_button.clicked.connect(self.on_submit_button_clicked)
         submit_stop_layout.addWidget(self.submit_button)
 
@@ -213,7 +213,7 @@ class DocQA_GUI(QWidget):
 
     def enable_submit_button(self):
         self.submit_button.setDisabled(False)
-        self.submit_button.setText("Submit Question")
+        self.submit_button.setText("Submit Questions")
 
     def update_response(self, response):
         self.cumulative_response += response
