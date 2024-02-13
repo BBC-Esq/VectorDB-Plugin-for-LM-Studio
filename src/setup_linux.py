@@ -1,6 +1,18 @@
 import subprocess
 import sys
 
+if sys.version_info.major != 3 or sys.version_info.minor not in [10, 11]:
+    print("Only Python 3.10 or 3.11 are supported.")
+    sys.exit(1)
+    
+def is_package_installed(package_name):
+    result = subprocess.run(['dpkg', '-l', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return result.returncode == 0
+
+def install_system_package(package_name):
+    if not is_package_installed(package_name):
+        subprocess.run(['sudo', 'apt-get', 'install', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 def check_gpu():
     try:
         nvidia_smi = subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -43,6 +55,17 @@ def install_packages(gpu_type):
     else: # cpu
         subprocess.run(f"{base_cmd} torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cpu", shell=True)
 
+def install_python_requirements():
+    subprocess.run(['pip3', 'install', '-r', 'requirements.txt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+def run_python_script(script_name):
+    subprocess.run(['python', script_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 if __name__ == "__main__":
+    install_system_package('portaudio19-dev')
+    install_system_package('python3-dev')
+    install_system_package('libxcb-cursor0')
     gpu_type = check_gpu()
     install_packages(gpu_type)
+    install_python_requirements()
+    run_python_script('replace_pdf.py')
