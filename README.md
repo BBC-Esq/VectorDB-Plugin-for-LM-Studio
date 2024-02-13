@@ -107,40 +107,38 @@ sudo apt-get install portaudio19-dev
 sudo apt-get install python3-dev
 ```
 ### Step 4
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
+```
+sudo apt -y install libxcb-cursor0
+```
 ### Step 5
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
+### Step 6
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
 python -m venv .
 ```
-### Step 6
+### Step 7
 Activate the virtual environment:
 ```
 source bin/activate
 ```
-### Step 7
+### Step 8
 ```
 python -m pip install --upgrade pip
 ```
-### Step 8
+### Step 9
 ```
 python setup_linux.py
 ```
-### Step 9
+### Step 10
 ```
 pip3 install -r requirements.txt
 ```
-### Step 10
+### Step 11
 You must run:
 ```
 python replace_pdf.py
 ```
-
-### Step 11
-```
-sudo apt -y install libxcb-cursor0
-```
-
 ### Optional Step 12
 Run this script if you want to doublecheck wherher you installed the Pytorch and gpu-acceleration software correctly:
 ```
