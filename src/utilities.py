@@ -14,7 +14,12 @@ def load_config(config_file):
         return yaml.safe_load(file)
 
 def is_nvidia_gpu_available(config):
-    return config["Compute_Device"]["gpu_brand"].upper() == "NVIDIA"
+    gpu_brand = config.get("Compute_Device", {}).get("gpu_brand")
+
+    if isinstance(gpu_brand, str):
+        normalized_gpu_brand = gpu_brand.strip().lower()
+        return normalized_gpu_brand == "nvidia"
+    return False
 
 config = load_config('config.yaml')
 
