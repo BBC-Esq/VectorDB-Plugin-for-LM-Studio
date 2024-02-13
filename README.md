@@ -153,36 +153,36 @@ python check_gpu.py
   <summary>🍎APPLE INSTRUCTIONS🍎</summary>
 
 ### Step 1
-All Macs with MacOS 12.3+ come with 🔘 MPS (aka "Metal"), which is basically a dedicated portion of Apple CPUs that act as a GPU and provide gpu-acceleration similiar to Nvidia/AMD.
-### Step 2
-Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
-### Step 3
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
-### Step 4
-Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
-```
-python -m venv .
-```
-### Step 5
-Activate the virtual environment:
-```
-source bin/activate
-```
-### Step 6
-```
-python -m pip install --upgrade pip
-```
-### Step 7
-```
-pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2
-```
-### Step 8
 ```
 brew install portaudio
 ```
 * This requires Homebrew to be installed first.  If it's not, run the following command before running ```brew install portaudio```:
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+### Step 2
+All Macs with MacOS 12.3+ come with 🔘 MPS (aka "Metal"), which is basically a dedicated portion of Apple CPUs that act as a GPU and provide gpu-acceleration similiar to Nvidia/AMD.
+### Step 3
+Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
+### Step 4
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
+### Step 5
+Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
+```
+python -m venv .
+```
+### Step 6
+Activate the virtual environment:
+```
+source bin/activate
+```
+### Step 7
+```
+python -m pip install --upgrade pip
+```
+### Step 8
+```
+pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2
 ```
 ### Step 9
 ```
