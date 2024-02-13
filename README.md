@@ -99,47 +99,22 @@ python check_gpu.py
 > [THIS REPO](https://github.com/nktice/AMD-AI) also has instructions.
 > Also, although I'm unable to test on my system...[here are some "wheels"](https://github.com/jllllll/llama-cpp-python-cuBLAS-wheels/releases/tag/rocm) that I believe should work.  However, you'd have to search and find the right one for your system.
 ### Step 2
-```
-sudo apt-get install portaudio19-dev
-```
-### Step 3
-```
-sudo apt-get install python3-dev
-```
-### Step 4
-```
-sudo apt -y install libxcb-cursor0
-```
-### Step 5
 Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
-### Step 6
+### Step 3
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
 python -m venv .
 ```
-### Step 7
+### Step 4
 Activate the virtual environment:
 ```
 source bin/activate
 ```
-### Step 8
-```
-python -m pip install --upgrade pip
-```
-### Step 9
+### Step 5
 ```
 python setup_linux.py
 ```
-### Step 10
-```
-pip3 install -r requirements.txt
-```
-### Step 11
-You must run:
-```
-python replace_pdf.py
-```
-### Optional Step 12
+### Optional Step 6
 Run this script if you want to doublecheck wherher you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
