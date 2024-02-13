@@ -4,7 +4,9 @@ import sys
 if sys.version_info.major != 3 or sys.version_info.minor not in [10, 11]:
     print("Only Python 3.10 or 3.11 are supported.")
     sys.exit(1)
-    
+
+subprocess.run(['python', '-m', 'pip', 'install', '--upgrade', 'pip'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 def is_package_installed(package_name):
     result = subprocess.run(['dpkg', '-l', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return result.returncode == 0
