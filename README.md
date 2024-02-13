@@ -180,7 +180,7 @@ pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2
 ```
 brew install portaudio
 ```
-* Homebrew can be installed with:
+* This requires Homebrew to be installed first.  If it's not, run the following command before running ```brew install portaudio```:
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
