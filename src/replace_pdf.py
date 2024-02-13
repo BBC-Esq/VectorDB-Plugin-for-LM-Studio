@@ -35,7 +35,7 @@ class DependencyUpdater:
     def copy_and_overwrite_if_necessary(source_path, target_path):
         if not target_path.exists() or DependencyUpdater.hash_file(source_path) != DependencyUpdater.hash_file(target_path):
             shutil.copy(source_path, target_path)
-            print(f"{source_path} has been move to the appropriate folder within langchain's source code.")
+            print(f"{source_path} has been moved to the appropriate folder within langchain's source code.")
         else:
             print(f"{source_path} is already up to date.")
 
