@@ -98,34 +98,33 @@ python check_gpu.py
 🔴 AMD GPUs ➜ Install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html).
 > [THIS REPO](https://github.com/nktice/AMD-AI) also has instructions.
 > Also, although I'm unable to test on my system...[here are some "wheels"](https://github.com/jllllll/llama-cpp-python-cuBLAS-wheels/releases/tag/rocm) that I believe should work.  However, you'd have to search and find the right one for your system.
-
 ### Step 2
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
+```
+sudo apt-get install portaudio19-dev
+```
 ### Step 3
+```
+sudo apt-get install python3-dev
+```
+### Step 4
+Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
+### Step 5
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
 python -m venv .
 ```
-### Step 4
+### Step 6
 Activate the virtual environment:
 ```
 source bin/activate
 ```
-### Step 5
+### Step 7
 ```
 python -m pip install --upgrade pip
 ```
-### Step 6
-```
-python setup_linux.py
-```
-### Step 7
-```
-sudo apt-get install portaudio19-dev
-```
 ### Step 8
 ```
-sudo apt-get install python3-dev
+python setup_linux.py
 ```
 ### Step 9
 ```
