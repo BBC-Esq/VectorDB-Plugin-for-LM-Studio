@@ -158,7 +158,7 @@ brew install portaudio
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 ### Step 2
-All Macs with MacOS 12.3+ come with 🔘 MPS (aka "Metal"), which is basically a dedicated portion of Apple CPUs that act as a GPU and provide gpu-acceleration similiar to Nvidia/AMD.
+For Pytorch to use 🔘Metal/MPS it requires MacOS 12.3+.  Metal/MPS provides gpu-acceleration similiar to CUDA (for NVIDIA gpus) and rocM (for AMD gpus) do.
 ### Step 3
 Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 ### Step 4
