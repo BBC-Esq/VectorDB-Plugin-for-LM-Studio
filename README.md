@@ -41,13 +41,19 @@ You <b>MUST</b> install these before installing my program:<p>
 2) [Git](https://git-scm.com/downloads)
 3) [Git Large File Storage](https://git-lfs.com/).
 4) [Pandoc](https://github.com/jgm/pandoc/releases).
-5) [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-   > Some Windows users have reported installation errors regarding ```hnswlib```, ```numpy``` or other libraries.  If you encounter this, it may or may not require [Visual Studio](https://visualstudio.microsoft.com/) and Microsoft Build Tools.  When installing, check the box for "Desktop development with C++" extension and checking the four boxes on the right that state "SDK."
+5) WINDOWS ONLY.
+   > Certain dependencies don't have pre-compiled "wheels" so you must build them.  Therefore, you must install something that can build source code such as [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you decide to use both of these programs in conjunction, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing "SDK."  Most Linux variations and MacOS as a whole, coming with the ability to build.  If you run into problems on those platforms, however, you should find something that can build.
 
-<details>
-  <summary>EXAMPLE ON WINDOWS</summary>
-<img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
-</details>
+   <details>
+     <summary>EXAMPLE ERROR ON WINDOWS</summary>
+     <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/sample_error.png">
+   </details>
+
+   <details>
+     <summary>EXAMPLE OF SOLUTION ON WINDOWS</summary>
+     <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
+   </details>
+
 
 6) Nvidia GPU acceleration (Windows or Linux) requires [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
 7) AMD GPU acceleration on Linux requires [ROCm 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html)
