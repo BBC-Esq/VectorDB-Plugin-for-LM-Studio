@@ -66,7 +66,7 @@ You <b>MUST</b> install these before installing my program:<p>
 
 🔴 AMD GPU - PyTorch currently does not support AMD gpu-acceleration on Windows. There are several unofficial workarounds but I'm unable to verify since I don't have an AMD GPU nor use Linux. See [HERE](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html), [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
 ### Step 2
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
+[Download the latest release](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/latest), open the ZIP file, and copy the contents to a folder on your computer.
 ### Step 3
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
@@ -99,7 +99,7 @@ python check_gpu.py
 > [THIS REPO](https://github.com/nktice/AMD-AI) also has instructions.
 > Also, although I'm unable to test on my system...[here are some "wheels"](https://github.com/jllllll/llama-cpp-python-cuBLAS-wheels/releases/tag/rocm) that I believe should work.  However, you'd have to search and find the right one for your system.
 ### Step 2
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
+[Download the latest release](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/latest), open the ZIP file, and copy the contents to a folder on your computer.
 ### Step 3
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
@@ -137,7 +137,7 @@ For Pytorch to use 🔘Metal/MPS it requires MacOS 12.3+.  Metal/MPS provides gp
 ### Step 3
 Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 ### Step 4
-Download the ZIP file from the latest "release" and extract the contents anywhere you want.  DO NOT simply clone this repository...there may be incremental changes to scripts that will be undone inbetween official releases.
+[Download the latest release](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/latest), open the ZIP file, and copy the contents to a folder on your computer.
 ### Step 5
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
