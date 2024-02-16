@@ -50,7 +50,7 @@ You <b>MUST</b> install these before installing my program:<p>
    </details>
 
    <details>
-     <summary>EXAMPLE OF SOLUTION ON WINDOWS</summary>
+     <summary>EXAMPLE SOLUTION ON WINDOWS</summary>
      <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
    </details>
 
