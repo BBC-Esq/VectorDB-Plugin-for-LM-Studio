@@ -195,7 +195,7 @@ python check_gpu.py
   <summary>🖥️INSTRUCTIONS🖥️</summary>
 
 ## Activate Virtual Environment
-* You do not have to create a virtual environment except when first installing the program, but you must activate the virtual environment each time by opening a command prompt/terminal from within the ```src``` folder and running the appropriate command above for your platform.
+* Once you install the program you've already created a virtual environment, so you just need to activate it each time you want to restart it.  Remember to run the appropriate command to do so (based on your platform) within the ```src``` folder.
 ## Start the Program
 ```
 python gui.py
@@ -206,21 +206,22 @@ python gui.py
 * Read the User Guide before sending me questions.
 
 ## Download Vector Model
-* In the ```Vector Models``` tab, choose the embedding model you want to download.
+* In the ```Models Tab``` tab, choose the embedding model you want to download.  The ```User Guide Tab``` explains the difference characteristics of the various models.
 
 ## Set Vector Model
-* In the ```Databases Tab```, choose the directory containing the vector model you want to use to create the database.  It can be any of the models you've already downloaded.
-  > Do not choose the ```Embedding_Models``` folder itself.
+* In the ```Databases Tab```, click ```Choose Model``` and click once on the directory containing the model you want to use and click ```Select Folder``` in the lower right.
+  > 🔥 Do not select the ```Embedding_Models``` folder itself.
 
 ## Set Chunk Size and Overlap
-* Making sure to read the User Manual, set the chunk size and chunk overlap.  Remember, anytime you want to change these two settings or add/remove documents, you must re-create the database for the changes to take effect.
+* In the ```Settings Tab```, set the chunk size and chunk overlap.
+  > 🔥 Anytime you want to change these two settings you must re-create the database for the changes to take effect.
 
-## Add Files to be Vectorized
-* Click the ```Choose Documents or Images``` button to add files.
-  * * Supported non-image extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
-  * * Supported image extensions are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
-* In the ```Tools Tab```, you can also transcribe one or more audio files into ```.txt``` files to be put into the vector databse.
-    > Also, in the Tools Tab, don't forget to test the vision model you want to use before processing a large number of images.
+## Add Files
+* In the ```Databases Tab```, click the ```Choose Files``` and select one or more files.  This can be repeated multiple times for files located in different directories.
+  * * Supported "document" files are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+  * * Supported "image" files are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
+* To add "audio" files you must go to the ```Tools Tab``` and transcribe an audio file.  This process can be repeated for multiple audio files, however.  The transcription(s) will automatically be saved to the appropriate folder to be added when you create the vector database.
+  * * Most "audio" files should be supported: ```.mp3```, ```.wav```, ```.m4a```, ```.ogg```, ```.wma```
 
 ## Removing Files
 * In the ```Databases Tab```, select one or more files, right click, and delete.  Re-create the database.
@@ -232,27 +233,26 @@ python gui.py
 * Start LM Studio and load a model.
 
 ## Choosing a Prompt Format
-The LLM within LM Studio works best with an appropriate "prompt format."  In the ```Settings Tab``` in my program, choose the prompt format from the pulldown menu or enter one manually.  In order for prompt formatting to work, however, you must disable the "automatic prompt formatting" setting in the "Server" portion of LM Studio.
-  > You do not need to do this if you're using ```LM Studio v0.2.9``` or earlier.
-Morever, there is a bug specific to ```LM Studio v0.2.10``` preventing LM Studio from respecting the prompt format you choose.  However, you can fix this by going to the Server settings (far right side) and:
+The LLM within LM Studio works best with an appropriate "prompt format."  In the ```Settings Tab```, choose the appropriate prompt format matching the model being used within LM Studio.  You can also enter one manually if a preset is not available.  However, you must turn the ```automatic prompt formatting``` setting in LM Studio to ```off```.
+
+Morever, a bug was introduced in ```LM Studio v0.2.10``` that I have been unable to verify is resolved; therefore, you must additionally:
 * ⚠️ Delete any/all text within the ```User Message Prefix``` box; and
 * ⚠️ Delete any/all text within the ```User Message Suffix``` box.
 
 ## Start the LM Studio Server
-* In the Server tab,  click ```Start Server.```
+* In LM Studio,  click ```Start Server.```
 
 ## Search Database
-* Type (or speak) your question and click ```Submit Questions.```
+* Type (or speak) your question and click ```Submit Question.```
 
 ## Test Chunks
-* If you wish to test the quality of the chunk settings, check the ```Chunks Only``` checkbox.  This means the program will not connect to LM Studio and will instead simply provide you with the chunks retrieved from the vector database.
+* If you wish to test the quality of the chunk settings, check the ```Chunks Only``` checkbox.  The program will no longer connect to LM Studio and will instead provide you with the chunks directly from the vector database.
 
 ## Text to Voice
-* This program uses "Bark" models to convert the response from LM Studio into audio.  You must wait until the ENTIRE response is received, however, before clicking the ```Bark Response``` button.
+* This program uses fun "Bark" models to convert the response to audio.  You must wait until the ENTIRE response is received, however, before clicking the ```Bark Response``` button.
 
-## Voice to Text
-* Both the voice recorder and audio file transcriber use the ```faster-whisper``` library, and GPU acceleration is as follows:
-
+## Voice to Text GPU-acceleration:
+* The voice recorder and audio file transcriber use the ```faster-whisper``` library, and GPU acceleration is as follows:
   > Note, ```faster-whisper``` only supports CUDA 11.8 currently (CUDA 12+ coming soon).
 
 <div align="center">
@@ -293,10 +293,11 @@ Morever, there is a bug specific to ```LM Studio v0.2.10``` preventing LM Studio
   </table>
 </div>
 
-</details>
+## Image to Text
+As of release 3.0, the program includes exciting "vision" models that generate summaries of one or more pictures, which are then added to the vector database.  I wrote a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) on this as well.
+  > Remember, the ```Tools Tab``` allows you to test the vision model settings on a single image before creating the database and spending a lot of time creating captions.
 
-## NEW and Exciting Vision Models
-As of release 3.0 the program includes Vision Models that will generate summaries of what each picture depicts, which are then added to the vector database.  I wrote a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) on this as well.
+</details>
 
 <div align="center"><h2>CONTACT</h2></div>
 
