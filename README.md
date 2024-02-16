@@ -74,7 +74,7 @@
 2) [Git](https://git-scm.com/downloads)
 3) [Git Large File Storage](https://git-lfs.com/).
 4) [Pandoc](https://github.com/jgm/pandoc/releases).
-5) WINDOWS ONLY.
+5) Build Tools.
    > Certain dependencies don't have pre-compiled "wheels" so you must build them.  Therefore, you must install something that can build source code such as [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you decide to use both of these programs in conjunction, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing "SDK."  Most Linux variations and MacOS as a whole, coming with the ability to build.  If you run into problems on those platforms, however, you should find something that can build.
 
    <details>
@@ -87,6 +87,7 @@
      <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
    </details>
 
+6) MacOS Only.  [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
 
 6) Nvidia GPU acceleration (Windows or Linux) requires [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) (CUDA 12+ coming soon).
 7) AMD GPU acceleration on Linux requires [ROCm 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html) (ROCm 5.7 coming soon).
