@@ -70,12 +70,12 @@
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
 
-1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/) (PyTorch is NOT compatible with 3.12, at least as of 12/19/2023).
+1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/) (Python 3.12 coming soon).
 2) [Git](https://git-scm.com/downloads)
 3) [Git Large File Storage](https://git-lfs.com/).
 4) [Pandoc](https://github.com/jgm/pandoc/releases).
 5) Build Tools.
-   > Certain dependencies don't have pre-compiled "wheels" so you must build them.  Therefore, you must install something that can build source code such as [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you decide to use both of these programs in conjunction, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing "SDK."  Most Linux variations and MacOS as a whole, coming with the ability to build.  If you run into problems on those platforms, however, you should find something that can build.
+   > Certain dependencies don't have pre-compiled "wheels" so you must build them.  Therefore, you must install something that can build source code such as [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you decide to use both of these programs in conjunction, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing "SDK."  Most Linux systems as well as MacOS come with the ability to build.  If you still run into problems on those platforms; however, you should find something that can build.
 
    <details>
      <summary>EXAMPLE ERROR ON WINDOWS</summary>
