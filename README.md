@@ -7,7 +7,7 @@
 <table>
   <thead>
     <tr>
-      <th>Backend</th>
+      <th></th>
       <th>Database</th>
       <th>Transcribe</th>
       <th>Bark/TTS</th>
