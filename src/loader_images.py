@@ -109,7 +109,7 @@ class loader_cogvlm:
                             model_response = tokenizer.decode(output[0], skip_special_tokens=True).split("ASSISTANT: ")[-1]
 
                             extracted_text = model_response
-                            extracted_metadata = extract_image_metadata(full_path, file_name)
+                            extracted_metadata = extract_image_metadata(full_path)
                             document = Document(page_content=extracted_text, metadata=extracted_metadata)
                             documents.append(document)
 
@@ -245,7 +245,7 @@ class loader_llava:
                         model_response = full_response.split("ASSISTANT: ")[-1]
                         
                         extracted_text = model_response
-                        extracted_metadata = extract_image_metadata(full_path, file_name)
+                        extracted_metadata = extract_image_metadata(full_path)
                         document = Document(page_content=extracted_text, metadata=extracted_metadata)
                         documents.append(document)
 
@@ -302,7 +302,7 @@ class loader_salesforce:
                         caption = processor.decode(output[0], skip_special_tokens=True)
                         total_tokens += output[0].shape[0]
 
-                        extracted_metadata = extract_image_metadata(full_path, file_name)
+                        extracted_metadata = extract_image_metadata(full_path)
                         document = Document(page_content=caption, metadata=extracted_metadata)
                         documents.append(document)
 

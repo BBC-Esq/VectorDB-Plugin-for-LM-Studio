@@ -93,6 +93,9 @@ def connect_to_local_chatgpt(prompt):
             yield chunk_message
 
 def initialize_vector_model(EMBEDDING_MODEL_NAME, config_data, compute_device):
+    # Common encode_kwargs for all models to normalize embeddings
+    common_encode_kwargs = {'normalize_embeddings': True}
+    
     if "instructor" in EMBEDDING_MODEL_NAME:
         embed_instruction = config_data['instructor'].get('embed_instruction')
         query_instruction = config_data['instructor'].get('query_instruction')
@@ -101,7 +104,8 @@ def initialize_vector_model(EMBEDDING_MODEL_NAME, config_data, compute_device):
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": compute_device},
             embed_instruction=embed_instruction,
-            query_instruction=query_instruction
+            query_instruction=query_instruction,
+            encode_kwargs={'normalize_embeddings': True}
         )
 
     elif "bge" in EMBEDDING_MODEL_NAME:
@@ -110,13 +114,15 @@ def initialize_vector_model(EMBEDDING_MODEL_NAME, config_data, compute_device):
         return HuggingFaceBgeEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
             model_kwargs={"device": compute_device},
-            query_instruction=query_instruction
+            query_instruction=query_instruction,
+            encode_kwargs={'normalize_embeddings': True}
         )
 
     else:
         return HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL_NAME,
-            model_kwargs={"device": compute_device}
+            model_kwargs={"device": compute_device},
+            encode_kwargs={'normalize_embeddings': True}
         )
         
 def initialize_database(embeddings, persist_directory, client_settings, score_threshold, k, search_filter):

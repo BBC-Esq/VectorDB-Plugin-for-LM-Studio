@@ -1,8 +1,17 @@
 import os
 import yaml
+import pickle
 from multiprocessing import Process
 from faster_whisper import WhisperModel
 from utilities import my_cprint
+from extract_metadata import extract_audio_metadata
+from pathlib import Path
+
+class Document:
+    def __init__(self, page_content: str, metadata: dict):
+        self.page_content = page_content
+        self.metadata = metadata
+        self.type = "Document"
 
 class TranscribeFile:
     def __init__(self, audio_file, config_path='config.yaml'):
@@ -49,8 +58,8 @@ class TranscribeFile:
             my_cprint(segment.text, 'blue')
 
         transcription = TranscribeFile.format_transcription(segments, self.include_timestamps)
-        TranscribeFile.save_transcription(self.audio_file, transcription)
-        my_cprint("Transcription completed. Whisper model removed from memory.", 'red')
+        self.create_document_object(transcription)
+        my_cprint("Transcription completed and document object created.", 'red')
 
     @staticmethod
     def format_transcription(segments, include_timestamps):
@@ -74,18 +83,23 @@ class TranscribeFile:
             return f"{hours}:{minutes:02d}:{seconds:02d}"
         return f"{minutes}:{seconds:02d}"
 
-    @staticmethod
-    def save_transcription(audio_file, transcription_text):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        docs_dir = os.path.join(script_dir, "Docs_for_DB")
-        if not os.path.exists(docs_dir):
-            os.makedirs(docs_dir)
+    def create_document_object(self, transcription_text):
+        metadata = extract_audio_metadata(self.audio_file)
+        
+        doc = Document(
+            page_content=transcription_text,
+            metadata=metadata
+        )
+        
+        script_dir = Path(__file__).parent
+        docs_dir = script_dir / "Docs_for_DB"
+        docs_dir.mkdir(exist_ok=True)
+        
+        audio_file_name = Path(self.audio_file).stem
+        audio_file_extension = Path(self.audio_file).suffix
+        pickle_file_path = docs_dir / f"{audio_file_name}{audio_file_extension}.pkl"
+        
+        with open(pickle_file_path, 'wb') as file:
+            pickle.dump(doc, file)
 
-        base_audio_file_name = os.path.basename(audio_file)
-        base_file_name_without_ext = os.path.splitext(base_audio_file_name)[0]
-        transcribed_file_name = f"transcribed_{base_file_name_without_ext}.txt"
-        output_file = os.path.join(docs_dir, transcribed_file_name)
-
-        with open(output_file, 'w', encoding='utf-8') as file:
-            file.write(transcription_text)
-        my_cprint(f"Transcription saved to {output_file}.", 'white')
+        my_cprint(f"Document object created with transcription and metadata, and saved to {pickle_file_path}.", 'green')

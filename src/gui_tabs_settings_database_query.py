@@ -10,13 +10,11 @@ class DatabaseSettingsTab(QWidget):
             config_data = yaml.safe_load(f)
             self.database_config = config_data['database']
             self.compute_device_options = config_data['Compute_Device']['available']
-            # Remove database_creation_device loading
             self.database_query_device = config_data['Compute_Device']['database_query']
             self.search_term = config_data['database'].get('search_term', '')
             self.document_type = config_data['database'].get('document_types', '')
 
         v_layout = QVBoxLayout()
-        # Adjust layout to include only query device selection
         h_layout_device = QHBoxLayout()
         h_layout_settings = QHBoxLayout()
         h_layout_search_term = QHBoxLayout()
@@ -63,13 +61,15 @@ class DatabaseSettingsTab(QWidget):
         h_layout_search_term.addWidget(self.filter_button)
         
         self.file_type_combo = QComboBox()
-        file_type_items = ["All Files", "Images Only", "Documents Only"]
+        file_type_items = ["All Files", "Images Only", "Documents Only", "Audio Only"] # modify to add file types
         self.file_type_combo.addItems(file_type_items)
 
         if self.document_type == 'image':
             default_index = file_type_items.index("Images Only")
         elif self.document_type == 'document':
             default_index = file_type_items.index("Documents Only")
+        elif self.document_type == 'audio':
+            default_index = file_type_items.index("Audio Only") # add additional elif after here for additional types
         else:
             default_index = file_type_items.index("All Files")
         self.file_type_combo.setCurrentIndex(default_index)
@@ -86,7 +86,6 @@ class DatabaseSettingsTab(QWidget):
 
         settings_changed = False
 
-        # Update for query device selection only
         new_query_device = self.query_device_combo.currentText()
         if new_query_device != config_data['Compute_Device'].get('database_query', ''):
             settings_changed = True
@@ -109,7 +108,8 @@ class DatabaseSettingsTab(QWidget):
         file_type_map = {
             "All Files": '',
             "Images Only": 'image',
-            "Documents Only": 'document'
+            "Documents Only": 'document',
+            "Audio Only": 'audio' # add items to map here
         }
 
         file_type_selection = self.file_type_combo.currentText()

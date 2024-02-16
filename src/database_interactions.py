@@ -46,7 +46,8 @@ class CreateVectorDB:
                 model_name=embedding_model_name,
                 model_kwargs={"device": compute_device},
                 embed_instruction=embed_instruction,
-                query_instruction=query_instruction # cache_folder=, encode_kwargs=
+                query_instruction=query_instruction,
+                encode_kwargs={'normalize_embeddings': True}
             )
 
         elif "bge" in embedding_model_name:
@@ -55,13 +56,15 @@ class CreateVectorDB:
             return HuggingFaceBgeEmbeddings(
                 model_name=embedding_model_name,
                 model_kwargs={"device": compute_device},
-                query_instruction=query_instruction # encode_kwargs=, cache_folder=
+                query_instruction=query_instruction,
+                encode_kwargs={'normalize_embeddings': True}
             )
 
         else:
             return HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
-                model_kwargs={"device": compute_device} # encode_kwargs=, cache_folder=, multi_process=
+                model_kwargs={"device": compute_device},
+                encode_kwargs={'normalize_embeddings': True}
             )
     
     def run(self):
@@ -75,7 +78,7 @@ class CreateVectorDB:
             return
         my_cprint("Successfully loaded documents.", "white")
 
-        texts = split_documents(documents) # returns a list of chunked document objects
+        texts = split_documents(documents) # returns a list of document objects split
 
         embeddings = self.create_embeddings(EMBEDDING_MODEL_NAME, config_data)
         my_cprint("Embedding model loaded.", "green")

@@ -1,4 +1,3 @@
-from functools import partial
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QTextEdit, QTabWidget, QVBoxLayout, QWidget, QGroupBox, QPushButton, QHBoxLayout
 from PySide6.QtCore import QUrl
@@ -7,6 +6,8 @@ from gui_tabs_settings import GuiSettingsTab
 from gui_tabs_tools import GuiSettingsTab as ToolsSettingsTab
 from gui_tabs_databases import DatabasesTab
 from gui_tabs_vector_models import VectorModelsTab
+from gui_tabs_database_query import DatabaseQueryTab
+from functools import partial
 
 def load_url(view, url):
     view.setUrl(QUrl.fromLocalFile(url))
@@ -20,23 +21,11 @@ def create_tabs():
     tab_widget.setFont(tab_font)
 
     user_manual_folder = Path(__file__).parent / 'User_Manual'
-
+    
     # SETTINGS TAB
     settings_tab = GuiSettingsTab()
     tab_widget.addTab(settings_tab, 'Settings')
-
-    # VECTOR MODELS TAB
-    vector_models_tab = VectorModelsTab()
-    tab_widget.addTab(vector_models_tab, 'Vector Models')
-
-    # DATABASES TAB
-    databases_tab = DatabasesTab()
-    tab_widget.addTab(databases_tab, 'Databases')
-
-    # TOOLS TAB
-    tools_tab = ToolsSettingsTab()
-    tab_widget.addTab(tools_tab, 'Tools')
-
+    
     # USER GUIDE TAB
     user_guide_tab = QWidget()
     user_guide_layout = QVBoxLayout()
@@ -75,5 +64,21 @@ def create_tabs():
 
     user_guide_tab.setLayout(user_guide_layout)
     tab_widget.addTab(user_guide_tab, 'User Guide')
+
+    # VECTOR MODELS TAB
+    vector_models_tab = VectorModelsTab()
+    tab_widget.addTab(vector_models_tab, 'Models')
+
+    # DATABASES TAB
+    databases_tab = DatabasesTab()
+    tab_widget.addTab(databases_tab, 'Databases')
+
+    # TOOLS TAB
+    tools_tab = ToolsSettingsTab()
+    tab_widget.addTab(tools_tab, 'Tools')
+
+    # DATABASE QUERY TAB
+    database_query_tab = DatabaseQueryTab()
+    tab_widget.addTab(database_query_tab, "Query Database")
 
     return tab_widget

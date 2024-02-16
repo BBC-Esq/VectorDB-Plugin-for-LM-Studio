@@ -20,6 +20,7 @@ from langchain.document_loaders import (
     UnstructuredHTMLLoader
 )
 
+import pickle
 from constants import DOCUMENT_LOADERS
 from loader_images import loader_cogvlm, loader_llava, loader_salesforce
 from extract_metadata import extract_document_metadata
@@ -88,35 +89,44 @@ def load_document_batch(filepaths):
         data_list = [future.result() for future in futures]
     return (data_list, filepaths)
 
-def load_documents(source_dir: Path) -> list[Document]:
+def load_documents(source_dir: Path) -> list:
     all_files = list(source_dir.iterdir())
-    paths = [f for f in all_files if f.suffix.lower() in (key.lower() for key in DOCUMENT_LOADERS.keys())]
+    doc_paths = [f for f in all_files if f.suffix.lower() in (key.lower() for key in DOCUMENT_LOADERS.keys())]
+    pkl_paths = [f for f in all_files if f.suffix.lower() == '.pkl']
     
     docs = []
 
-    if paths:
-        n_workers = min(INGEST_THREADS, max(len(paths), 1))
+    if doc_paths:
+        n_workers = min(INGEST_THREADS, max(len(doc_paths), 1))
         my_cprint(f"Number of workers assigned: {n_workers}", "white")
-        chunksize = round(len(paths) / n_workers)
+        chunksize = round(len(doc_paths) / n_workers)
         
-        if chunksize == 0:
-            raise ValueError(f"chunksize must be a non-zero integer, but got {chunksize}. len(paths): {len(paths)}, n_workers: {n_workers}")
+        if chunksize > 0:
+            with ProcessPoolExecutor(n_workers) as executor:
+                futures = [executor.submit(load_document_batch, doc_paths[i : i + chunksize]) for i in range(0, len(doc_paths), chunksize)]
+                for future in as_completed(futures):
+                    contents, _ = future.result()
+                    docs.extend(contents)
+            my_cprint(f"Number of document files loaded: {len(docs)}", "yellow")
+        else:
+            my_cprint("Chunk size calculation error, but proceeding with other file types.", "red")
 
-        with ProcessPoolExecutor(n_workers) as executor:
-            futures = [executor.submit(load_document_batch, paths[i : (i + chunksize)]) for i in range(0, len(paths), chunksize)]
-            for future in as_completed(futures):
-                contents, _ = future.result()
-                docs.extend(contents)
-                my_cprint(f"Number of NON-IMAGE files loaded: {len(docs)}", "yellow")
+    for pkl_path in pkl_paths:
+        my_cprint(f"Loading audio transcriptions, if any.", "green")
+        try:
+            with open(pkl_path, 'rb') as pkl_file:
+                doc = pickle.load(pkl_file)
+                docs.append(doc)
+            my_cprint(f"Loaded audio transcription document object from {pkl_path}.", "green")
+        except Exception as e:
+            my_cprint(f"Error loading {pkl_path}: {e}", "red")
 
     additional_docs = []
     
     my_cprint("Loading images, if any.", "yellow")
-
     with open("config.yaml", "r") as config_file:
         config = yaml.safe_load(config_file)
 
-        # ProcessPoolExecutor to process images
         with ProcessPoolExecutor(1) as executor:
             future = executor.submit(choose_image_loader, config)
             processed_docs = future.result()

@@ -15,6 +15,17 @@ class CreateDatabaseThread(QThread):
         create_vector_db = database_interactions.CreateVectorDB()
         create_vector_db.run()
 
+class CustomFileSystemModel(QFileSystemModel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole and index.column() == 0:
+            original_value = super().data(index, role)
+            if original_value.endswith('.pkl'):
+                return original_value[:-4]
+        return super().data(index, role)
+
 class DatabasesTab(QWidget):
     def __init__(self):
         super().__init__()
@@ -52,7 +63,7 @@ class DatabasesTab(QWidget):
 
     def setup_directory_view(self, directory_name):
         tree_view = QTreeView()
-        model = QFileSystemModel()
+        model = CustomFileSystemModel()  # Use the custom model
         tree_view.setModel(model)
         tree_view.setSelectionMode(QTreeView.ExtendedSelection)
 
@@ -111,7 +122,7 @@ class DatabasesTab(QWidget):
         self.create_db_button.setDisabled(False)
 
     def toggle_group_box(self, group_box, checked):
-        self.tree_views[group_box].setVisible(checked)
+        self.groups[group_box] = 1 if checked else 0
         self.adjust_stretch()
 
     def adjust_stretch(self):

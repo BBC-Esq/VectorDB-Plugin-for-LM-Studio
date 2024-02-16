@@ -25,7 +25,7 @@ class MetricsCollector(QThread):
             cpu_usage = collect_cpu_metrics()
             ram_usage_percent, _ = collect_ram_metrics()
 
-            # Only collect GPU metrics if NVIDIA GPU is present
+            # Only collect GPU metrics if NVIDIA GPU present
             if is_nvidia_gpu_available():
                 gpu_utilization, vram_usage_percent = collect_gpu_metrics(handle)
                 power_usage_percent, power_limit_percent = collect_power_metrics(handle)
