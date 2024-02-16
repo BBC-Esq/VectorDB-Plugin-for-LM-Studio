@@ -151,3 +151,23 @@ QMenuBar::item:selected {
 QCheckBox {
     color: white;
 }
+
+QMessageBox {
+    background-color: #1e1e1e;
+}
+
+QMessageBox QLabel {
+    color: white;
+}
+
+QMessageBox QPushButton {
+    background-color: #6c757d;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+    border: none;
+}
+
+QMessageBox QPushButton:hover, QMessageBox QPushButton:pressed {
+    background-color: #2f343f;
+}
