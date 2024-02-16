@@ -61,7 +61,7 @@
       <td>Apple Metal/MPS</td>
       <td>✅</td>
       <td>✅</td>
-      <td>❌</td>
+      <td>❓</td>
       <td>❌</td>
     </tr>
   </tbody>
