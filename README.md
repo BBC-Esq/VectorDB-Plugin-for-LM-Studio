@@ -72,13 +72,6 @@
       <td>TBD</td>
     </tr>
     <tr>
-      <td>Direct ML</td>
-      <td>TBD</td>
-      <td>TBD</td>
-      <td>TBD</td>
-      <td>TBD</td>
-    </tr>
-    <tr>
       <td>Vulkan</td>
       <td>TBD</td>
       <td>TBD</td>
