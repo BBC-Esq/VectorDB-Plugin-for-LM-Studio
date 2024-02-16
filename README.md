@@ -1,37 +1,71 @@
 <div align="center">
   <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!  Now with Vision Models!</h1>
-  <h3>Ask questions about your documents and get an answer from LM Studio!<br>(https://www.youtube.com/watch?v=KXYH8zqN8c8)</h3>
+  <h3>Ask questions about your documents and get an answer from LM Studio!<br><a href="https://www.youtube.com/watch?v=KXYH8zqN8c8">Introductory Video</a><br><a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h3>
 </div>
+
 <div align="center">
-  <h4>⚡GPU Acceleration for Database⚡</h4>
-  <table>
-    <thead>
-      <tr>
-        <th>GPU</th>
-        <th>Windows</th>
-        <th>Linux</th>
-        <th>Requirements</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Nvidia</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>CUDA 11.8</td>
-      </tr>
-      <tr>
-        <td>AMD</td>
-        <td>❌</td>
-        <td>✅</td>
-        <td>ROCm 5.6</td>
-      </tr>
-      <tr>
-        <td>Apple/Metal</td>
-        <td colspan="3" align="center"> ✅ </td>
-      </tr>
-    </tbody>
-  </table>
+<table>
+  <thead>
+    <tr>
+      <th>Backend</th>
+      <th>Database</th>
+      <th>Transcribe</th>
+      <th>Bark</th>
+      <th>Vision</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Intel CPU</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>AMD CPU</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Nvidia GPU</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>AMD GPU on Windows</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>AMD GPU on Linux</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Apple CPU</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>Apple Metal/MPS</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+  </tbody>
+</table>
 </div>
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
@@ -249,49 +283,10 @@ Morever, a bug was introduced in ```LM Studio v0.2.10``` that I have been unable
 * If you wish to test the quality of the chunk settings, check the ```Chunks Only``` checkbox.  The program will no longer connect to LM Studio and will instead provide you with the chunks directly from the vector database.
 
 ## Text to Voice
-* This program uses fun "Bark" models to convert the response to audio.  You must wait until the ENTIRE response is received, however, before clicking the ```Bark Response``` button.
+* This program uses fun "Bark" models to convert the response to audio.  However, you must wait until the ENTIRE response is received before clicking the ```Bark Response``` button.
 
-## Voice to Text GPU-acceleration:
-* The voice recorder and audio file transcriber use the ```faster-whisper``` library, and GPU acceleration is as follows:
-  > Note, ```faster-whisper``` only supports CUDA 11.8 currently (CUDA 12+ coming soon).
-
-<div align="center">
-  <h4>⚡Acceleration for Transcription⚡</h4>
-  <table>
-    <tbody>
-      <tr>
-        <td>Intel CPU</td>
-        <td>✅</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>AMD CPU</td>
-        <td>✅</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Nvidia GPU</td>
-        <td>✅</td>
-        <td>Requires CUDA 11.8</td>
-      </tr>
-      <tr>
-        <td>AMD GPU</td>
-        <td>❌</td>
-        <td>Will default to CPU</td>
-      </tr>
-      <tr>
-        <td>Apple CPU</td>
-        <td>✅</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Apple Metal/MPS</td>
-        <td>❌</td>
-        <td>Will default to CPU</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+## Voice to Text:
+* The voice recorder and audio file transcriber use the ```faster-whisper``` library (CUDA 12+ coming soon).
 
 ## Image to Text
 As of release 3.0, the program includes exciting "vision" models that generate summaries of one or more pictures, which are then added to the vector database.  I wrote a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) on this as well.
