@@ -69,7 +69,6 @@
 </div>
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
-You <b>MUST</b> install these before installing my program:<p>
 
 1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/) (PyTorch is NOT compatible with 3.12, at least as of 12/19/2023).
 2) [Git](https://git-scm.com/downloads)
