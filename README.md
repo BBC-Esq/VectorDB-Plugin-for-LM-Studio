@@ -181,41 +181,39 @@ brew install portaudio
 ### Step 2
 For Pytorch to use 🔘Metal/MPS it requires MacOS 12.3+.  Metal/MPS provides gpu-acceleration similiar to CUDA (for NVIDIA gpus) and rocM (for AMD gpus).
 ### Step 3
-Install [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
-### Step 4
 Navigate to a directory on your computer, open a command prompt and run:
 ```
 git clone https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio.git
 ```
   * Alternatively, you can [download the latest release](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/latest), open the ZIP file, and copy the contents to a folder on your computer.
-### Step 5
+### Step 4
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
 python -m venv .
 ```
-### Step 6
+### Step 5
 Activate the virtual environment:
 ```
 source bin/activate
 ```
-### Step 7
+### Step 6
 ```
 python -m pip install --upgrade pip
 ```
-### Step 8
+### Step 7
 ```
 pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2
 ```
-### Step 9
+### Step 8
 ```
 pip install -r requirements.txt
 ```
-### Step 10
+### Step 9
 Upgrade PDF loader by running:
 ```
 python replace_pdf.py
 ```
-### Optional Step 11
+### Optional Step 10
 Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
