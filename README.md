@@ -91,6 +91,9 @@
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
 
+<details>
+  <summary>REQUIREMENTS</summary>
+  
 1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/) (Python 3.12 coming soon).
 2) 📁[Git](https://git-scm.com/downloads)
 3) 📁[Git Large File Storage](https://git-lfs.com/).
@@ -114,6 +117,8 @@
 7) 🔴AMD GPU acceleration on Linux requires [ROCm 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html) (ROCm 5.7 coming soon).
 
    > PyTorch does not support AMD GPUs on Windows yet.
+
+</details>
 
 <div align="center"> <h2>INSTALLATION</h2></div>
 
