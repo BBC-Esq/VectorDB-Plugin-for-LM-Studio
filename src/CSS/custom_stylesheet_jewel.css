@@ -124,3 +124,28 @@ QSplitter::handle {
     background-color: #1e1e1e;
     height: 5px;
 }
+
+QTreeView {
+    color: white;
+}
+
+QHeaderView::section {
+    background-color: #272a2e;
+    color: white;
+}
+
+QMenuBar {
+    color: white;
+}
+
+QMenuBar::item {
+    background: transparent;
+}
+
+QMenuBar::item:selected {
+    background: #39424e;
+}
+
+QCheckBox {
+    color: white;
+}
