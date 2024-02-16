@@ -89,9 +89,8 @@ You <b>MUST</b> install these before installing my program:<p>
    </details>
 
 
-6) Nvidia GPU acceleration (Windows or Linux) requires [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-7) AMD GPU acceleration on Linux requires [ROCm 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html)
-   > ROCm 5.7 support coming soon.
+6) Nvidia GPU acceleration (Windows or Linux) requires [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) (CUDA 12+ coming soon).
+7) AMD GPU acceleration on Linux requires [ROCm 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html) (ROCm 5.7 coming soon).
 
    > PyTorch does not support AMD GPUs on Windows yet.
 
