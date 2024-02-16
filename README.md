@@ -10,7 +10,7 @@
       <th>Backend</th>
       <th>Database</th>
       <th>Transcribe</th>
-      <th>Bark</th>
+      <th>Bark/TTS</th>
       <th>Vision</th>
     </tr>
   </thead>
