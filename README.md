@@ -180,6 +180,7 @@ source bin/activate
 ```
 python setup_linux.py
 ```
+* If when running the program you encounter any errors regarding ```portaudio```, you can get it [HERE](https://files.portaudio.com/download.html).
 ### Optional Step 6
 Run this script if you want to doublecheck wherher you installed the Pytorch and gpu-acceleration software correctly:
 ```
@@ -195,6 +196,7 @@ python check_gpu.py
 brew install portaudio
 ```
 * This requires Homebrew to be installed first.  If it's not, run the following command before running ```brew install portaudio```:
+* If you encounter problems installing portaudio try going [HERE](https://files.portaudio.com/download.html).
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
