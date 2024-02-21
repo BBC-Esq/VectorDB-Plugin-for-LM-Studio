@@ -62,9 +62,8 @@ def connect_to_local_chatgpt(prompt):
         prompt_format_disabled = server_config.get('prompt_format_disabled', False)
         model_temperature = server_config.get('model_temperature', 0.7)
         model_max_tokens = server_config.get('model_max_tokens', 100)
-        model_max_tokens = server_config.get('api_key')
 
-    client = OpenAI(base_url=base_url, api_key=api_key)  # API key is not needed for local connections
+    client = OpenAI(base_url=base_url, api_key='not-needed')  # API key is not needed for local connections
 
     if prompt_format_disabled:
         formatted_prompt = prompt
