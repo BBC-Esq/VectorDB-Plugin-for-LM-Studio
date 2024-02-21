@@ -1,5 +1,5 @@
 openai==1.12.0
-langchain==0.0.341
+langchain==0.0.348
 chromadb==0.3.29
 PyMuPDF==1.23.7
 InstructorEmbedding==1.0.1
