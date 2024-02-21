@@ -1,4 +1,4 @@
-openai==0.28.0
+openai==1.12.0
 langchain==0.0.341
 chromadb==0.3.29
 PyMuPDF==1.23.7
@@ -14,12 +14,12 @@ unstructured==0.11.6
 psutil==5.9.5
 PySide6==6.6.1
 PyAudio==0.2.14
-faster-whisper==0.10.0
+faster-whisper @ https://github.com/SYSTRAN/faster-whisper/archive/refs/tags/v1.0.0.tar.gz
 termcolor==2.3.0
 pypandoc==1.12
 PyYAML==6.0.1
 Markdown==3.5.1
-transformers==4.36.0
+transformers==4.37.2
 accelerate==0.25.0
 optimum==1.15.0
 einops==0.7.0
