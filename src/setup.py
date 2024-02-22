@@ -54,7 +54,11 @@ def display_cuda_message():
         return "12.1", tkinter_message_box("CUDA Check", "CUDA version 12.1 detected. CUDA 11.8 is required. Click OK to proceed with CPU-only installation of PyTorch or Cancel to exit installer.", type="yesno", yes_no=True)
     else:
         update_cuda = tkinter_message_box("CUDA Check", f"Incorrect version of CUDA installed (Version: {cuda_version}). Would you like to proceed with a CPU-only installation?", type="yesno", yes_no=True)
-        return None, update_cuda
+        if update_cuda:
+            return None, True
+        else:
+            print("Exiting installer.")
+            sys.exit(0)
 
 def manual_installation_confirmation():
     if not tkinter_message_box("Confirmation", c.MESSAGE_GIT, type="yesno", yes_no=True):
