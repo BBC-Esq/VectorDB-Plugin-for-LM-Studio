@@ -87,12 +87,12 @@
 <details>
   <summary>REQUIREMENTS</summary>
   
-1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/) (Python 3.12 coming soon).
+1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/)
 2) 📁[Git](https://git-scm.com/downloads)
 3) 📁[Git Large File Storage](https://git-lfs.com/).
 4) 🌐[Pandoc](https://github.com/jgm/pandoc/releases).
 5) Build Tools.
-   > Certain dependencies don't have pre-compiled "wheels" so you must build them.  Therefore, you must install something that can build source code such as [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you decide to use both of these programs in conjunction, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing "SDK."  Most Linux systems as well as MacOS come with the ability to build.  If you still run into problems on those platforms; however, you should find something that can build.
+   > Certain dependencies don't have pre-compiled "wheels" so you must build them.  Therefore, you must install something that can build source code such as [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you decide to use both of these programs in conjunction, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing "SDK."
 
    <details>
      <summary>EXAMPLE ERROR ON WINDOWS</summary>
@@ -104,12 +104,7 @@
      <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
    </details>
 
-6) 🍎MacOS Only.  [Xcode Command Line Tools](https://www.makeuseof.com/install-xcode-command-line-tools/).
-
-6) 🟢Nvidia GPU acceleration (Windows or Linux) requires [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive) (CUDA 12+ coming soon).
-7) 🔴AMD GPU acceleration on Linux requires [ROCm 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html) (ROCm 5.7 coming soon).
-
-   > PyTorch does not support AMD GPUs on Windows yet.
+6) 🟢Nvidia GPU acceleration requires [CUDA 12.1+](https://developer.nvidia.com/cuda-toolkit).
 
 </details>
 
@@ -119,10 +114,9 @@
   <summary>🪟WINDOWS INSTRUCTIONS</summary>
   
 ### Step 1
-🟢 Nvidia GPU ➜ [Install CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
-> CUDA 12+ support is coming as soon as the faster-whisper library supports it.<br>
+🟢 Nvidia GPU ➜ Install CUDA 12.1+
 
-🔴 AMD GPU - PyTorch currently does not support AMD gpu-acceleration on Windows. There are several unofficial workarounds but I'm unable to verify since I don't have an AMD GPU nor use Linux. See [HERE](https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html), [HERE](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview), [HERE](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview), and possibly [HERE](https://user-images.githubusercontent.com/108230321/275660295-e2d6e097-38c5-4e38-9a1f-f28441ba8812.png).
+🔴 AMD GPU - (AMD GPU acceleration support coming in future releases).
 ### Step 2
 Navigate to a directory on your computer, open a command prompt and run:
 ```
@@ -155,91 +149,15 @@ python check_gpu.py
 <details>
   <summary>🐧LINUX INSTRUCTIONS</summary>
 
-### Step 1
-🟢 Nvidia GPUs ➜ Install [CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)<br>
-🔴 AMD GPUs ➜ Install [ROCm version 5.6](https://docs.amd.com/en/docs-5.6.0/deploy/windows/gui/index.html).
-> [THIS REPO](https://github.com/nktice/AMD-AI) also has instructions.
-> Also, although I'm unable to test on my system...[here are some "wheels"](https://github.com/jllllll/llama-cpp-python-cuBLAS-wheels/releases/tag/rocm) that I believe should work.  However, you'd have to search and find the right one for your system.
-### Step 2
-Navigate to a directory on your computer, open a command prompt and run:
-```
-git clone https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio.git
-```
-  * Alternatively, you can [download the latest release](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/latest), open the ZIP file, and copy the contents to a folder on your computer.
-### Step 3
-Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
-```
-python -m venv .
-```
-### Step 4
-Activate the virtual environment:
-```
-source bin/activate
-```
-### Step 5
-```
-python setup_linux.py
-```
-* If when running the program you encounter any errors regarding ```portaudio```, you can get it [HERE](https://files.portaudio.com/download.html).
-### Optional Step 6
-Run this script if you want to doublecheck wherher you installed the Pytorch and gpu-acceleration software correctly:
-```
-python check_gpu.py
-```
+Linux users must use Release v3.5.2 until I can update the codebase due to recent major changes.  Download the ZIP file for that release and follow the instructions in the readme.md.
+
 </details>
 
 <details>
   <summary>🍎APPLE INSTRUCTIONS</summary>
 
-### Step 1
-```
-brew install portaudio
-```
-* This requires Homebrew to be installed first.  If it's not, run the following command before running ```brew install portaudio```:
-* If you encounter problems installing portaudio try going [HERE](https://files.portaudio.com/download.html).
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-### Step 2
-For Pytorch to use 🔘Metal/MPS it requires MacOS 12.3+.  Metal/MPS provides gpu-acceleration similiar to CUDA (for NVIDIA gpus) and rocM (for AMD gpus).
-### Step 3
-Navigate to a directory on your computer, open a command prompt and run:
-```
-git clone https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio.git
-```
-  * Alternatively, you can [download the latest release](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/latest), open the ZIP file, and copy the contents to a folder on your computer.
-### Step 4
-Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
-```
-python -m venv .
-```
-### Step 5
-Activate the virtual environment:
-```
-source bin/activate
-```
-### Step 6
-```
-python -m pip install --upgrade pip
-```
-### Step 7
-```
-pip3 install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2
-```
-### Step 8
-```
-pip install -r requirements.txt
-```
-### Step 9
-Upgrade PDF loader by running:
-```
-python replace_pdf.py
-```
-### Optional Step 10
-Run this script if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
-```
-python check_gpu.py
-```
+MacOS users must use Release v3.5.2 until I can update the codebase due to recent major changes.  Download the ZIP file for that release and follow the instructions in the readme.md.
+
 </details>
 
 <div align="center"> <h2>USING THE PROGRAM</h2></div>
