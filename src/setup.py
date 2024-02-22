@@ -52,8 +52,12 @@ def display_cuda_message():
         proceed_with_cuda = tkinter_message_box("CUDA Check", f"CUDA version {cuda_version_num} detected. Would you like to proceed with the GPU-accelerated installation?", type="yesno", yes_no=True)
         return cuda_version_num, proceed_with_cuda
     else:
-        proceed_with_cpu = tkinter_message_box("CUDA Check", f"Incorrect version of CUDA installed (Version: {cuda_version_num}). Would you like to proceed with a CPU-only installation?", type="yesno", yes_no=True)
-        return None, proceed_with_cpu
+        update_cuda = tkinter_message_box("CUDA Check", f"Incorrect version of CUDA installed (Version: {cuda_version}). Would you like to proceed with a CPU-only installation?", type="yesno", yes_no=True)
+        if update_cuda:
+            return None, True
+        else:
+            print("Exiting installer.")
+            sys.exit(0)
 
 def manual_installation_confirmation():
     if not tkinter_message_box("Confirmation", c.MESSAGE_GIT, type="yesno", yes_no=True):
