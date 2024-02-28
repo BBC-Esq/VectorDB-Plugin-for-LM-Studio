@@ -6,30 +6,22 @@ Compute_Device:
   gpu_brand: 
 EMBEDDING_MODEL_NAME: 
 Platform_Info:
-  os:
+  os: 
 Supported_CTranslate2_Quantizations:
   CPU:
-  - float32
-  - int8_float32
-  - int8
   GPU:
-  - float32
-  - float16
-  - bfloat16
-  - int8_float32
-  - int8_float16
-  - int8_bfloat16
-  - int8
 bark:
   enable_cpu_offload: false
   model_precision: float16
   size: normal
   speaker: v2/en_speaker_6
   use_better_transformer: true
+created_databases: {}
 database:
-  chunk_overlap: 300
-  chunk_size: 900
+  chunk_overlap: 200
+  chunk_size: 800
   contexts: '10'
+  database_to_search: 
   document_types: ''
   search_term: ''
   similarity: 0.3
@@ -82,9 +74,9 @@ vision:
     available_sizes:
     - 7b
   batch: null
-  chosen_model: salesforce
-  chosen_quant: float32
-  chosen_size: 470m
+  chosen_model: bakllava
+  chosen_quant: float16
+  chosen_size: 7b
   cogvlm:
     available_quants:
     - 4-bit
