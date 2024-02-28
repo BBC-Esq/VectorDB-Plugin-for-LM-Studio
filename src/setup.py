@@ -94,7 +94,7 @@ def setup_windows_installation():
     os.system("python -m pip install --upgrade pip")
     install_pytorch(cuda_version_num, proceed)
     os.system("pip3 install -r requirements.txt")
-    os.system("pip3 install --no-deps whisper-s2t==1.3.0")
+    os.system("pip3 install --no-deps whisper-s2t==1.3.1")
     os.system(c.BITSANDBYTES_INSTALL_COMMAND)
     
     major, minor = map(int, sys.version.split()[0].split('.')[:2])

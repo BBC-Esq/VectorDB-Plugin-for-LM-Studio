@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout, QWidget, QMessageBox
 from gui_tabs_settings_server import ServerSettingsTab
-from gui_tabs_settings_whisper import TranscriberSettingsTab
+#from gui_tabs_settings_whisper import TranscriberSettingsTab
 from gui_tabs_settings_database_create import ChunkSettingsTab
 from gui_tabs_settings_database_query import DatabaseSettingsTab
 from gui_tabs_settings_bark import BarkModelSettingsTab
@@ -30,7 +30,7 @@ class GuiSettingsTab(QWidget):
 
         classes = {
             "SERVER/LLM": (ServerSettingsTab, 4),
-            "VOICE RECORDER": (TranscriberSettingsTab, 1),
+            #"VOICE RECORDER": (TranscriberSettingsTab, 1),
             "DATABASE QUERY": (DatabaseSettingsTab, 3),
             "DATABASE CREATION": (ChunkSettingsTab, 1),
             "BARK": (BarkModelSettingsTab, 2),

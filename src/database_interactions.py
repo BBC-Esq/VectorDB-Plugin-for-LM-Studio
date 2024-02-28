@@ -6,11 +6,14 @@ from langchain.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbed
 from langchain.vectorstores import Chroma
 from chromadb.config import Settings
 from document_processor import load_documents, split_documents
+from loader_audio import load_audio_documents
+from loader_images import specify_image_loader
 import torch
-from utilities import validate_symbolic_links, backup_database, my_cprint
+from utilities import validate_symbolic_links, my_cprint
 from pathlib import Path
 import os
 import logging
+from PySide6.QtCore import QDir
 
 logging.basicConfig(
     level=logging.INFO,
@@ -19,10 +22,10 @@ logging.basicConfig(
 logging.getLogger('chromadb.db.duckdb').setLevel(logging.WARNING)
 
 class CreateVectorDB:
-    def __init__(self):
+    def __init__(self, database_name):
         self.ROOT_DIRECTORY = Path(__file__).resolve().parent
         self.SOURCE_DIRECTORY = self.ROOT_DIRECTORY / "Docs_for_DB"
-        self.PERSIST_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB"
+        self.PERSIST_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB" / database_name
         self.INGEST_THREADS = os.cpu_count() or 8
         self.CHROMA_SETTINGS = Settings(
             chroma_db_impl="duckdb+parquet",
@@ -70,22 +73,25 @@ class CreateVectorDB:
     def run(self):
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
+        
+        # load non-image/non-audio documents
+        documents = load_documents(self.SOURCE_DIRECTORY)
+        my_cprint(f"Loaded {len(documents)} document file(s).", "green")
+        
+        # load audio documents
+        audio_documents = load_audio_documents(self.SOURCE_DIRECTORY)
+        documents.extend(audio_documents)
+        my_cprint(f"Loaded {len(audio_documents)} audio file(s).", "green")
+        
+        # load image documents
+        image_documents = specify_image_loader()
+        documents.extend(image_documents)
+        my_cprint(f"Loaded {len(image_documents)} image file(s).", "green")
 
-        my_cprint("Loading documents.", "white")
-        documents = load_documents(self.SOURCE_DIRECTORY) # returns a list of full-text document objects
-        if documents is None or len(documents) == 0:
-            my_cprint("No documents to load.", "red")
-            return
-        my_cprint("Successfully loaded documents.", "white")
-
-        texts = split_documents(documents) # returns a list of document objects split
+        texts = split_documents(documents) # split document objects
 
         embeddings = self.create_embeddings(EMBEDDING_MODEL_NAME, config_data)
         my_cprint("Embedding model loaded.", "green")
-
-        if self.PERSIST_DIRECTORY.exists():
-            shutil.rmtree(self.PERSIST_DIRECTORY)
-        self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
         my_cprint("Creating database.", "white")
 
@@ -93,43 +99,16 @@ class CreateVectorDB:
             texts, embeddings,
             persist_directory=str(self.PERSIST_DIRECTORY),
             client_settings=self.CHROMA_SETTINGS,
-            # collection_name="Test123",
-            # collection_metadata (Optional[Dict]),
         )
 
-        my_cprint("Persisting database.", "white")
+        if not self.PERSIST_DIRECTORY.exists():
+            self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
+        
         db.persist()
-        my_cprint("Database persisted.", "white")
-
-        backup_database()
+        my_cprint("Database created.", "white")
 
         del embeddings.client
         del embeddings
         torch.cuda.empty_cache()
         gc.collect()
         my_cprint("Embedding model removed from memory.", "red")
-
-# To delete entries based on the "hash" metadata attribute, you can use this as_retriever method to create a retriever that filters documents based on their metadata. Once you retrieve the documents with the specific hash, you can then extract their IDs and use the delete method to remove them from the vectorstore.
-
-# class CreateVectorDB:
-    # # ... [other methods] ...
-
-    # def delete_entries_by_hash(self, target_hash):
-        # my_cprint(f"Deleting entries with hash: {target_hash}", "red")
-
-        # # Initialize the retriever with a filter for the specific hash
-        # retriever = self.db.as_retriever(search_kwargs={'filter': {'hash': target_hash}})
-
-        # # Retrieve documents with the specific hash
-        # documents = retriever.search("")
-
-        # # Extract IDs from the documents
-        # ids_to_delete = [doc.id for doc in documents]
-
-        # # Delete entries with the extracted IDs
-        # if ids_to_delete:
-            # self.db.delete(ids=ids_to_delete)
-            # my_cprint(f"Deleted {len(ids_to_delete)} entries from the database.", "green")
-        # else:
-            # my_cprint("No entries found with the specified hash.", "yellow")
-

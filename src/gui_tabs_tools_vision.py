@@ -52,33 +52,27 @@ class VisionToolSettingsTab(QWidget):
             self.startProcessing()
     
     def startProcessing(self):
-        script_dir = Path(__file__).resolve().parent
-        images_dir = script_dir / "Images_for_DB"
+            script_dir = Path(__file__).resolve().parent
 
-        with open('config.yaml', 'r') as file:
-            updated_config = yaml.safe_load(file)
+            with open('config.yaml', 'r') as file:
+                updated_config = yaml.safe_load(file)
 
-        if platform.system() == "Darwin" and any(images_dir.iterdir()):
-            QMessageBox.warning(self, "Error",
-                                "Image processing has been disabled for MacOS for the time being until a fix can be implemented. Please remove all files from the 'Images_for_DB' folder and try again.")
-            return
+            chosen_model = updated_config['vision']['chosen_model']
 
-        chosen_model = updated_config['vision']['chosen_model']
+            if chosen_model in ['llava', 'bakllava']:
+                processing_function = vision_llava_module.llava_process_images
+            elif chosen_model == 'cogvlm':
+                processing_function = vision_cogvlm_module.cogvlm_process_images
+            elif chosen_model == 'salesforce':
+                QMessageBox.warning(self, "Testing Salesforce",
+                                    "Testing Salesforce is not allowed here. It is too lightweight and should run on any semi-modern CPU and/or GPU. If your system can't handle processing multiple images with Salesforce, it's time to upgrade your computer.")
+                return
+            else:
+                print("Error: Invalid model selected.")
+                return
 
-        if chosen_model in ['llava', 'bakllava']:
-            processing_function = vision_llava_module.llava_process_images
-        elif chosen_model == 'cogvlm':
-            processing_function = vision_cogvlm_module.cogvlm_process_images
-        elif chosen_model == 'salesforce':
-            QMessageBox.warning(self, "Testing Salesforce",
-                                "Testing Salesforce is not allowed here. It is too lightweight and should run on any semi-modern CPU and/or GPU. If your system can't handle processing multiple images with Salesforce, it's time to upgrade your computer.")
-            return
-        else:
-            print("Error: Invalid model selected.")
-            return
-
-        self.processingThread = ProcessingThread(processing_function)
-        self.processingThread.start()
+            self.processingThread = ProcessingThread(processing_function)
+            self.processingThread.start()
 
     def openFolderDialog(self):
         file_types = "Image Files (*.png *.jpg *.jpeg *.bmp *.gif *.tif *.tiff)"

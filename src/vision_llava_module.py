@@ -8,6 +8,15 @@ import textwrap
 import yaml
 import subprocess
 import platform
+import warnings
+
+warnings.filterwarnings("ignore", message="Torch was not compiled with flash attention.")
+warnings.filterwarnings("ignore", message="No module named 'triton'")
+warnings.filterwarnings("ignore", module="xformers.*")
+warnings.filterwarnings("ignore", message=".*triton.*")
+warnings.filterwarnings("ignore", module=".*bitsandbytes.*")
+warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*", module=".*transformers.models.llama.modeling_llama.*")
+warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*", module=".*transformers.models.mistral.modeling_mistral.*")
 
 def get_best_device():
     if torch.cuda.is_available():

@@ -13,7 +13,6 @@ import sys
 from utilities import my_cprint
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
-SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
 PERSIST_DIRECTORY = ROOT_DIRECTORY / "Vector_DB"
 INGEST_THREADS = os.cpu_count() or 8
 
@@ -63,7 +62,7 @@ def connect_to_local_chatgpt(prompt):
         model_temperature = server_config.get('model_temperature', 0.7)
         model_max_tokens = server_config.get('model_max_tokens', 100)
 
-    client = OpenAI(base_url=base_url, api_key='not-needed')  # API key is not needed for local connections
+    client = OpenAI(base_url=base_url, api_key='not-needed')
 
     if prompt_format_disabled:
         formatted_prompt = prompt
@@ -71,7 +70,7 @@ def connect_to_local_chatgpt(prompt):
         formatted_prompt = f"{prefix}{prompt}{suffix}"
 
     response = client.chat.completions.create(
-        model="local-model",  # Placeholder for local model identifier
+        model="local-model",
         messages=[{"role": "user", "content": formatted_prompt}],
         temperature=model_temperature,
         max_tokens=model_max_tokens
@@ -112,33 +111,45 @@ def retrieve_and_filter_contexts(query, config, embeddings, db):
         my_cprint("No relevant contexts/chunks found.  Make sure the following settings are not too restrictive: (1) Similarity, (2) Contexts, and (3) Search Filter", "yellow")
     return filtered_contexts
 
-def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTORY), client_settings=CHROMA_SETTINGS):
+def ask_local_chatgpt(query, chunks_only):
     global stop_streaming
     stop_streaming = False
     my_cprint("Attempting to connect to server.", "white")
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
+        database_to_search = config['database']['database_to_search']
+    
+    ROOT_DIRECTORY = Path(__file__).resolve().parent
+    PERSIST_DIRECTORY = ROOT_DIRECTORY / "Vector_DB" / database_to_search
+    PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
+
     EMBEDDING_MODEL_NAME = config['EMBEDDING_MODEL_NAME']
     compute_device = config['Compute_Device']['database_query']
     config_data = config.get('embedding-models', {})
     embeddings = initialize_vector_model(EMBEDDING_MODEL_NAME, config_data, compute_device)
     my_cprint("Embedding model loaded.", "green")
+    
     tokenizer_path = "./Tokenizer"
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
-    db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=client_settings)
+    
+    db = Chroma(persist_directory=str(PERSIST_DIRECTORY), embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
     my_cprint("Database initialized.", "white")
+    
     filtered_contexts = retrieve_and_filter_contexts(query, config, embeddings, db)
     contexts = [document.page_content for document in filtered_contexts]
     metadata_list = [document.metadata for document in filtered_contexts]
     save_metadata_to_file(metadata_list, metadata_output_file_path)
+    
     if chunks_only:
         write_contexts_to_file_and_open(contexts, metadata_list)
         return {"answer": "Contexts written to temporary file and opened", "sources": filtered_contexts}
+    
     prepend_string = "Only base your answer to the following question on the provided context/contexts accompanying this question. If you cannot answer based on the included context/contexts alone, please state so."
     augmented_query = prepend_string + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + query
     my_cprint(f"Number of relevant contexts: {len(filtered_contexts)}", "white")
     total_tokens = sum(len(tokenizer.encode(context)) for context in contexts)
     my_cprint(f"Total number of tokens in contexts: {total_tokens}", "white")
+    
     response_json = connect_to_local_chatgpt(augmented_query)
     full_response = []
     for chunk_message in response_json:
@@ -149,17 +160,20 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
         else:
             full_response.append(chunk_message)
         yield chunk_message
+    
     chat_history_file_path = ROOT_DIRECTORY / 'chat_history.txt'
     with chat_history_file_path.open('w', encoding='utf-8') as file:
         for message in full_response:
             file.write(message)
     yield "\n\n"
+    
     citations = format_metadata_as_citations(metadata_list)
     unique_citations = []
     for citation in citations.split("\n"):
         if citation not in unique_citations:
             unique_citations.append(citation)
     yield "\n".join(unique_citations)
+    
     del embeddings.client
     del embeddings
     torch.cuda.empty_cache()
@@ -170,43 +184,3 @@ def ask_local_chatgpt(query, chunks_only, persist_directory=str(PERSIST_DIRECTOR
 def stop_interaction():
     global stop_streaming
     stop_streaming = True
-
-
-''' Search by metadata and minimum relevance score threshold
-
-    docsearch = VectorStoreRetriever(
-    vectorstore=your_vector_store_instance,
-    search_type='similarity_score_threshold',
-    search_kwargs={'filter': {'field_name': 'field_value', 'field2': 'value2'},
-                   'score_threshold': 0.7}  # Adjust the threshold as needed
-)
-
-Filter by multiple metadata fields:
-
-search_kwargs={'filter': {'field1': 'value1', 'field2': 'value2'}}
-
-From the langchain library, this relies on vectorstores.py and chroma.py
-
-# Another example using my specific document metadata extracted:
-
-retriever = db.as_retriever(search_kwargs={
-    'score_threshold': score_threshold, 
-    'k': k,
-    'filter': {
-        'file_path': '/path/to/specific/directory/',
-        'file_type': '.pdf',
-        'file_name': 'example_document',
-        'file_size': {'$gt': 1024},  # Example: file size greater than 1024 bytes
-        'creation_date': {'$gt': '2022-01-01'},  # Example: created after January 1, 2022
-        'modification_date': {'$gt': '2022-01-01'},  # Example: modified after January 1, 2022
-        'image': 'False'
-    }
-})
-
-$gt is used as an example operator for "greater than". You'll need to replace it with the correct operator used in DuckDB and ClickHouse.
-
-# Use a filter to only retrieve documents from a specific paper
-docsearch.as_retriever(
-    search_kwargs={'filter': {'paper_title':'GPT-4 Technical Report'}}
-)
-'''

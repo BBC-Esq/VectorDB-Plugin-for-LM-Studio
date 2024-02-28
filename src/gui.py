@@ -8,6 +8,7 @@ from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from gui_tabs import create_tabs
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
+from pathlib import Path
 
 class DocQA_GUI(QWidget):
     def __init__(self):
@@ -20,7 +21,7 @@ class DocQA_GUI(QWidget):
 
     def init_ui(self):
         self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
-        self.setGeometry(300, 300, 750, 1040)
+        self.setGeometry(300, 300, 850, 1040)
         self.setMinimumSize(350, 410)
 
         # Main Layout
@@ -43,6 +44,12 @@ class DocQA_GUI(QWidget):
             action.triggered.connect(make_theme_changer(theme))
 
     def closeEvent(self, event):
+        docs_dir = Path(__file__).parent / 'Docs_for_DB'
+        
+        for item in docs_dir.iterdir():
+            if item.is_file():
+                item.unlink()
+                
         self.metrics_bar.stop_metrics_collector()
         super().closeEvent(event)
 

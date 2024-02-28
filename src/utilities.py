@@ -89,35 +89,35 @@ def delete_file(file_path):
     except OSError:
         QMessageBox.warning(None, "Unable to delete file(s), please delete manually.")
 
-# database_interactions.py
 def check_preconditions_for_db_creation(script_dir):
     config_path = script_dir / 'config.yaml'
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
 
-    if platform.system() == "Darwin" and any((script_dir / "Images_for_DB").iterdir()):
-        return False, "Image processing has been disabled for MacOS for the time being until a fix can be implemented. Please remove all files from the 'Images_for_DB' folder and try again."
+    image_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+    
+    documents_dir = script_dir / "Docs_for_DB"
+    if platform.system() == "Darwin" and any(file.suffix in image_extensions for file in documents_dir.iterdir() if file.is_file()):
+        return False, "Image processing has been disabled for MacOS until a fix can be implemented. Please remove all image files and try again."
 
     embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
     if not embedding_model_name:
         return False, "You must first download an embedding model, select it, and choose documents first before proceeding."
 
-    documents_dir = script_dir / "Docs_for_DB"
-    images_dir = script_dir / "Images_for_DB"
-    if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
-        return False, "No documents found to process. Please select files to add to the vector database and try again."
+    if not any(file.is_file() for file in documents_dir.iterdir()):
+        return False, "No documents are yet added to be processed."
 
     compute_device = config.get('Compute_Device', {}).get('available', [])
     database_creation = config.get('Compute_Device', {}).get('database_creation')
     if ("cuda" in compute_device or "mps" in compute_device) and database_creation == "cpu":
         reply = QMessageBox.question(None, 'Warning', 
-                                     "GPU-acceleration is available and highly recommended for creating a vector database. Click OK to proceed or Cancel to go back and change the device.", 
+                                     "GPU-acceleration is available and highly recommended. Click OK to proceed or Cancel to go back and change the device.", 
                                      QMessageBox.Ok | QMessageBox.Cancel)
         if reply == QMessageBox.Cancel:
             return False, ""
 
     confirmation_reply = QMessageBox.question(None, 'Confirmation', 
-                                             "Creating a vector database can take a significant amount of time and cannot be cancelled mid-processing. Click OK to proceed or Cancel to back out.",
+                                             "Creating a vector database can take significant amount of time and cannot be cancelled.  Click OK to proceed.",
                                              QMessageBox.Ok | QMessageBox.Cancel)
     if confirmation_reply == QMessageBox.Cancel:
         return False, "Database creation cancelled by user."
@@ -127,27 +127,20 @@ def check_preconditions_for_db_creation(script_dir):
 # gui.py
 def check_preconditions_for_submit_question(script_dir):
     config_path = script_dir / 'config.yaml'
-    with open(config_path, 'r') as file:
+    with open(config_path, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
 
-    embedding_model_name = config.get('EMBEDDING_MODEL_NAME')
-    if not embedding_model_name:
-        return False, "You must first download an embedding model, select it, and choose documents first before proceeding."
-
-    documents_dir = script_dir / "Docs_for_DB"
-    images_dir = script_dir / "Images_for_DB"
-    if not any(documents_dir.iterdir()) and not any(images_dir.iterdir()):
-        return False, "No documents found to process. Please select files to add to the vector database and try again."
-
-    vector_db_dir = script_dir / "Vector_DB"
-    if not any(f.suffix == '.parquet' for f in vector_db_dir.iterdir()):
-        return False, "You must first create a vector database before clicking this button."
+    database_to_search = config.get('database', {}).get('database_to_search')
+    vector_db_subdir = script_dir / "Vector_DB" / str(database_to_search) if database_to_search else None
+    if not database_to_search or not vector_db_subdir or not vector_db_subdir.exists() or not any(f.suffix == '.parquet' for f in vector_db_subdir.iterdir()):
+        return False, "Must create and select a vector database to search before proceeding."
 
     return True, ""
 
 def my_cprint(*args, **kwargs):
     filename = os.path.basename(sys._getframe(1).f_code.co_filename)
-    modified_message = f"{filename}: {args[0]}"
+    modified_message = f"{args[0]}"
+    # modified_message = f"{filename}: {args[0]}" # to print script name as well
     kwargs['flush'] = True
     cprint(modified_message, *args[1:], **kwargs)
     

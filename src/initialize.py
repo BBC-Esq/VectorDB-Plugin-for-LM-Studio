@@ -22,9 +22,19 @@ def get_compute_device_info():
 
     return {'available': available_devices, 'gpu_brand': gpu_brand}
 
-def get_platform_info():
+def get_platform_info(): # returns windows, linux or darwin
     os_name = platform.system().lower()
     return {'os': os_name}
+
+
+def get_macos_version():
+    import sys
+    if sys.platform == "darwin":
+        mac_version = ".".join(platform.mac_ver()[0].split(".")[:2])
+        return mac_version
+    else:
+        print("Not running on macOS. Exiting.")
+        return
 
 def get_supported_quantizations(device_type):
     types = ctranslate2.get_supported_compute_types(device_type)
@@ -62,7 +72,7 @@ def update_config_file(**system_info):
         yaml.safe_dump(config_data, stream)
 
 def check_for_necessary_folders_and_files():
-    required_folders = ["Docs_for_DB", "Images_for_DB", "Vector_DB_Backup", "Vector_DB"]
+    required_folders = ["Docs_for_DB", "Vector_DB_Backup", "Vector_DB"]
     for folder in required_folders:
         path = Path(folder)
         if not path.is_dir():

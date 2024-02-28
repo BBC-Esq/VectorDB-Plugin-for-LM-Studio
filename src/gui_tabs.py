@@ -7,6 +7,7 @@ from gui_tabs_tools import GuiSettingsTab as ToolsSettingsTab
 from gui_tabs_databases import DatabasesTab
 from gui_tabs_vector_models import VectorModelsTab
 from gui_tabs_database_query import DatabaseQueryTab
+from gui_tabs_manage_databases import ManageDatabasesTab
 from functools import partial
 
 def load_url(view, url):
@@ -68,14 +69,18 @@ def create_tabs():
     # VECTOR MODELS TAB
     vector_models_tab = VectorModelsTab()
     tab_widget.addTab(vector_models_tab, 'Models')
-
-    # DATABASES TAB
-    databases_tab = DatabasesTab()
-    tab_widget.addTab(databases_tab, 'Databases')
-
+    
     # TOOLS TAB
     tools_tab = ToolsSettingsTab()
     tab_widget.addTab(tools_tab, 'Tools')
+
+    # CREATE DATABASE TAB
+    databases_tab = DatabasesTab()
+    tab_widget.addTab(databases_tab, 'Create Database')
+    
+    # MANAGE DATABASES TAB
+    manage_databases_tab = ManageDatabasesTab()
+    tab_widget.addTab(manage_databases_tab, 'Manage Databases')
 
     # DATABASE QUERY TAB
     database_query_tab = DatabaseQueryTab()

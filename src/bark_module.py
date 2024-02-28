@@ -13,6 +13,7 @@ from tqdm import tqdm
 from utilities import my_cprint
 
 warnings.filterwarnings("ignore", message="torch.nn.utils.weight_norm is deprecated in favor of torch.nn.utils.parametrizations.weight_norm.")
+warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
 
 class BarkAudio:
     def __init__(self):

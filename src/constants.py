@@ -315,7 +315,7 @@ DOCUMENT_LOADERS = {
     ".epub": "UnstructuredEPubLoader",
     ".eml": "UnstructuredEmailLoader",
     ".msg": "UnstructuredEmailLoader",
-    ".csv": "UnstructuredCSVLoader",
+    ".csv": "CSVLoader",
     ".xls": "UnstructuredExcelLoader",
     ".xlsx": "UnstructuredExcelLoader",
     ".xlsm": "UnstructuredExcelLoader",

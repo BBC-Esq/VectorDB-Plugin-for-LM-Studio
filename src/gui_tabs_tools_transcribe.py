@@ -30,7 +30,16 @@ class TranscriberToolSettingsTab(QWidget):
         model_selection_hbox = QHBoxLayout()
         model_selection_hbox.addWidget(QLabel("Whisper Model"))
         self.model_combo = QComboBox()
-        self.model_combo.addItems(["large-v2", "medium.en", "small.en"])
+
+        self.model_name_mapping = {
+            "large-v2 - float16": "ctranslate2-4you/whisper-large-v2-ct2-float16",
+            "medium.en - float16": "ctranslate2-4you/whisper-medium.en-ct2-float16",
+            "small.en - float16": "ctranslate2-4you/whisper-small.en-ct2-float16",
+            "small - float16": "ctranslate2-4you/whisper-small-ct2-float16"
+        }
+
+        self.model_combo.addItems(list(self.model_name_mapping.keys()))
+
         model_selection_hbox.addWidget(self.model_combo)
 
         model_selection_hbox.addWidget(QLabel("Speed (more memory)"))
@@ -85,11 +94,11 @@ class TranscriberToolSettingsTab(QWidget):
             return
 
         selected_model = self.model_combo.currentText()
+        selected_model_full_string = self.model_name_mapping[selected_model]
         selected_batch_size = int(self.slider_label.text())
 
         def transcription_thread():
-            my_cprint("Starting transcription process...", 'green')
-            transcriber = WhisperTranscriber(model_identifier=selected_model, batch_size=selected_batch_size)
+            transcriber = WhisperTranscriber(model_identifier=selected_model_full_string, batch_size=selected_batch_size)
             transcriber.start_transcription_process(self.selected_audio_file)
             my_cprint("Transcription created and ready to be input into vector database.", 'green')
 

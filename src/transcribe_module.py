@@ -12,7 +12,7 @@ class Document:
         self.metadata = metadata
 
 class WhisperTranscriber:
-    def __init__(self, model_identifier="large-v2", batch_size=48):
+    def __init__(self, model_identifier="ctranslate2-4you/whisper-large-v2-ct2-float16", batch_size=48):
         self.model_identifier = model_identifier
         self.batch_size = batch_size
         self.model_kwargs = {
@@ -93,12 +93,12 @@ class WhisperTranscriber:
                                         lang_codes=lang_codes,
                                         tasks=tasks,
                                         initial_prompts=initial_prompts,
-                                        batch_size=self.batch_size)  # Use self.batch_size
+                                        batch_size=self.batch_size)
         transcription = " ".join([_['text'] for _ in out[0]]).strip()
         return transcription
 
     def create_document_object(self, transcription_text, audio_file_path):
-        metadata = extract_audio_metadata(audio_file_path)
+        metadata = extract_audio_metadata(audio_file_path) # get metadata
         
         doc = Document(page_content=transcription_text, metadata=metadata)
         
@@ -111,72 +111,3 @@ class WhisperTranscriber:
         
         with open(pickle_file_path, 'wb') as file:
             pickle.dump(doc, file)
-
-
-
-# Example usage:
-# transcriber = WhisperTranscriber()
-# transcriber.start_transcription_process('test_audio_flac.flac')
-
-
-# Example usage:
-# transcriber = WhisperTranscriber()
-# transcription = transcriber.transcribe(['test_audio_flac.flac'])
-# transcriber.save_transcription(transcription)
-
-
-
-'''
-Hi @BBC-Esq max_speech_len param is for segmentation. It's not for max audio file. max_speech_len should always be less than or equal to 30 secs. Best value is 29, which is default.
-
-out[0] is a list of utterances for file index 0. out[0][0] will only be first utterance out[0][1] will be second utterance and so on..
-
-So, in your case, you should use transcription = " ".join([_['text'] for _ in out[0]]).strip() and not transcription = out[0][0]['text']
-'''
-
-'''
-Can you please tell me how to load a model from a directory?
-
-model = whisper_s2t.load_model(model_identifier="large-v2", backend='CTranslate2')
-
-Here model_identifier supports three different values for CTranslate2 and HuggingFace backend. model_name, local_path, or hf_repo_id.
-
-So, in your case simply this should work:
-
-model = whisper_s2t.load_model(model_identifier="ctranslate2-4you/whisper-large-v2-ct2-int8_float16", backend='CTranslate2', compute_type='int8')
-
-Or to load from local directory:
-
-model = whisper_s2t.load_model(model_identifier="your_local_path_to_model_files", backend='CTranslate2')
-
-To get the path where the downloaded model got saved: print(model.model_path)
-
-PS: I'm working on detailed docs along with couple of other minor features.. most probably will update those by end of this month.
-'''
-
-'''
-i @AXYZE9 I have added this feature in this PR #13
-
-Uninstall your current installation and install using following command: pip install -U git+https://github.com/shashikg/WhisperS2T.git
-
-Usage:
-
-files = ['file.wav']
-lang_codes = ['en']
-tasks = ['transcribe']
-initial_prompts = [None]
-
-out = model.transcribe_with_vad(files,
-                                lang_codes=lang_codes,
-                                tasks=tasks,
-                                initial_prompts=initial_prompts,
-                                batch_size=24)
-
-whisper_s2t.write_outputs(out, format='vtt', ip_files=files, save_dir="./save_dir") # Save outputs
-
-For custom output file names:
-
-whisper_s2t.write_outputs(out, format='vtt', op_files=op_files)
-
-Supported formats: vtt, srt, json, tsv.
-'''

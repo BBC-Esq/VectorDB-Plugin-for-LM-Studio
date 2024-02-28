@@ -13,12 +13,23 @@ from transformers import (
     BlipForConditionalGeneration,
     BlipProcessor,
     LlamaTokenizer,
-    LlavaForConditionalGeneration
+    LlavaForConditionalGeneration,
+    AutoTokenizer,
+    BitsAndBytesConfig
 )
 from langchain.docstore.document import Document
 from extract_metadata import extract_image_metadata
 from utilities import my_cprint
+from concurrent.futures import ProcessPoolExecutor
+import warnings
 
+warnings.filterwarnings("ignore", message="Torch was not compiled with flash attention.")
+warnings.filterwarnings("ignore", message="No module named 'triton'")
+warnings.filterwarnings("ignore", module="xformers.*")
+warnings.filterwarnings("ignore", module=".*bitsandbytes.*")
+warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*", module=".*transformers.models.llama.modeling_llama.*")
+warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*", module=".*transformers.models.mistral.modeling_mistral.*")
+        
 def get_best_device():
     if torch.cuda.is_available():
         return 'cuda'
@@ -29,6 +40,13 @@ def get_best_device():
     else:
         return 'cpu'
 
+def run_loader_in_process(loader_func):
+    try:
+        return loader_func()
+    except Exception as e:
+        my_cprint(f"Error processing images: {e}", "red")
+        return []
+        
 class loader_cogvlm:
     def initialize_model_and_tokenizer(self, config):
         tokenizer = LlamaTokenizer.from_pretrained('lmsys/vicuna-7b-v1.5')
@@ -63,12 +81,14 @@ class loader_cogvlm:
 
     def cogvlm_process_images(self):
         script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Images_for_DB")
+        image_dir = os.path.join(script_dir, "Docs_for_DB")
         documents = []
+        allowed_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
 
-        if not os.listdir(image_dir):
-            print("No files detected in the 'Images_for_DB' directory.")
-            return
+        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
+
+        if not image_files:
+            return []
 
         with open('config.yaml', 'r') as file:
             config = yaml.safe_load(file)
@@ -79,8 +99,8 @@ class loader_cogvlm:
 
         total_start_time = time.time()
 
-        with tqdm(total=len(os.listdir(image_dir)), unit="image") as progress_bar:
-            for file_name in os.listdir(image_dir):
+        with tqdm(total=len(image_files), unit="image") as progress_bar:
+            for file_name in image_files:
                 full_path = os.path.join(image_dir, file_name)
                 prompt = "Describe in detail what this image depicts in as much detail as possible."
 
@@ -114,7 +134,7 @@ class loader_cogvlm:
                             documents.append(document)
 
                 except Exception as e:
-                    print(f"{file_name}: Error processing image. Details: {e}")
+                    print(f"{file_name}: Error processing image - {e}")
 
                 progress_bar.update(1)
 
@@ -199,7 +219,7 @@ class loader_llava:
                 load_in_4bit=True,
                 resume_download=True
             )
-
+        
         processor = AutoProcessor.from_pretrained(model_id, resume_download=True)
 
         my_cprint("Vision model loaded.", "green")
@@ -207,12 +227,14 @@ class loader_llava:
 
     def llava_process_images(self):
         script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Images_for_DB")
+        image_dir = os.path.join(script_dir, "Docs_for_DB")
         documents = []
+        allowed_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
 
-        if not os.listdir(image_dir):
-            print("No files detected in the 'Images_for_DB' directory.")
-            return
+        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
+
+        if not image_files:
+            return []
 
         with open('config.yaml', 'r') as file:
             config = yaml.safe_load(file)
@@ -222,8 +244,8 @@ class loader_llava:
         total_start_time = time.time()
         total_tokens = 0
 
-        with tqdm(total=len(os.listdir(image_dir)), unit="image") as progress_bar:
-            for file_name in os.listdir(image_dir):
+        with tqdm(total=len(image_files), unit="image") as progress_bar:
+            for file_name in image_files:
                 full_path = os.path.join(image_dir, file_name)
                 prompt = "USER: <image>\nDescribe in detail what this image depicts in as much detail as possible.\nASSISTANT:"
 
@@ -280,20 +302,21 @@ class loader_salesforce:
 
     def salesforce_process_images(self):
         script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Images_for_DB")
+        image_dir = os.path.join(script_dir, "Docs_for_DB")
         documents = []
+        allowed_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
 
-        if not os.listdir(image_dir):
-            print("No files detected in the 'Images_for_DB' directory.")
-            return
+        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
+
+        if not image_files:
+            return []
 
         model, processor, device = self.initialize_model_and_processor()
-
         total_tokens = 0
         total_start_time = time.time()
 
-        with tqdm(total=len(os.listdir(image_dir)), unit="image") as progress_bar:
-            for file_name in os.listdir(image_dir):
+        with tqdm(total=len(image_files), unit="image") as progress_bar:
+            for file_name in image_files:
                 full_path = os.path.join(image_dir, file_name)
                 try:
                     with Image.open(full_path) as raw_image:
@@ -321,7 +344,30 @@ class loader_salesforce:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
-        
+
         my_cprint("Vision model removed from memory.", "red")
 
         return documents
+
+def specify_image_loader():
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+    
+    chosen_model = config["vision"]["chosen_model"]
+
+    if chosen_model in ['llava', 'bakllava']:
+        loader_func = loader_llava().llava_process_images
+    elif chosen_model == 'cogvlm':
+        loader_func = loader_cogvlm().cogvlm_process_images
+    elif chosen_model == 'salesforce':
+        loader_func = loader_salesforce().salesforce_process_images
+    else:
+        my_cprint("No valid image model specified in config.yaml", "red")
+        return []
+
+    with ProcessPoolExecutor(1) as executor:
+        future = executor.submit(run_loader_in_process, loader_func)
+        processed_docs = future.result()
+        if processed_docs is None:
+            return []
+        return processed_docs

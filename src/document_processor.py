@@ -12,7 +12,7 @@ from langchain.document_loaders import (
     EverNoteLoader,
     UnstructuredEPubLoader,
     UnstructuredEmailLoader,
-    UnstructuredCSVLoader,
+    CSVLoader,
     UnstructuredExcelLoader,
     UnstructuredRTFLoader,
     UnstructuredODTLoader,
@@ -20,11 +20,13 @@ from langchain.document_loaders import (
     UnstructuredHTMLLoader
 )
 
-import pickle
 from constants import DOCUMENT_LOADERS
 from loader_images import loader_cogvlm, loader_llava, loader_salesforce
 from extract_metadata import extract_document_metadata
 from utilities import my_cprint
+import logging
+
+logging.getLogger('unstructured').setLevel(logging.ERROR)
 
 ROOT_DIRECTORY = Path(__file__).parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
@@ -32,21 +34,6 @@ INGEST_THREADS = os.cpu_count() or 8
 
 for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
-
-def choose_image_loader(config):
-    chosen_model = config["vision"]["chosen_model"]
-
-    if chosen_model == 'llava' or chosen_model == 'bakllava':
-        image_loader = loader_llava()
-        return image_loader.llava_process_images()
-    elif chosen_model == 'cogvlm':
-        image_loader = loader_cogvlm()
-        return image_loader.cogvlm_process_images()
-    elif chosen_model == 'salesforce':
-        image_loader = loader_salesforce()
-        return image_loader.salesforce_process_images()
-    else:
-        return []
 
 def load_single_document(file_path: Path) -> Document:
     file_extension = file_path.suffix.lower()
@@ -56,21 +43,21 @@ def load_single_document(file_path: Path) -> Document:
         if file_extension == ".txt":
             loader = loader_class(str(file_path), encoding='utf-8', autodetect_encoding=True)
         elif file_extension == ".epub":
-            loader = UnstructuredEPubLoader(str(file_path), mode="single", strategy="fast")
+            loader = UnstructuredEPubLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
         elif file_extension == ".docx":
             loader = Docx2txtLoader(str(file_path))
         elif file_extension == ".rtf":
-            loader = UnstructuredRTFLoader(str(file_path), mode="single", strategy="fast")
+            loader = UnstructuredRTFLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
         elif file_extension == ".odt":
-            loader = UnstructuredODTLoader(str(file_path), mode="single", strategy="fast")
+            loader = UnstructuredODTLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
         elif file_extension == ".md":
-            loader = UnstructuredMarkdownLoader(str(file_path), mode="single", strategy="fast")
+            loader = UnstructuredMarkdownLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
         elif file_extension == ".xlsx" or file_extension == ".xlsd":
-            loader = UnstructuredExcelLoader(str(file_path), mode="single")
+            loader = UnstructuredExcelLoader(str(file_path), mode="single", encoding='utf-8', autodetect_encoding=True)
         elif file_extension == ".html":
-            loader = UnstructuredHTMLLoader(str(file_path), mode="single", strategy="fast")
+            loader = UnstructuredHTMLLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
         elif file_extension == ".csv":
-            loader = UnstructuredCSVLoader(str(file_path), mode="single")
+            loader = CSVLoader(str(file_path), encoding='utf-8', autodetect_encoding=True)
         else:
             loader = loader_class(str(file_path))
     else:
@@ -78,7 +65,7 @@ def load_single_document(file_path: Path) -> Document:
 
     document = loader.load()[0]
 
-    metadata = extract_document_metadata(file_path)
+    metadata = extract_document_metadata(file_path) # get metadata
     document.metadata.update(metadata)
     
     return document
@@ -92,13 +79,11 @@ def load_document_batch(filepaths):
 def load_documents(source_dir: Path) -> list:
     all_files = list(source_dir.iterdir())
     doc_paths = [f for f in all_files if f.suffix.lower() in (key.lower() for key in DOCUMENT_LOADERS.keys())]
-    pkl_paths = [f for f in all_files if f.suffix.lower() == '.pkl']
     
     docs = []
 
     if doc_paths:
         n_workers = min(INGEST_THREADS, max(len(doc_paths), 1))
-        my_cprint(f"Number of workers assigned: {n_workers}", "white")
         chunksize = round(len(doc_paths) / n_workers)
         
         if chunksize > 0:
@@ -107,32 +92,8 @@ def load_documents(source_dir: Path) -> list:
                 for future in as_completed(futures):
                     contents, _ = future.result()
                     docs.extend(contents)
-            my_cprint(f"Number of document files loaded: {len(docs)}", "yellow")
         else:
             my_cprint("Chunk size calculation error, but proceeding with other file types.", "red")
-
-    for pkl_path in pkl_paths:
-        my_cprint(f"Loading audio transcriptions, if any.", "green")
-        try:
-            with open(pkl_path, 'rb') as pkl_file:
-                doc = pickle.load(pkl_file)
-                docs.append(doc)
-            my_cprint(f"Loaded audio transcription document object from {pkl_path}.", "green")
-        except Exception as e:
-            my_cprint(f"Error loading {pkl_path}: {e}", "red")
-
-    additional_docs = []
-    
-    my_cprint("Loading images, if any.", "yellow")
-    with open("config.yaml", "r") as config_file:
-        config = yaml.safe_load(config_file)
-
-        with ProcessPoolExecutor(1) as executor:
-            future = executor.submit(choose_image_loader, config)
-            processed_docs = future.result()
-            additional_docs = processed_docs if processed_docs is not None else []
-
-    docs.extend(additional_docs)
 
     return docs
 
