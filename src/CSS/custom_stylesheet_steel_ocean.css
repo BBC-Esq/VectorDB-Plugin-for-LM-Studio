@@ -151,21 +151,21 @@ QCheckBox {
 }
 
 QMessageBox {
-    background-color: #1e1e1e; /* Dark gray background */
+    background-color: #1e1e1e;
 }
 
 QMessageBox QLabel {
-    color: white; /* White text for labels */
+    color: white;
 }
 
 QMessageBox QPushButton {
-    background-color: #6c757d; /* Gray background for buttons */
-    color: white; /* White text for buttons */
-    border-radius: 5px; /* Rounded corners for buttons */
-    padding: 5px; /* Padding inside buttons */
-    border: none; /* No border for buttons */
+    background-color: #6c757d;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+    border: none;
 }
 
 QMessageBox QPushButton:hover, QMessageBox QPushButton:pressed {
-    background-color: #2f343f; /* Darker gray background for buttons when hovered or pressed */
+    background-color: #2f343f;
 }
