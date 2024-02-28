@@ -176,59 +176,62 @@ python gui.py
 * Read the User Guide before sending me questions.
 
 ## Download Vector Model
-* In the ```Models Tab``` tab, choose the embedding model you want to download.  The ```User Guide Tab``` explains the difference characteristics of the various models.
+* In the ```Models Tab``` tab, choose the embedding model you want to download.  The ```User Guide Tab``` contains information about the various models.
 
-## Set Vector Model
-* In the ```Databases Tab```, click ```Choose Model``` and click once on the directory containing the model you want to use and click ```Select Folder``` in the lower right.
-  > 🔥 Do not select the ```Embedding_Models``` folder itself.
+## Create a Vector Database
+* In the ```Create Database``` tab, click ```Choose Files``` and select one or more files to add.  This can be repeated as many times as you wish.
+  * Supported documents are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+* If you selected any image files, I highly recommend that you adjust the vision model settings within the ```Settings``` tab and testing the settings while processing a single image, which can easily be done within the ```Tools``` tab.
+  * Supported images are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
+* 🔥 To add audio files you must transcribe one or more audio files from the ```Tools Tab```.  The transcriptions will be saved and added when you create the vector database.
+  * Supported audio extensions include, but are not limited to: ```.mp3```, ```.wav```, ```.m4a```, ```.ogg```, ```.wma```
+* Click ```Choose Model```.
+* Click 🔥ONCE🔥 on the directory containing the vector model you want to use and then click "OK."
+* In the input box, enter a name for the database you want to create (accepts numbers, lowercase letters, and the characters "-" or "_").
+* In the ```Settings Tab```, set the chunk size, chunk overlap, and the device you want to use.  More information is in the User Guide.
+* Click the ```Create Vector Database``` button.
+  * 🔥 MAKE SURE to wait until the command prompt states that the database has been successfully created before proceeding.
 
-## Set Chunk Size and Overlap
-* In the ```Settings Tab```, set the chunk size and chunk overlap.
-  > 🔥 Anytime you want to change these two settings you must re-create the database for the changes to take effect.
+## Delete a Database
+* In the ```Manage Databases``` tab, select a database from the pulldown menu and click ```Delete Database.```
+  > The ability to delete one or more specific files is coming soon.
 
-## Add Files
-* In the ```Databases Tab```, click the ```Choose Files``` and select one or more files.  This can be repeated multiple times for files located in different directories.
-  * * Supported "document" files are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
-  * * Supported "image" files are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
-* To add "audio" files you must go to the ```Tools Tab``` and transcribe an audio file.  This process can be repeated for multiple audio files, however.  The transcription(s) will automatically be saved to the appropriate folder to be added when you create the vector database.
-  * * Most "audio" files should be supported: ```.mp3```, ```.wav```, ```.m4a```, ```.ogg```, ```.wma```
+## Query a Database (No LM Studio)
+* In the ```Query Database``` tab, select the database you want to use from the pulldown menu.
+* Enter your question by typing it or using the ```Record Question``` button.
+* Check the ```chunks only``` checkbox.
+* Click ```Submit Question```, which will return chunks relevant to your query.
+  * In the ```Settings``` tab, you can change multiple settings regarding querying the database.  More information can be found in the User Guide.
 
-## Removing Files
-* In the ```Databases Tab```, select one or more files, right click, and delete.  Re-create the database.
-
-## Creating the Databaase
-* Click the ```Create Vector Database``` button.  Wait until the command prompt says "persisted" before proceeding to the next step.
-
-## Connecting to LM Studio
-* Start LM Studio and load a model.
-
-## Choosing a Prompt Format
-The LLM within LM Studio works best with an appropriate "prompt format."  In the ```Settings Tab```, choose the appropriate prompt format matching the model being used within LM Studio.  You can also enter one manually if a preset is not available.  However, you must turn the ```automatic prompt formatting``` setting in LM Studio to ```off```.
-
-Morever, a bug was introduced in ```LM Studio v0.2.10``` that I have been unable to verify is resolved; therefore, you must additionally:
-* ⚠️ Delete any/all text within the ```User Message Prefix``` box; and
-* ⚠️ Delete any/all text within the ```User Message Suffix``` box.
-
-## Start the LM Studio Server
+## Query a Database with a Response From LM Studio
+This program can get relevant chunks from the vector database and forwarding them - along with your question - to LM Studio for an answer!
+* Perform the above steps regarding entering a question and choosing settings, but make sure that ```Chunks Only``` is 🔥UNCHECKED🔥.
+* Start LM Studio and go to the Server tab on the left.
+* Turn ```Apply Prompt Formatting``` to "OFF."
+* On the right side within ```Prompt Format```, make sure that all of the following settings are blank:
+  * ```System Message Prefix```
+  * ```System Message Suffix```
+  * ```User Message Prefix```
+  * ```User Message Suffix```
+* At the top, load a model within LM Studio.
+* On the right, adjust the ```GPU Offload``` setting to your liking.
+* Within my program, go to the ```Settings``` tab, select the appropriate prompt format for the model loaded in LM Studio, click ```Update Settings```.
 * In LM Studio,  click ```Start Server.```
-
-## Search Database
-* Type (or speak) your question and click ```Submit Question.```
-
-## Test Chunks
-* If you wish to test the quality of the chunk settings, check the ```Chunks Only``` checkbox.  The program will no longer connect to LM Studio and will instead provide you with the chunks directly from the vector database.
-
-## Text to Voice
-* This program uses fun "Bark" models to convert the response to audio.  However, you must wait until the ENTIRE response is received before clicking the ```Bark Response``` button.
-
-## Voice to Text:
-* The voice recorder and audio file transcriber use the ```faster-whisper``` library (CUDA 12+ coming soon).
-
-## Image to Text
-As of release 3.0, the program includes exciting "vision" models that generate summaries of one or more pictures, which are then added to the vector database.  I wrote a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) on this as well.
-  > Remember, the ```Tools Tab``` allows you to test the vision model settings on a single image before creating the database and spending a lot of time creating captions.
+* In the ```Query Database``` tab, click ```Submit Question```.
 
 </details>
+
+<details><summary>CLOSING ARGUMENT</summary>
+  
+* This program uses fun "Bark" models to convert the response to audio.  However, you must wait until the ENTIRE response is received before clicking the ```Bark Response``` button.
+  * I plan on adding support for the ```WhisperSpeech``` library as well, and I highly recommend that you [check it out](https://github.com/collabora/WhisperSpeech).
+* The voice recorder and audio file transcriber use the amazing ```WhisperS2T``` library, which I highly recommend [that you check out](https://github.com/shashikg/WhisperS2T).
+* The "vision" models used in this program generate summaries of pictures, which are then added to the vector database.  I wrote a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) regarding this.  Support for ```llava v1.6``` is coming just as soon as the ```transformers``` library officially supports it!
+</details>
+
+## Request a Feature or Report a Bug
+
+Feel free to report bugs or request enhancements by creating an issue on github or contacting me on the LM Studio Discord server (see below link)!
 
 <div align="center"><h2>CONTACT</h2></div>
 
