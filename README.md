@@ -46,7 +46,7 @@
     <tr>
       <td>AMD GPU on Linux</td>
       <td>✅</td>
-      <td>✅</td>
+      <td>❌</td>
       <td>✅</td>
       <td>✅</td>
     </tr>
@@ -60,7 +60,7 @@
     <tr>
       <td>Apple Metal/MPS</td>
       <td>✅</td>
-      <td>✅</td>
+      <td>❌</td>
       <td>❓</td>
       <td>❌</td>
     </tr>
