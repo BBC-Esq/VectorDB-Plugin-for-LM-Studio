@@ -71,13 +71,6 @@
       <td>TBD</td>
       <td>TBD</td>
     </tr>
-    <tr>
-      <td>Vulkan</td>
-      <td>TBD</td>
-      <td>TBD</td>
-      <td>TBD</td>
-      <td>TBD</td>
-    </tr>
   </tbody>
 </table>
 </div>
