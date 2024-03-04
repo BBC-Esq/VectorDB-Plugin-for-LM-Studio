@@ -72,7 +72,7 @@ def manual_installation_confirmation():
 
 def install_pytorch(cuda_version_num, cuda_installed):
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
-    if cuda_installed and cuda_version_num >= 12.1:
+    if cuda_installed and cuda_version_num is not None and cuda_version_num >= 12.1:
         if minor == 11:
             os.system("pip3 install https://download.pytorch.org/whl/cu121/torch-2.2.0%2Bcu121-cp311-cp311-win_amd64.whl#sha256=d79324159c622243429ec214a86b8613c1d7d46fc4821374d324800f1df6ade1 https://download.pytorch.org/whl/cu121/torchvision-0.17.0%2Bcu121-cp311-cp311-win_amd64.whl#sha256=307e52c2887c1d2b50cc3581cf5f4c169130b8352462e361e71eeda19e0dd263 https://download.pytorch.org/whl/cu121/torchaudio-2.2.0%2Bcu121-cp311-cp311-win_amd64.whl#sha256=67a33d2066668a2754d9dd5d000419f60102dd17eff9803f9b0a5e1d9261f79d")
         elif minor == 10:
@@ -94,7 +94,7 @@ def setup_windows_installation():
     os.system("python -m pip install --upgrade pip")
     install_pytorch(cuda_version_num, proceed)
     os.system("pip3 install -r requirements.txt")
-    os.system("pip3 install --no-deps whisper-s2t==1.3.1")
+    os.system("pip3 install --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
     os.system(c.BITSANDBYTES_INSTALL_COMMAND)
     
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
