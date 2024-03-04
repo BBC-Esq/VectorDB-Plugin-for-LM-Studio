@@ -14,9 +14,6 @@ class TranscriberToolSettingsTab(QWidget):
     def __init__(self):
         super().__init__()
         self.selected_audio_file = None
-        self.config = self.read_config()
-
-        self.gpu_brand = self.config.get('Compute_Device', {}).get('gpu_brand', '').lower()
 
         self.create_layout()
 
