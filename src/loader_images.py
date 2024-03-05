@@ -9,6 +9,7 @@ from PIL import Image
 from tqdm import tqdm
 from transformers import (
     AutoModelForCausalLM,
+    AutoTokenizer,
     AutoProcessor,
     BlipForConditionalGeneration,
     BlipProcessor,
@@ -349,6 +350,58 @@ class loader_salesforce:
 
         return documents
 
+class loader_moondream:
+    def initialize_model_and_tokenizer(self):
+        device = get_best_device()
+        model = AutoModelForCausalLM.from_pretrained("vikhyatk/moondream2", trust_remote_code=True, revision="2024-03-05").to(device)
+        tokenizer = AutoTokenizer.from_pretrained("vikhyatk/moondream2", revision="2024-03-05")
+        
+        return model, tokenizer, device
+    
+    def moondream_process_images(self):
+        script_dir = os.path.dirname(__file__)
+        image_dir = os.path.join(script_dir, "Docs_for_DB")
+        documents = []
+        allowed_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+        
+        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
+        
+        if not image_files:
+            return []
+            
+        model, tokenizer, device = self.initialize_model_and_tokenizer()
+        
+        total_start_time = time.time()
+        
+        with tqdm(total=len(image_files), unit="image") as progress_bar:
+            for file_name in image_files:
+                full_path = os.path.join(image_dir, file_name)
+                try:
+                    with Image.open(full_path) as raw_image:
+                        enc_image = model.encode_image(raw_image)
+                        summary = model.answer_question(enc_image, "Describe in detail what this image depicts in as much detail as possible.", tokenizer)
+                        extracted_metadata = extract_image_metadata(full_path)
+                        
+                        document = Document(page_content=summary, metadata=extracted_metadata)
+                        documents.append(document)
+
+                        progress_bar.update(1)
+
+                except Exception as e:
+                    print(f"{file_name}: Error processing image - {e}")
+                    
+        total_end_time = time.time()
+        total_time_taken = total_end_time - total_start_time
+        print(f"Total image processing time: {total_time_taken:.2f} seconds")
+
+        del model
+        del tokenizer
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
+
+        return documents
+
 def specify_image_loader():
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -361,6 +414,8 @@ def specify_image_loader():
         loader_func = loader_cogvlm().cogvlm_process_images
     elif chosen_model == 'salesforce':
         loader_func = loader_salesforce().salesforce_process_images
+    elif chosen_model == 'moondream2':
+        loader_func = loader_moondream().moondream_process_images
     else:
         my_cprint("No valid image model specified in config.yaml", "red")
         return []
