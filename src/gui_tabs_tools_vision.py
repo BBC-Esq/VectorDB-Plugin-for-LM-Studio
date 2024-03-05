@@ -63,9 +63,9 @@ class VisionToolSettingsTab(QWidget):
                 processing_function = vision_llava_module.llava_process_images
             elif chosen_model == 'cogvlm':
                 processing_function = vision_cogvlm_module.cogvlm_process_images
-            elif chosen_model == 'salesforce':
-                QMessageBox.warning(self, "Testing Salesforce",
-                                    "Testing Salesforce is not allowed here. It is too lightweight and should run on any semi-modern CPU and/or GPU. If your system can't handle processing multiple images with Salesforce, it's time to upgrade your computer.")
+            elif chosen_model == 'salesforce' or chosen_model == 'moondream2':
+                QMessageBox.warning(self, "Testing Salesforce or Moondream",
+                                    "Testing Salesforce or Moondream2 is not allowed because they should run on any semi-modern CPU and/or GPU.")
                 return
             else:
                 print("Error: Invalid model selected.")
