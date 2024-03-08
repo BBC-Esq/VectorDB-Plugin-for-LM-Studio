@@ -76,9 +76,6 @@
 </div>
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
-
-<details>
-  <summary>REQUIREMENTS</summary>
   
 1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/)
 2) 📁[Git](https://git-scm.com/downloads)
@@ -98,8 +95,6 @@
    </details>
 
 6) 🟢Nvidia GPU acceleration requires [CUDA 12.1+](https://developer.nvidia.com/cuda-toolkit).
-
-</details>
 
 <div align="center"> <h2>INSTALLATION</h2></div>
 
