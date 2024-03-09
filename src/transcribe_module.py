@@ -12,11 +12,12 @@ class Document:
         self.metadata = metadata
 
 class WhisperTranscriber:
-    def __init__(self, model_identifier="ctranslate2-4you/whisper-large-v2-ct2-float16", batch_size=48):
+    def __init__(self, model_identifier="ctranslate2-4you/whisper-large-v2-ct2-float16", batch_size=48, compute_type='float16'):
         self.model_identifier = model_identifier
         self.batch_size = batch_size
+        self.compute_type = compute_type
         self.model_kwargs = {
-            'compute_type': 'float16',
+            'compute_type': self.compute_type,
             'asr_options': {
                 "beam_size": 5,
                 "best_of": 1,

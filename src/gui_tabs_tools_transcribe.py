@@ -31,8 +31,11 @@ class TranscriberToolSettingsTab(QWidget):
         self.model_name_mapping = {
             "large-v2 - float16": "ctranslate2-4you/whisper-large-v2-ct2-float16",
             "medium.en - float16": "ctranslate2-4you/whisper-medium.en-ct2-float16",
+            "small.en - float32": "ctranslate2-4you/whisper-small.en-ct2-float32",
             "small.en - float16": "ctranslate2-4you/whisper-small.en-ct2-float16",
+            "base.en - float32": "ctranslate2-4you/whisper-base.en-ct2-float32",
             "base.en - float16": "ctranslate2-4you/whisper-base.en-ct2-float16",
+            "tiny.en - float32": "ctranslate2-4you/whisper-tiny.en-ct2-float32",
             "tiny.en - float16": "ctranslate2-4you/whisper-tiny.en-ct2-float16"
         }
 
@@ -92,12 +95,16 @@ class TranscriberToolSettingsTab(QWidget):
             return
 
         selected_model = self.model_combo.currentText()
-        selected_model_full_string = self.model_name_mapping[selected_model]
+        selected_model_identifier = self.model_name_mapping[selected_model]
+        
+        selected_compute_type = selected_model.split(' - ')[-1]
+        
         selected_batch_size = int(self.slider_label.text())
 
         def transcription_thread():
-            transcriber = WhisperTranscriber(model_identifier=selected_model_full_string, batch_size=selected_batch_size)
+            transcriber = WhisperTranscriber(model_identifier=selected_model_identifier, batch_size=selected_batch_size, compute_type=selected_compute_type)
             transcriber.start_transcription_process(self.selected_audio_file)
             my_cprint("Transcription created and ready to be input into vector database.", 'green')
 
         threading.Thread(target=transcription_thread, daemon=True).start()
+
