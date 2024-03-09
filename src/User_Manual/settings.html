@@ -90,104 +90,87 @@
 
   <main>
 	<h2><u>Server/LLM Settings</u></h2>
-    <p><code>Port</code>: Must match the port that you've set in LM Studio.</p>
+    <p><code>Port</code>: Must match the port being used in LM Studio.</p>
 	
-	<p><code>Max-tokens</code>: Refers to the maximum amount of tokens that the LLM can use to provide a response.
-	The default is <code>-1</code>, which allows the LLM an unlimited amount of tokens (up to the maximum context length
-	specified within LM Studio).  This setting is mostly useful for smaller models that sometimes ramble.</p>
+	<p><code>Max-tokens</code>: The maximum number of tokens that the LLM can use when providing a response. The default
+	of <code>-1</code> allows the LLM an unlimited number (up to the model's maximum context length specified within LM Studio).</p>
 
     <p><code>Temperature</code>: Determines the creativity of the LLM's response.  Can be between 0 and 1.  Zero means
-	don't be creative at all.  The default setting is <code>.1</code>.</p>
+	don't be creative at all.</p>
 
     <h3>Prompt Format</h3>
-    <p><code>Prefix</code> and <code>Suffix</code>: refer to what precedes and follows what you send to the LLM.
-	LLM's are trained with a certain "prompt format" and they provide the best responses when your questions are
-	structured to fit this prompt format.  For example, Llama-2-chat uses the <code>[INST]</code> and <code>[/INST]</code>
-	prefix and suffix, respectively.</p>
+    <p>A <code>Prefix</code> and <code>Suffix</code> are sent to LM Studio along with your question and the results from the
+	vector database search.  Different LLM's are trained with different "prompt formats" and your results
+	will degrade if you don't use the correct one.</p>
 
-	<p>I've included a few presets for models that I think provide the best responses for RAG, but there's also space to enter
-	a custom prefix/suffix.  Make sure and check the model card on Huggingface for the proper format if you don't use a preset.</p>
+	<p>I recommend using a model within LM Studio that matches a present provided in this program since I've tested the models
+	specifically for RAG, but there's also space to enter a custom prefix/suffix if you want to try different models.  Make sure
+	to clear the prefix and suffix boxes as well as disable "automatic prompt formatting" within LM Studio as there
+	have been bug reports if you don't.</p>
 	
-	<p> Also, my program does not utilize "system messages" or other complex prompt formats.  It only uses "prefix" and "suffix," which
-	I've found more than sufficient for RAG purposes.  However, if you want to use an LLM that can accommodate more complex prompt
-	formatting, click the <code>disable</code> button in my program and enable "Automatic Prompt Formatting" within LM Studio.</p>
+	<p><code>Disable</code>: Disables prompt formatting so you can exclusively use the prompt formatting settings within LM Studio.</p>
 	
-	<h2><u>Voice Recorder Settings</u></h2>
+	<h2><u>Database Creation</u></h2>
 	
-	<p> This program uses state-of-the-art Whisper models to (1) transcribe your question and (2) transcribe audio files to
-	<code>.txt</code>, which are then put into the vector database.  Details about these settings are further explained in the
-	<u>Whisper Tab</u> of this User Guide.</p>
+	<p>Before text is put into the vector database (whether it originates from a pdf, audio transcription or image description) it
+	must be broken into chunks by the "Recursive Character Text Splitter" (aka, "Splitter") created by Langchain so that when you search the database you can get relevant chunks/contexts.  The chunks of text are then converted into vectors by the embedding model and
+	put into the vector database.</p>
+	
+	<p><code>Chunk Size</code>: The maximum length of a chunk/context in characters (NOT tokens).  The Splitter will strive to achieve this limit. but may create shorter chunks by splitting between paragraphs sentences to keep related ideas together.</p>
 
-	<p>In general, however, I recommend transcribing your question using CPU and using GPU acceleration to transcribe an audio file.
-	Moreover, when transcribing a file using gpu-acceleration I recommend using as large of a Whisper model as possible and no less
-	than float16/bfloat16 quantization.  If need be, eject the LLM from within LM Studio when transcribing a file to free up VRAM.
-	The selectable options are automatically determined by what's compatible with your CPU and/or GPU.</p>
+	<p><code>Chunk Overlap</code>:Specifies the maximum number of characters (NOT tokens) that each chunk will include from the
+	previous chunk.  For example, if <code>chunk overlap</code> is set to 250 then first 250 characters of "Chunk #2" will consist
+	of the last 250 characters of "Chunk #1."  The goal is to try and preserve meaning if, for example, text is split in the
+	middle of a sentence.</p>
+	
+	<p>A good rule of thumb is to set <code>chunk overlap</code> to 1/4 or 1/3 of the <code>chunk size</code>.</p>
+	
+	<h2><u>Database Query</u></h2>
+	<p><code>Create Device</code>: Automatically populated with "cpu", "cuda" or "mps" based on your hardware.  Always use
+	"cuda" or "mps" if available.</p>
+	
+	<p><code>Contexts</code>: The maximum number of chunks/contexts that can be returned.  This is an upper limit, however,
+	and a chunk will only be returned if its meets the <code>similarity</code> threshhold setting.  For example, a setting of "10"
+	will return the 10 most relevant chunks/contexts (provided they all meet the similarity setting).</p>
+	
+	<p><code>Similarity</code>: The threshhold of how relevant a chunk/context must be before it will be returned.  A setting
+	of <code>.1</code> is a low-relevance while .9 would be very high.  Do not use "1."</p>
+	
+	<p><code>Search Filter</code>: After chunks have been obtained, excludes a chunk/context unless it contains the specified
+	search term VERBATIM (but is not case-sensitive).  This filter only runs AFTER the <code>contexts</code> and <code>similarity</code> settings.</p>
+
+	For example, if the filter is "book" then only chunks that contain "book" would be sent to the LLM or displayed (if "chunks only" is checked).  Even chunks with terms like "books", "bookend," or similar derivations would still be excluded, but terms like "Book,"
+	"book" or "bOoK" would not result in the chunk being excluded.</p>
+	
+	<p><code>Clear Filter</code>: Removes any filters.
+	
+	<p><code>All Files</code>, <code>Images-Only</code>, <code>Documents-Only</code>, and <code>Audio-Only</code>:  Specifies which
+	types of files will be searched within the vector database.  For example, if you choose <code>Audio-Only</code>, only
+	chunks/contexts that originate from an audio file will be returned (subject to the similarity and filter settings of course).</p>
+	
+	<p><code>Chunks Only</code> checkbox:  If checked, LM Studio will not be connected to and the chunks received from the vector database will be displayed instead.  This is extremely useful to test the chunk size/overlap settings as well as the quality of the
+	vector model you are using.</p>
 	
 	<h2><u>Bark Settings</u></h2>
 	
-	<p>These settings pertain to the <u>Bark Response</u> button, which plays audio of the LLM's response using "Bark" models.
-	You must wait for the LLM's entire response to be received otherwise it may give an error.  DO NOT use this feature
-	unless: (1) you have an Nvidia GPU; (2) you are using an AMD GPU, running Linux, and have installed all the proper
-	acceleration software (e.g. RocM); or (3) have Apple MPS.  Otherwise, it'll revert to CPU-usage and be EXTREMELY SLOW.</p>
+	<p>The "Bark Response" button will convert the LLM's response to audio.  I only recommend using this feature if you have gpu-acceleration and I've disabled it for certain platforms due to compatibility issues until I find a better solution.</p>
 	
-	<p><code>Size</code>: Setting refers to either the normal size Bark model or the small model, each with its own resource
-	requirements, speed, and accuracy.  The small model is used by default.</p>
+	<p><code>Size</code>: Size of the Bark model to use, each with its own resource requirements, speed, and accuracy.</p>
 	
-	<p><code>Quant</code>: Allows a user to choose the original <u>float32</u> version of the Bark model or the <u>float16</u>
-	quantized version.  Using <u>float16</u> saves significant resources with little quality loss, but feel free to try both!</p>
+	<p><code>Quant</code>: <u>float32</u> casts the bark model in its original floating point format.  <u>float16</u> cuts the
+	memory/compute requirements by half with a relatively small loss in quality.</p>
 	
-	<p><code>Better Transformer</code>: Better Transformer is a library created by Huggingface that provides a general 5-20% speedup.
-	Since it is compatible with most systems, you should leave this checked unless you're getting strange errors.</p>
+	<p><code>Better Transformer</code>: Use the "better transformers" feature created by Huggingface, which provides a
+	general 5-20% speedup.  This should always be checked unless you experience problems running the Bark model.</p>
 
-	<p><code>Cpu_Offload</code>: Bark actually consists of four sub-models and only one is used at any given moment.  Checking
-	this setting makes it so only the active sub-model is using VRAM while the others are kept in system RAM.  However, this
-	noticeably decreases speed.  This setting is unchecked by default and you should leave it that way unless you are extremely
-	short on VRAM.</p>
+	<p><code>Cpu_Offload</code>: The Bark model actually consists of four sub-models (<code>semantic</code>, <code> coarse</code>, <code>fine</code>, and <code> encodec</code>), which are run sequentially to convert text to audio.  If unchecked, all four sub-models will be loaded into VRAM until the Bark model is done processing.  If checked, only the sub-model being used will reside in VRAM and the other three will be put into system RAM.  This results in a small delay in processing and is not recommended unless you are running short on VRAM.  If you are not using gpu-acceleration (not recommended) this setting has no effect since all four sub-models
+	will always be in system RAM.</p>
 	
-	<p><code>Voices</code>: Allows a user to test Barks premade voices.  <code>v2/en_speaker_6</code> is the default setting
-	and the highest quality in my opinion, but feel free to experiment.  The only female voice is <code>v2/en_speaker_9</code>.
-	Eventually this program might incorporate voices able to speak in different languages, which will be around the same time
-	that the functionality to translate to/from different languages is added:</p>
+	<p><code>Voices</code>: Choose different voices.  <code>v2/en_speaker_6</code> is the highest quality IMHO but it's fun to
+	experiment.  The only female voice is <code>v2/en_speaker_9</code>.
+	<h2><u>Vision Models</u></h2>
 	
-	<p>https://suno-ai.notion.site/8b8e8749ed514b0cbf3f699013548683?v=bc67cff786b04b50b3ceb756fd05f68c</p>
-	
-	<h2><u>Database Query Settings</u></h2>
-	<p><code>Create Device</code> will be populated with "cpu", "cuda" or "mps" based on your system.  Same with <code>Query
-	Device</code>
-	
-	<p><code>Contexts</code> refers to the maximum number of chunks/contexts you want returned as long as they satisfy the
-	<code>similarity</code> and <code>Search Filter</code> settings.</p>
-	
-	<p><code>Similarity</code> refers to how relevant a chunk/context must be to be included in the results obtained from the
-	database.  For example, .1 is a low-relevance while .9 would be very high.  A setting of "1" signifies a perfect relevance and should NOT be used.  IMPORTANT: Even if there are more chunks that have the <code>similarity</code> threshold, the maximum number of chunks returned is still governed by the <code>contexts</code> setting.  ADDITIONALLY: Even if all of the chunks meeting the
-	<code>similarity</code> setting are returned (e.g. by setting the <code>contexts</code> to an extremely high number), the
-	<code>Search Filter</code> would still limit both the chunks sent to the LLM as well as displayed when the "chunks only" checkbox
-	is checked.</p>
-	
-	<p><code>Search Filter</code> is extremely powerful.  After the <code>contexts</code> and <code>similarity</code> settings are
-	applied, it subsequently filters the remaining chunks by requiring them to have VERBATIM the keyword you specify in each chunk.
-	IMPORTANT: While it is verbatim it is not case-sensitive.  For example, hypothetically, specifying a search filter of "child"
-	would require each chunk (after <code>contexts</code> and <code>similarity</code> apply) to contain "child;" otherwise, the
-	chunk would not be sent to the LLM nor would it be displayed if the "chunks only" checkbox was checked.  It is "verbatim" as in
-	"children" and "child's", for example, would not satisfy the "child" filter.  However, it is case-insensitive in that "Child,"
-	"child" or "cHiLD" would all satisfy the filter.</p>
-	
-	<p><code>Allfiles/Images-Only/Non-Images Only</code> is also powerful.  If you have images and non-images in the database
-	it allows you to only search one or both.</p>
-
-	<h2><u>Database Creation Settings</u></h2>
-	
-	<p><code>Chunk Size</code> and <code>Chunk Overlap</code>refer to how the "RecursiveCharacterTextSplitter"
-	splits the text that you extract from the various documents (and images) you put into the vector database.  These settings are in
-	"characters," NOT tokens.  The chunks of text are then vectorized by the embedding model and put into the database.  Feel free to
-	experiment with different settings.  Different settings might work better with different styles of text.</p>
-
-	<p>For example, if the LLM's limit is 4096 and you send 10 "contexts" each having 1,200 characters (i.e. 300 tokens) you've
-	already used up 3,000 tokens of the LLM's 4096 limit.  This would leave 1096 tokens for the LLM's response, which is usually
-	(but not always) sufficient to answer your question.</p>
-	
-	<p><code>Chunks Only</code> is located near the Submit Questions button.  It allows you to only return the relevant chunks of text
-	from the vector database and not connect to the LLM.  This is extremely useful to text the chunk size/overlap settings.</p>
+	<p>Consult the "Vision" tab within the User Guide.</p>
 	
 	<h2>Break in Case of Emergency</h2>
 	<p>Settings for this program are stored in <code>config.yaml</code>.  If you mistakenly change a setting or lose this file,

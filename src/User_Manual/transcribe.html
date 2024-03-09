@@ -152,11 +152,9 @@
 			<a href="#overview">Overview</a> |
 			<a href="#transcribe-question">Transcribe Question</a> |
 			<a href="#transcribe-file">Transcribe Audio Files</a> |
-			<a href="#whisper-models">Whisper Models and Quants</a> |
-			<a href="#additional-info">Additional Info</a> |
-			<a href="#available-models">Available Whisper Models and Quants</a> |
 			<a href="#floating">Introduction to Floating Point Formats</a> |
-			<a href="#quantization">What is Quantization?</a>
+			<a href="#quantization">What is Quantization?</a> |
+			<a href="#available-models">Available Whisper Models and Quants</a> |
 		</nav>
 	</header>
 	
@@ -164,99 +162,143 @@
 	
 	<h2 id="overview">Overview</h2>
 	
-	<p><b>This program uses state-of-the-art Whisper models in two ways:</b></p>
+	<p><b>This program uses state-of-the-art Whisper models to:</b></p>
 <ol>
-    <li>Transcribe your question into the question box; and</li>
-    <li>Transcribe an audio file to <code>.txt</code> to be put into the vector database.</li>
+    <li>Transcribe your question into the question box</li>
+    <li>Transcribe an audio file to a <code>.txt</code> file that will be put into the vector database.</li>
 </ol>
 
 	<h2 id="transcribe-question">Transcribe Question</h2>
 	
-	<p>The start and stop recording buttons allow you to transcribe your question for the LLM instead of typing it. The
-	<code>Model</code>, <code>Quant</code>, and <code>Device</code> settings within the <u>Settings Tab</u> pertain to this
-	functionality.  <code>Model</code> refers to the size of the Whisper model.  A larger model produces more accurate results but
-	takes longer and requires more resources.  <code>Quant</code> refers to the quantization level, which is explained more below.
-	<code>Device</code> refers to using CPU, GPU or MPS (for some Macs) when transcribing your question.</p>
-	
-	<p>When transcribing a question, I recommend using the <u>small/small.en</u> model, a quantization of <u>float32</u>, and CPU.
-	Remember, you MUST click the <u>Update Settings</u> button to update these settings.</p>
+	<p>The <code>Record Question</code> button loads the Whisper model.  You can then speak, click the button again, and your
+	question will be transcribed directly to the question box.  Previous version of this program used the
+	<code>faster-whisper</code> library and included detailed settings for model name, size, quantization, and
+	compute device (e.g. cpu, cuda or mps).  I've switched to the much faster <code>whisperS2A</code> library and have temporarily
+	removed these settings.  Currently the <code>small.en</code> model is us by default, running in "float32," and a batch processing
+	size of 16 is used.  The compute device is always "cpu" currently. I will likely add the ability to customize these settings
+	in a future release.</p>
 	
 	<h2 id="transcribe-file">Transcribe File</h2>
 	
-	<p>Within the <u>Tools Tab</u> you can choose an audio file (or a directory of audio files) to transcribe to a <code>.txt</code>
-	file(s), which can subsequently put into the vector database.  The relevant settings are also within the Tools Tab.
-	In contrast to transcribing a question, when transcribing a file I recommend using as large a Whisper model as possible,
-	a quantization of no less than <u>float16/bfloat16</u> (preferably <u>float32</u>), and GPU or MPS.  When transcribing a short
-	question it's easy to correct mistakes, but you don't want to sift through an hour-long transcript for mistakes.</p>
+	<p>In order to add transcriptions of audio files to the vector database you must first go to the <u>Tools Tab</u> and process
+	an audio file.  You can do this multiple times, however, and each the transcription will be added to the "Create Database" tab.  Remember, you must subsequently create the vector database.</p>
 	
-	<p>Eject the LLM from within LM Studio to free up VRAM, if need be, when transcribing a file.</p>
+	<p>Since switching to the <code>whisperS2A</code> library, I've simplified the settings in terms of size and quantization
+	of the Whisper model to use, and the default compute device is always "cuda" or "mps" if available, and if not, "cpu."
+	However, I will likely add back the ability to change these settings in the future.</p>
+
+	<p>NOTE.  The huge speedup provided by <code>whisperS2A</code> library is primarily due to "batch processing," which can be
+	controlled from the "Speed" slider bar.  The amount of processing time and resources required are directly impacted by these
+	two settings.  Therefore, I highly recommend first testing your settings a single audio file of approximately 2 minutes
+	before processing longer files.</p>
 	
-	<p>Note, the settings for transcribing a file are automatically updated and you don't need to click any button to update them.</p>
+	<p>The resulting transcription is held in a "document object," which the Langchain library recognizes, prior to being put into
+	the vector database.  This "document object" is saved as an actual file using the <code>pickle</code> library from the standard
+	python library, but is deleted once the vector database is created.  Therefore, if you want to add the same audio transcription to multiple databases you'd need to redo the transcription or manually copy and paste the pickle file into the "Docs_for_DB" folder inbetween database runs.</p>
 	
-	<h2 id="whisper-models">Whisper Model Nuances</h2>
+	<h2 id="Tips">Recommendations</h2>
 	
-	<p>Whisper models ending in <code>.en</code> specialize in transcribing English.  The <code>large-v2</code> model doesn't have
-	a <code>.en</code> variant because it's simply good at everything.  Currently, this program does not support translating a
-	question into English nor translating an audio file into English; therefore, use Whisper models ending in <code>.en</code>.
-	If/when translating a question or audio file is implemented, the non-<code>.en</code> models will become relevant.</p>
+	<p>Always use the large-v2 model in order to get high quality transcriptions.  In theory, you're ideally only entering a
+	transcription into the vector database once and it needs to be reliably searchable.  This is in contrast to  when
+	transcribing a question, which can be easily corrected within the question box.  One exception might be if you are NOT using GPU acceleration (i.e. either cuda or mps) and the "cpu" device is being used.  If you do not have a high-end cpu and/or the audio
+	file is relatively long, using the large-v2 could result in very long transcription times and reducing the model size can help
+	tremendously.</p>
 	
-	<p>Pro tip.  The size of the model determines its quality followed next by its quantization.</p>
-	
-	<h2 id="additional-info">Transcription Times</h2>
-	
-	<p>The tables below generally show the memory requirements for the various sizes/quantizations and transcriptions times.
-	Note, a lower quantization <u>ALWAYS</u> means less memory (and less quality) but <u>DOES NOT</u> mean less transcription time.
-	The CUDA tests were done with an RTX 4090.  The CPU test was done with an 13900k using 28 out of 32 logical cores.
-	The audio file itself was a <code>.flac</code> that was 2 hours and 24 minutes long.</p>
-	
-<style type="text/css">
-#T_7a207_ td {
-  background-color: #b3e0ff;
-}
-#T_7a207_ th {
-  background-color: none;
-}
-#T_7a207_row0_col1, #T_7a207_row0_col3, #T_7a207_row1_col1, #T_7a207_row1_col3, #T_7a207_row2_col1, #T_7a207_row2_col3, #T_7a207_row3_col1, #T_7a207_row3_col3 {
-  text-align: center;
-}
-</style>
-<table id="T_7a207_">
-  <thead>
-    <tr>
-      <th class="col_heading level0 col0" >Model</th>
-      <th class="col_heading level0 col1" >Compute Platform</th>
-      <th class="col_heading level0 col2" >Transcription Time</th>
-      <th class="col_heading level0 col3" >Memory Used</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td id="T_7a207_row0_col0" class="data row0 col0" >Large v2 (float32)</td>
-      <td id="T_7a207_row0_col1" class="data row0 col1" >CUDA</td>
-      <td id="T_7a207_row0_col2" class="data row0 col2" >~8 min 25 sec</td>
-      <td id="T_7a207_row0_col3" class="data row0 col3" >~7 GB VRAM</td>
-    </tr>
-    <tr>
-      <td id="T_7a207_row1_col0" class="data row1 col0" >Large v2 (float16)</td>
-      <td id="T_7a207_row1_col1" class="data row1 col1" >CUDA</td>
-      <td id="T_7a207_row1_col2" class="data row1 col2" >~7 min 15 sec</td>
-      <td id="T_7a207_row1_col3" class="data row1 col3" >~5 GB VRAM</td>
-    </tr>
-    <tr>
-      <td id="T_7a207_row2_col0" class="data row2 col0" >Large v2 (int8)</td>
-      <td id="T_7a207_row2_col1" class="data row2 col1" >CUDA</td>
-      <td id="T_7a207_row2_col2" class="data row2 col2" >~12 min 25 sec</td>
-      <td id="T_7a207_row2_col3" class="data row2 col3" >~3.1 GB VRAM</td>
-    </tr>
-    <tr>
-      <td id="T_7a207_row3_col0" class="data row3 col0" >Large v2 (float32)</td>
-      <td id="T_7a207_row3_col1" class="data row3 col1" >CPU</td>
-      <td id="T_7a207_row3_col2" class="data row3 col2" >~103 min 30 sec</td>
-      <td id="T_7a207_row3_col3" class="data row3 col3" >~7 GB RAM</td>
-    </tr>
-  </tbody>
-</table>
-	
+	<p>After ideally choosing the large-v2 model, set the speed setting at the highest level where only VRAM is being used.  If any VRAM usage spills over into regular system RAM, it will greatly slow down the transcription process.  This is where experimenting with a 2 minute audio file first is useful, and obviously if you're not using "cuda" or "mps" then this is not a concern.</p>
+
+
+        <h2 id="floating">Primer on Floating Point Formats</h2>
+		
+		<section>
+            <img src="./float.png" alt="Floating Point">
+        </section>
+
+        <p>Running an embedding model or an LLM requires a lot of math calculations and computers don't understand
+		decimals (1,2,3) like humans.  Instead, they represent numbers with a series of ones and zeros called "bits."
+		In general, the more bits used used to represent a number means higher accuracy when performing math calculations, which
+		means a higher quality in a model's output.  However, this also means that more memory and compute resources are needed.</p>
+		
+		<p>The "quality" of a model also depends on how many of the bits are "exponent" versus "fraction." The phrase
+		"<u>Floating Point Format</u>" refers to both (1) the total number of bits used and (2) how many of those bits are
+		"exponent" versus "fraction" bits.  The three most common floating point formats are above.  Notice that both
+		<u>float16</u> and <u>bfloat16</u> use 16 bits but a differing number of "exponent" versus "fraction" bits.</p>
+		
+		<p>The number of "<u>exponent</u>" bits determines the "range" of numbers that can be used when performing math calculations.
+		For example, <u>float32</u> uses 8 "exponent" bits, which hypothetically allows using any integer between one and
+		one-hundred.  Its "range," in other words, is 1-100.  <u>Bfloat16</u> would have the same "range" because it also
+		uses 8 "exponent" bits.  However, <u>float16</u> might have a "range" of 1-50  since it only uses 5 "exponent" bits.</p>
+
+        <p></p>
+		
+		<p>The number of "<u>fraction</u>" bits determines how many "<u>unique values</u>" that can be used within that "range."
+		For example, <u>float32</u> uses 23 "fraction" bits, which hypothetically allows it to use every whole number between 1-100
+		when doing math.  <u>Bfloat16</u> only uses 7 "fraction" bits, which hypothetically only allows it to use 25 unique values
+		within its range.  This is sometimes referred to as the "precision" of floating point format.</p>
+
+        <p>Hypotheticals aside, here are the actual ranges/precisions:</p>
+		
+			<table class="table-from-second-file" border="1">
+				<tr>
+					<th>Floating Point Format</th>
+					<th>Range (Approximate)</th>
+					<th>Precision</th>
+				</tr>
+				<tr>
+					<td>float32</td>
+					<td>±1.4 × 10<sup>-45</sup> to ±3.4 × 10<sup>38</sup></td>
+					<td>6 to 9 decimal digits</td>
+				</tr>
+				<tr>
+					<td>float16</td>
+					<td>±6.1 × 10<sup>-5</sup> to ±6.5 × 10<sup>4</sup></td>
+					<td>3 to 4 decimal digits</td>
+				</tr>
+				<tr>
+					<td>bfloat16</td>
+					<td>±1.4 × 10<sup>-45</sup> to ±3.4 × 10<sup>38</sup></td>
+					<td>3 to 4 decimal digits</td>
+				</tr>
+			</table>
+
+		<p>It's important to note that "<u>range</u>" and "<u>precision</u>" both determine the "quality" of an output but in
+		different ways, and different floating point formats are good for different purposes.  For example, Google (which created
+		<u>bfloat16</u>), found that it was better for neural networks while <u>float16</u> was better for "scientific" calculations.</p>
+		
+		<p>You can see the floating point format of the various embedding models used inthis program by looking at the
+		<code>config.json</code> file for each model.  All of the Whisper models used in this program were created with
+		<u>float32</u> and you can experiment with the various quantizations I've done for each size of model.</p>
+		
+        <section>
+            <h2 id="quantization">What is Quantization?</h2>
+			
+            <p>"<u>Quantization</u>" means converting the original floating point format to one with a smaller "range" and/or "precision."
+			Projects like <u>llama.cpp</u>, <u>AutoGPTQ</u>, and <u>Ctranslate2</u> each have their strengths and weaknesses, but the
+			goal is to reduce the resources needed while only suffering a "reasonable" loss in quality.</p>
+			
+			<p>For example, descriptions such as "Q8_0" or "8-bit" refer to the "floating point format" of "<u>int8</u>," which has
+			the following range and precision:
+			
+		<table class="table-from-second-file" border="1">
+			<tr>
+				<th>Integer Data Type</th>
+				<th>Range</th>
+				<th>Number of Discrete Values</th>
+			</tr>
+			<tr>
+				<td>int8</td>
+				<td>-128 to 127</td>
+				<td>256 (from -128 to 127)</td>
+			</tr>
+		</table>
+
+			<p><b>Technically</b>, "int8" is no longer "floating"...but this primer is not intended to explain things at a university
+			level...</p>
+			
+			<p>...you might say that the "range" and/or "precision" of this primer is only what is necessary to give a user a
+			basic understanding of the concepts in order to use this program.  In other words, I have specifically chosen to use
+			a lower floating point format in order to avoid the memory and compute resources required to fully research all of
+			the concepts discussed in this primer...after all, we're not sending astronauts into space here!</p>
+
 	<h2 id="available-models">Whisper Sizes and Quants</h2>
 	
 	<table>
@@ -522,98 +564,6 @@
         </tbody>
     </table>
 </div>
-
-        <h2 id="floating">Primer on Floating Point Formats</h2>
-		
-		<section>
-            <img src="./float.png" alt="Floating Point">
-        </section>
-
-        <p>Running an embedding model or an LLM requires a lot of math calculations and computers don't understand
-		decimals (1,2,3) like humans.  Instead, they represent numbers with a series of ones and zeros called "bits."
-		In general, the more bits used used to represent a number means higher accuracy when performing math calculations, which
-		means a higher quality in a model's output.  However, this also means that more memory and compute resources are needed.</p>
-		
-		<p>The "quality" of a model also depends on how many of the bits are "exponent" versus "fraction." The phrase
-		"<u>Floating Point Format</u>" refers to both (1) the total number of bits used and (2) how many of those bits are
-		"exponent" versus "fraction" bits.  The three most common floating point formats are above.  Notice that both
-		<u>float16</u> and <u>bfloat16</u> use 16 bits but a differing number of "exponent" versus "fraction" bits.</p>
-		
-		<p>The number of "<u>exponent</u>" bits determines the "range" of numbers that can be used when performing math calculations.
-		For example, <u>float32</u> uses 8 "exponent" bits, which hypothetically allows using any integer between one and
-		one-hundred.  Its "range," in other words, is 1-100.  <u>Bfloat16</u> would have the same "range" because it also
-		uses 8 "exponent" bits.  However, <u>float16</u> might have a "range" of 1-50  since it only uses 5 "exponent" bits.</p>
-
-        <p></p>
-		
-		<p>The number of "<u>fraction</u>" bits determines how many "<u>unique values</u>" that can be used within that "range."
-		For example, <u>float32</u> uses 23 "fraction" bits, which hypothetically allows it to use every whole number between 1-100
-		when doing math.  <u>Bfloat16</u> only uses 7 "fraction" bits, which hypothetically only allows it to use 25 unique values
-		within its range.  This is sometimes referred to as the "precision" of floating point format.</p>
-
-        <p>Hypotheticals aside, here are the actual ranges/precisions:</p>
-		
-			<table class="table-from-second-file" border="1">
-				<tr>
-					<th>Floating Point Format</th>
-					<th>Range (Approximate)</th>
-					<th>Precision</th>
-				</tr>
-				<tr>
-					<td>float32</td>
-					<td>±1.4 × 10<sup>-45</sup> to ±3.4 × 10<sup>38</sup></td>
-					<td>6 to 9 decimal digits</td>
-				</tr>
-				<tr>
-					<td>float16</td>
-					<td>±6.1 × 10<sup>-5</sup> to ±6.5 × 10<sup>4</sup></td>
-					<td>3 to 4 decimal digits</td>
-				</tr>
-				<tr>
-					<td>bfloat16</td>
-					<td>±1.4 × 10<sup>-45</sup> to ±3.4 × 10<sup>38</sup></td>
-					<td>3 to 4 decimal digits</td>
-				</tr>
-			</table>
-
-		<p>It's important to note that "<u>range</u>" and "<u>precision</u>" both determine the "quality" of an output but in
-		different ways, and different floating point formats are good for different purposes.  For example, Google (which created
-		<u>bfloat16</u>), found that it was better for neural networks while <u>float16</u> was better for "scientific" calculations.</p>
-		
-		<p>You can see the floating point format of the various embedding models used inthis program by looking at the
-		<code>config.json</code> file for each model.  All of the Whisper models used in this program were created with
-		<u>float32</u> and you can experiment with the various quantizations I've done for each size of model.</p>
-		
-        <section>
-            <h2 id="quantization">What is Quantization?</h2>
-			
-            <p>"<u>Quantization</u>" means converting the original floating point format to one with a smaller "range" and/or "precision."
-			Projects like <u>llama.cpp</u>, <u>AutoGPTQ</u>, and <u>Ctranslate2</u> each have their strengths and weaknesses, but the
-			goal is to reduce the resources needed while only suffering a "reasonable" loss in quality.</p>
-			
-			<p>For example, descriptions such as "Q8_0" or "8-bit" refer to the "floating point format" of "<u>int8</u>," which has
-			the following range and precision:
-			
-		<table class="table-from-second-file" border="1">
-			<tr>
-				<th>Integer Data Type</th>
-				<th>Range</th>
-				<th>Number of Discrete Values</th>
-			</tr>
-			<tr>
-				<td>int8</td>
-				<td>-128 to 127</td>
-				<td>256 (from -128 to 127)</td>
-			</tr>
-		</table>
-
-			<p><b>Technically</b>, "int8" is no longer "floating"...but this primer is not intended to explain things at a university
-			level...</p>
-			
-			<p>...you might say that the "range" and/or "precision" of this primer is only what is necessary to give a user a
-			basic understanding of the concepts in order to use this program.  In other words, I have specifically chosen to use
-			a lower floating point format in order to avoid the memory and compute resources required to fully research all of
-			the concepts discussed in this primer...after all, we're not sending astronauts into space here!</p>
 
 </main>
 

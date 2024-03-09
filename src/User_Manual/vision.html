@@ -102,82 +102,71 @@
 		
 		<h2 style="color: #f0f0f0;" align="left">Which Vision Models Are Available?</h2>
 		
-		<p>There are three named vision models available with this program:</p>
+		<p>This program allows you to choose betweeen four vision models.  The models are used to create summaries of images that you select, and these summaries are then put into the vector database when it is created.</p>
+				
+		<p><code>llava</code> models come in 7b and 13b ("7b" meaning 7 billion parameters) sizes and are based on the
+		<code>llama2</code> architecture.  <code>bakllava</code> is based on the <code>mistral</code> architecture and
+		comes in the 7b size.</p>
+		
+		<p><code>cogvlm</code> is the largest and most resource-intensive at <u>18b parameters</u> but also produces the highest
+		quality results IMHO.  <code>moondream</code> is the newest vision model added and is almost as good as llava/bakllava with significantly less resource requirements.  <code>salesforce</code> is the fasted model with the lowest resource
+		requirements, but it performs exceptionally well for its size (only 480m parameters).</p>
+		
+		</p>Setting aside for the moment speed and resource considerations...I personally ranked the vision models on a scale of 1-10
+		to give you an idea of their quality.  My ranking score reflects "comprehensiveness" (i.e. how many things in the image
+		did the vision model identify as important enough to try and describe) and "accuracy" (i.e. how many of those descriptions
+		are, in fact, accurate):
 		
 		<ol>
-			<li>llava</li>
-			<li>bakllava</li>
-			<li>cogvlm</li>
+			<li>cogvlm (9.5)</li>
+			<li>bakllava (7.5)</li>
+			<li>llava (7)</li>
+			<li>moondream2 (6.5)</li>
+			<li>salesforce (5)</li>
 		</ol>
+		</p>
 		
-		<p><code>llava</code> models were trailblazers in what they did and this program uses both the 7b and 13b sizes.
-		<code>llava</code> models are based on the <code>llama2</code> architecture.  <code>bakllava</code> is similar to
-		<code>llava</code> except that it's architecture is based on <code>mistral</code> and only comes in the 7b variety.
-		<code>cogvlm</code> has <u>18b parameters</u> but is my personal favorite because it produces the best results by far.  Its
-		accuracy is over 90% in the statements its summaries I've found whereas <code>bakllava</code> is only about 70% and
-		<code>llava</code> is slightly lower than that (regardless of whether you use the 7b or 13b sizes).</p>
+		<h2 style="color: #f0f0f0;" align="center">Vision Model Settings</h2>
 		
-		<h2 style="color: #f0f0f0;" align="center">What do the Settings Mean?</h2>
+		<p><code>Model</code>:The model you want to use to create summaries of images.</p>
 		
-		<p><code>Model</code> is obviously the model's name.  Note that you cannot use <code>cogvlm</code> on MacOS, which is
-		because it requires the <code>xformers</code> library, which does not currently make a build for MacOs.</p>
+		<p><code>Size</code>:The number of parameters in millions or billions.  Informational purposes only; can't be changed.</p>
 		
-		<p><code>Size</code> refers to the number of parameters (in billions).  Larger generally means better, but in contrast to
-		differing parameters with typically large language models, I didn't notice a difference between using the <code>llava</code>
-		7b versus 13b sizes, but feel free to experiment.  The Tool Tab contains a table outlining the general VRAM requirements
-		for the various models/settings.  Remember, this is <b><u>before</u></b> accounting for overhead such as your monitor, which
-		typically amounts to <code>1-2 GB more</code></p>
+		<p><code>Quant</code> refers to the size of the model you want to run.  You can read more about "quantization" in the
+		"Whisper" tab within the User Guide.  Salesforce was originally created in <code>float32</code> floating point format
+		while the others were created with <code>float16</code>.  I've included the original floating point formats for all models
+		except <code>cogvlm</code> because the resource requirements are too high (i.e. above 24 GB of memory).</p>
 		
-		<p><code>Quant</code> refers to the quantization of the model - i.e. how much it's reduced from its original floating point
-		format.  See the tailend of the Whisper portion of the User Guide for a primer on what floating point formats are.  This
-		program uses the <code>bitsandbytes</code> library to perform the quantizations because it's the only option I was aware of
-		that could quantize <code>cogvlm</code>, which is far superior IMHO.</p>
+		<p><code>8-bit</code> and <code>4-bit</code> refer to quantization (using the "bitsandbytes" library) of the original floating point.  "Bitsandbytes" is only available for certain vision model architectures.  Choosing 8-bit or 4-bit will always
+		result in less memory requirements as well as a small drop in accuracy, but for reasons I don't quite understand, this does not
+		necessarily mean less processing time.  Just something to be aware of.</p>
 		
-		<h2 style="color: #f0f0f0;" align="center">Why Are Some Settings Disabled?</h2>
+		<p><code>Flash Attention 2</code> is a compelling newer library that reduces processing time and resource requirements
+		significantly; however, I am still working on implementing it reliably so it is currently disabled.</p>
 		
-		<p><code>Flash Attention 2</code> is a very powerful newer technology but it requires <code>CUDA 12+</code>.  This program relies
-		exclusively on <code>CUDA 11</code> due to compatibility with the <code>faster-whisper</code> library that handles the audio
-		features.  However, <code>faster-whisper</code> should be adding <code>CUDA 12+</code> support in the near future, at which
-		time <code>Flash Attention 2</code> should be available.  <code>Batch</code> will be explained and added in a future release.</p>
+		<p><code>Batch</code>: This will be enabled and explained in future releases.</p>
 		
 		<h2 style="color: #f0f0f0;" align="center">How do I use the Vision Model?</h2>
 		
-		<p>Before <code>Release 3</code>, this program put all documents selected within the "Docs_for_DB" folder.  Now it puts any
-		images selected in the "Images_for_DB" folder.  You can manually remove images from there if need be.  Once documents and/or
-		images are selected, you simply click the <code>create database</code> button like before.  The document processor will run
-		in two steps.  First, it will load non-images and second it'll load any images.</p>
+		<p>Within the <code>Create Database</code> you can select files to be included in the vector database, including images.
+		When you click the create database button, the vision models will create summaries of each image and put them into the
+		vector database.  The particular vision model used and its settings can be controlled from the <code>Settings</code> tab.
+		In contrast to adding other types of files to the vector database, obtaining summaries of images is typically much more
+		time consuming and resource intensive depending on the vision model and settings you choose.  Therefore, I recommend
+		first testing the various vision models on a single image in the <code>Tools</code> tab.</p>
 		
-		<p>The "loading" process takes very little time for documents but a relatively long time for images.  "Loading" images involves
-		creating the summaries for each image using the selected vision model.  Make sure and test your vision model settings within
-		the Tools Tab before committing to processing 1000 images, for example.</p>
+		<p>In the <code>Tools</code> tab, select a single image and click "process."  This will use the vision model and settings chosen within the <code>Settings</code> tab to process a single image and display the summary for you.  Thus, you can see how long it took as well as the quality of the summary.</p>
 		
-		<p>After both documents and images are "loaded" they are added to the vectorstore just the same as prior release of this
-		program.</p>
+		<h2 style="color: #f0f0f0;" align="center">Tips</h2>
 		
-		<p>Once the database is "persisted," try searching for images that depict a certain thing.  Also, you can check the
-		<code>chunks only</code> checkbox to actually see the results returned to the database instead of connecting to LM Studio.
-		This is extremely useful to fine-tune your settings...including both the chunking/overlap settings as well as the Vision
-		model settings.</p>
+		<p>Use the highest quality vision model that can be run entirely from VRAM, unloading the model from LM Studio beforehand
+		if need be.  If you want the best balance of speed and quality, <code>moondream2</code> is the best IMHO.</p>
 		
-		<p>PRO TIP: Make sure and set your chunking settings to larger than the summaries that are provided by the vision model.
-		Doing this prevents the summary for a particular image from EVER being split.  In short, each and every chunk consists of the
-		<u>entire summary</u> provided by the vision model!  This tends to be 400-800 chunk size depending on the vision model
-		settings.</p>
-		
-		<h2 style="color: #f0f0f0;" align="center">Can I Change What the Vision Model Does?</h2>
-		
-		<p>For this initial release, I hardcoded the questions asked of the vision models within the following scripts:</p>
-		
-		<ol>
-			<li><code>vision_cogvlm_module.py</code></li>
-			<li><code>vision_llava_module.py</code></li>
-			<li><code>loader_vision_cogvlm.py</code></li>
-			<li><code>loader_vision_llava.py</code></li>
-		</ol>
-		
-		<p>You can go into these scripts and modify the question sent to the vision model, but make sure the prompt format remains
-		the same.  In future releases I will likely add the functionality to experiment with different questions within the
-		grapical user interface to achieve better results.</p>
+		<p>Make sure that the "chunk size" setting for creating the vector database is larger than the largest summary of an image
+		that will be created.  The vision models typically create summaries ranging from 100-400 characters.  Therefore, if you
+		specify a "chunk size" of at least 500-600 each summary will considered its own "chunk."  In other words, each summary
+		of an image will be its own chunk instead and will not be split by the Recursive Character Text Splitter (discussed
+		in the Settings tab).</p>
 
 	</main>
 
