@@ -32,7 +32,8 @@ class TranscriberToolSettingsTab(QWidget):
             "large-v2 - float16": "ctranslate2-4you/whisper-large-v2-ct2-float16",
             "medium.en - float16": "ctranslate2-4you/whisper-medium.en-ct2-float16",
             "small.en - float16": "ctranslate2-4you/whisper-small.en-ct2-float16",
-            "small - float16": "ctranslate2-4you/whisper-small-ct2-float16"
+            "base.en - float16": "ctranslate2-4you/whisper-base.en-ct2-float16",
+            "tiny.en - float16": "ctranslate2-4you/whisper-tiny.en-ct2-float16"
         }
 
         self.model_combo.addItems(list(self.model_name_mapping.keys()))
