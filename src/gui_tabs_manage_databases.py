@@ -115,7 +115,7 @@ class ManageDatabasesTab(QWidget):
                 model_name = model_path.split('/')[-1]
                 chunk_size = db_config.get('chunk_size', '')
                 chunk_overlap = db_config.get('chunk_overlap', '')
-                info_text = f"Vector Model = {model_name}       Chunk Size = {chunk_size}       Chunk Overlap = {chunk_overlap}"
+                info_text = f"Created with:  {model_name}       Chunk Size:  {chunk_size}       Chunk Overlap:  {chunk_overlap}"
                 self.database_info_label.setText(info_text)
         else:
             self.database_info_label.setText("Configuration missing.")

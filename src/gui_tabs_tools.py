@@ -13,7 +13,7 @@ class GuiSettingsTab(QWidget):
 
         classes = {
             "TRANSCRIBE FILE": (TranscriberToolSettingsTab, 1),
-            "TEST PROCESS IMAGE": (VisionToolSettingsTab, 3),
+            "TEST PROCESS IMAGE": (VisionToolSettingsTab, 4),
         }
 
         self.groups = {}

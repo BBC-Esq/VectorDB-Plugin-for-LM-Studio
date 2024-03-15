@@ -29,7 +29,9 @@ class TranscriberToolSettingsTab(QWidget):
         self.model_combo = QComboBox()
 
         self.model_name_mapping = {
+            "large-v2 - float32": "ctranslate2-4you/whisper-large-v2-ct2-float32",
             "large-v2 - float16": "ctranslate2-4you/whisper-large-v2-ct2-float16",
+            "medium.en - float32": "ctranslate2-4you/whisper-medium.en-ct2-float32",
             "medium.en - float16": "ctranslate2-4you/whisper-medium.en-ct2-float16",
             "small.en - float32": "ctranslate2-4you/whisper-small.en-ct2-float32",
             "small.en - float16": "ctranslate2-4you/whisper-small.en-ct2-float16",

@@ -103,7 +103,7 @@ class loader_cogvlm:
         with tqdm(total=len(image_files), unit="image") as progress_bar:
             for file_name in image_files:
                 full_path = os.path.join(image_dir, file_name)
-                prompt = "Describe in detail what this image depicts in as much detail as possible."
+                prompt = "Describe what this image depicts in as much detail as possible."
 
                 try:
                     with Image.open(full_path).convert('RGB') as raw_image:
@@ -248,7 +248,7 @@ class loader_llava:
         with tqdm(total=len(image_files), unit="image") as progress_bar:
             for file_name in image_files:
                 full_path = os.path.join(image_dir, file_name)
-                prompt = "USER: <image>\nDescribe in detail what this image depicts in as much detail as possible.\nASSISTANT:"
+                prompt = "USER: <image>\nDescribe what this image depicts in as much detail as possible.\nASSISTANT:"
 
                 try:
                     with Image.open(full_path) as raw_image:
@@ -266,12 +266,10 @@ class loader_llava:
                         output = model.generate(**inputs, max_new_tokens=200, do_sample=True)
                         full_response = processor.decode(output[0][2:], skip_special_tokens=True, do_sample=True)
                         model_response = full_response.split("ASSISTANT: ")[-1]
-                        
                         extracted_text = model_response
                         extracted_metadata = extract_image_metadata(full_path)
                         document = Document(page_content=extracted_text, metadata=extracted_metadata)
                         documents.append(document)
-
                         total_tokens += output[0].shape[0]
                         progress_bar.update(1)
 
@@ -295,10 +293,19 @@ class loader_llava:
 
 class loader_salesforce:
     def initialize_model_and_processor(self):
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+        
+        chosen_quant = config['vision']['chosen_quant']
         device = get_best_device()
-        processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
-        model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large").to(device)
-
+        
+        if chosen_quant == 'float32':
+            processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+            model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large").to(device)
+        elif chosen_quant == 'float16':
+            processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+            model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large", torch_dtype=torch.float16).to(device)
+        
         return model, processor, device
 
     def salesforce_process_images(self):
@@ -312,7 +319,11 @@ class loader_salesforce:
         if not image_files:
             return []
 
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+        
         model, processor, device = self.initialize_model_and_processor()
+        
         total_tokens = 0
         total_start_time = time.time()
 
@@ -321,15 +332,17 @@ class loader_salesforce:
                 full_path = os.path.join(image_dir, file_name)
                 try:
                     with Image.open(full_path) as raw_image:
-                        inputs = processor(raw_image, return_tensors="pt").to(device)
-                        output = model.generate(**inputs, max_new_tokens=50)
+                        text = "an image of"
+                        if config['vision']['chosen_quant'] == 'float32':
+                            inputs = processor(raw_image, text, return_tensors="pt").to(device)
+                        elif config['vision']['chosen_quant'] == 'float16':
+                            inputs = processor(raw_image, text, return_tensors="pt").to(device, torch.float16)
+                        output = model.generate(**inputs, max_new_tokens=100)
                         caption = processor.decode(output[0], skip_special_tokens=True)
                         total_tokens += output[0].shape[0]
-
                         extracted_metadata = extract_image_metadata(full_path)
                         document = Document(page_content=caption, metadata=extracted_metadata)
                         documents.append(document)
-
                         progress_bar.update(1)
 
                 except Exception as e:
@@ -353,7 +366,13 @@ class loader_salesforce:
 class loader_moondream:
     def initialize_model_and_tokenizer(self):
         device = get_best_device()
-        model = AutoModelForCausalLM.from_pretrained("vikhyatk/moondream2", trust_remote_code=True, revision="2024-03-05").to(device)
+        model = AutoModelForCausalLM.from_pretrained("vikhyatk/moondream2", 
+                                             trust_remote_code=True, 
+                                             revision="2024-03-05", 
+                                             torch_dtype=torch.float16, 
+                                             low_cpu_mem_usage=True,
+                                             resume_download=True).to(device)
+
         tokenizer = AutoTokenizer.from_pretrained("vikhyatk/moondream2", revision="2024-03-05")
         
         return model, tokenizer, device
@@ -379,14 +398,11 @@ class loader_moondream:
                 try:
                     with Image.open(full_path) as raw_image:
                         enc_image = model.encode_image(raw_image)
-                        summary = model.answer_question(enc_image, "Describe in detail what this image depicts in as much detail as possible.", tokenizer)
+                        summary = model.answer_question(enc_image, "Describe what this image depicts in as much detail as possible.", tokenizer)
                         extracted_metadata = extract_image_metadata(full_path)
-                        
                         document = Document(page_content=summary, metadata=extracted_metadata)
                         documents.append(document)
-
                         progress_bar.update(1)
-
                 except Exception as e:
                     print(f"{file_name}: Error processing image - {e}")
                     

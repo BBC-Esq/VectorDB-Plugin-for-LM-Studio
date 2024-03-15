@@ -36,7 +36,7 @@ class CreateVectorDB:
     def load_config(self, root_directory):
         with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
             return yaml.safe_load(stream)
-
+    
     def create_embeddings(self, embedding_model_name, config_data):
         my_cprint("Creating embeddings.", "white")
         compute_device = config_data['Compute_Device']['database_creation']

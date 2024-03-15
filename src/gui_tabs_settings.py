@@ -29,7 +29,7 @@ class GuiSettingsTab(QWidget):
         self.layout = QVBoxLayout()
 
         classes = {
-            "SERVER/LLM": (ServerSettingsTab, 4),
+            "SERVER/LLM": (ServerSettingsTab, 5),
             #"VOICE RECORDER": (TranscriberSettingsTab, 1),
             "DATABASE QUERY": (DatabaseSettingsTab, 3),
             "DATABASE CREATION": (ChunkSettingsTab, 1),
