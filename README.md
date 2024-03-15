@@ -106,11 +106,8 @@
 
 🔴 AMD GPU - (AMD GPU acceleration support coming in future releases).
 ### Step 2
-Navigate to a directory on your computer, open a command prompt and run:
-```
-git clone https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio.git
-```
-  * Alternatively, you can [download the latest release](https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/latest), open the ZIP file, and copy the contents to a folder on your computer.
+Download the ZIP file for the latest "release," extract its contents, navigate to the "src" folder to run the commands below.
+  * NOTE: If you clone this repository you WILL NOT get the latest release.  Instead, you will development versions of this program which may or may not be stable.
 ### Step 3
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
