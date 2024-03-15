@@ -30,8 +30,3 @@ scipy==1.11.4
 platformdirs==4.2.0
 rich==13.7.0
 openai-whisper==20231117
-
-# only required by whisperS2T if using the huggingface backend
-# accelerate==0.25.0
-# optimum==1.15.0
-# transformers==4.37.2
