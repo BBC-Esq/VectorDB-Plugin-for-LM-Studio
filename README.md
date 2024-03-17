@@ -192,6 +192,12 @@ python gui.py
 This program can get relevant chunks from the vector database and forwarding them - along with your question - to LM Studio for an answer!
 * Perform the above steps regarding entering a question and choosing settings, but make sure that ```Chunks Only``` is 🔥UNCHECKED🔥.
 * Start LM Studio and go to the Server tab on the left.
+* Load a model.  I've personally tested the following models as good:
+  * ```Marx_3B_V3```
+  * ```Mistral_7B_Instruct_v0_2```
+  * ```Neural_Chat_7b_v3_3```
+  * ```Llama_2_13b_chat_hf```
+  * ```SOLAR_10_7B_Instruct_v1_0```
 * Turn ```Apply Prompt Formatting``` to "OFF."
 * On the right side within ```Prompt Format```, make sure that all of the following settings are blank:
   * ```System Message Prefix```
