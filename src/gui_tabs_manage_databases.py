@@ -1,10 +1,11 @@
 import shutil
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QTreeView, QFileSystemModel, QMenu, QGroupBox, QLabel, QComboBox, QMessageBox
 from PySide6.QtGui import QAction
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from pathlib import Path
 import yaml
 from utilities import open_file, delete_file
+import pickle
 
 class CustomFileSystemModel(QFileSystemModel):
     def __init__(self, parent=None):
@@ -12,9 +13,18 @@ class CustomFileSystemModel(QFileSystemModel):
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and index.column() == 0:
-            original_value = super().data(index, role)
-            if original_value.endswith('.pkl'):
-                return original_value[:-4]
+            file_path = self.filePath(index)
+            if file_path.endswith('.pkl'):
+                try:
+                    with open(file_path, 'rb') as file:
+                        document = pickle.load(file)
+                    return document.metadata.get('file_name', 'Unknown')
+                except FileNotFoundError:
+                    # File was deleted, handle gracefully
+                    return "File Deleted"
+                except Exception as e:
+                    print(f"Error unpickling file {file_path}: {e}")
+                    return "Error"
         return super().data(index, role)
 
 class RefreshingComboBox(QComboBox):
@@ -77,11 +87,6 @@ class ManageDatabasesTab(QWidget):
         self.tree_view.setModel(self.model)
         self.tree_view.setSelectionMode(QTreeView.ExtendedSelection)
 
-        script_dir = Path(__file__).resolve().parent
-        directory_path = script_dir / directory_name
-        self.model.setRootPath(str(directory_path))
-        self.tree_view.setRootIndex(self.model.index(str(directory_path)))
-
         self.tree_view.hideColumn(1)
         self.tree_view.hideColumn(2)
         self.tree_view.hideColumn(3)
@@ -115,7 +120,7 @@ class ManageDatabasesTab(QWidget):
                 model_name = model_path.split('/')[-1]
                 chunk_size = db_config.get('chunk_size', '')
                 chunk_overlap = db_config.get('chunk_overlap', '')
-                info_text = f"Vector Model = {model_name}       Chunk Size = {chunk_size}       Chunk Overlap = {chunk_overlap}"
+                info_text = f"{model_name}    |    Chunk Size:  {chunk_size}    |    Chunk Overlap:  {chunk_overlap}"
                 self.database_info_label.setText(info_text)
         else:
             self.database_info_label.setText("Configuration missing.")
@@ -124,7 +129,13 @@ class ManageDatabasesTab(QWidget):
         tree_view = self.sender()
         model = tree_view.model()
         file_path = model.filePath(index)
-        open_file(file_path)
+        if file_path.endswith('.pkl'):
+            with open(file_path, 'rb') as pickle_file:
+                document = pickle.load(pickle_file)
+                actual_file_path = document.metadata['file_path']
+                open_file(actual_file_path)
+        else:
+            open_file(file_path)
 
     def on_context_menu(self, point):
         tree_view = self.sender()
@@ -183,13 +194,23 @@ class ManageDatabasesTab(QWidget):
                     yaml.safe_dump(config, file)
 
                 base_dir = Path(__file__).resolve().parent
+                deletion_failed = False
                 for folder_name in ["Vector_DB", "Vector_DB_Backup", "Docs_for_DB"]:
                     dir_path = base_dir / folder_name / selected_database
                     if dir_path.exists() and dir_path.is_dir():
                         shutil.rmtree(dir_path)
 
-                QMessageBox.information(self, "Delete Database", f"Database '{selected_database}' and associated files have been deleted.")
-                self.refresh_pull_down_menu()
+                        if dir_path.exists():
+                            deletion_failed = True
+                            print(f"Failed to delete: {dir_path}")
+
+                if deletion_failed:
+                    QMessageBox.warning(self, "Delete Database", "Some files/folders could not be deleted. Please check manually.")
+                else:
+                    QMessageBox.information(self, "Delete Database", f"Database '{selected_database}' and associated files have been deleted.")
+                    self.refresh_pull_down_menu()
+            else:
+                QMessageBox.warning(self, "Delete Database", "Configuration file missing or corrupted.")
 
     def refresh_pull_down_menu(self):
         self.created_databases = self.load_created_databases()

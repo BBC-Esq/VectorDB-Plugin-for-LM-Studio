@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget,
     QStyleFactory, QMenuBar
 )
+# from PySide6.QtCore import Qt
 import multiprocessing
 from initialize import main as initialize_system
 from metrics_bar import MetricsBar
@@ -13,6 +14,8 @@ from pathlib import Path
 class DocQA_GUI(QWidget):
     def __init__(self):
         super().__init__()
+        
+        # self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
         initialize_system()
         self.metrics_bar = MetricsBar()
@@ -21,7 +24,7 @@ class DocQA_GUI(QWidget):
 
     def init_ui(self):
         self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
-        self.setGeometry(300, 300, 850, 1040)
+        self.setGeometry(300, 300, 775, 950)
         self.setMinimumSize(350, 410)
 
         # Main Layout

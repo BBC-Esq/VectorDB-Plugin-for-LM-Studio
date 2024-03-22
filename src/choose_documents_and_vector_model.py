@@ -3,15 +3,7 @@ import os
 import yaml
 from pathlib import Path
 from PySide6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout
-import chardet
 
-def check_encoding(file_path):
-    with open(file_path, 'rb') as file:
-        raw_data = file.read(5000)
-        result = chardet.detect(raw_data)
-        encoding = result.get('encoding', '')
-        return encoding if encoding else 'unknown'
-        
 def choose_documents_directory():
     allowed_extensions = ['.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', '.rtf', '.odt',
                           '.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff', '.html', '.htm', '.md', '.doc']
@@ -22,7 +14,6 @@ def choose_documents_directory():
 
     if file_paths:
         incompatible_files = []
-        non_utf8_files = []
         compatible_files = []
 
         for file_path in file_paths:
@@ -58,41 +49,6 @@ def choose_documents_directory():
             cancel_button.clicked.connect(incompatible_dialog.reject)
 
             user_choice = incompatible_dialog.exec()
-
-            if user_choice == QDialog.Rejected:
-                return
-
-        for file_path in compatible_files:
-            encoding = check_encoding(file_path)
-            if encoding.lower() != 'utf-8':
-                non_utf8_files.append(f"{Path(file_path).name}: {encoding if encoding != 'unknown' else 'Encoding could not be determined'}")
-
-        if non_utf8_files:
-            encoding_dialog_text = "The following files are not encoded in UTF-8:\n\n" + "\n".join(non_utf8_files) + "\n\n"
-            encoding_dialog_text += "Click 'Ok' to try to force UTF-8 encoding at runtime or 'Cancel' to back out.  There is no harm in trying to enforce UTF-8 encoding at runtime since an error will still print if a document cannot be loaded."
-            encoding_dialog = QDialog()
-            encoding_dialog.resize(800, 600)
-            encoding_dialog.setWindowTitle("Non-UTF-8 Encoded Files Detected")
-            layout = QVBoxLayout()
-
-            text_edit = QTextEdit()
-            text_edit.setReadOnly(True)
-            text_edit.setText(encoding_dialog_text)
-            layout.addWidget(text_edit)
-
-            button_box = QHBoxLayout()
-            ok_button = QPushButton("OK")
-            cancel_button = QPushButton("Cancel")
-            button_box.addWidget(ok_button)
-            button_box.addWidget(cancel_button)
-            layout.addLayout(button_box)
-
-            encoding_dialog.setLayout(layout)
-
-            ok_button.clicked.connect(encoding_dialog.accept)
-            cancel_button.clicked.connect(encoding_dialog.reject)
-
-            user_choice = encoding_dialog.exec()
 
             if user_choice == QDialog.Rejected:
                 return

@@ -4,7 +4,7 @@ ctranslate2==4.0.0
 chromadb==0.3.29 # last before switching to sqlite3
 PyMuPDF==1.23.7
 InstructorEmbedding==1.0.1
-sentence-transformers==2.2.2 # last before overhaul and compatibility issues with at least one othe dependency
+sentence-transformers==2.2.2 # last before compatibility issues with at least one othe dependency & instructor reportedly biffed
 pandas==2.0.3
 docx2txt==0.8
 python-docx==1.1.0
@@ -25,8 +25,14 @@ accelerate==0.25.0
 optimum==1.15.0
 einops==0.7.0
 scipy==1.11.4
+timm==0.9.16
 
 # required by whisperS2T
 platformdirs==4.2.0
 rich==13.7.0
 openai-whisper==20231117
+
+# only required by whisperS2T if using the huggingface backend
+# accelerate==0.25.0
+# optimum==1.15.0
+# transformers==4.37.2

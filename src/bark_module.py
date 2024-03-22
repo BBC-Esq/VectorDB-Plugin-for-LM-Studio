@@ -58,32 +58,28 @@ class BarkAudio:
         # load bark model
         if self.config['size'] == 'small' and self.config['model_precision'] == 'float16':
             self.model = BarkModel.from_pretrained("suno/bark-small", torch_dtype=torch.float16).to(self.device)
-            my_cprint("Bark model loaded.", "green")
             print("Size = Small")
             print("Quant = float16")
         elif self.config['size'] == 'small' and self.config['model_precision'] != 'float16':
             self.model = BarkModel.from_pretrained("suno/bark-small").to(self.device)
-            my_cprint("Bark model loaded.", "green")
             print("Size = Small")
             print("Quant = float32")
         elif self.config['size'] != 'small' and self.config['model_precision'] == 'float16':
             self.model = BarkModel.from_pretrained("suno/bark", torch_dtype=torch.float16).to(self.device)
-            my_cprint("Bark model loaded.", "green")
             print("Size = Normal")
             print("Quant = float16")
         else:
             self.model = BarkModel.from_pretrained("suno/bark").to(self.device)
-            my_cprint("Bark model loaded.", "green")
             print("Size = Normal")
             print("Quant = float32")
         
-        if self.config['use_better_transformer']:
-            self.model = self.model.to_bettertransformer()
-            my_cprint("Better Transformer selected.", "cyan")
+        my_cprint("Bark model loaded.", "green")
+        
+        self.model = self.model.to_bettertransformer()
 
         if self.config['enable_cpu_offload']:
             self.model.enable_cpu_offload()
-            print("Offload to CPU selected.")
+            my_print("Offload to CPU selected.", "cyan")
 
     def play_audio_thread(self):
         my_cprint("Creating audio.", "white")

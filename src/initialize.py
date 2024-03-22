@@ -82,19 +82,18 @@ def restore_vector_db_backup():
     backup_folder = Path('Vector_DB_Backup')
     destination_folder = Path('Vector_DB')
 
-    # Check for two .parquet files in backup folder
-    backup_files = list(backup_folder.glob('*.parquet'))
-    if len(backup_files) != 2:
-        return
+    # First, delete any and all folders and files in the Vector_DB folder
+    if destination_folder.exists():
+        for item in destination_folder.iterdir():
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+    else:
+        # If the destination folder doesn't exist, create it
+        destination_folder.mkdir()
 
-    # Delete destination folder files
-    for item in destination_folder.iterdir():
-        if item.is_dir():
-            shutil.rmtree(item)
-        else:
-            item.unlink()
-
-    # Copy backup folder files to the destination folder
+    # Then, copy everything from the Vector_DB_Backup folder to the Vector_DB folder
     for item in backup_folder.iterdir():
         dest_path = destination_folder / item.name
         if item.is_dir():

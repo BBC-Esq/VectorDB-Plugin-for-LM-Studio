@@ -30,7 +30,7 @@ logging.getLogger('unstructured').setLevel(logging.ERROR)
 
 ROOT_DIRECTORY = Path(__file__).parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
-INGEST_THREADS = os.cpu_count() or 8
+INGEST_THREADS = max(4, os.cpu_count() - 4)
 
 for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
@@ -39,33 +39,29 @@ def load_single_document(file_path: Path) -> Document:
     file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
 
-    if loader_class:
-        if file_extension == ".txt":
-            loader = loader_class(str(file_path), encoding='utf-8', autodetect_encoding=True)
-        elif file_extension == ".epub":
-            loader = UnstructuredEPubLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
-        elif file_extension == ".docx":
-            loader = Docx2txtLoader(str(file_path))
-        elif file_extension == ".rtf":
-            loader = UnstructuredRTFLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
-        elif file_extension == ".odt":
-            loader = UnstructuredODTLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
-        elif file_extension == ".md":
-            loader = UnstructuredMarkdownLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
-        elif file_extension == ".xlsx" or file_extension == ".xlsd":
-            loader = UnstructuredExcelLoader(str(file_path), mode="single", encoding='utf-8', autodetect_encoding=True)
-        elif file_extension == ".html":
-            loader = UnstructuredHTMLLoader(str(file_path), mode="single", strategy="fast", encoding='utf-8', autodetect_encoding=True)
-        elif file_extension == ".csv":
-            loader = CSVLoader(str(file_path), encoding='utf-8', autodetect_encoding=True)
-        else:
-            loader = loader_class(str(file_path))
-    else:
+    if not loader_class:
         raise ValueError(f"Document type for extension {file_extension} is undefined")
+
+    loader_options = {
+        "encoding": "utf-8",
+        "autodetect_encoding": True
+    }
+
+    if file_extension in [".epub", ".rtf", ".odt", ".md", ".html"]:
+        loader_options.update({"mode": "single", "strategy": "fast"})
+    elif file_extension in [".xlsx", ".xlsd"]:
+        loader_options.update({"mode": "single"})
+    elif file_extension in [".docx", ".csv", ".txt"]:
+        pass
+    else:
+        loader_options = {}
+
+    loader = loader_class(str(file_path), **loader_options)
 
     document = loader.load()[0]
 
-    metadata = extract_document_metadata(file_path) # get metadata
+    # Extract and update metadata
+    metadata = extract_document_metadata(file_path)
     document.metadata.update(metadata)
     
     return document
@@ -84,6 +80,7 @@ def load_documents(source_dir: Path) -> list:
 
     if doc_paths:
         n_workers = min(INGEST_THREADS, max(len(doc_paths), 1))
+        print(f"Using {n_workers} CPU threads to load {len(doc_paths)} non-image/non-audio files...")
         chunksize = round(len(doc_paths) / n_workers)
         
         if chunksize > 0:
@@ -98,7 +95,6 @@ def load_documents(source_dir: Path) -> list:
     return docs
 
 def split_documents(documents):
-    my_cprint("Splitting documents.", "white")
     with open("config.yaml", "r", encoding='utf-8') as config_file:
         config = yaml.safe_load(config_file)
         chunk_size = config["database"]["chunk_size"]
@@ -107,8 +103,9 @@ def split_documents(documents):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     texts = text_splitter.split_documents(documents)
     
-    my_cprint(f"Number of Chunks: {len(texts)}", "white")
+    print(f"Number of chunks created: {len(texts)}")
     
+    ''' Uncomment to check chunk lengths.
     chunk_sizes = [len(text.page_content) for text in texts]
     min_size = min(chunk_sizes)
     average_size = sum(chunk_sizes) / len(texts)
@@ -120,5 +117,6 @@ def split_documents(documents):
         upper_bound = size_range + 99
         count = sum(lower_bound <= size <= upper_bound for size in chunk_sizes)
         my_cprint(f"Chunks between {lower_bound} and {upper_bound} characters: {count}", "white")
-    
+    '''
+
     return texts

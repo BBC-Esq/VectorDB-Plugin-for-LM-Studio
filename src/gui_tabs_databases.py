@@ -9,8 +9,11 @@ import yaml
 from choose_documents_and_vector_model import select_embedding_model_directory, choose_documents_directory
 import database_interactions
 from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database
+import pickle
 
 class CreateDatabaseThread(QThread):
+    creationComplete = Signal()
+    
     def __init__(self, database_name, parent=None):
         super().__init__(parent)
         self.database_name = database_name
@@ -21,15 +24,27 @@ class CreateDatabaseThread(QThread):
         self.save_database_symlinks()
         self.update_config_with_database_name()
         backup_database()
+        
+        self.creationComplete.emit()
 
     def save_database_symlinks(self):
         source_folder = Path(__file__).resolve().parent / "Docs_for_DB"
         target_folder = source_folder / self.database_name
         target_folder.mkdir(parents=True, exist_ok=True)
+
         for item in source_folder.iterdir():
-            if item.is_file():
-                shutil.copy2(item, target_folder)
+            if item.is_dir():
+                continue
+            target_item = target_folder / item.name
+            if item.is_symlink():
+                symlink_target = os.readlink(item)
+                target_item.symlink_to(symlink_target)
+            elif item.is_file():
+                shutil.copy2(item, target_item)
+            try:
                 item.unlink()
+            except PermissionError as e:
+                print(f"PermissionError: Unable to delete {item}: {e}")
 
     def update_config_with_database_name(self):
         config_path = Path(__file__).resolve().parent / "config.yaml"
@@ -60,9 +75,15 @@ class CustomFileSystemModel(QFileSystemModel):
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and index.column() == 0:
-            original_value = super().data(index, role)
-            if original_value.endswith('.pkl'):
-                return original_value[:-4]
+            file_path = super().filePath(index)
+            if file_path.endswith('.pkl'):
+                try:
+                    with open(file_path, 'rb') as file:
+                        document = pickle.load(file)
+                    return document.metadata.get('file_name', 'Unknown')
+                except Exception as e:
+                    print(f"Error unpickling file {file_path}: {e}")
+                    return "Error"
         return super().data(index, role)
 
 class DatabasesTab(QWidget):
@@ -73,13 +94,25 @@ class DatabasesTab(QWidget):
         self.documents_group_box = self.create_group_box("Files To Add to Database", "Docs_for_DB")
         self.groups = {self.documents_group_box: 1}
 
-        hbox1 = QHBoxLayout()
+        grid_layout_top_buttons = QGridLayout()
+
         self.choose_docs_button = QPushButton("Choose Files")
         self.choose_docs_button.clicked.connect(choose_documents_directory)
+
         self.choose_model_dir_button = QPushButton("Choose Model")
         self.choose_model_dir_button.clicked.connect(select_embedding_model_directory)
-        hbox1.addWidget(self.choose_docs_button)
-        hbox1.addWidget(self.choose_model_dir_button)
+
+        self.create_db_button = QPushButton("Create Vector Database")
+        self.create_db_button.clicked.connect(self.on_create_db_clicked)
+        self.create_db_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
+        grid_layout_top_buttons.addWidget(self.choose_docs_button, 0, 0)
+        grid_layout_top_buttons.addWidget(self.choose_model_dir_button, 0, 1)
+        grid_layout_top_buttons.addWidget(self.create_db_button, 0, 2)
+
+        number_of_columns = 3
+        for column_index in range(number_of_columns):
+            grid_layout_top_buttons.setColumnStretch(column_index, 1)
 
         hbox2 = QHBoxLayout()
         self.database_name_input = QLineEdit()
@@ -88,17 +121,10 @@ class DatabasesTab(QWidget):
         regex = QRegularExpression("^[a-z0-9_-]*$")
         validator = QRegularExpressionValidator(regex, self.database_name_input)
         self.database_name_input.setValidator(validator)
-
-        self.create_db_button = QPushButton("Create Vector Database")
-        self.create_db_button.clicked.connect(self.on_create_db_clicked)
-        self.create_db_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-
         hbox2.addWidget(self.database_name_input)
-        hbox2.addWidget(self.create_db_button)
 
-        self.layout.addLayout(hbox1)
+        self.layout.addLayout(grid_layout_top_buttons)
         self.layout.addLayout(hbox2)
-
 
     def create_group_box(self, title, directory_name):
         group_box = QGroupBox(title)
@@ -138,7 +164,20 @@ class DatabasesTab(QWidget):
         tree_view = self.sender()
         model = tree_view.model()
         file_path = model.filePath(index)
-        open_file(file_path)
+        
+        if file_path.endswith('.pkl'):
+            try:
+                with open(file_path, 'rb') as file:
+                    document = pickle.load(file)
+                internal_file_path = document.metadata.get('file_path')
+                if internal_file_path and Path(internal_file_path).exists():
+                    open_file(internal_file_path)
+                else:
+                    QMessageBox.warning(self, "File Not Found", f"The file {internal_file_path} does not exist.")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Could not open the pickle file: {e}")
+        else:
+            open_file(file_path)
 
     def on_context_menu(self, point):
         tree_view = self.sender()
@@ -158,28 +197,38 @@ class DatabasesTab(QWidget):
                 delete_file(file_path)
 
     def on_create_db_clicked(self):
+        # disable widgets
         self.create_db_button.setDisabled(True)
-        database_name = self.database_name_input.text()
-
-        if not database_name or len(database_name) < 3 or database_name in ["null", "none"]:
-            QMessageBox.warning(self, "Invalid Name", "Name must be at least 3 characters long and not be 'null' or 'none.'")
-            self.create_db_button.setDisabled(False)
-            return
-
-        checks_passed, message = check_preconditions_for_db_creation(Path(__file__).resolve().parent)
+        self.choose_docs_button.setDisabled(True)
+        self.choose_model_dir_button.setDisabled(True)
+        self.database_name_input.setDisabled(True)
+        
+        database_name = self.database_name_input.text().strip()
+        script_dir = Path(__file__).resolve().parent
+        
+        # check conditions
+        checks_passed, message = check_preconditions_for_db_creation(script_dir, database_name)
+        
+        # re-enable widgets if any condition fails
         if not checks_passed:
-            QMessageBox.warning(self, "Message", "Cancelled by user: " + message)
             self.create_db_button.setDisabled(False)
+            self.choose_docs_button.setDisabled(False)
+            self.choose_model_dir_button.setDisabled(False)
+            self.database_name_input.setDisabled(False)
             return
 
-        print(f"Database will be named: {database_name}")
+        print(f"Database will be named: '{database_name}'")
+        
+        # start create database thread
         self.create_database_thread = CreateDatabaseThread(database_name=database_name, parent=self)
+        self.create_database_thread.creationComplete.connect(self.reenable_create_db_button)
         self.create_database_thread.start()
-
-        QTimer.singleShot(3000, self.reenable_create_db_button)
 
     def reenable_create_db_button(self):
         self.create_db_button.setDisabled(False)
+        self.choose_docs_button.setDisabled(False)
+        self.choose_model_dir_button.setDisabled(False)
+        self.database_name_input.setDisabled(False)
 
     def toggle_group_box(self, group_box, checked):
         self.groups[group_box] = 1 if checked else 0

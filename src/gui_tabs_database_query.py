@@ -9,7 +9,7 @@ from voice_recorder_module import VoiceRecorder
 from bark_module import BarkAudio
 import threading
 from pathlib import Path
-from utilities import check_preconditions_for_submit_question
+from utilities import check_preconditions_for_submit_question, my_cprint
 
 class RefreshingComboBox(QComboBox):
     def __init__(self, parent=None):
@@ -36,6 +36,7 @@ class SubmitButtonThread(QThread):
             response = server_connector.ask_local_chatgpt(self.user_question, self.chunks_only)
             for response_chunk in response:
                 if SubmitButtonThread.stop_requested:
+                    my_cprint(f"stop_requested set to true...exiting", "green")
                     break
                 self.responseSignal.emit(response_chunk)
             self.finishedSignal.emit()
@@ -69,14 +70,6 @@ class DatabaseQueryTab(QWidget):
         hbox1_layout.addWidget(self.copy_response_button)
         hbox1_layout.addWidget(self.bark_button)
         layout.addLayout(hbox1_layout)
-        
-        self.stop_button = QPushButton("Stop")
-        stop_icon_pixmap = QPixmap()
-        stop_icon_pixmap.loadFromData(base64.b64decode(IMAGE_STOP_SIGN))
-        self.stop_button.setIcon(QIcon(stop_icon_pixmap))
-        self.stop_button.clicked.connect(self.on_stop_button_clicked)
-        self.stop_button.setDisabled(True)
-        hbox1_layout.addWidget(self.stop_button)
 
         self.text_input = QTextEdit()
         layout.addWidget(self.text_input, 1)
@@ -135,7 +128,6 @@ class DatabaseQueryTab(QWidget):
         
         self.cumulative_response = ""
         self.submit_button.setDisabled(True)
-        self.stop_button.setDisabled(False)
         user_question = self.text_input.toPlainText()
         chunks_only = self.chunks_only_checkbox.isChecked()
         self.submit_thread = SubmitButtonThread(user_question, chunks_only, self)
@@ -143,10 +135,6 @@ class DatabaseQueryTab(QWidget):
         self.submit_thread.errorSignal.connect(self.show_error_message)
         self.submit_thread.finishedSignal.connect(self.on_submission_finished)
         self.submit_thread.start()
-
-    def on_stop_button_clicked(self):
-        SubmitButtonThread.request_stop()
-        self.stop_button.setDisabled(True)
 
     def on_copy_response_clicked(self):
         clipboard = QApplication.clipboard()
@@ -187,11 +175,9 @@ class DatabaseQueryTab(QWidget):
     def show_error_message(self, error_message):
         QMessageBox.warning(self, "Error", error_message)
         self.submit_button.setDisabled(False)
-        self.stop_button.setDisabled(True)
 
     def on_submission_finished(self):
         self.submit_button.setDisabled(False)
-        self.stop_button.setDisabled(True)
 
     def update_transcription(self, transcription_text):
         self.text_input.setPlainText(transcription_text)

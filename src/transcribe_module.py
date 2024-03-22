@@ -5,14 +5,16 @@ from pathlib import Path
 from extract_metadata import extract_audio_metadata
 import subprocess
 import av
+import os
 
+# custom document object class mimicking langchain's
 class Document:
     def __init__(self, page_content: str, metadata: dict):
         self.page_content = page_content
         self.metadata = metadata
 
 class WhisperTranscriber:
-    def __init__(self, model_identifier="ctranslate2-4you/whisper-large-v2-ct2-float16", batch_size=48, compute_type='float16'):
+    def __init__(self, model_identifier="ctranslate2-4you/whisper-mediuim.en-ct2-int8", batch_size=16, compute_type='int8'):
         self.model_identifier = model_identifier
         self.batch_size = batch_size
         self.compute_type = compute_type
@@ -112,3 +114,15 @@ class WhisperTranscriber:
         
         with open(pickle_file_path, 'wb') as file:
             pickle.dump(doc, file)
+            
+        script_dir = Path(__file__).parent
+        converted_audio_file_name = f"{Path(self.audio_file).stem}_converted.wav"
+        converted_audio_file_full_path = script_dir / converted_audio_file_name
+
+        if converted_audio_file_full_path.exists():
+            try:
+                os.remove(converted_audio_file_full_path)
+            except Exception as e:
+                print(f"Error deleting file {converted_audio_file_full_path}: {e}")
+        else:
+            print(f"File does not exist: {converted_audio_file_full_path}")

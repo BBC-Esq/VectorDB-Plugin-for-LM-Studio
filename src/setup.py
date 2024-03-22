@@ -95,7 +95,7 @@ def setup_windows_installation():
     install_pytorch(cuda_version_num, proceed)
     os.system("pip3 install -r requirements.txt")
     os.system("pip3 install --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
-    os.system(c.BITSANDBYTES_INSTALL_COMMAND)
+    os.system("pip3 install https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/download/bitsandbytes-win-0.41.2.post2-py3/bitsandbytes-0.41.2.post2-py3-none-win_amd64.whl")
     
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if proceed and cuda_version_num >= 12.1 and (major == 3 and minor in [10, 11]):

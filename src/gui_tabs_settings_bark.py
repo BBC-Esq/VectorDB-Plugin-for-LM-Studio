@@ -36,19 +36,15 @@ class BarkModelSettingsTab(QWidget):
                                      "v2/en_speaker_9"])
         first_row_layout.addWidget(self.speaker_combo)
 
+        self.cpu_offload_label = QLabel("CPU Offload")
+        first_row_layout.addWidget(self.cpu_offload_label)
+        self.cpu_offload_checkbox = QCheckBox()
+        first_row_layout.addWidget(self.cpu_offload_checkbox)
+
         main_layout.addLayout(first_row_layout)
 
         # Second row
         second_row_layout = QHBoxLayout()
-        self.better_transformer_label = QLabel("Better Transformer")
-        second_row_layout.addWidget(self.better_transformer_label)
-        self.better_transformer_checkbox = QCheckBox()
-        second_row_layout.addWidget(self.better_transformer_checkbox)
-
-        self.cpu_offload_label = QLabel("CPU Offload")
-        second_row_layout.addWidget(self.cpu_offload_label)
-        self.cpu_offload_checkbox = QCheckBox()
-        second_row_layout.addWidget(self.cpu_offload_checkbox)
 
         main_layout.addLayout(second_row_layout)
 
@@ -70,14 +66,12 @@ class BarkModelSettingsTab(QWidget):
         self.model_size_combo.setCurrentText(bark_config.get('size', "small"))
         self.quant_combo.setCurrentText(bark_config.get('model_precision', "float16"))
         self.speaker_combo.setCurrentText(bark_config.get('speaker', "v2/en_speaker_6"))
-        self.better_transformer_checkbox.setChecked(bark_config.get('use_better_transformer', True))
         self.cpu_offload_checkbox.setChecked(bark_config.get('enable_cpu_offload', False))
 
     def connect_signals(self):
         self.model_size_combo.currentTextChanged.connect(self.update_config)
         self.quant_combo.currentTextChanged.connect(self.update_config)
         self.speaker_combo.currentTextChanged.connect(self.update_config)
-        self.better_transformer_checkbox.stateChanged.connect(self.update_config)
         self.cpu_offload_checkbox.stateChanged.connect(self.update_config)
 
     def update_config(self):
@@ -91,12 +85,10 @@ class BarkModelSettingsTab(QWidget):
         else:
             config = {}
 
-        # Update only the 'bark' section of the config
         bark_config = config.get('bark', {})
         bark_config['size'] = self.model_size_combo.currentText()
         bark_config['model_precision'] = self.quant_combo.currentText()
         bark_config['speaker'] = self.speaker_combo.currentText()
-        bark_config['use_better_transformer'] = self.better_transformer_checkbox.isChecked()
         bark_config['enable_cpu_offload'] = self.cpu_offload_checkbox.isChecked()
         config['bark'] = bark_config
 

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QLabel, QGridLayout, QVBoxLayout, QComboBox, QCheckBox, QSpinBox, QWidget
+from PySide6.QtWidgets import QLabel, QGridLayout, QVBoxLayout, QComboBox, QWidget
 from PySide6.QtCore import Qt
 import yaml
 from pathlib import Path
@@ -24,40 +24,22 @@ class VisionSettingsTab(QWidget):
         gridLayout.setAlignment(label_model, Qt.AlignCenter)
 
         label_size = QLabel("Size")
-        gridLayout.addWidget(label_size, 0, 2)
+        gridLayout.addWidget(label_size, 0, 3)
         gridLayout.setAlignment(label_size, Qt.AlignCenter)
 
         label_quant = QLabel("Quant")
-        gridLayout.addWidget(label_quant, 0, 3)
+        gridLayout.addWidget(label_quant, 0, 5)
         gridLayout.setAlignment(label_quant, Qt.AlignCenter)
-
-        label_flash = QLabel("Flash Attn 2")
-        gridLayout.addWidget(label_flash, 0, 4)
-        gridLayout.setAlignment(label_flash, Qt.AlignCenter)
-
-        label_batch = QLabel("Batch")
-        gridLayout.addWidget(label_batch, 0, 5)
-        gridLayout.setAlignment(label_batch, Qt.AlignCenter)
 
         self.modelComboBox = QComboBox()
         self.modelComboBox.addItems(["salesforce", "moondream2", "llava", "bakllava", "cogvlm"])
-        gridLayout.addWidget(self.modelComboBox, 1, 1)
+        gridLayout.addWidget(self.modelComboBox, 0, 2)
 
         self.sizeComboBox = QComboBox()
-        gridLayout.addWidget(self.sizeComboBox, 1, 2)
+        gridLayout.addWidget(self.sizeComboBox, 0, 4)
 
         self.quantComboBox = QComboBox()
-        gridLayout.addWidget(self.quantComboBox, 1, 3)
-
-        flashCheckBox = QCheckBox()
-        gridLayout.addWidget(flashCheckBox, 1, 4)
-        gridLayout.setAlignment(flashCheckBox, Qt.AlignCenter)
-        flashCheckBox.setEnabled(False)
-
-        batchSpinBox = QSpinBox()
-        gridLayout.addWidget(batchSpinBox, 1, 5)
-        gridLayout.setAlignment(batchSpinBox, Qt.AlignCenter)
-        batchSpinBox.setEnabled(False)
+        gridLayout.addWidget(self.quantComboBox, 0, 6)
 
         self.modelComboBox.currentIndexChanged.connect(self.updateChosenModel)
         self.sizeComboBox.currentIndexChanged.connect(self.updateChosenSize)

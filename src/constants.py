@@ -1,311 +1,125 @@
-AVAILABLE_MODELS = [
-    {
-        'details': {
-            'description': 'Well rounded & customizable.',
-            'dimensions': 384,
-            'max_sequence': 512,
-            'size_mb': 134
-        },
-        'model': 'BAAI/bge-small-en-v1.5'
+AVAILABLE_MODELS = {
+    'BAAI/bge-small-en-v1.5': {
+        'description': 'Well rounded & customizable.',
+        'dimensions': 384,
+        'max_sequence': 512,
+        'size_mb': 134
     },
-    {
-        'details': {
-            'description': 'Well rounded & customizable.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 438
-        },
-        'model': 'BAAI/bge-base-en-v1.5'
+    'BAAI/bge-base-en-v1.5': {
+        'description': 'Well rounded & customizable.',
+        'dimensions': 768,
+        'max_sequence': 512,
+        'size_mb': 438
     },
-    {
-        'details': {
-            'description': 'Well rounded & customizable.',
-            'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 1340
-        },
-        'model': 'BAAI/bge-large-en-v1.5'
+    'BAAI/bge-large-en-v1.5': {
+        'description': 'Well rounded & customizable.',
+        'dimensions': 1024,
+        'max_sequence': 512,
+        'size_mb': 1340
     },
-    {
-        'details': {
-            'description': 'Well rounded & customizable.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 439
-        },
-        'model': 'hkunlp/instructor-base'
+    'hkunlp/instructor-base': {
+        'description': 'Well rounded & customizable.',
+        'dimensions': 768,
+        'max_sequence': 512,
+        'size_mb': 439
     },
-    {
-        'details': {
-            'description': 'Well rounded & customizable.',
-            'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 1340
-        },
-        'model': 'hkunlp/instructor-large'
+    'hkunlp/instructor-large': {
+        'description': 'Well rounded & customizable.',
+        'dimensions': 1024,
+        'max_sequence': 512,
+        'size_mb': 1340
     },
-    {
-        'details': {
-            'description': 'Well rounded & customizable.',
-            'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 4960
-        },
-        'model': 'hkunlp/instructor-xl'
+    'hkunlp/instructor-xl': {
+        'description': 'Well rounded & customizable.',
+        'dimensions': 1024,
+        'max_sequence': 512,
+        'size_mb': 4960
     },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 312,
-            'max_sequence': 512,
-            'size_mb': 58
-        },
-        'model': 'jinaai/jina-embedding-t-en-v1'
+    'jinaai/jina-embedding-s-en-v1': {
+        'description': 'Well rounded',
+        'dimensions': 512,
+        'max_sequence': 512,
+        'size_mb': 141
     },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 512,
-            'max_sequence': 512,
-            'size_mb': 141
-        },
-        'model': 'jinaai/jina-embedding-s-en-v1'
+    'jinaai/jina-embedding-b-en-v1': {
+        'description': 'Well rounded',
+        'dimensions': 768,
+        'max_sequence': 512,
+        'size_mb': 439
     },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 439
-        },
-        'model': 'jinaai/jina-embedding-b-en-v1'
+    'jinaai/jina-embedding-l-en-v1': {
+        'description': 'Well rounded',
+        'dimensions': 1024,
+        'max_sequence': 512,
+        'size_mb': 1340
     },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 1340
-        },
-        'model': 'jinaai/jina-embedding-l-en-v1'
+    'sentence-transformers/all-distilroberta-v1': {
+        'description': 'Clustering or semantic search',
+        'dimensions': 768,
+        'max_sequence': 512,
+        'size_mb': 329
     },
-    {
-        'details': {
-            'description': 'Clustering or semantic search',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 329
-        },
-        'model': 'sentence-transformers/all-distilroberta-v1'
+    'sentence-transformers/all-roberta-large-v1': {
+        'description': 'Clustering or semantic search',
+        'dimensions': 1024,
+        'max_sequence': 514,
+        'size_mb': 1420
     },
-        {
-        'details': {
-            'description': 'Clustering or semantic search',
-            'dimensions': 1024,
-            'max_sequence': 514,
-            'size_mb': 1420
-        },
-        'model': 'sentence-transformers/all-roberta-large-v1'
+    'sentence-transformers/all-MiniLM-L6-v2': {
+        'description': 'Clustering or semantic search',
+        'dimensions': 384,
+        'max_sequence': 256,
+        'size_mb': 91
     },
-    {
-        'details': {
-            'description': 'Clustering or semantic search',
-            'dimensions': 384,
-            'max_sequence': 256,
-            'size_mb': 91
-        },
-        'model': 'sentence-transformers/all-MiniLM-L6-v2'
+    'sentence-transformers/all-MiniLM-L12-v2': {
+        'description': 'Clustering or semantic search',
+        'dimensions': 384,
+        'max_sequence': 256,
+        'size_mb': 120
     },
-        {
-        'details': {
-            'description': 'Clustering or semantic search',
-            'dimensions': 384,
-            'max_sequence': 256,
-            'size_mb': 120
-        },
-        'model': 'sentence-transformers/all-MiniLM-L12-v2'
+    'sentence-transformers/all-mpnet-base-v2': {
+        'description': 'Clustering or semantic search',
+        'dimensions': 768,
+        'max_sequence': 384,
+        'size_mb': 438
     },
-    {
-        'details': {
-            'description': 'Clustering or semantic search',
-            'dimensions': 768,
-            'max_sequence': 384,
-            'size_mb': 438
-        },
-        'model': 'sentence-transformers/all-mpnet-base-v2'
+    'sentence-transformers/sentence-t5-base': {
+        'description': 'Sentence similarity',
+        'dimensions': 768,
+        'max_sequence': 256,
+        'size_mb': 219
     },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 219
-        },
-        'model': 'sentence-transformers/gtr-t5-base'
+    'sentence-transformers/sentence-t5-large': {
+        'description': 'Sentence similarity',
+        'dimensions': 768,
+        'max_sequence': 256,
+        'size_mb': 670
     },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 670
-        },
-        'model': 'sentence-transformers/gtr-t5-large'
+    'sentence-transformers/sentence-t5-xl': {
+        'description': 'Sentence similarity',
+        'dimensions': 768,
+        'max_sequence': 256,
+        'size_mb': 2480
     },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 2480
-        },
-        'model': 'sentence-transformers/gtr-t5-xl'
+    'thenlper/gte-small': {
+        'description': 'Well rounded',
+        'dimensions': 384,
+        'max_sequence': 512,
+        'size_mb': 67
     },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 9230
-        },
-        'model': 'sentence-transformers/gtr-t5-xxl'
+    'thenlper/gte-base': {
+        'description': 'Well rounded',
+        'dimensions': 768,
+        'max_sequence': 512,
+        'size_mb': 219
     },
-    {
-        'details': {
-            'description': 'Clustering or semantic search',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 265
-        },
-        'model': 'sentence-transformers/msmarco-distilbert-base-v4'
-    },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 768,
-            'max_sequence': 384,
-            'size_mb': 265
-        },
-        'model': 'sentence-transformers/msmarco-distilbert-cos-v5'
-    },
-    {
-        'details': {
-            'description': 'Clustering or semantic search',
-            'dimensions': 384,
-            'max_sequence': 512,
-            'size_mb': 91
-        },
-        'model': 'sentence-transformers/msmarco-MiniLM-L-6-v3'
-    },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 384,
-            'max_sequence': 384,
-            'size_mb': 91
-        },
-        'model': 'sentence-transformers/msmarco-MiniLM-L6-cos-v5'
-    },
-    {
-        'details': {
-            'description': 'Clustering or semantic search',
-            'dimensions': 768,
-            'max_sequence': 510,
-            'size_mb': 499
-        },
-        'model': 'sentence-transformers/msmarco-roberta-base-v3'
-    },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 265
-        },
-        'model': 'sentence-transformers/multi-qa-distilbert-cos-v1'
-    },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 384,
-            'max_sequence': 512,
-            'size_mb': 91
-        },
-        'model': 'sentence-transformers/multi-qa-MiniLM-L6-cos-v1'
-    },
-    {
-        'details': {
-            'description': 'Semantic search.',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 438
-        },
-        'model': 'sentence-transformers/multi-qa-mpnet-base-cos-v1'
-    },
-    {
-        'details': {
-            'description': 'Sentence similarity',
-            'dimensions': 768,
-            'max_sequence': 256,
-            'size_mb': 219
-        },
-        'model': 'sentence-transformers/sentence-t5-base'
-    },
-    {
-        'details': {
-            'description': 'Sentence similarity',
-            'dimensions': 768,
-            'max_sequence': 256,
-            'size_mb': 670
-        },
-        'model': 'sentence-transformers/sentence-t5-large'
-    },
-    {
-        'details': {
-            'description': 'Sentence similarity',
-            'dimensions': 768,
-            'max_sequence': 256,
-            'size_mb': 2480
-        },
-        'model': 'sentence-transformers/sentence-t5-xl'
-    },
-    {
-        'details': {
-            'description': 'Sentence similarity',
-            'dimensions': 768,
-            'max_sequence': 256,
-            'size_mb': 9230
-        },
-        'model': 'sentence-transformers/sentence-t5-xxl'
-    },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 384,
-            'max_sequence': 512,
-            'size_mb': 67
-        },
-        'model': 'thenlper/gte-small'
-    },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 219
-        },
-        'model': 'thenlper/gte-base'
-    },
-    {
-        'details': {
-            'description': 'Well rounded',
-            'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 670
-        },
-        'model': 'thenlper/gte-large'
+    'thenlper/gte-large': {
+        'description': 'Well rounded',
+        'dimensions': 1024,
+        'max_sequence': 512,
+        'size_mb': 670
     }
-]
+}
 
 DOCUMENT_LOADERS = {
     ".pdf": "PyMuPDFLoader",
@@ -324,29 +138,6 @@ DOCUMENT_LOADERS = {
     ".md": "UnstructuredMarkdownLoader",
     ".html": "UnstructuredHTMLLoader",
 }
-
-# SETUP.PY
-PYTORCH_CUDA_11_8_CP311 = "pip install https://download.pytorch.org/whl/cu118/torch-2.1.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=623af3c2b94c58951b71e247f39b1b7377cc94d13162a548c59ed9cf81b2b0b2"
-PYTORCH_CUDA_11_8_TORCHVISION_CP311 = "pip install https://download.pytorch.org/whl/cu118/torchvision-0.16.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=036391a65f3c2ac6dbe4b73ea0acc303dd1c0a667e2a3592a194b2d2db377da1"
-PYTORCH_CUDA_11_8_TORCHAUDIO_CP311 = "pip install https://download.pytorch.org/whl/cu118/torchaudio-2.1.2%2Bcu118-cp311-cp311-win_amd64.whl#sha256=598e885648ac94c24920104f185e72fe9f4a9519c2d29b009e47cbc0866e6244"
-
-PYTORCH_CUDA_11_8_CP310 = "pip install https://download.pytorch.org/whl/cu118/torch-2.1.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=0ddfa0336d678316ff4c35172d85cddab5aa5ded4f781158e725096926491db9"
-PYTORCH_CUDA_11_8_TORCHVISION_CP310 = "pip install https://download.pytorch.org/whl/cu118/torchvision-0.16.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=689f2458e8924c47b7ba9f50dca353423b75214184b905d540f69d9b962b2fdf"
-PYTORCH_CUDA_11_8_TORCHAUDIO_CP310 = "pip install https://download.pytorch.org/whl/cu118/torchaudio-2.1.2%2Bcu118-cp310-cp310-win_amd64.whl#sha256=0d02bc0336ee4b3553f0d13f88f61121db2fc21de7b147f4957ecdbcc1dc1c89"
-
-PYTORCH_CPU_CP311 = "pip install https://download.pytorch.org/whl/cpu/torch-2.1.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=d7ed25db586afef2c022eb143471c6742088decbe05ed1f879fac770e67df189"
-PYTORCH_CPU_TORCHAUDIO_CP311 = "pip install https://download.pytorch.org/whl/cpu/torchaudio-2.1.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=caa5d209c90a8d29fc6ab3b6dcad8e1bddf4535429c61dfbfbc0400f17b9b370"
-PYTORCH_CPU_TORCHVISION_CP311 = "pip install https://download.pytorch.org/whl/cpu/torchvision-0.16.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=32a84b015f63a5335f1c761bff78d66fbaab8a0b041e3500ff494c8828efb899"
-
-PYTORCH_CPU_CP310 = "pip install https://download.pytorch.org/whl/cpu/torch-2.1.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=679458a652006bc5b9d3972f046ae299039dcc63f465ac623b439cbc27a3645c"
-PYTORCH_CPU_TORCHAUDIO_CP310 = "pip install https://download.pytorch.org/whl/cpu/torchaudio-2.1.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=8f311866f0f421ea1caec0767374e2b42b04754ee34e14321944cf6340e45aa8"
-PYTORCH_CPU_TORCHVISION_CP310 = "pip install https://download.pytorch.org/whl/cpu/torchvision-0.16.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=bf245686cd46a108a76e0ce5dd9993baac465019ca9fb6610b2d947ed2aff381"
-
-XFORMERS_CUDA_11_8_CP310 = "pip install https://download.pytorch.org/whl/cu118/xformers-0.0.23.post1%2Bcu118-cp310-cp310-win_amd64.whl#sha256=bb845f1dfe21dec3ccaf2c94adabf46bd604ac5bbfb35379340816914b1ce00a"
-NVIDIA_ML_PY_CP310 = "pip install nvidia-ml-py==12.535.108"
-
-XFORMERS_CUDA_11_8_CP311 = "pip install https://download.pytorch.org/whl/cu118/xformers-0.0.23.post1%2Bcu118-cp311-cp311-win_amd64.whl#sha256=8c232bccf88e19de91b545a2b29886c5684bf5d1f7014b6a3d126e481b5e01ee"
-NVIDIA_ML_PY_CP311 = "pip install nvidia-ml-py==12.535.108"
 
 MESSAGE_MS_BUILD_TOOLS = (
     "Have you installed Microsoft Build Tools and Visual Studio? Click OK to confirm, or Cancel to exit installation. "
@@ -367,8 +158,6 @@ MESSAGE_GIT = (
     "Have you installed Git? Click OK to confirm, or Cancel to exit installation. "
     "Git can be downloaded here: https://git-scm.com/"
 )
-
-BITSANDBYTES_INSTALL_COMMAND = "pip install https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/download/bitsandbytes-win-0.41.2.post2-py3/bitsandbytes-0.41.2.post2-py3-none-win_amd64.whl"
 
 CHUNKS_ONLY_TOOLTIP = "Only return relevant chunks without connecting to the LLM. Extremely useful to test the chunk size/overlap settings."
 

@@ -29,11 +29,11 @@ class GuiSettingsTab(QWidget):
         self.layout = QVBoxLayout()
 
         classes = {
-            "SERVER/LLM": (ServerSettingsTab, 4),
+            "LM Studio Server": (ServerSettingsTab, 3),
             #"VOICE RECORDER": (TranscriberSettingsTab, 1),
-            "DATABASE QUERY": (DatabaseSettingsTab, 3),
-            "DATABASE CREATION": (ChunkSettingsTab, 1),
-            "BARK": (BarkModelSettingsTab, 2),
+            "Database Query": (DatabaseSettingsTab, 2),
+            "Database Creation": (ChunkSettingsTab, 2),
+            "Bark": (BarkModelSettingsTab, 2),
         }
 
         self.groups = {}

@@ -29,7 +29,9 @@ class TranscriberToolSettingsTab(QWidget):
         self.model_combo = QComboBox()
 
         self.model_name_mapping = {
+            "large-v2 - float32": "ctranslate2-4you/whisper-large-v2-ct2-float32",
             "large-v2 - float16": "ctranslate2-4you/whisper-large-v2-ct2-float16",
+            "medium.en - float32": "ctranslate2-4you/whisper-medium.en-ct2-float32",
             "medium.en - float16": "ctranslate2-4you/whisper-medium.en-ct2-float16",
             "small.en - float32": "ctranslate2-4you/whisper-small.en-ct2-float32",
             "small.en - float16": "ctranslate2-4you/whisper-small.en-ct2-float16",
@@ -43,12 +45,12 @@ class TranscriberToolSettingsTab(QWidget):
 
         model_selection_hbox.addWidget(self.model_combo)
 
-        model_selection_hbox.addWidget(QLabel("Speed (more memory)"))
+        model_selection_hbox.addWidget(QLabel("Speed:"))
 
         self.slider_label = QLabel("8")
         self.number_slider = QSlider(Qt.Horizontal)
         self.number_slider.setMinimum(1)
-        self.number_slider.setMaximum(100)
+        self.number_slider.setMaximum(150)
         self.number_slider.setValue(8)
         self.number_slider.valueChanged.connect(self.update_slider_label)
 
