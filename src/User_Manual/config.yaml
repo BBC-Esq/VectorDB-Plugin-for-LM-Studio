@@ -4,12 +4,14 @@ Compute_Device:
   database_creation: cpu
   database_query: cpu
   gpu_brand:
-EMBEDDING_MODEL_NAME: null
+EMBEDDING_MODEL_NAME:
 Platform_Info:
   os:
 Supported_CTranslate2_Quantizations:
   CPU:
   GPU:
+WhisperSpeech:
+  model: null
 bark:
   enable_cpu_offload: false
   model_precision: float32
@@ -19,11 +21,11 @@ created_databases: {}
 database:
   chunk_overlap: 200
   chunk_size: 600
-  contexts: '6'
+  contexts: '8'
   database_to_search: ''
   document_types: ''
   search_term: ''
-  similarity: 0.1
+  similarity: 0.9
 embedding-models:
   bge:
     query_instruction: 'Represent this sentence for searching relevant passages:'
@@ -35,14 +37,14 @@ server:
   connection_str: http://localhost:1234/v1
   model_max_tokens: -1
   model_temperature: 0.1
-  prefix: <|im_start|>user
+  prefix: '### User:'
   prefix_chat_ml: <|im_start|>
   prefix_llama2_and_mistral: '[INST]'
   prefix_neural_chat: '### User:'
   prefix_orca2: <|im_start|>user
   prefix_stablelm-zephyr: <|user|>
   prompt_format_disabled: false
-  suffix: <|im_end|><|im_start|>assistant
+  suffix: '### Assistant:'
   suffix_chat_ml: <|im_end|>
   suffix_llama2_and_mistral: '[/INST]'
   suffix_neural_chat: '### Assistant:'
@@ -64,6 +66,8 @@ transcriber:
   device: cpu
   model: whisper-small.en
   quant: float32
+tts:
+  model: bark
 vision:
   bakllava:
     available_quants:
@@ -72,9 +76,9 @@ vision:
     available_sizes:
     - 7b
   batch: null
-  chosen_model:
-  chosen_quant:
-  chosen_size:
+  chosen_model: salesforce
+  chosen_quant: float32
+  chosen_size: 470m
   cogvlm:
     available_quants:
     - 4-bit
