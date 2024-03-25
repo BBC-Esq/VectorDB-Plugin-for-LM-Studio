@@ -67,6 +67,10 @@ QGroupBox {
     padding: 10px;
 }
 
+QRadioButton {
+    color: white;
+}
+
 DownloadModelDialog {
     background-color: #0E0D13;
 }

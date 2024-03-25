@@ -43,6 +43,10 @@ QComboBox QAbstractItemView {
     color: white;
 }
 
+QRadioButton {
+    color: white;
+}
+
 QComboBox QAbstractItemView::item:hover {
     background-color: #038387;
     border: 1px solid #253141;

@@ -38,6 +38,10 @@ QComboBox {
     padding: 3px;
 }
 
+QRadioButton {
+    color: white;
+}
+
 QComboBox QAbstractItemView {
     background-color: #4a5a4e;
     color: white;

@@ -55,6 +55,10 @@ QLineEdit {
     padding: 3px;
 }
 
+QRadioButton {
+    color: white;
+}
+
 QLineEdit::placeholder {
     color: #a27aa2;
 }

@@ -30,6 +30,10 @@ QLabel {
     color: white;
 }
 
+QRadioButton {
+    color: white;
+}
+
 QComboBox {
     background-color: #4a4739;
     color: white;

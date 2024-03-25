@@ -48,6 +48,10 @@ QComboBox QAbstractItemView::item:hover {
     color: white;
 }
 
+QRadioButton {
+    color: white;
+}
+
 QLineEdit {
     background-color: #1a1d29;
     color: white;

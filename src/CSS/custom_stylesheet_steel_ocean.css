@@ -23,7 +23,7 @@ QPushButton:hover {
 }
 
 QGroupBox {
-    border: 2px solid #1b3a47;
+    border: 1px solid #1b3a47;
 }
 
 QLabel {
@@ -43,6 +43,10 @@ QComboBox QAbstractItemView {
     color: white;
 }
 
+QRadioButton {
+    color: white;
+}
+
 QComboBox QAbstractItemView::item:hover {
     background-color: #703c4b;
     color: white;
@@ -51,7 +55,7 @@ QComboBox QAbstractItemView::item:hover {
 QLineEdit {
     background-color: #1e2126;
     color: white;
-    border: none;
+    border: None;
     padding: 3px;
 }
 
