@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QSizePolicy, QComboBox, QPushButton
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePolicy, QComboBox, QPushButton
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
 
@@ -14,10 +14,7 @@ class DatabaseSettingsTab(QWidget):
             self.search_term = config_data['database'].get('search_term', '')
             self.document_type = config_data['database'].get('document_types', '')
 
-        v_layout = QVBoxLayout()
-        h_layout_device = QHBoxLayout()
-        h_layout_settings = QHBoxLayout()
-        h_layout_search_term = QHBoxLayout()
+        grid_layout = QGridLayout()
 
         self.field_data = {}
         self.label_data = {}
@@ -27,41 +24,47 @@ class DatabaseSettingsTab(QWidget):
         self.query_device_combo.addItems(self.compute_device_options)
         if self.database_query_device in self.compute_device_options:
             self.query_device_combo.setCurrentIndex(self.compute_device_options.index(self.database_query_device))
-        h_layout_device.addWidget(self.query_device_label)
-        h_layout_device.addWidget(self.query_device_combo)
+        grid_layout.addWidget(self.query_device_label, 0, 0)
+        grid_layout.addWidget(self.query_device_combo, 0, 1)
 
-        v_layout.addLayout(h_layout_device)
+        # Add similarity settings
+        similarity_value = self.database_config.get('similarity', '')
+        self.similarity_edit = QLineEdit()
+        self.similarity_edit.setPlaceholderText("Enter new similarity...")
+        self.similarity_edit.setValidator(QDoubleValidator())
+        self.similarity_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.similarity_label = QLabel(f"Similarity: {similarity_value}")
+        self.similarity_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        grid_layout.addWidget(self.similarity_label, 1, 0)
+        grid_layout.addWidget(self.similarity_edit, 1, 1)
+        self.field_data['similarity'] = self.similarity_edit
+        self.label_data['similarity'] = self.similarity_label
 
-        database_settings_group = ['similarity', 'contexts']
-
-        for setting in database_settings_group:
-            current_value = self.database_config.get(setting, '')
-            edit = QLineEdit()
-            edit.setPlaceholderText(f"Enter new {setting}...")
-            edit.setValidator(QDoubleValidator() if setting == 'similarity' else QIntValidator())
-            edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            label = QLabel(f"{setting.replace('_', ' ').capitalize()}: {current_value}")
-            label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            h_layout_settings.addWidget(label)
-            h_layout_settings.addWidget(edit)
-            self.field_data[setting] = edit
-            self.label_data[setting] = label
-
-        v_layout.addLayout(h_layout_settings)
+        # Add contexts settings
+        contexts_value = self.database_config.get('contexts', '')
+        self.contexts_edit = QLineEdit()
+        self.contexts_edit.setPlaceholderText("Enter new contexts...")
+        self.contexts_edit.setValidator(QIntValidator())
+        self.contexts_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.contexts_label = QLabel(f"Contexts: {contexts_value}")
+        self.contexts_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        grid_layout.addWidget(self.contexts_label, 1, 3)
+        grid_layout.addWidget(self.contexts_edit, 1, 4)
+        self.field_data['contexts'] = self.contexts_edit
+        self.label_data['contexts'] = self.contexts_label
 
         self.search_term_edit = QLineEdit()
         self.search_term_edit.setPlaceholderText("Enter new search term...")
         self.search_term_edit.setText(self.search_term)
-        self.search_term_label = QLabel(f"Search Filter: {self.search_term}")
-        h_layout_search_term.addWidget(self.search_term_label)
-        h_layout_search_term.addWidget(self.search_term_edit)
-
+        self.search_term_label = QLabel(f"Search Term Filter: {self.search_term}")
         self.filter_button = QPushButton("Clear Filter")
         self.filter_button.clicked.connect(self.reset_search_term)
-        h_layout_search_term.addWidget(self.filter_button)
-        
+        grid_layout.addWidget(self.search_term_label, 2, 0)
+        grid_layout.addWidget(self.search_term_edit, 2, 1)
+        grid_layout.addWidget(self.filter_button, 2, 2)
+
         self.file_type_combo = QComboBox()
-        file_type_items = ["All Files", "Images Only", "Documents Only", "Audio Only"] # modify to add file types
+        file_type_items = ["All Files", "Images Only", "Documents Only", "Audio Only"]
         self.file_type_combo.addItems(file_type_items)
 
         if self.document_type == 'image':
@@ -69,16 +72,15 @@ class DatabaseSettingsTab(QWidget):
         elif self.document_type == 'document':
             default_index = file_type_items.index("Documents Only")
         elif self.document_type == 'audio':
-            default_index = file_type_items.index("Audio Only") # add additional elif after here for additional types
+            default_index = file_type_items.index("Audio Only")
         else:
             default_index = file_type_items.index("All Files")
         self.file_type_combo.setCurrentIndex(default_index)
 
-        h_layout_search_term.addWidget(self.file_type_combo)
+        grid_layout.addWidget(QLabel("File Type:"), 2, 3)
+        grid_layout.addWidget(self.file_type_combo, 2, 4)
 
-        v_layout.addLayout(h_layout_search_term)
-
-        self.setLayout(v_layout)
+        self.setLayout(grid_layout)
 
     def update_config(self):
         with open('config.yaml', 'r', encoding='utf-8') as f:

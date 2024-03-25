@@ -25,7 +25,7 @@ class VectorModelsTab(QWidget):
             'BAAI': 3,
             'hkunlp': 3,
             'jinaai': 3,
-            'sentence-transformers': 5,
+            'sentence-transformers': 7,
             'thenlper': 3,
         }
 
@@ -36,6 +36,7 @@ class VectorModelsTab(QWidget):
         existing_directories = {d.name for d in embedding_models_dir.iterdir() if d.is_dir()}
 
         headers = ["Select", "Model Name", "Dimensions", "Max Sequence", "Size (MB)", "Downloaded"]
+        column_stretch_factors = [1, 3, 2, 2, 2, 2]
 
         row_counter = 1
         for model_name, details in self.available_models.items():
@@ -55,33 +56,33 @@ class VectorModelsTab(QWidget):
                     header_label.setAlignment(Qt.AlignCenter)
                     group_layout.addWidget(header_label, 0, col)
 
+                # Set the stretch factor for each column
+                for col, stretch_factor in enumerate(column_stretch_factors):
+                    group_layout.setColumnStretch(col, stretch_factor)
+
             grid = group_box.layout()
             row = grid.rowCount()
 
             radiobutton = QRadioButton()
             self.model_radiobuttons.addButton(radiobutton, row_counter)
-            grid.addWidget(radiobutton, row, 0)
+            grid.addWidget(radiobutton, row, 0, alignment=Qt.AlignCenter)
 
             model_label = QLabel(model_short_name)
-            grid.addWidget(model_label, row, 1)
+            grid.addWidget(model_label, row, 1, alignment=Qt.AlignCenter)
 
             dimensions_label = QLabel(str(details['dimensions']))
-            dimensions_label.setAlignment(Qt.AlignCenter)
-            grid.addWidget(dimensions_label, row, 2)
+            grid.addWidget(dimensions_label, row, 2, alignment=Qt.AlignCenter)
 
             max_sequence_label = QLabel(str(details['max_sequence']))
-            max_sequence_label.setAlignment(Qt.AlignCenter)
-            grid.addWidget(max_sequence_label, row, 3)
+            grid.addWidget(max_sequence_label, row, 3, alignment=Qt.AlignCenter)
 
             size_mb_label = QLabel(str(details['size_mb']))
-            size_mb_label.setAlignment(Qt.AlignCenter)
-            grid.addWidget(size_mb_label, row, 4)
+            grid.addWidget(size_mb_label, row, 4, alignment=Qt.AlignCenter)
 
             expected_dir_name = self.get_model_directory_name(model_name)
             is_downloaded = expected_dir_name in existing_directories
             downloaded_label = QLabel('Yes' if is_downloaded else 'No')
-            downloaded_label.setAlignment(Qt.AlignCenter)
-            grid.addWidget(downloaded_label, row, 5)
+            grid.addWidget(downloaded_label, row, 5, alignment=Qt.AlignCenter)
             radiobutton.setEnabled(not is_downloaded)
 
             self.downloaded_labels[model_name] = downloaded_label
@@ -125,4 +126,3 @@ class VectorModelsTab(QWidget):
             downloaded_label = self.downloaded_labels.get(model_name)
             if downloaded_label:
                 downloaded_label.setText('Yes')
-

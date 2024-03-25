@@ -3,9 +3,9 @@ import yaml
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
 from pathlib import Path
-from langchain.docstore.document import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import (
+from langchain_community.docstore.document import Document
+from langchain_text_splitters.character import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import (
     PyMuPDFLoader,
     Docx2txtLoader,
     TextLoader,
@@ -36,6 +36,7 @@ for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
 
 def load_single_document(file_path: Path) -> Document:
+    print(f"Loading document: {file_path.name}")
     file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
 

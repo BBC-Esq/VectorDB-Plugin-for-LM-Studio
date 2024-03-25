@@ -165,9 +165,12 @@ def check_preconditions_for_submit_question(script_dir):
 
     vector_db_subdir = script_dir / "Vector_DB" / str(database_to_search) if database_to_search else None
 
+    # Commenting out the portion checking for the existence of Parquet files
+    """
     if not database_to_search or not vector_db_subdir or not vector_db_subdir.exists() or not any(f.suffix == '.parquet' for f in vector_db_subdir.iterdir()):
         print("One or more checks failed: Database name not specified, vector database directory does not exist, or no .parquet files found")
         return False, "Must create and select a vector database to search before proceeding."
+    """
 
     return True, ""
 

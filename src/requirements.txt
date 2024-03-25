@@ -1,7 +1,9 @@
 openai==1.12.0
-langchain==0.0.348 # last version before folder name changes
-ctranslate2==4.0.0 
-chromadb==0.3.29 # last before switching to sqlite3
+langchain==0.1.13
+langchain-community==0.0.29
+ctranslate2==4.1.0 
+tiledb==0.27.0
+tiledb-vector-search==0.0.21
 PyMuPDF==1.23.7
 InstructorEmbedding==1.0.1
 sentence-transformers==2.2.2 # last before compatibility issues with at least one othe dependency & instructor reportedly biffed
@@ -22,7 +24,7 @@ PyYAML==6.0.1
 Markdown==3.5.1
 transformers==4.37.2 # anything above requires a newer version of bitsandbytes
 accelerate==0.25.0
-optimum==1.15.0
+optimum==1.17.1
 einops==0.7.0
 scipy==1.11.4
 timm==0.9.16
@@ -36,3 +38,7 @@ openai-whisper==20231117
 # accelerate==0.25.0
 # optimum==1.15.0
 # transformers==4.37.2
+
+# additionally required by WhisperSpeech TTS
+sounddevice==0.4.6
+WhisperSpeech==0.8

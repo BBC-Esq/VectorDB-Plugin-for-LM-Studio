@@ -1,10 +1,9 @@
 import shutil
 import yaml
 import gc
-from langchain.docstore.document import Document
-from langchain.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings, HuggingFaceBgeEmbeddings
-from langchain.vectorstores import Chroma
-from chromadb.config import Settings
+from langchain_community.docstore.document import Document
+from langchain_community.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings, HuggingFaceBgeEmbeddings
+from langchain_community.vectorstores import TileDB
 from document_processor import load_documents, split_documents
 from loader_audio import load_audio_documents
 from loader_images import specify_image_loader
@@ -29,11 +28,6 @@ class CreateVectorDB:
         self.ROOT_DIRECTORY = Path(__file__).resolve().parent
         self.SOURCE_DIRECTORY = self.ROOT_DIRECTORY / "Docs_for_DB"
         self.PERSIST_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB" / database_name
-        self.CHROMA_SETTINGS = Settings(
-            chroma_db_impl="duckdb+parquet",
-            persist_directory=str(self.PERSIST_DIRECTORY),
-            anonymized_telemetry=False
-        )
 
     def load_config(self, root_directory):
         with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
@@ -42,18 +36,18 @@ class CreateVectorDB:
     def initialize_vector_model(self, embedding_model_name, config_data):
         compute_device = config_data['Compute_Device']['database_creation']
         model_kwargs = {"device": compute_device}
-        encode_kwargs = {'normalize_embeddings': True, 'show_progress_bar': True, 'batch_size': 8}
+        encode_kwargs = {'normalize_embeddings': False, 'batch_size': 8}
 
         if compute_device.lower() == 'cpu':
             encode_kwargs['batch_size'] = 2
         else:
             batch_size_mapping = {
-                'instructor-xl': 1,
+                'instructor-xl': 2,
                 'instructor-large': 3,
                 ('jina-embedding-l', 'bge-large', 'gte-large', 'roberta-large'): 4,
                 'jina-embedding-s': 9,
                 ('bge-small', 'gte-small'): 10,
-                ('MiniLM'): 20,
+                ('MiniLM',): 20,
             }
 
             for key, value in batch_size_mapping.items():
@@ -64,6 +58,8 @@ class CreateVectorDB:
         if "instructor" in embedding_model_name:
             embed_instruction = config_data['embedding-models']['instructor'].get('embed_instruction')
             query_instruction = config_data['embedding-models']['instructor'].get('query_instruction')
+            encode_kwargs['show_progress_bar'] = True
+            
             model = HuggingFaceInstructEmbeddings(
                 model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
@@ -73,6 +69,8 @@ class CreateVectorDB:
             )
         elif "bge" in embedding_model_name:
             query_instruction = config_data['embedding-models']['bge'].get('query_instruction')
+            encode_kwargs['show_progress_bar'] = True
+            
             model = HuggingFaceBgeEmbeddings(
                 model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
@@ -82,6 +80,7 @@ class CreateVectorDB:
         else:
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
+                show_progress=True,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs
             )
@@ -92,20 +91,20 @@ class CreateVectorDB:
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         
-        # load non-image/non-audio files
+        # load non-image/non-audio files into list
         documents = load_documents(self.SOURCE_DIRECTORY)        
         
-        # load transcripts
+        # load transcripts and add to list
         audio_documents = load_audio_documents(self.SOURCE_DIRECTORY)
         documents.extend(audio_documents)
         if len(audio_documents) > 0:
             print(f"Loaded {len(audio_documents)} audio transcription(s)...")
         
-        # load images
+        # load images and add to list
         image_documents = specify_image_loader()
         documents.extend(image_documents)
 
-        # split documents
+        # split all documents in list
         texts = split_documents(documents)
 
         # create vectors
@@ -120,13 +119,16 @@ class CreateVectorDB:
         if not self.PERSIST_DIRECTORY.exists():
             self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
             
-        db = Chroma.from_documents(
-            texts, embeddings,
-            persist_directory=str(self.PERSIST_DIRECTORY),
-            client_settings=self.CHROMA_SETTINGS,
+        db = TileDB.from_documents(
+            documents=texts,
+            embedding=embeddings,
+            index_uri=str(self.PERSIST_DIRECTORY),
+            allow_dangerous_deserialization=True,
+            metric="euclidean",
+            index_type="FLAT",
         )
         
-        db.persist()
+        #db.persist()
         print("Database created.")
         
         end_time = time.time()
@@ -135,8 +137,33 @@ class CreateVectorDB:
         print(f"Creation of vectors and inserting into the database took {elapsed_time:.2f} seconds.")
         my_cprint("Database saved.", "cyan")
 
+        #del db
         del embeddings.client
         del embeddings
         torch.cuda.empty_cache()
         gc.collect()
         my_cprint("Embedding model removed from memory.", "red")
+
+# To delete entries based on the "hash" metadata attribute, you can use this as_retriever method to create a retriever that filters documents based on their metadata. Once you retrieve the documents with the specific hash, you can then extract their IDs and use the delete method to remove them from the vectorstore.
+
+# class CreateVectorDB:
+    # # ... [other methods] ...
+
+    # def delete_entries_by_hash(self, target_hash):
+        # my_cprint(f"Deleting entries with hash: {target_hash}", "red")
+
+        # # Initialize the retriever with a filter for the specific hash
+        # retriever = self.db.as_retriever(search_kwargs={'filter': {'hash': target_hash}})
+
+        # # Retrieve documents with the specific hash
+        # documents = retriever.search("")
+
+        # # Extract IDs from the documents
+        # ids_to_delete = [doc.id for doc in documents]
+
+        # # Delete entries with the extracted IDs
+        # if ids_to_delete:
+            # self.db.delete(ids=ids_to_delete)
+            # my_cprint(f"Deleted {len(ids_to_delete)} entries from the database.", "green")
+        # else:
+            # my_cprint("No entries found with the specified hash.", "yellow")

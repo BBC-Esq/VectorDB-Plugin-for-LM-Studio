@@ -3,7 +3,7 @@ from gui_tabs_settings_server import ServerSettingsTab
 #from gui_tabs_settings_whisper import TranscriberSettingsTab
 from gui_tabs_settings_database_create import ChunkSettingsTab
 from gui_tabs_settings_database_query import DatabaseSettingsTab
-from gui_tabs_settings_bark import BarkModelSettingsTab
+from gui_tabs_settings_tts import BarkModelSettingsTab
 from gui_tabs_settings_vision import VisionSettingsTab
 
 def update_all_configs(configs):
@@ -29,11 +29,11 @@ class GuiSettingsTab(QWidget):
         self.layout = QVBoxLayout()
 
         classes = {
-            "LM Studio Server": (ServerSettingsTab, 3),
+            "LM Studio Server": (ServerSettingsTab, 4),
             #"VOICE RECORDER": (TranscriberSettingsTab, 1),
-            "Database Query": (DatabaseSettingsTab, 2),
+            "Database Query": (DatabaseSettingsTab, 3),
             "Database Creation": (ChunkSettingsTab, 2),
-            "Bark": (BarkModelSettingsTab, 2),
+            "Text to Speech": (BarkModelSettingsTab, 3),
         }
 
         self.groups = {}
@@ -58,7 +58,7 @@ class GuiSettingsTab(QWidget):
 
         # VisionSettingsTab
         visionSettings = VisionSettingsTab()
-        visionGroup = QGroupBox("VISION MODELS")
+        visionGroup = QGroupBox("Vision Models")
         visionLayout = QVBoxLayout()
         visionLayout.addWidget(visionSettings)
         visionGroup.setLayout(visionLayout)

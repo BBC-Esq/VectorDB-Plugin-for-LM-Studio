@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox, QComboBox
 from PySide6.QtGui import QIntValidator, QDoubleValidator
-from PySide6.QtCore import Qt
 import yaml
 from pathlib import Path
 
@@ -29,57 +28,34 @@ class ServerSettingsTab(QWidget):
         self.widgets = {}
         layout = QGridLayout()
 
-        # Prompt Format and its combo box moved to the far left (positions 0 and 1 in the first column)
-        prompt_format_label = QLabel("Prompt Format:")
-        layout.addWidget(prompt_format_label, 0, 0)
-        layout.setAlignment(prompt_format_label, Qt.AlignCenter)
+        layout.addWidget(self.create_label('port', settings_dict), 0, 0)
+        layout.addWidget(self.create_edit('port', settings_dict), 0, 1)
+        layout.addWidget(self.create_label('max_tokens', settings_dict), 1, 0)
+        layout.addWidget(self.create_edit('max_tokens', settings_dict), 1, 1)
+        layout.addWidget(self.create_label('temperature', settings_dict), 1, 2)
+        layout.addWidget(self.create_edit('temperature', settings_dict), 1, 3)
 
+        prompt_format_label = QLabel("Prompt Format:")
+        layout.addWidget(prompt_format_label, 2, 0)
+        
         self.prompt_format_combobox = QComboBox()
         self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat/SOLAR", "Orca2", "StableLM-Zephyr"])
-        layout.addWidget(self.prompt_format_combobox, 1, 0)
-        layout.setAlignment(self.prompt_format_combobox, Qt.AlignCenter)
+        layout.addWidget(self.prompt_format_combobox, 2, 1)
         self.prompt_format_combobox.currentIndexChanged.connect(self.update_prefix_suffix)
 
-        # Disable Prompt and its checkbox moved next to the Prompt Format (positions 0 and 1 in the second column)
-        disable_label = QLabel("Disable Prompt:")
-        layout.addWidget(disable_label, 0, 1)
-        layout.setAlignment(disable_label, Qt.AlignCenter)
+        disable_label = QLabel("Disable:")
+        layout.addWidget(disable_label, 2, 2)
 
         self.disable_checkbox = QCheckBox()
         self.disable_checkbox.setChecked(self.prompt_format_disabled)
-        layout.addWidget(self.disable_checkbox, 1, 1)
-        layout.setAlignment(self.disable_checkbox, Qt.AlignCenter)
+        layout.addWidget(self.disable_checkbox, 2, 3)
 
-        # Moving port, max tokens, and temperature next in the order (columns 2, 3, and 4 respectively)
-        port_label = self.create_label('port', settings_dict)
-        layout.addWidget(port_label, 0, 2)
-        layout.setAlignment(port_label, Qt.AlignCenter)
-
-        layout.addWidget(self.create_edit('port', settings_dict), 1, 2)
-        layout.setAlignment(self.create_edit('port', settings_dict), Qt.AlignCenter)
-
-        max_tokens_label = self.create_label('max_tokens', settings_dict)
-        layout.addWidget(max_tokens_label, 0, 3)
-        layout.setAlignment(max_tokens_label, Qt.AlignCenter)
-
-        layout.addWidget(self.create_edit('max_tokens', settings_dict), 1, 3)
-        layout.setAlignment(self.create_edit('max_tokens', settings_dict), Qt.AlignCenter)
-
-        temperature_label = self.create_label('temperature', settings_dict)
-        layout.addWidget(temperature_label, 0, 4)
-        layout.setAlignment(temperature_label, Qt.AlignCenter)
-
-        layout.addWidget(self.create_edit('temperature', settings_dict), 1, 4)
-        layout.setAlignment(self.create_edit('temperature', settings_dict), Qt.AlignCenter)
-
-        # Keeping prefix and suffix at the bottom and making them span the entire row
         layout.addWidget(self.create_label('prefix', settings_dict), 3, 0)
-        layout.addWidget(self.create_edit('prefix', settings_dict), 3, 1, 1, 4)  # Spanning 4 columns for alignment
+        layout.addWidget(self.create_edit('prefix', settings_dict), 3, 1)
         layout.addWidget(self.create_label('suffix', settings_dict), 4, 0)
-        layout.addWidget(self.create_edit('suffix', settings_dict), 4, 1, 1, 4)  # Spanning 4 columns for alignment
+        layout.addWidget(self.create_edit('suffix', settings_dict), 4, 1)
 
         self.setLayout(layout)
-
 
     def create_label(self, setting, settings_dict):
         label = QLabel(f"{setting.capitalize()}: {settings_dict[setting]['current']}")

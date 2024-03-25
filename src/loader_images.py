@@ -15,10 +15,9 @@ from transformers import (
     BlipProcessor,
     LlamaTokenizer,
     LlavaForConditionalGeneration,
-    AutoTokenizer,
     BitsAndBytesConfig
 )
-from langchain.docstore.document import Document
+from langchain_community.docstore.document import Document
 from extract_metadata import extract_image_metadata
 from utilities import my_cprint
 from concurrent.futures import ProcessPoolExecutor

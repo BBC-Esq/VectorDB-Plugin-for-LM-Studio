@@ -1,8 +1,7 @@
-import os
 import pickle
 from pathlib import Path
 import yaml
-from langchain.docstore.document import Document
+from langchain_community.docstore.document import Document
 from utilities import my_cprint
 
 ROOT_DIRECTORY = Path(__file__).parent

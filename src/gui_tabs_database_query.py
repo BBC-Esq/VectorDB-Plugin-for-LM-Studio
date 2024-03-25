@@ -6,7 +6,7 @@ import yaml
 from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP, IMAGE_STOP_SIGN
 import server_connector
 from voice_recorder_module import VoiceRecorder
-from bark_module import BarkAudio
+from tts_module import BarkAudio, WhisperSpeechAudio
 import threading
 from pathlib import Path
 from utilities import check_preconditions_for_submit_question, my_cprint
@@ -62,9 +62,9 @@ class DatabaseQueryTab(QWidget):
         layout.addWidget(self.read_only_text, 4)
         
         hbox1_layout = QHBoxLayout()
-        self.copy_response_button = QPushButton("Copy Response")
+        self.copy_response_button = QPushButton("Copy")
         self.copy_response_button.clicked.connect(self.on_copy_response_clicked)
-        self.bark_button = QPushButton("Bark Response")
+        self.bark_button = QPushButton("Speak Response")
         self.bark_button.clicked.connect(self.on_bark_button_clicked)
         self.bark_button.setToolTip(SPEAK_RESPONSE_TOOLTIP)
         hbox1_layout.addWidget(self.copy_response_button)
@@ -150,9 +150,25 @@ class DatabaseQueryTab(QWidget):
         if not (script_dir / 'chat_history.txt').exists():
             QMessageBox.warning(self, "Error", "No response to play.")
             return
-        bark_thread = threading.Thread(target=self.run_bark_module)
-        bark_thread.daemon = True
-        bark_thread.start()
+        
+        with open(self.config_path, 'r', encoding='utf-8') as file:
+            config = yaml.safe_load(file)
+            tts_model = config.get('tts', {}).get('model', 'bark')
+        
+        if tts_model == 'bark':
+            tts_thread = threading.Thread(target=self.run_bark_module)
+        elif tts_model == 'whisperspeech':
+            tts_thread = threading.Thread(target=self.run_whisperspeech_module)
+        else:
+            QMessageBox.warning(self, "Error", "Invalid TTS model specified in the configuration.")
+            return
+        
+        tts_thread.daemon = True
+        tts_thread.start()
+
+    def run_whisperspeech_module(self):
+        whisperspeech_audio = WhisperSpeechAudio()
+        whisperspeech_audio.run()
 
     def run_bark_module(self):
         bark_audio = BarkAudio()
