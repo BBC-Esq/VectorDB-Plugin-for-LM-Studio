@@ -22,10 +22,6 @@ QPushButton:hover {
     color: #D1D7E2;
 }
 
-QGroupBox {
-    border: 2px solid #0D0C12;
-}
-
 QLabel {
     color: #D1D7E2;
 }
@@ -45,7 +41,6 @@ QComboBox QAbstractItemView {
 
 QComboBox QAbstractItemView::item:hover {
     background-color: #0E0D13;
-    border: 1px solid #253141;
     color: #D1D7E2;
 }
 
@@ -53,8 +48,7 @@ QLineEdit {
     background-color: #0E0D13;
     color: #D1D7E2;
     border: none;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding: 3px;
 }
 
 QLineEdit::placeholder {
@@ -62,7 +56,8 @@ QLineEdit::placeholder {
 }
 
 QGroupBox {
-    color: #D1D7E2;
+    border: 2px solid #0D0C12;
+	color: white;
     font-size: 12pt;
     padding: 10px;
 }

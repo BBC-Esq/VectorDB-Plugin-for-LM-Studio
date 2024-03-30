@@ -22,10 +22,6 @@ QPushButton:hover {
     color: white;
 }
 
-QGroupBox {
-    border: 2px solid #302f1b;
-}
-
 QLabel {
     color: white;
 }
@@ -64,7 +60,8 @@ QLineEdit::placeholder {
 }
 
 QGroupBox {
-    color: white;
+    border: 1px solid #302f1b;
+	color: white;
     font-size: 12pt;
     padding: 10px;
 }
