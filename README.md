@@ -212,13 +212,6 @@ This program can get relevant chunks from the vector database and forwarding the
 
 </details>
 
-<div align="center"> <h2>CLOSING ARGUMENT</h2></div>
-  
-* This program uses fun "Bark" models to convert the response to audio.  However, you must wait until the ENTIRE response is received before clicking the ```Bark Response``` button.
-  * I plan on adding support for the ```WhisperSpeech``` library as well, and I highly recommend that you [check it out](https://github.com/collabora/WhisperSpeech).
-* The voice recorder and audio file transcriber use the amazing ```WhisperS2T``` library, which I highly recommend [that you check out](https://github.com/shashikg/WhisperS2T).
-* The "vision" models used in this program generate summaries of pictures, which are then added to the vector database.  I wrote a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) regarding this.  Support for ```llava v1.6``` is coming just as soon as the ```transformers``` library officially supports it!
-
 ## Request a Feature or Report a Bug
 
 Feel free to report bugs or request enhancements by creating an issue on github or contacting me on the LM Studio Discord server (see below link)!
