@@ -148,19 +148,11 @@
 
 	<header>
 		<h1>Whisper Transcription</h1>
-		<nav>
-			<a href="#overview">Overview</a> |
-			<a href="#transcribe-question">Transcribe Question</a> |
-			<a href="#transcribe-file">Transcribe Audio Files</a> |
-			<a href="#floating">Introduction to Floating Point Formats</a> |
-			<a href="#quantization">What is Quantization?</a> |
-			<a href="#available-models">Available Whisper Models and Quants</a> |
-		</nav>
 	</header>
 	
 	<main>
 	
-	<h2 id="overview">Overview</h2>
+	<h2>Overview</h2>
 	
 	<p><b>This program uses state-of-the-art Whisper models to:</b></p>
 <ol>
@@ -168,47 +160,40 @@
     <li>Transcribe an audio file to a <code>.txt</code> file that will be put into the vector database.</li>
 </ol>
 
-	<h2 id="transcribe-question">Transcribe Question</h2>
+	<h2>Transcribe Question</h2>
 	
-	<p>The <code>Record Question</code> button loads the Whisper model.  You can then speak, click the button again, and your
-	question will be transcribed directly to the question box.  Previous version of this program used the
-	<code>faster-whisper</code> library and included detailed settings for model name, size, quantization, and
-	compute device (e.g. cpu, cuda or mps).  I've switched to the much faster <code>whisperS2A</code> library and have temporarily
-	removed these settings.  Currently the <code>small.en</code> model is us by default, running in "float32," and a batch processing
-	size of 16 is used.  The compute device is always "cpu" currently. I will likely add the ability to customize these settings
-	in a future release.</p>
+	<p>The <code>Record Question</code> button starts the recording.  Speak and then click it gain to stop recording
+	and your question will automatically be transcribed to the question box.  Currently the <code>small.en</code>
+	whisper model is us by default but I plan on adding the ability to change the size and quantization in a future
+	release.</p>
 	
-	<h2 id="transcribe-file">Transcribe File</h2>
+	<h2>Transcribe File</h2>
 	
-	<p>In order to add transcriptions of audio files to the vector database you must first go to the <u>Tools Tab</u> and process
-	an audio file.  You can do this multiple times, however, and each the transcription will be added to the "Create Database" tab.  Remember, you must subsequently create the vector database.</p>
+	<p>To add audio files to a vector database you do not select them en masse like other file types; you must
+	transcribe them first.  Go to the "Tools Tab" and select a file to transcribe and the quality of the Whisper
+	model to use.  It's recommended to use the highest quality Whisper model and quantization that you feel is
+	"reasonable" based on your system hardware and the processing time required as a result.  This is because
+	ideally you only transcribe the file once before it's put into the vector database and you want reliable search
+	results.</p>
 	
-	<p>Since switching to the <code>whisperS2A</code> library, I've simplified the settings in terms of size and quantization
-	of the Whisper model to use, and the default compute device is always "cuda" or "mps" if available, and if not, "cpu."
-	However, I will likely add back the ability to change these settings in the future.</p>
+	<p>It's highly recommended to use gpu-acceleration within the "Settings Tab" when transcribing an audio file.
+	If you're forced to use CPU the smallest model I recommend is <code>small-en</code> using a quantization
+	of <code>float32</code></p>
+	
+	<p>Once the transcription is complete you will see it in the "Create Database" tab and it's ready to be put into
+	the vector database.  Simply add any additional files/transcriptions and create the database.</p>
 
-	<p>NOTE.  The huge speedup provided by <code>whisperS2A</code> library is primarily due to "batch processing," which can be
-	controlled from the "Speed" slider bar.  The amount of processing time and resources required are directly impacted by these
-	two settings.  Therefore, I highly recommend first testing your settings a single audio file of approximately 2 minutes
-	before processing longer files.</p>
+	<p>The <code>Speed</code> setting allows you to reduce the time it takes to transcribe a file at the cost of increased
+	memory and compute requirements.  This setting essentially sets the number of "batches" sent to the Whisper model
+	at once.  Thus, sending the a certain number of batches to the <code>whisper-large-v2</code> model will consume
+	much more resources/compute than the same number of batches sent to the <code>small-en</code> model.  In general,
+	a "Speed" setting of approximately 40 when using the <code>large-v2</code> model will still fit within the
+	VRAM of an RTX 4090 whereas using the <code>tiny-en</code> allows a batch size of well over 125.  Experiment
+	to find the fastest setting that does not exceed your avaialble VRAM.  If it exceeds your VRAM, the transcription
+	process will be MUCH MUCH SLOWER.</p>
 	
-	<p>The resulting transcription is held in a "document object," which the Langchain library recognizes, prior to being put into
-	the vector database.  This "document object" is saved as an actual file using the <code>pickle</code> library from the standard
-	python library, but is deleted once the vector database is created.  Therefore, if you want to add the same audio transcription to multiple databases you'd need to redo the transcription or manually copy and paste the pickle file into the "Docs_for_DB" folder inbetween database runs.</p>
+	<p>If you're not using gpu-acceleration obviously a much lower Speed setting is necessary.</p>
 	
-	<h2 id="Tips">Recommendations</h2>
-	
-	<p>If using gpu-acceleration, always use the large-v2 model in order to get high quality transcriptions.  In theory, you're only entering a transcription into the vector database once and it needs to be reliably searchable.  This is in contrast to  when
-	transcribing a question, which can be easily corrected within the question box.</p>
-	
-	<p>If you are NOT using GPU acceleration (i.e. either cuda or mps) and the "cpu" device is being used by default, select the largest model whose transcription time you can tolerate.  Use a two-minute audio file to test the transcription speed.  Remember, changing
-	the batch size will significantlky speedup transcription speed.  However, there are diminishing returns, especially for cpus
-	as opposed to gpus.  At a certain speed setting, a higher number will no longer lead to
-	faster transcription times, and could actally slow down the transcription process.</p>
-	
-	<p>After ideally choosing the large-v2 model, set the speed setting at the highest level where only VRAM is being used.  If any VRAM usage spills over into regular system RAM, it will greatly slow down the transcription process.  This is where experimenting with a 2 minute audio file first is useful, and obviously if you're not using "cuda" or "mps" then this is not a concern.</p>
-
-
         <h2 id="floating">Primer on Floating Point Formats</h2>
 		
 		<section>

@@ -96,59 +96,41 @@
 		
 		<h2 style="color: #f0f0f0;" align="center">Database Searching</h2>
 		
-		<p>As of release 3.3 there are powerful search options you must be aware of to get the best results; specifically, the
-		<code>contexts</code>, <code>similarity</code>, and <code>search filter</code> settings located within the Settings Tab.
-		It's crucial to understand how these interact.</p>
+		<p>It is important to know how the <code>contexts</code>, <code>similarity</code>, and <code>search filter</code>
+		settings work and interact.</p>
 
 		<p><code>Similarity</code> refers to how relevant a chunk must be to a user's query before it's eligible to be returned.
-		A setting of "1" indicates a perfect result, for example, and should NOT be used because there is never a perfect result.
-		A good starting point is .3 or .4 and adjust accordingly based on the quality of the chunks you're getting.  It's also
-		possible to set this to zero (0) and instead rely on the following two settings in curating the chunks you get.</p>
+		You can choose a number between zero and "1."  Prior versions of this program relied on <code>chromadb</code> and a higher
+		number mean that it was more restrictive.  In other words, using a higher number required a higher relevance score for
+		a chunk to be returned.  Since switching to <code>TileDB</code> in Version 4.3, however, a higher number now means
+		the opposite.  In other words, specifying a higher number will reduce the relevant threshhold and allow more results
+		to be returned.  A good rule of thumb is to use <code>.9</code> unless you are receiving too many irrelevant results.</p>
 		
-		<p><code>Contexts</code> refers to the top "X" relevant results where "X" is the number of contexts you specify.  For
-		example, if you specify eight (8) contexts then it will most likely return the eight (8) most relevant contexts.  I say
-		"most likely" because there is a comment in the version of Langchain that this program uses, stating that this needs to be
-		doublechecked.</p>
+		<p><code>Contexts</code> refers to how many chunks of text will be returned.  This program will automatically choose
+		the "X" most relevant contexts to return up to the number of contexts you want returned.</p>
 		
-		<p><code>Contexts</code> is inherently limited by <code>similarity</code>.  For example, if there are no chunks that meet
-		the similarity threshold, no chunks will be returned even if you were to request the top 100 (to use an extreme example)
-		most relevant contexts.  A good analogy is to think of <code>similarity</code> as creating a pool of all chunks that meet
-		the similarity threshold and <code>contexts</code> as returning the top "X" most relevant results from that pool.</p>
+		<p>The <code>contexts</code> setting is subject to the <code>similarity</code> setting.  In other words, even if you
+		specify a higher number of contexts to return it'll only return up to that amount as long as each one meets the
+		"similarity threshhold."  No chunks will be returned if none meet this threshhold.</p>
 		
-		<p><code>Search Filter</code> takes this one step further and should be used with caution.  It is NOT part of the Langchain
-		library but is rather a custom filter applied afterwards.  It operates as follows:  After <code>similarity</code> and
-		<code>contexts</code> are applied, it explicitly excludes any chunks/contexts that do not include the specified term.
-		In other words, each chunk must contain "verbatim" the characters constituting the search term, but the search term itself
-		is NOT case-sensitive.</p>
+		<p>The <code>search filter</code> settings takes this step further and should be used carefully.  It filters the chunks
+		that have already been subjected to the "contexts" and "similarity" settings.  It essentially searches each chunk for
+		a keyword and removes any chunks that do not include that keyword verbatim.  And only those chunks are sent to LM
+		Studio along with your question.  Please note, although it is "verbatim" it is not case-sensitive.  For example, if
+		you use a search filter of "child," chunks with "children" or "child's" would still be excluded, but "Child" would not
+		result in a chunk being excluded.</p>
 		
-		<p>For example, if you specify a search filter of "child", chunks that have similar terms like "children" or "child's"
-		WOULD BE EXCLUDED because they don't match the exact term "child."  With that being said, it is NOT case sensitive and therefore
-		terms like "Child" or "cHILd" (for that matter) would satisfy the filter; hence not be excluded.</p>
+		<p>A good approach to seeing how this setting works is to set the "similarity" setting very permissive and the "contexts"
+		extremely high, and then experiment with different seach filter terms to see how the number of chunks changes.</p>
 		
-		<p><code>Search Filter</code> is powerful and should be used with caution.  It should be used with an extremely
-		low <code>similarity</code> and high <code>contexts</code> setting.  For example, let's say that within the database there
-		are a grand total of 100 chunks that contain the term "child..." let's further assume that you set <code>similarity</code>
-		to .8 but only 10 of the 100 chunks meet this threshold...let's further assume that you want the top 20
-		<code>contexts</code> that include the term "child."  However, you're only going to get 10 chunks because the
-		<code>similarity</code> setting sets a relevance threshold that a chunk must meet to even be considered as being retrieved.</p>
+		<h2 style="color: #f0f0f0;" align="center">General VRAM Considerations</h2>
 		
-		<p>If you are reasonably confident that one or more chunks that are relevant contain your specified term, the better strategy
-		is to set <code>similarity</code> so no chunks are excluded and <code>contexts</code> very high, which you can then adjust as needed.  Remember, <code>similarity</code> assesses the relevance of a chunk in its entirety while <code>search filter</code>
-		merely asks whether a term is in a specific chunk or not...very different approaches, but when used properly, can lead to
-		very efficient results.</p>
+		<p>To conserve VRAM you can unplug any secondary monitors from the GPU and plug them into the graphics ports coming
+		from your motherboard instead.  This forces your monitor to only use system memory and not VRAM.  However, your CPU
+		must have "integrated graphics" for this to work.  Intel CPUs that have the letter "F" at the end do not contain
+		integrated graphics, for example.</p>
 		
-		<p>For example, let's hypothetically set <code>similarity</code> to .3, <code>contexts</code> to 1,000, and the
-		<code>search filter</code> "preliminary".  Hypothetically, there's 500,000 chunks in the database.  5,000 meet the similarity
-		threshold that I set, 1,000 of the most relevant chunks are returned...finally, only 25 of those chunks contain "preliminary;"
-		therefore, onlyk 25 chunks are ultimately considered.</p>
-		
-		<h2 style="color: #f0f0f0;" align="center">Free up VRAM on Your System</h2>
-		
-		<p>Unplug any secondary monitors from the GPU and plug them into the graphics ports coming from your motherboard instead.
-		This forces your monitors to only use system memory and not VRAM.  However, your CPU must have "integrated graphics"
-		for this to work.  For example, Intel CPUs that have the letter "F" at the end do not contain integrated graphics.</p>
-		
-		<p>Please note, however, that some motherboards automatically disable the graphics adapters if a GPU is installed.  The
+		<p>Please note that some motherboards automatically disable the graphics adapters if a GPU is installed.  The
 		motherboard manufacturer basically assumes that all monitors will be plugged into the GPU.  You can change
 		this behavior by entering BIOS and re-enable the graphics ports coming from your motherboard.  Check your motherboard's
 		documentation on how to do this because each BIOS is slightly different.</p>

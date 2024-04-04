@@ -87,78 +87,84 @@
 
 <body>
     <header>
-        <h1>Vision</h1>
+        <h1>Vision Models in General</h1>
     </header>
 
     <main>
 		
 		<h2 style="color: #f0f0f0;" align="center">What are Vision Models?</h2>
 		
-		<p>Vision models are basically large language models that can analyze and extract information from a variety of images.
-		For purposes of this program, vision models are used to extract a summary of what an image depicts and add this description
-		to the vector database where it can be searched along with any traditional documents you add!</p>
+		<p>Vision models are basically large language models that can analyze an image and either answers questions about it or
+		describe it.  Vision models are used in this program to create detailed descriptions of multiple images and input each
+		of those descriptions into a vector database to be searched.</p>
 		
-		<h2 style="color: #f0f0f0;" align="left">Which Vision Models Are Available?</h2>
+		<h2 style="color: #f0f0f0;" align="left">Types of Vision Models</h2>
 		
-		<p>This program allows you to choose betweeen four vision models.  The models are used to create summaries of images that you select, and these summaries are then put into the vector database when it is created.</p>
+		<p>This program uses four different vision models.</p>
 				
-		<p><code>llava</code> models come in 7b and 13b ("7b" meaning 7 billion parameters) sizes and are based on the
-		<code>llama2</code> architecture.  <code>bakllava</code> is based on the <code>mistral</code> architecture and
-		comes in the 7b size.</p>
+		<p>The <code>llava</code> models were one of the first to become mainstream.  They come in 7b and 13b ("7b" meaning
+		7 billion parameters) sizes and are based on the <code>llama2</code> architecture.  The <code>bakllava</code> model
+		is based on the <code>mistral</code> architecture and has 7 billion parameters.</p>
 		
-		<p><code>cogvlm</code> is the largest and most resource-intensive at <u>18b parameters</u> but also produces the highest
-		quality results IMHO.  <code>moondream</code> is the newest vision model added and is almost as good as llava/bakllava with significantly less resource requirements.  <code>salesforce</code> is the fasted model with the lowest resource
-		requirements, but it performs exceptionally well for its size (only 480m parameters).</p>
+		<p><code>cogvlm</code> has 18 billion parameters and is the largest and most resource-intensive model.  However, it also
+		produces the highest quality image descriptions.</p>
 		
-		</p>Setting aside for the moment speed and resource considerations...I personally ranked the vision models on a scale of 1-10
-		to give you an idea of their quality.  My ranking score reflects "comprehensiveness" (i.e. how many things in the image
-		did the vision model identify as important enough to try and describe) and "accuracy" (i.e. how many of those descriptions
-		are, in fact, accurate):
+		<p>Finally, the <code>moondream2</code> model is a recent addition and it by far strikes the best balance of quality
+		and resource requirements.  For example, if you want 75% of the quality of <code>cogvlm</code> at 100x less processing
+		time, use <code>moondream2</code>.</p>
+		
+		</p>Ignoring the compute requirements altogether, I personally rank the models' quality as follows.  My opinion takes
+		into account both the "comprehensiveness" of the vision model's summary (i.e. how many things in the image did the
+		vision model identify as important enough to describe) and "accuracy" (i.e. how many of those descriptions were
+		actually accurate).  I highly recommend using the highest quality vision model you can.
 		
 		<ol>
 			<li>cogvlm (9.5)</li>
 			<li>bakllava (7.5)</li>
 			<li>llava (7)</li>
 			<li>moondream2 (6.5)</li>
-			<li>salesforce (5)</li>
 		</ol>
 		</p>
 
 		<h2 style="color: #f0f0f0;" align="center">Vision Model Settings</h2>
 		
-		<p><code>Model</code>:The model you want to use to create summaries of images.</p>
+		<p><code>Quant</code> or "quantization" refers to the floating point format of the model you want to use.  You can
+		read more about "quantization" in general in the "Whisper" tab within the User Guide.  I've included multiple
+		quality levels based on how a particular vision model was originally created as well as resource requirements - within
+		reason.  For example, I have not included the option to run the <code>cogvlm</code> model in its original floating
+		point format because it cannot fit on a consumer GPU having 24 GB of VRAM.</p>
 		
-		<p><code>Size</code>:The number of parameters in millions or billions.  Informational purposes only; can't be changed.</p>
+		<p>The <code>4-bit</code> option used the well-known "bitsandbytes" library to quantize the model from its original
+		floating point format, thus reducing the memory and compute requirements.  "Bitsandbytes" is only available for
+		certain model architectures, however, but I've included it where possible.  There is a loss in quality when choosing
+		<code>4-bit</code>, but most of the time it's minimal or, even if it isn't minimal, it's worth the tradeoff in compute
+		time and resources.  I've personally found that running <code>cogvlm</code> with "4-bit" is still MUCH MUCH better than
+		even running <code>bakllava</code> at "float16."</p>
 		
-		<p><code>Quant</code> refers to the size of the model you want to run.  You can read more about "quantization" in the
-		"Whisper" tab within the User Guide.  Salesforce was originally created in <code>float32</code> floating point format
-		while the others were created with <code>float16</code>.  I've included the original floating point formats for all models
-		except <code>cogvlm</code> because the resource requirements are too high (i.e. above 24 GB of memory).</p>
-		
-		<p><code>8-bit</code> and <code>4-bit</code> refer to quantization (using the "bitsandbytes" library) of the original floating point.  "Bitsandbytes" is only available for certain vision model architectures.  Choosing 8-bit or 4-bit will always
-		result in less memory requirements as well as a small drop in accuracy, but for reasons I don't quite understand, this does not
-		necessarily mean less processing time.  Just something to be aware of.</p>
-		
-		<p><code>Flash Attention 2</code> is a compelling newer library that reduces processing time and resource requirements
-		significantly; however, I am still working on implementing it reliably so it is currently disabled.</p>
-		
-		<p><code>Batch</code>: This will be enabled and explained in future releases.</p>
+		<p>Make sure and test your settings on a single image before committing 100 images to be processed.  This can be done
+		within the "Tools Tab."</p>
 
-		<h2 style="color: #f0f0f0;" align="center">How do I use the Vision Model?</h2>
+		<h2 style="color: #f0f0f0;" align="center">Additional Tips</h2>
 		
-		<p>Within the <code>Create Database</code> you can select files to be included in the vector database, including images.
-		When you click the create database button, the vision models will create summaries of each image and put them into the
-		vector database.  The particular vision model used and its settings can be controlled from the <code>Settings</code> tab.
-		In contrast to adding other types of files to the vector database, obtaining summaries of images is typically much more
-		time consuming and resource intensive depending on the vision model and settings you choose.  Therefore, I recommend
-		first testing the various vision models on a single image in the <code>Tools</code> tab.</p>
+		<p>A greater number of parametrs generally improves quality more than choosing a smaller model with a larger quantization.
+		The sole exception woudld be <code>moondream2</code>.  In my experience, this model at only 2 billion parameters, when
+		running in <code>float16</code> produced better results than both <code>llava</code> and <code>bakllava</code> running
+		in <code>4-bit</code>...desipte these latter two models having 7 billion parameters.</p>
 		
-		<p>In the <code>Tools</code> tab, select a single image and click "process."  This will use the vision model and settings chosen within the <code>Settings</code> tab to process a single image and display the summary for you.  Thus, you can see how long it took as well as the quality of the summary.</p>
+		<p>Nothing can beat <code>cogvlm</code> in terms of quality.  Use it in <code>4-bit</code> if you have the resources
+		and/or time.  Also, I do not recommend <code>8-bit</code> mode since there's a very small increase in quality in
+		exchange for much larger compute time and resource requirements.</p>
+		
+		<p>Make sure your chunk size setting is at least as large as the longest summary that you expect the vision model you
+		choose will create.  This is because you don't want to split one description into multiple chunks.  This is usually not
+		an issue, however, since the descriptions are typically between 100-300 characters.  You can use the "Tools Tab" to
+		get a sense of how longer your image descriptions will be.</p>
 
 		<h2 style="color: #f0f0f0;" align="center">Tips</h2>
 		
-		<p>Use the highest quality vision model that can be run entirely from VRAM, unloading the model from LM Studio beforehand
-		if need be.  If you want the best balance of speed and quality, <code>moondream2</code> is the best IMHO.</p>
+		<p>As always, before performing a transcription, proessing images or creating the vector database, "eject" the LLM
+		from within LM Studio.  However, this is especially important when processing images with <code>cogvlm</code> because
+		even in <code>4-bit</code> mode it requires a lot of resources.</p>
 		
 		<p>Make sure that the "chunk size" setting for creating the vector database is larger than the largest summary of an image
 		that will be created.  The vision models typically create summaries ranging from 100-400 characters.  Therefore, if you

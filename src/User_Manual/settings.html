@@ -95,8 +95,8 @@
 	<p><code>Max-tokens</code>: The maximum number of tokens that the LLM can use when providing a response. The default
 	of <code>-1</code> allows the LLM an unlimited number (up to the model's maximum context length specified within LM Studio).</p>
 
-    <p><code>Temperature</code>: Determines the creativity of the LLM's response.  Can be between 0 and 1.  Zero means
-	don't be creative at all.</p>
+    <p><code>Temperature</code>: Determines the creativity of the LLM's response.  Can be between 0 and 1.  A higher number
+	means more creativity.</p>
 
     <h3>Prompt Format</h3>
     <p>A <code>Prefix</code> and <code>Suffix</code> are sent to LM Studio along with your question and the results from the
@@ -113,10 +113,12 @@
 	<h2><u>Database Creation</u></h2>
 	
 	<p>Before text is put into the vector database (whether it originates from a pdf, audio transcription or image description) it
-	must be broken into chunks by the "Recursive Character Text Splitter" (aka, "Splitter") created by Langchain so that when you search the database you can get relevant chunks/contexts.  The chunks of text are then converted into vectors by the embedding model and
-	put into the vector database.</p>
+	must be broken into chunks by the "Recursive Character Text Splitter" (aka, "Splitter") created by Langchain so that when you
+	search the database you can get relevant chunks/contexts.  The chunks of text are then converted into vectors by the embedding
+	model and put into the vector database.</p>
 	
-	<p><code>Chunk Size</code>: The maximum length of a chunk/context in characters (NOT tokens).  The Splitter will strive to achieve this limit. but may create shorter chunks by splitting between paragraphs sentences to keep related ideas together.</p>
+	<p><code>Chunk Size</code>: The maximum length of a chunk/context in characters (NOT tokens).  The Splitter will strive to
+	achieve this limit. but may create shorter chunks by splitting between paragraphs sentences to keep related ideas together.</p>
 
 	<p><code>Chunk Overlap</code>:Specifies the maximum number of characters (NOT tokens) that each chunk will include from the
 	previous chunk.  For example, if <code>chunk overlap</code> is set to 250 then first 250 characters of "Chunk #2" will consist
@@ -137,34 +139,32 @@
 	of <code>.1</code> is a low-relevance while .9 would be very high.  Do not use "1."</p>
 	
 	<p><code>Search Filter</code>: After chunks have been obtained, excludes a chunk/context unless it contains the specified
-	search term VERBATIM (but is not case-sensitive).  This filter only runs AFTER the <code>contexts</code> and <code>similarity</code> settings.</p>
+	search term VERBATIM (but is not case-sensitive).  This filter only runs AFTER the <code>contexts</code> and
+	<code>similarity</code> settings.</p>
 
-	For example, if the filter is "book" then only chunks that contain "book" would be sent to the LLM or displayed (if "chunks only" is checked).  Even chunks with terms like "books", "bookend," or similar derivations would still be excluded, but terms like "Book,"
-	"book" or "bOoK" would not result in the chunk being excluded.</p>
+	For example, if the filter is "book" then only chunks that contain "book" would be sent to the LLM or displayed (if
+	"chunks only" is checked).  Even chunks with terms like "books", "bookend," or similar derivations would still be excluded,
+	but terms like "Book," "book" or "bOoK" would not result in the chunk being excluded.</p>
 	
 	<p><code>Clear Filter</code>: Removes any filters.
 	
-	<p><code>All Files</code>, <code>Images-Only</code>, <code>Documents-Only</code>, and <code>Audio-Only</code>:  Specifies which
-	types of files will be searched within the vector database.  For example, if you choose <code>Audio-Only</code>, only
-	chunks/contexts that originate from an audio file will be returned (subject to the similarity and filter settings of course).</p>
+	<p>The pulldown menu with <code>All Files</code>, <code>Images-Only</code>, <code>Documents-Only</code>, and
+	<code>Audio-Only</code> provides yet another filter and it is cumulative with the search term filter.  "Audio" refers to
+	audio transcriptions, "images" is self-explanatory, "and "documents" refers to everything that is not an image or transcription.</p>
 	
-	<p><code>Chunks Only</code> checkbox:  If checked, LM Studio will not be connected to and the chunks received from the vector database will be displayed instead.  This is extremely useful to test the chunk size/overlap settings as well as the quality of the
-	vector model you are using.</p>
+	<p>The <code>chunks only</code> checkbox is located near the search button.  If checked, only the relevant chunks will be
+	returned and LM Studio will not be connected to.  This is a good way to test the quality of a vector model as well as the
+	settings you choose.</p>
 	
 	<h2><u>Bark Settings</u></h2>
 	
-	<p>The "Bark Response" button will convert the LLM's response to audio.  I only recommend using this feature if you have gpu-acceleration and I've disabled it for certain platforms due to compatibility issues until I find a better solution.</p>
+	<p>The "Bark Response" button will convert the LLM's response to audio.  I only recommend using this feature if you have
+	gpu-acceleration and I've disabled it for certain platforms due to compatibility issues until I find a better solution.</p>
 	
 	<p><code>Size</code>: Size of the Bark model to use, each with its own resource requirements, speed, and accuracy.</p>
 	
 	<p><code>Quant</code>: <u>float32</u> casts the bark model in its original floating point format.  <u>float16</u> cuts the
 	memory/compute requirements by half with a relatively small loss in quality.</p>
-	
-	<p><code>Better Transformer</code>: Use the "better transformers" feature created by Huggingface, which provides a
-	general 5-20% speedup.  This should always be checked unless you experience problems running the Bark model.</p>
-
-	<p><code>Cpu_Offload</code>: The Bark model actually consists of four sub-models (<code>semantic</code>, <code> coarse</code>, <code>fine</code>, and <code> encodec</code>), which are run sequentially to convert text to audio.  If unchecked, all four sub-models will be loaded into VRAM until the Bark model is done processing.  If checked, only the sub-model being used will reside in VRAM and the other three will be put into system RAM.  This results in a small delay in processing and is not recommended unless you are running short on VRAM.  If you are not using gpu-acceleration (not recommended) this setting has no effect since all four sub-models
-	will always be in system RAM.</p>
 	
 	<p><code>Voices</code>: Choose different voices.  <code>v2/en_speaker_6</code> is the highest quality IMHO but it's fun to
 	experiment.  The only female voice is <code>v2/en_speaker_9</code>.

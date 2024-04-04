@@ -1,10 +1,9 @@
 Compute_Device:
   available:
-  - cpu
   database_creation: cpu
   database_query: cpu
-  gpu_brand:
-EMBEDDING_MODEL_NAME:
+  gpu_brand: 
+EMBEDDING_MODEL_NAME: 
 Platform_Info:
   os:
 Supported_CTranslate2_Quantizations:
@@ -14,14 +13,26 @@ WhisperSpeech:
   model: null
 bark:
   enable_cpu_offload: false
-  model_precision: float32
+  model_precision: float16
   size: small
   speaker: v2/en_speaker_6
-created_databases: {}
+created_databases:
+  test:
+    chunk_overlap: 250
+    chunk_size: 700
+    model: D:/Scripts/ChromaDB-Plugin-for-LM-Studio/v4_3 - working/Embedding_Models/sentence-transformers--all-mpnet-base-v2
+  test3:
+    chunk_overlap: 250
+    chunk_size: 700
+    model: D:/Scripts/ChromaDB-Plugin-for-LM-Studio/v4_3 - working/Embedding_Models/sentence-transformers--all-mpnet-base-v2
+  treatises-all-bge-large:
+    chunk_overlap: 250
+    chunk_size: 700
+    model: D:/Scripts/ChromaDB-Plugin-for-LM-Studio/v4_3 - working/Embedding_Models/BAAI--bge-large-en-v1.5
 database:
-  chunk_overlap: 200
-  chunk_size: 600
-  contexts: '8'
+  chunk_overlap: 250
+  chunk_size: 700
+  contexts: '5'
   database_to_search: ''
   document_types: ''
   search_term: ''
@@ -32,30 +43,16 @@ embedding-models:
   instructor:
     embed_instruction: 'Represent the document for retrieval:'
     query_instruction: 'Represent the question for retrieving supporting documents:'
+  mxbai:
+    query_instruction: 'Represent this sentence for searching relevant passages:'
 server:
   api_key: ''
   connection_str: http://localhost:1234/v1
   model_max_tokens: -1
   model_temperature: 0.1
   prefix: '### User:'
-  prefix_chat_ml: <|im_start|>
-  prefix_llama2_and_mistral: '[INST]'
-  prefix_neural_chat: '### User:'
-  prefix_orca2: <|im_start|>user
-  prefix_stablelm-zephyr: <|user|>
   prompt_format_disabled: false
   suffix: '### Assistant:'
-  suffix_chat_ml: <|im_end|>
-  suffix_llama2_and_mistral: '[/INST]'
-  suffix_neural_chat: '### Assistant:'
-  suffix_orca2: <|im_end|><|im_start|>assistant
-  suffix_stablelm-zephyr: <|endoftext|> <|assistant|>
-styles:
-  button: 'background-color: #323842; color: light gray; font: 10pt "Segoe UI Historic";
-    width: 29;'
-  frame: 'background-color: #161b22;'
-  input: 'background-color: #2e333b; color: light gray; font: 13pt "Segoe UI Historic";'
-  text: 'background-color: #092327; color: light gray; font: 12pt "Segoe UI Historic";'
 transcribe_file:
   device: cpu
   file: null
@@ -67,41 +64,10 @@ transcriber:
   model: whisper-small.en
   quant: float32
 tts:
-  model: bark
+  model: whisperspeech
 vision:
-  bakllava:
-    available_quants:
-    - 4-bit
-    - float16
-    available_sizes:
-    - 7b
-  batch: null
-  chosen_model: salesforce
-  chosen_quant: float32
-  chosen_size: 470m
-  cogvlm:
-    available_quants:
-    - 4-bit
-    - 8-bit
-    available_sizes:
-    - 17.6b
+  chosen_model: cogvlm
+  chosen_quant: 4-bit
+  chosen_size: 17.6b
   flash_attention2: null
-  llava:
-    available_quants:
-    - 4-bit
-    - float16
-    available_sizes:
-    - 7b
-    - 13b
-  moondream2:
-    available_quants:
-    - float16
-    available_sizes:
-    - 2b
-  salesforce:
-    available_quants:
-    - float32
-    - float16
-    available_sizes:
-    - 470m
   test_image: null

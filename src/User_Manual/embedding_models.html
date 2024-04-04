@@ -148,86 +148,95 @@
 	
 	<h2>Overview</h2>
 	
-	<p>My program loads an embedding model into memory for:
-<ol>
-    <li>Creating the vector database</li>
-    <li>Querying the vector database before your question and the "context" it obtains are sent to the LLM for an answer.</li>
-</ol>
-	
-	<p><b>To get the most out of this program, it's crucial to choose the right embedding model.  Remember, the LLM's
-	response is only as good as the context you provide it via the embedding model, but it's also helpful to
-	understand a little background.</b></p>
-	
-	<p>"Embeddings" are also referred to as "vectors" and are essentially numbers representing the meaning of words.  i
-	use these terms interchangeably herein.  A vector model simply converts text to numbers.</p>
-	
-	<p>This program extracts the text from a variety of file formats, chunks the text, and then feeds the chunks to
-	the vector model for processing.  Images are first processed by the selected "vision" models, which create a
-	text description of the image, and then this text is processed.  Audio files must first be transcribed in the
-	"Tools" tab, but again, once the transcription is done the text is fed to the vector model once you actually
-	create the vector database.</p>
+	<p> This program basically extracts text from a variety of file formats and converts the chunks into vectors.
+	"Vectors" - aka "embeddings" - represent the meaning of the chunk of text.  <code>TileDB</code> then creates a
+	vector database out of the the chunks of text and their corresponding vectors.  This database can then be
+	searched by converting a user's question into a vector and comparing how similar it is to the vectors
+	within the database.  The most relevant text chunks are then returned.  This entire process is commonly
+	referred to as "retrieval augmented generation" or "RAG".</p>
 
 	<h2>Choosing the Correct Model</h2>
 	
-	<p>The first rule of embedding models is experiment.  You can review the characteristics of the embedding models
-	from the "Models" tab.</p>
+	<p>Different vector models have  difference characteristics so it's important to choose the correct one for
+	the task at hand.  You can view their characteristics from the <code>Models Tab</code>.
 	
 	<h2>Categories</h2>
 	
-	<p>The vector models are categories by the company that made them.  All categories are populated with large
-	all-encompassing models that don't specialize in one particular task except the "Sentence Transformers"
-	category (explained below).  If you find a model that this program doesn't support feel free to create an
-	issue on Github requesting a specific model.</p>
+	<p>In general, the vector models are displayed in categories based on the company that made them.
+	All of the models are well-rounded all-purpose models except for a few models within the
+	<code>sentence-transformers</code> category.  Feel free to experiment with different models
+	and sizes.  There is no definitive "best" model.</p>
 	
 	<h2>Sentence Transformers Models</h2>
 	
-	<p>The "Sentence Transformers" organization is the most well-known company that's created vector models.
-	The models with "sentence" in their name are unique in that they focus on returning results consisting
-	of sentences most similar to the sentence you pose as a question; for example:</p>
+	<p><code>all-MiniLM-L6-v2</code>, <code>all-MiniLM-L12-v2</code>, and <code>all-mpnet-base-v2</code>
+	are well-rounded all-purpose vector models.  <code>all-mpnet-base-v2</code> is typically considered
+	the best model for its size across all companies.</p>
+	
+	<p>The <code>msmarco</code> was specifically trained on question/answer data and returning multiple
+	relevant passages from a short question.  However, it is arguablly eclipsed by the larger all-purpose
+	models.  You'll just have to experiment to determine which is the best for your use-case.</p>
+	
+	<p>Models with <code>sentence-t5</code> in their name are unique in that they are specifically
+	trained to return similar sentences.  They should not be used if you use large chunks of text
+	beyond the typical size of a sentence.  These models perform extremely well for locating sentences
+	that are similar to a sentence that a user specifies.  In other words, you should not pose a
+	question but rather simply state a sentence and the model will return sentences that have as close
+	a meaning as possible.</p>
+	
+	<p>For example:</p>
 	
 	<p><b>Quote for me all sentences that discuss the main character in this book eating food.</b></p>
+	
+	<p>or...</p>
+	
 	<p><b>Provide me all sentences verbatim of a court discussing the elements of a defamation claim.</b></p>
 	
-	<p>The search results should be multiple chunks with highly relevant sentences.  There are four such
-	models.  Be careful when using the "xxl" variant, however, since it requires more than 24 GB of VRAM/RAM.</p>
+	<p>NOTE: You should not use the "xxl" version of this model unless you have a GPU with 24 GB of VRAM.
+	The resource requirements of this model are the highest out of any model this program uses.</p>
 	
-	<h2>Other Models</h2>
+	<h2>Characteristics Common to All Models</h2>
 	
-	<p>All other vector models - whethe from the sentence-transformers organization or otherwise - are good
-	all-purpose well-rounded models suitable for RAG.  The "all-mpnet-base-v2" model is widely regarded
-	as the best for its size and resource requiremnts, but feel free to experiment with the others as well.</p>
+	<p>All models share some basic characteristics depending on their architecture and training.</p>
 	
-	<h2>Model Characteristics</h2>
+	<p>The <code>max sequence</code> of a model refers to the maximum number of <code>tokens</code>
+	(not characters) that a Model can process at a time.  The "chunk size" setting allows you to specify
+	size of text chunks that you want converted into vectors.  However, this is in "characters" (not
+	tokens).  A token is approximately four characters.  Therefore, make sure that the "chunk size setting
+	is no more than approximately 4x the <code>max_sequence</code> of the vector model you intend to use.
+	If your chunks are too large they will simply be truncated, harming your search results.</p>
 	
-	<p><code>Max Sequence</code> refers to the maximum number of <code>tokens</code> (not characters) that a Model
-	can process in one pass.  Make sure that the chunks you create are do not exceed the "max sequence"
-	of the embedding model you create the vector database with.  Also, remember that the "chunk" size setting
-	is in "characters" and not "tokens."  A good rul of thumb is that there are four (4) characters on average
-	in each chunk.</p>
+	<p>A vector model's<code>"dimensions"</code> refers to how much nuance in meaning that the model can
+	discern from text.  A higher number means that it can discerng more meaning, thus improving search
+	results.</p>
 	
-	<p><code>"Dimensions"</code> basically refers to the complexity that the vector model can create when converting
-	text into vectors (aka numbers).  A higher number means that the vector model can discern more nuance in
-	text; hence, more accurate search results.</p>
-	
-	<p><code>Size</code> refers to the size of the vector model on your computer.</p>
+	<p>A vector model's<code>size</code> simply refers to its size on your computer of that's a factor for you.</p>
 	
 	<h2>Tips</h2>
 	
-	<p>The model you choose to run in LM Studio has a maximum context length as all models do, which is in
-	tokens. Most mainstream models nowadays have a maximum context of 4096 tokens.</p>
+	<p>Just like a vector model, the model you choose within LM Studio has a maximum context limit, which
+	is essentically the same thing as the <code>max_sequence</code> for a vector model.  This program sends
+	your question along with the relevant chunks obtained from the vector database to the LLM within LM
+	Studio.  Therefore, you must ensure that what you send the LLM does not exceed this context limit.
+	Most recent models have a context limit of 4096 tokens (not characters) but consult the model card
+	if you're unsure.  But more importantly, you must leave enough context for the LLM's response as well.
+	In other words, even if your question and the results are less than the LLM's context limit, you will
+	not get a response if there is not enough left for the LLM to respond with.</p>
 	
-	<p>After choosing a good vector model and ensuring that the chunks don't exceed the "max sequence" for
-	a particular model, the best way to improve search results is to craft a good question.  With some practice
-	you should get the ansdwer to your question in the first 1-4 chunks obtained from the vector database.
-	If you don't it likely means that you need to revise your question, revisit your chunk size and overlap
-	settings or choose a more appropriate vector model.</p>
+	<p>Experiment with different formulations of your question.  Ideally, you should get at least one chunk
+	that is highly relevant in the top 3 chunks returned.  You can view the actual chunks as a test (without
+	connecting to LM Studio) by using the "chunks only" checkbox near the search button.  If you don't get
+	at least one highly-relevant chunk within the top three chunks returned, experiment with your question.</p>
 	
-	<p>Test the chunk size and overlap settings by checking the "chunks only" checkbox near the "Submit
-	Question" button.  This will force the program to only return the chunks and no longer connect to
-	LM Studio.  This is great because you can visually see what's actually in the database.</p>
+	<p>Different chunk sizes produce better results based on the type of text being vectorized.  Experiment
+	with different chunks sizes.  Likewisem, different "chunk overlap" settings can influence the search
+	results.  A good rule of thumb is to set the "chunk overlap" to a third of your chunk size.</p>
 	
-	<p>Another use case is creating a vector database of only images (or only searching images).  You may want any and all image
-	chunks that relate to a certain topic.  You can use the "chunks only" checkbox and set the "contexts" to 1000+ for this.</p>
+	<p>This program can also use "vision" models to create a text description of one or more images, which
+	are then put into the vector database.  These descriptions are usually 1-3 sentences.  Make sure and
+	choose a "chunk size" that is at least this length because you do not want the description to be split
+	into multiple chunks.  Usually this isn't a problem since 1-3 sentences is only approximately 50-150
+	characters, but just something to be aware of.  If you have any doubt, use the "chunks only" checkbox.</p>
 
 </main>
 
