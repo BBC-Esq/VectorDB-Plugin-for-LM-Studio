@@ -1,44 +1,46 @@
-openai==1.12.0
-langchain==0.1.13
-langchain-community==0.0.29
+openai==1.14.3
+langchain==0.1.14
+langchain-community==0.0.31
 ctranslate2==4.1.0 
-tiledb==0.27.0
-tiledb-vector-search==0.0.21
-PyMuPDF==1.23.7
-InstructorEmbedding==1.0.1
-sentence-transformers==2.2.2 # last before compatibility issues with at least one othe dependency & instructor reportedly biffed
-pandas==2.0.3
+tiledb==0.27.1
+tiledb-vector-search==0.2.0
+PyMuPDF==1.24
+# InstructorEmbedding==1.0.1
+sentence-transformers==2.6.1
+pandas==2.2.1
 docx2txt==0.8
 python-docx==1.1.0
 msg-parser==1.2.0
 xlrd==2.0.1
 openpyxl==3.1.2
-unstructured==0.11.6
-psutil==5.9.5
-PySide6==6.6.1
+unstructured==0.12.6
+psutil==5.9.8
+PySide6==6.6.2
 PyAudio==0.2.14
-av==11.0.0 # only necessary for whisperS2T since I can't get its resampling working
-termcolor==2.3.0
-pypandoc==1.12
+av==12.0.0 # only necessary for whisperS2T since I can't get its resampling working
+termcolor==2.4.0
+pypandoc==1.13
 PyYAML==6.0.1
-Markdown==3.5.1
-transformers==4.37.2 # anything above requires a newer version of bitsandbytes
-accelerate==0.25.0
-optimum==1.17.1
+Markdown==3.6
+transformers==4.39.3
+accelerate==0.28.0
+optimum==1.18.0
 einops==0.7.0
-scipy==1.11.4
+scipy==1.12.0
 timm==0.9.16
+sounddevice==0.4.6
+WhisperSpeech==0.8
 
 # required by whisperS2T
 platformdirs==4.2.0
-rich==13.7.0
+rich==13.7.1
 openai-whisper==20231117
 
 # only required by whisperS2T if using the huggingface backend
-# accelerate==0.25.0
-# optimum==1.15.0
-# transformers==4.37.2
+# accelerate
+# optimum
+# transformers
 
-# additionally required by WhisperSpeech TTS
-sounddevice==0.4.6
-WhisperSpeech==0.8
+# separately required by WhisperSpeech TTS
+# sounddevice
+# WhisperSpeech

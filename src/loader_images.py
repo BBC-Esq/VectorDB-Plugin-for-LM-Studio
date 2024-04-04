@@ -48,34 +48,25 @@ def run_loader_in_process(loader_func):
         return []
         
 class loader_cogvlm:
-    def initialize_model_and_tokenizer(self, config):
-        chosen_model = config['vision']['chosen_model']
-        chosen_quant = config['vision']['chosen_quant']
+    def initialize_model_and_tokenizer(self):
+        model_name = 'THUDM/cogvlm-chat-hf'
         
-        tokenizer = LlamaTokenizer.from_pretrained('lmsys/vicuna-7b-v1.5')
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+        )
+        
+        model_settings = {
+            'torch_dtype': torch.bfloat16,
+            'resume_download': True,
+            'low_cpu_mem_usage': True,
+            'trust_remote_code': True,
+        }
 
-        if chosen_model == 'cogvlm' and chosen_quant == '4-bit':
-            model = AutoModelForCausalLM.from_pretrained(
-                'THUDM/cogvlm-chat-hf',
-                torch_dtype=torch.bfloat16,
-                low_cpu_mem_usage=True,
-                trust_remote_code=True,
-                load_in_4bit=True,
-                resume_download=True
-            )
-            
-        elif chosen_model == 'cogvlm' and chosen_quant == '8-bit':
-            model = AutoModelForCausalLM.from_pretrained(
-                'THUDM/cogvlm-chat-hf',
-                torch_dtype=torch.float16,
-                low_cpu_mem_usage=True,
-                trust_remote_code=True,
-                load_in_8bit=True,
-                resume_download=True
-            )
-            
-        my_cprint(f"Cogvlm model using {chosen_quant} loaded into memory...", "green")
-    
+        tokenizer = LlamaTokenizer.from_pretrained('lmsys/vicuna-7b-v1.5')
+        model = AutoModelForCausalLM.from_pretrained(model_name, quantization_config=quantization_config, **model_settings)
+
+        my_cprint(f"Cogvlm model using 4-bit loaded into memory...", "green")
         return model, tokenizer
 
     def cogvlm_process_images(self):
@@ -93,7 +84,9 @@ class loader_cogvlm:
             config = yaml.safe_load(file)
 
         device = get_best_device()
-        model, tokenizer = self.initialize_model_and_tokenizer(config)
+        
+        # initialize model and tokenizer
+        model, tokenizer = self.initialize_model_and_tokenizer()
 
         print("Processing images...")
         
@@ -167,6 +160,28 @@ class loader_llava:
         elif chosen_model == 'llava' and chosen_size == '13b':
             model_id = "llava-hf/llava-1.5-13b-hf"
 
+        fp16_quant_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+        
+        bf16_quant_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+        )
+        
+        fp16_model_config = {
+            'torch_dtype': torch.float16,
+            'resume_download': True,
+            'low_cpu_mem_usage': True,
+        }
+        
+        bf16_model_config = {
+            'torch_dtype': torch.bfloat16,
+            'resume_download': True,
+            'low_cpu_mem_usage': True,
+        }
+        
         device = get_best_device()
 
         if chosen_model == 'llava' and chosen_quant == 'float16':
@@ -176,22 +191,10 @@ class loader_llava:
                 low_cpu_mem_usage=True,
                 resume_download=True
             ).to(device)
-        elif chosen_model == 'llava' and chosen_quant == '8-bit':
-            model = LlavaForConditionalGeneration.from_pretrained(
-                model_id,
-                torch_dtype=torch.float16,
-                low_cpu_mem_usage=True,
-                load_in_8bit=True,
-                resume_download=True
-            )
+
         elif chosen_model == 'llava' and chosen_quant == '4-bit':
-            model = LlavaForConditionalGeneration.from_pretrained(
-                model_id,
-                torch_dtype=torch.float32,
-                low_cpu_mem_usage=True,
-                load_in_4bit=True,
-                resume_download=True
-            )
+            model = LlavaForConditionalGeneration.from_pretrained(model_id, quantization_config=fp16_quant_config, **fp16_model_config)
+            
         elif chosen_model == 'bakllava' and chosen_quant == 'float16':
             model = LlavaForConditionalGeneration.from_pretrained(
                 model_id,
@@ -199,22 +202,9 @@ class loader_llava:
                 low_cpu_mem_usage=True,
                 resume_download=True
             ).to(device)
-        elif chosen_model == 'bakllava' and chosen_quant == '8-bit':
-            model = LlavaForConditionalGeneration.from_pretrained(
-                model_id,
-                torch_dtype=torch.float16,
-                low_cpu_mem_usage=True,
-                load_in_8bit=True,
-                resume_download=True
-            )
+
         elif chosen_model == 'bakllava' and chosen_quant == '4-bit':
-            model = LlavaForConditionalGeneration.from_pretrained(
-                model_id,
-                torch_dtype=torch.float32,
-                low_cpu_mem_usage=True,
-                load_in_4bit=True,
-                resume_download=True
-            )
+            model = LlavaForConditionalGeneration.from_pretrained(model_id, quantization_config=bf16_quant_config, **bf16_model_config)
         
         my_cprint(f"{chosen_model} {chosen_size} model using {chosen_quant} loaded into memory...", "green")
         
@@ -364,6 +354,29 @@ class loader_salesforce:
 class loader_moondream:
     def initialize_model_and_tokenizer(self):
         device = get_best_device()
+        
+        fp16_quant_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+        
+        bf16_quant_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+        )
+        
+        fp16_model_config = {
+            'torch_dtype': torch.float16,
+            'resume_download': True,
+            'low_cpu_mem_usage': True,
+        }
+        
+        bf16_model_config = {
+            'torch_dtype': torch.bfloat16,
+            'resume_download': True,
+            'low_cpu_mem_usage': True,
+        }
+
         model = AutoModelForCausalLM.from_pretrained("vikhyatk/moondream2", 
                                              trust_remote_code=True, 
                                              revision="2024-03-05", 

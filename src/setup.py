@@ -70,18 +70,18 @@ def manual_installation_confirmation():
         return False
     return True
 
-def install_pytorch(cuda_version_num, cuda_installed):
+def install_pytorch(cuda_version_num, cuda_installed): # also installs Triton for if cuda available
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if cuda_installed and cuda_version_num is not None and cuda_version_num >= 12.1:
         if minor == 11:
-            os.system("pip3 install https://download.pytorch.org/whl/cu121/torch-2.2.0%2Bcu121-cp311-cp311-win_amd64.whl#sha256=d79324159c622243429ec214a86b8613c1d7d46fc4821374d324800f1df6ade1 https://download.pytorch.org/whl/cu121/torchvision-0.17.0%2Bcu121-cp311-cp311-win_amd64.whl#sha256=307e52c2887c1d2b50cc3581cf5f4c169130b8352462e361e71eeda19e0dd263 https://download.pytorch.org/whl/cu121/torchaudio-2.2.0%2Bcu121-cp311-cp311-win_amd64.whl#sha256=67a33d2066668a2754d9dd5d000419f60102dd17eff9803f9b0a5e1d9261f79d")
+            os.system("pip3 install https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp311-cp311-win_amd64.whl https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl")
         elif minor == 10:
-            os.system("pip3 install https://download.pytorch.org/whl/cu121/torch-2.2.0%2Bcu121-cp310-cp310-win_amd64.whl#sha256=8f54c647ee19c8b4c0aad158c73b83b2c06cb62351e9cfa981540ce7295a9015 https://download.pytorch.org/whl/cu121/torchaudio-2.2.0%2Bcu121-cp310-cp310-win_amd64.whl#sha256=f5181424ea9c01d4199d37ebc394040c96ca36836c6e3a9fb9d6af58d30d8ed0 https://download.pytorch.org/whl/cu121/torchvision-0.17.0%2Bcu121-cp310-cp310-win_amd64.whl#sha256=b5ba1adc6f9f1a40af9608ebc447ceed6c8816dcb926d59675c81111b8676966")
+            os.system("pip3 install https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp310-cp310-win_amd64.whl https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp310-cp310-win_amd64.whl https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp310-cp310-win_amd64.whl https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp310-cp310-win_amd64.whl")
     else:
         if minor == 11:
-            os.system("pip3 install https://download.pytorch.org/whl/cpu/torch-2.2.0%2Bcpu-cp311-cp311-win_amd64.whl#sha256=58194066e594cd8aff27ddb746399d040900cc0e8a331d67ea98499777fa4d31 https://download.pytorch.org/whl/cpu/torchaudio-2.2.0%2Bcpu-cp311-cp311-win_amd64.whl#sha256=c775e5d3e176161f33eaf4aba2708b39eb474925779ad8f3cf1df6ad10ed5213 https://download.pytorch.org/whl/cpu/torchvision-0.17.0%2Bcpu-cp311-cp311-win_amd64.whl#sha256=eb1e9d061c528c8bb40436d445599ca05fa997701ac395db3aaec5cb7660b6ee")
+            os.system("pip3 install https://download.pytorch.org/whl/cpu/torch-2.2.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=88e63c916e3275fa30a220ee736423a95573b96072ded85e5c0171fd8f37a755 https://download.pytorch.org/whl/cpu/torchvision-0.17.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=54ae4b89038065e7393c65bc8ff141d1bf3c2f70f88badc834247666608ba9f4 https://download.pytorch.org/whl/cpu/torchaudio-2.2.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=6e718df4834f9cef28b7dc1edc9ceabfe477d4dbd5527b51234e96bf91465d9d")
         elif minor == 10:
-            os.system("pip3 install https://download.pytorch.org/whl/cpu/torch-2.2.0%2Bcpu-cp310-cp310-win_amd64.whl#sha256=15a657038eea92ac5db6ab97b30bd4b5345741b49553b2a7e552e80001297124 https://download.pytorch.org/whl/cpu/torchaudio-2.2.0%2Bcpu-cp310-cp310-win_amd64.whl#sha256=da25e6bc800aa8436b4d3220ff5c44df5b4250ec86bd20345da36b041a19bfb6 https://download.pytorch.org/whl/cpu/torchvision-0.17.0%2Bcpu-cp310-cp310-win_amd64.whl#sha256=569ebc5f47bb765ae73cd380ace01ddcb074c67df05d7f15f5ddd0fa3062881a")
+            os.system("pip3 install https://download.pytorch.org/whl/cpu/torch-2.2.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=fc29dda2795dd7220d769c5926b1c50ddac9b4827897e30a10467063691cdf54 https://download.pytorch.org/whl/cpu/torchvision-0.17.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=acad6f9573b9d6b50a5a3942d0145cb0f9100608acb53a09bfc11ed5720dcfe3 https://download.pytorch.org/whl/cpu/torchaudio-2.2.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=012cd8efbd9e0011abcd79daff98d312136b5e49417062bef1d38cd208f0c05f")
 
 def setup_windows_installation():
     if not check_python_version_and_confirm():
@@ -94,12 +94,13 @@ def setup_windows_installation():
     os.system("python -m pip install --upgrade pip")
     install_pytorch(cuda_version_num, proceed)
     os.system("pip3 install -r requirements.txt")
+    os.system("pip install git+https://github.com/SilasMarvin/instructor-embedding.git@silas-update-for-newer-sentence-transformers")
     os.system("pip3 install --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
-    os.system("pip3 install https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/releases/download/bitsandbytes-win-0.41.2.post2-py3/bitsandbytes-0.41.2.post2-py3-none-win_amd64.whl")
+    os.system("pip3 install bitsandbytes")
     
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if proceed and cuda_version_num >= 12.1 and (major == 3 and minor in [10, 11]):
-        os.system("pip3 install xformers==0.0.24")
+        os.system("pip install xformers==0.0.25.post1")
         os.system("pip3 install nvidia-ml-py==12.535.133")
 
     replace_pdf_file()

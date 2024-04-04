@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageB
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
 from pathlib import Path
+from constants import PROMPT_FORMATS
 
 class ServerSettingsTab(QWidget):
     def __init__(self):
@@ -81,16 +82,14 @@ class ServerSettingsTab(QWidget):
     
     def update_prefix_suffix(self, index):
         option = self.prompt_format_combobox.currentText()
-        key_mapping = {
-            "ChatML": ("prefix_chat_ml", "suffix_chat_ml"),
-            "Llama2/Mistral": ("prefix_llama2_and_mistral", "suffix_llama2_and_mistral"),
-            "Neural Chat/SOLAR": ("prefix_neural_chat", "suffix_neural_chat"),
-            "Orca2": ("prefix_orca2", "suffix_orca2"),
-            "StableLM-Zephyr": ("prefix_stablelm-zephyr", "suffix_stablelm-zephyr"),
-        }
-        prefix_key, suffix_key = key_mapping.get(option, ("", ""))
-        self.widgets['prefix']['edit'].setText(self.config_data.get('server', {}).get(prefix_key, ''))
-        self.widgets['suffix']['edit'].setText(self.config_data.get('server', {}).get(suffix_key, ''))
+        if option in PROMPT_FORMATS:
+            prefix = PROMPT_FORMATS[option]["prefix"]
+            suffix = PROMPT_FORMATS[option]["suffix"]
+            self.widgets['prefix']['edit'].setText(prefix)
+            self.widgets['suffix']['edit'].setText(suffix)
+        else:
+            self.widgets['prefix']['edit'].clear()
+            self.widgets['suffix']['edit'].clear()
 
     def update_config(self):
         config_file_path = Path('config.yaml')

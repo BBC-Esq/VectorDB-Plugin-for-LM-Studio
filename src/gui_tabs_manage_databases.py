@@ -4,8 +4,8 @@ from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QTimer
 from pathlib import Path
 import yaml
-from utilities import open_file, delete_file
-import pickle
+from utilities import open_file
+import json
 
 class CustomFileSystemModel(QFileSystemModel):
     def __init__(self, parent=None):
@@ -14,16 +14,15 @@ class CustomFileSystemModel(QFileSystemModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and index.column() == 0:
             file_path = self.filePath(index)
-            if file_path.endswith('.pkl'):
+            if file_path.endswith('.json'):
                 try:
-                    with open(file_path, 'rb') as file:
-                        document = pickle.load(file)
-                    return document.metadata.get('file_name', 'Unknown')
+                    with open(file_path, 'r', encoding='utf-8') as file:
+                        document = json.load(file)
+                    return document['metadata'].get('file_name', 'Unknown')  
                 except FileNotFoundError:
-                    # File was deleted, handle gracefully
-                    return "File Deleted"
+                    return "File Missing"
                 except Exception as e:
-                    print(f"Error unpickling file {file_path}: {e}")
+                    print(f"Error loading JSON file {file_path}: {e}")
                     return "Error"
         return super().data(index, role)
 
@@ -39,21 +38,22 @@ class RefreshingComboBox(QComboBox):
 class ManageDatabasesTab(QWidget):
     def __init__(self):
         super().__init__()
-        self.layout = QVBoxLayout(self)
         self.config_path = Path(__file__).resolve().parent / "config.yaml"
         self.created_databases = self.load_created_databases()
 
-        self.documents_group_box = self.create_group_box("Files in Selected Database", "Docs_for_DB")
+        self.layout = QVBoxLayout(self)
+
+        self.documents_group_box = self.create_group_box_with_directory_view("Files in Selected Database", "Docs_for_DB")
         self.layout.addWidget(self.documents_group_box)
 
-        self.database_info_label = QLabel("No database selected.")
         self.database_info_layout = QHBoxLayout()
+        self.database_info_label = QLabel("No database selected.")
         self.database_info_layout.addWidget(self.database_info_label)
         self.layout.addLayout(self.database_info_layout)
 
         self.buttons_layout = QHBoxLayout()
         self.pull_down_menu = RefreshingComboBox(self)
-        self.pull_down_menu.currentIndexChanged.connect(self.update_directory_view)
+        self.pull_down_menu.currentIndexChanged.connect(self.update_directory_view_and_info_label)
         self.buttons_layout.addWidget(self.pull_down_menu)
         self.create_buttons()
         self.layout.addLayout(self.buttons_layout)
@@ -71,33 +71,24 @@ class ManageDatabasesTab(QWidget):
         self.documents_group_box.hide()
         self.database_info_label.setText("No database selected.")
 
-    def create_group_box(self, title, directory_name):
+    def create_group_box_with_directory_view(self, title, directory_name):
         group_box = QGroupBox(title)
         group_box.setCheckable(True)
         group_box.setChecked(True)
         layout = QVBoxLayout()
-        self.tree_view = self.setup_directory_view(directory_name)
-        layout.addWidget(self.tree_view)
-        group_box.setLayout(layout)
-        return group_box
-
-    def setup_directory_view(self, directory_name):
         self.tree_view = QTreeView()
         self.model = CustomFileSystemModel()
         self.tree_view.setModel(self.model)
         self.tree_view.setSelectionMode(QTreeView.ExtendedSelection)
-
         self.tree_view.hideColumn(1)
         self.tree_view.hideColumn(2)
         self.tree_view.hideColumn(3)
-
         self.tree_view.doubleClicked.connect(self.on_double_click)
-        self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree_view.customContextMenuRequested.connect(self.on_context_menu)
+        layout.addWidget(self.tree_view)
+        group_box.setLayout(layout)
+        return group_box
 
-        return self.tree_view
-
-    def update_directory_view(self, index):
+    def update_directory_view_and_info_label(self, index):
         selected_database = self.pull_down_menu.currentText()
         if selected_database:
             self.documents_group_box.show()
@@ -105,54 +96,40 @@ class ManageDatabasesTab(QWidget):
             if new_path.exists():
                 self.model.setRootPath(str(new_path))
                 self.tree_view.setRootIndex(self.model.index(str(new_path)))
-                self.update_database_info_label(selected_database)
+                if self.config_path.exists():
+                    with open(self.config_path, 'r', encoding='utf-8') as file:
+                        config = yaml.safe_load(file)
+                        db_config = config.get('created_databases', {}).get(selected_database, {})
+                        model_path = db_config.get('model', '')
+                        model_name = model_path.split('/')[-1]
+                        chunk_size = db_config.get('chunk_size', '')
+                        chunk_overlap = db_config.get('chunk_overlap', '')
+                        info_text = f"{model_name}    |    Chunk Size:  {chunk_size}    |    Chunk Overlap:  {chunk_overlap}"
+                        self.database_info_label.setText(info_text)
+                else:
+                    self.database_info_label.setText("Configuration missing.")
             else:
                 self.display_no_databases_message()
         else:
             self.display_no_databases_message()
 
-    def update_database_info_label(self, selected_database):
-        if self.config_path.exists():
-            with open(self.config_path, 'r', encoding='utf-8') as file:
-                config = yaml.safe_load(file)
-                db_config = config.get('created_databases', {}).get(selected_database, {})
-                model_path = db_config.get('model', '')
-                model_name = model_path.split('/')[-1]
-                chunk_size = db_config.get('chunk_size', '')
-                chunk_overlap = db_config.get('chunk_overlap', '')
-                info_text = f"{model_name}    |    Chunk Size:  {chunk_size}    |    Chunk Overlap:  {chunk_overlap}"
-                self.database_info_label.setText(info_text)
-        else:
-            self.database_info_label.setText("Configuration missing.")
-
     def on_double_click(self, index):
         tree_view = self.sender()
         model = tree_view.model()
         file_path = model.filePath(index)
-        if file_path.endswith('.pkl'):
-            with open(file_path, 'rb') as pickle_file:
-                document = pickle.load(pickle_file)
-                actual_file_path = document.metadata['file_path']
-                open_file(actual_file_path)
-        else:
-            open_file(file_path)
-
-    def on_context_menu(self, point):
-        tree_view = self.sender()
-        context_menu = QMenu(self)
-        delete_action = QAction("Delete File", self)
-        context_menu.addAction(delete_action)
-
-        delete_action.triggered.connect(lambda: self.on_delete_file(tree_view))
-        context_menu.exec_(tree_view.viewport().mapToGlobal(point))
-
-    def on_delete_file(self, tree_view):
-        selected_indexes = tree_view.selectedIndexes()
-        model = tree_view.model()
-        for index in selected_indexes:
-            if index.column() == 0:
-                file_path = model.filePath(index)
-                delete_file(file_path)
+        try:
+            if file_path.endswith('.json'):
+                with open(file_path, 'r', encoding='utf-8') as json_file:
+                    document = json.load(json_file)
+                    actual_file_path = document['metadata'].get('file_path')
+                    if actual_file_path:
+                        open_file(actual_file_path)
+                    else:
+                        raise ValueError("File path is missing in the document metadata.")
+            else:
+                open_file(file_path)
+        except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+            QMessageBox.warning(self, "Error", f"Failed to open file: {e}")
 
     def toggle_group_box(self, group_box, checked):
         self.groups[group_box] = 1 if checked else 0

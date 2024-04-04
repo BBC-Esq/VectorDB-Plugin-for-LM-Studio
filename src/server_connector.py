@@ -10,12 +10,15 @@ from pathlib import Path
 from PySide6.QtWidgets import QMessageBox
 import sys
 from utilities import my_cprint
+from InstructorEmbedding import INSTRUCTOR
+from typing import Dict, Optional, Union
+from huggingface_hub import snapshot_download
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
 
 contexts_output_file_path = ROOT_DIRECTORY / "contexts.txt"
 metadata_output_file_path = ROOT_DIRECTORY / "metadata.txt"
-
+            
 def save_metadata_to_file(metadata_list):
     with metadata_output_file_path.open('w', encoding='utf-8') as output_file:
         for metadata in metadata_list:
@@ -73,18 +76,37 @@ def initialize_vector_model(config):
     encode_kwargs = {'normalize_embeddings': False, 'batch_size': 1}
     
     if "instructor" in model_path:
-        embed_instruction = config['embedding-models']['instructor']['embed_instruction']
-        query_instruction = config['embedding-models']['instructor']['query_instruction']
         
-        return HuggingFaceInstructEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, embed_instruction=embed_instruction, query_instruction=query_instruction, encode_kwargs=encode_kwargs)
+        return HuggingFaceInstructEmbeddings(
+            model_name="hkunlp/instructor-base",
+            cache_folder=model_path,
+            model_kwargs={"device": compute_device},
+            encode_kwargs=encode_kwargs,
+        )
         
     elif "bge" in model_path:
         query_instruction = config['embedding-models']['bge']['query_instruction']
         
-        return HuggingFaceBgeEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, query_instruction=query_instruction, encode_kwargs=encode_kwargs)
+        return HuggingFaceBgeEmbeddings(
+            model_name=model_path,
+            model_kwargs={"device": compute_device},
+            encode_kwargs=encode_kwargs
+        )
+        
+    elif "nomic" in model_path:        
+        model = HuggingFaceBgeEmbeddings(
+            model_name=model_path,
+            model_kwargs={"device": compute_device, "trust_remote_code": True},
+            encode_kwargs=encode_kwargs,
+            query_instruction = "search_query: Answer this question.",
+        )
         
     else:
-        return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, encode_kwargs=encode_kwargs)
+        return HuggingFaceEmbeddings(
+            model_name=model_path,
+            model_kwargs={"device": compute_device},
+            encode_kwargs=encode_kwargs
+        )
 
 def initialize_database(config, embeddings):
     database_to_search = config['database']['database_to_search']
@@ -101,7 +123,14 @@ def initialize_retriever(config, db):
     k = int(config['database']['contexts'])
     search_type = "similarity"
     
-    retriever = db.as_retriever(search_type=search_type, search_kwargs={'score_threshold': score_threshold, 'k': k, 'filter': search_filter})
+    retriever = db.as_retriever(
+    search_type=search_type,
+    search_kwargs={
+        'score_threshold': score_threshold,
+        'k': k,
+        'filter': search_filter
+    }
+)
     
     return retriever
 
@@ -185,5 +214,5 @@ def ask_local_chatgpt(query, chunks_only): # ENTRY POINT
     
     # format and display citations
     citations = handle_response_and_cleanup(full_response, metadata_list, embeddings)
-    for citation in citations.split("\n"):
+    for citation in citations.split("\n\n"):
         yield citation

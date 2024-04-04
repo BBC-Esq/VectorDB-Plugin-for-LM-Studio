@@ -1,123 +1,157 @@
 AVAILABLE_MODELS = {
     'BAAI/bge-small-en-v1.5': {
-        'description': 'Well rounded & customizable.',
         'dimensions': 384,
         'max_sequence': 512,
         'size_mb': 134
     },
     'BAAI/bge-base-en-v1.5': {
-        'description': 'Well rounded & customizable.',
         'dimensions': 768,
         'max_sequence': 512,
         'size_mb': 438
     },
     'BAAI/bge-large-en-v1.5': {
-        'description': 'Well rounded & customizable.',
         'dimensions': 1024,
         'max_sequence': 512,
         'size_mb': 1340
     },
     'hkunlp/instructor-base': {
-        'description': 'Well rounded & customizable.',
         'dimensions': 768,
         'max_sequence': 512,
         'size_mb': 439
     },
     'hkunlp/instructor-large': {
-        'description': 'Well rounded & customizable.',
         'dimensions': 1024,
         'max_sequence': 512,
         'size_mb': 1340
     },
     'hkunlp/instructor-xl': {
-        'description': 'Well rounded & customizable.',
         'dimensions': 1024,
         'max_sequence': 512,
         'size_mb': 4960
     },
-    'jinaai/jina-embedding-s-en-v1': {
-        'description': 'Well rounded',
-        'dimensions': 512,
-        'max_sequence': 512,
-        'size_mb': 141
-    },
-    'jinaai/jina-embedding-b-en-v1': {
-        'description': 'Well rounded',
+    #
+    #'jinaai/jina-embedding-s-en-v1': {
+    #    'dimensions': 512,
+    #    'max_sequence': 512,
+    #    'size_mb': 141
+    #},
+    #'jinaai/jina-embedding-b-en-v1': {
+    #    'dimensions': 768,
+    #    'max_sequence': 512,
+    #    'size_mb': 439
+    #},
+    #'jinaai/jina-embedding-l-en-v1': {
+    #    'dimensions': 1024,
+    #    'max_sequence': 512,
+    #    'size_mb': 1340
+    #},
+    
+    'sentence-transformers/msmarco-distilbert-cos-v5': {
         'dimensions': 768,
         'max_sequence': 512,
-        'size_mb': 439
-    },
-    'jinaai/jina-embedding-l-en-v1': {
-        'description': 'Well rounded',
-        'dimensions': 1024,
-        'max_sequence': 512,
-        'size_mb': 1340
-    },
-    'sentence-transformers/all-distilroberta-v1': {
-        'description': 'Clustering or semantic search',
-        'dimensions': 768,
-        'max_sequence': 512,
-        'size_mb': 329
-    },
-    'sentence-transformers/all-roberta-large-v1': {
-        'description': 'Clustering or semantic search',
-        'dimensions': 1024,
-        'max_sequence': 514,
-        'size_mb': 1420
+        'size_mb': 265
     },
     'sentence-transformers/all-MiniLM-L6-v2': {
-        'description': 'Clustering or semantic search',
         'dimensions': 384,
         'max_sequence': 256,
         'size_mb': 91
     },
     'sentence-transformers/all-MiniLM-L12-v2': {
-        'description': 'Clustering or semantic search',
         'dimensions': 384,
         'max_sequence': 256,
         'size_mb': 120
     },
     'sentence-transformers/all-mpnet-base-v2': {
-        'description': 'Clustering or semantic search',
         'dimensions': 768,
         'max_sequence': 384,
         'size_mb': 438
     },
     'sentence-transformers/sentence-t5-base': {
-        'description': 'Sentence similarity',
         'dimensions': 768,
         'max_sequence': 256,
         'size_mb': 219
     },
     'sentence-transformers/sentence-t5-large': {
-        'description': 'Sentence similarity',
         'dimensions': 768,
         'max_sequence': 256,
         'size_mb': 670
     },
     'sentence-transformers/sentence-t5-xl': {
-        'description': 'Sentence similarity',
         'dimensions': 768,
         'max_sequence': 256,
         'size_mb': 2480
     },
+    'sentence-transformers/sentence-t5-xxl': {
+        'dimensions': 768,
+        'max_sequence': 256,
+        'size_mb': 9230
+    },
     'thenlper/gte-small': {
-        'description': 'Well rounded',
         'dimensions': 384,
         'max_sequence': 512,
         'size_mb': 67
     },
     'thenlper/gte-base': {
-        'description': 'Well rounded',
         'dimensions': 768,
         'max_sequence': 512,
         'size_mb': 219
     },
     'thenlper/gte-large': {
-        'description': 'Well rounded',
         'dimensions': 1024,
         'max_sequence': 512,
         'size_mb': 670
+    },
+    #'nomic-ai/nomic-embed-text-v1.5': {
+    #    'dimensions': 768,
+    #    'max_sequence': 8192,
+    #    'size_mb': 547
+    #},
+}
+
+VISION_MODELS = {
+    "salesforce": {
+        "available_quants": [
+            "float16",
+            "float32"
+        ],
+        "available_sizes": [
+            "fast-dude!"
+        ]
+    },
+    "moondream2": {
+        "available_quants": [
+            "float16"
+        ],
+        "available_sizes": [
+            "2b"
+        ]
+    },
+    "llava": {
+        "available_quants": [
+            "4-bit",
+            "float16"
+        ],
+        "available_sizes": [
+            "7b",
+            "13b"
+        ]
+    },
+    "bakllava": {
+        "available_quants": [
+            "4-bit",
+            "float16"
+        ],
+        "available_sizes": [
+            "7b"
+        ]
+    },
+    "cogvlm": {
+        "available_quants": [
+            "4-bit",
+        ],
+        "available_sizes": [
+            "17.6b"
+        ]
     }
 }
 
@@ -138,6 +172,31 @@ DOCUMENT_LOADERS = {
     ".md": "UnstructuredMarkdownLoader",
     ".html": "UnstructuredHTMLLoader",
 }
+
+PROMPT_FORMATS = {
+    "ChatML": {
+        "prefix": "<|im_start|>",
+        "suffix": "<|im_end|>"
+    },
+    "Llama2/Mistral": {
+        "prefix": "[INST]",
+        "suffix": "[/INST]"
+    },
+    "Neural Chat/SOLAR": {
+        "prefix": "### User:",
+        "suffix": "### Assistant:"
+    },
+    "Orca2": {
+        "prefix": "<|im_start|>user",
+        "suffix": "<|im_end|><|im_start|>assistant"
+    },
+    "StableLM-Zephyr": {
+        "prefix": "<|user|>",
+        "suffix": "<|endoftext|> <|assistant|>"
+    }
+}
+
+
 
 MESSAGE_MS_BUILD_TOOLS = (
     "Have you installed Microsoft Build Tools and Visual Studio? Click OK to confirm, or Cancel to exit installation. "

@@ -6,12 +6,15 @@ from extract_metadata import extract_audio_metadata
 import subprocess
 import av
 import os
+from langchain_community.docstore.document import Document
 
+'''
 # custom document object class mimicking langchain's
 class Document:
     def __init__(self, page_content: str, metadata: dict):
         self.page_content = page_content
         self.metadata = metadata
+'''
 
 class WhisperTranscriber:
     def __init__(self, model_identifier="ctranslate2-4you/whisper-mediuim.en-ct2-int8", batch_size=16, compute_type='int8'):
@@ -101,7 +104,7 @@ class WhisperTranscriber:
         return transcription
 
     def create_document_object(self, transcription_text, audio_file_path):
-        metadata = extract_audio_metadata(audio_file_path) # get metadata
+        metadata = extract_audio_metadata(audio_file_path)
         
         doc = Document(page_content=transcription_text, metadata=metadata)
         
@@ -109,14 +112,15 @@ class WhisperTranscriber:
         docs_dir = script_dir / "Docs_for_DB"
         docs_dir.mkdir(exist_ok=True)
         
-        audio_file_name = Path(self.audio_file).stem
-        pickle_file_path = docs_dir / f"{audio_file_name}.pkl"
+        audio_file_name = Path(audio_file_path).stem
+        json_file_path = docs_dir / f"{audio_file_name}.json"
         
-        with open(pickle_file_path, 'wb') as file:
-            pickle.dump(doc, file)
+        with open(json_file_path, 'w', encoding='utf-8') as file:
+            json_string = doc.json(indent=4)
+            file.write(json_string)
             
         script_dir = Path(__file__).parent
-        converted_audio_file_name = f"{Path(self.audio_file).stem}_converted.wav"
+        converted_audio_file_name = f"{Path(audio_file_path).stem}_converted.wav"
         converted_audio_file_full_path = script_dir / converted_audio_file_name
 
         if converted_audio_file_full_path.exists():

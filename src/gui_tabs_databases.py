@@ -20,31 +20,11 @@ class CreateDatabaseThread(QThread):
 
     def run(self):
         create_vector_db = database_interactions.CreateVectorDB(database_name=self.database_name)
-        create_vector_db.run()
-        self.save_database_symlinks()
+        create_vector_db.run() # calls database_interactions.py
         self.update_config_with_database_name()
         backup_database()
         
         self.creationComplete.emit()
-
-    def save_database_symlinks(self):
-        source_folder = Path(__file__).resolve().parent / "Docs_for_DB"
-        target_folder = source_folder / self.database_name
-        target_folder.mkdir(parents=True, exist_ok=True)
-
-        for item in source_folder.iterdir():
-            if item.is_dir():
-                continue
-            target_item = target_folder / item.name
-            if item.is_symlink():
-                symlink_target = os.readlink(item)
-                target_item.symlink_to(symlink_target)
-            elif item.is_file():
-                shutil.copy2(item, target_item)
-            try:
-                item.unlink()
-            except PermissionError as e:
-                print(f"PermissionError: Unable to delete {item}: {e}")
 
     def update_config_with_database_name(self):
         config_path = Path(__file__).resolve().parent / "config.yaml"
@@ -52,7 +32,7 @@ class CreateDatabaseThread(QThread):
             with open(config_path, 'r', encoding='utf-8') as file:
                 config = yaml.safe_load(file) or {}
 
-            model = config.get('EMBEDDING_MODEL_NAME', 'default_model')
+            model = config.get('EMBEDDING_MODEL_NAME')
             chunk_size = config.get('database', {}).get('chunk_size')
             chunk_overlap = config.get('database', {}).get('chunk_overlap')
 

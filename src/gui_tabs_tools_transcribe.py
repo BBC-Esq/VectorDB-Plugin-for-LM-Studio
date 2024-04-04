@@ -65,7 +65,7 @@ class TranscriberToolSettingsTab(QWidget):
         hbox.addWidget(self.select_file_button)
 
         self.transcribe_button = QPushButton("Transcribe")
-        self.transcribe_button.clicked.connect(self.start_transcription)
+        self.transcribe_button.clicked.connect(self.start_transcription) # starts the transcription process
         hbox.addWidget(self.transcribe_button)
 
         main_layout.addLayout(hbox)
@@ -105,7 +105,7 @@ class TranscriberToolSettingsTab(QWidget):
 
         def transcription_thread():
             transcriber = WhisperTranscriber(model_identifier=selected_model_identifier, batch_size=selected_batch_size, compute_type=selected_compute_type)
-            transcriber.start_transcription_process(self.selected_audio_file)
+            transcriber.start_transcription_process(self.selected_audio_file) # runs transcribe_module.py
             my_cprint("Transcription created and ready to be input into vector database.", 'green')
 
         threading.Thread(target=transcription_thread, daemon=True).start()

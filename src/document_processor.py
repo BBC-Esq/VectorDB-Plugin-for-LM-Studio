@@ -21,7 +21,7 @@ from langchain_community.document_loaders import (
 )
 
 from constants import DOCUMENT_LOADERS
-from loader_images import loader_cogvlm, loader_llava, loader_salesforce
+from loader_images import loader_cogvlm, loader_llava#, loader_salesforce
 from extract_metadata import extract_document_metadata
 from utilities import my_cprint
 import logging
