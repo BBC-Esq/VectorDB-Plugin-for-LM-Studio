@@ -78,11 +78,13 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs,
             )
         elif "bge" in embedding_model_name:
+            query_instruction = config_data['embedding-models']['bge'].get('query_instruction')
             encode_kwargs['show_progress_bar'] = True
             
             model = HuggingFaceBgeEmbeddings(
                 model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
+                query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs
             )
             

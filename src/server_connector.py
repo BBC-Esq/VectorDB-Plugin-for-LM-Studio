@@ -87,11 +87,7 @@ def initialize_vector_model(config):
     elif "bge" in model_path:
         query_instruction = config['embedding-models']['bge']['query_instruction']
         
-        return HuggingFaceBgeEmbeddings(
-            model_name=model_path,
-            model_kwargs={"device": compute_device},
-            encode_kwargs=encode_kwargs
-        )
+        return HuggingFaceBgeEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, query_instruction=query_instruction, encode_kwargs=encode_kwargs)
         
     elif "nomic" in model_path:        
         model = HuggingFaceBgeEmbeddings(
@@ -102,11 +98,7 @@ def initialize_vector_model(config):
         )
         
     else:
-        return HuggingFaceEmbeddings(
-            model_name=model_path,
-            model_kwargs={"device": compute_device},
-            encode_kwargs=encode_kwargs
-        )
+        return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, encode_kwargs=encode_kwargs)
 
 def initialize_database(config, embeddings):
     database_to_search = config['database']['database_to_search']
