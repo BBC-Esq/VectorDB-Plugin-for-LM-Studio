@@ -76,9 +76,19 @@ def initialize_vector_model(config):
     encode_kwargs = {'normalize_embeddings': False, 'batch_size': 1}
     
     if "instructor" in model_path:
+        if "xl" in model_path:
+            model_version = "xl"
+        elif "base" in model_path:
+            model_version = "base"
+        elif "large" in model_path:
+            model_version = "large"
+        else:
+            model_version = "default"
         
+        model_name = f"hkunlp/instructor-{model_version}"
+
         return HuggingFaceInstructEmbeddings(
-            model_name="hkunlp/instructor-base",
+            model_name=model_name,
             cache_folder=model_path,
             model_kwargs={"device": compute_device},
             encode_kwargs=encode_kwargs,

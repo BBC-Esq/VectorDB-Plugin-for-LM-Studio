@@ -41,7 +41,7 @@ class CreateVectorDB:
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
         model_kwargs = {"device": compute_device}
-        encode_kwargs = {'normalize_embeddings': False, 'batch_size': 8}
+        encode_kwargs = {'normalize_embeddings': True, 'batch_size': 8}
 
         if compute_device.lower() == 'cpu':
             encode_kwargs['batch_size'] = 2
@@ -70,9 +70,18 @@ class CreateVectorDB:
 
         if "instructor" in embedding_model_name:
             encode_kwargs['show_progress_bar'] = True
+
+            if "xl" in embedding_model_name:
+                model_version = "xl"
+            elif "base" in embedding_model_name:
+                model_version = "base"
+            else:
+                model_version = "large"
+
+            model_name = f"hkunlp/instructor-{model_version}"
             
             model = HuggingFaceInstructEmbeddings(
-                model_name="hkunlp/instructor-base",
+                model_name=model_name,
                 cache_folder=embedding_model_name,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
