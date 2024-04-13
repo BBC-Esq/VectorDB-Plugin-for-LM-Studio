@@ -4,7 +4,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 import constants as c
-from replace_pdf import replace_pdf_file
+from replace_sourcecode import replace_pdf_file, replace_instructor_file
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
     root = tk.Tk()
@@ -94,8 +94,9 @@ def setup_windows_installation():
     os.system("python -m pip install --upgrade pip")
     install_pytorch(cuda_version_num, proceed)
     os.system("pip3 install -r requirements.txt")
-    os.system("pip install git+https://github.com/SilasMarvin/instructor-embedding.git@silas-update-for-newer-sentence-transformers")
+    #os.system("pip install git+https://github.com/SilasMarvin/instructor-embedding.git@silas-update-for-newer-sentence-transformers")
     os.system("pip3 install --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
+    os.system("pip3 install git+https://github.com/collabora/WhisperSpeech.git")
     os.system("pip3 install bitsandbytes")
     
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
@@ -104,5 +105,6 @@ def setup_windows_installation():
         os.system("pip3 install nvidia-ml-py==12.535.133")
 
     replace_pdf_file()
+    replace_instructor_file()
 
 setup_windows_installation()

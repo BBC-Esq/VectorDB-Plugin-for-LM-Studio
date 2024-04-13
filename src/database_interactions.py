@@ -65,31 +65,21 @@ class CreateVectorDB:
                     if key in EMBEDDING_MODEL_NAME:
                         encode_kwargs['batch_size'] = value
                         break
-                        
-            my_cprint(f"Vector model initialized with a batch size of {encode_kwargs['batch_size']}", "blue")
 
         if "instructor" in embedding_model_name:
             encode_kwargs['show_progress_bar'] = True
+            print(f"Using embedding model path: {embedding_model_name}")
 
-            if "xl" in embedding_model_name:
-                model_version = "xl"
-            elif "base" in embedding_model_name:
-                model_version = "base"
-            else:
-                model_version = "large"
-
-            model_name = f"hkunlp/instructor-{model_version}"
-            
             model = HuggingFaceInstructEmbeddings(
-                model_name=model_name,
-                cache_folder=embedding_model_name,
+                model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
             )
+            
         elif "bge" in embedding_model_name:
             query_instruction = config_data['embedding-models']['bge'].get('query_instruction')
             encode_kwargs['show_progress_bar'] = True
-            
+
             model = HuggingFaceBgeEmbeddings(
                 model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
@@ -97,16 +87,6 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs
             )
             
-        elif "nomic" in embedding_model_name:
-            model_kwargs['trust_remote_code'] = True
-            encode_kwargs['show_progress_bar'] = True
-            
-            model = HuggingFaceBgeEmbeddings(
-                model_name=embedding_model_name,
-                model_kwargs=model_kwargs,
-                encode_kwargs=encode_kwargs,
-                embed_instruction = "search_document:"
-            )
         else:
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
@@ -118,7 +98,7 @@ class CreateVectorDB:
         return model, encode_kwargs
 
     def create_database(self, texts, embeddings):
-        my_cprint("Creating vectors and database...\n\n NOTE:\n\nNOTE: The progress bar only relates to computing vectors, not inserting them into the database.  Rest assured, after it reaches 100% it is still working unless you get an error message.\n", "yellow")
+        my_cprint("Creating vectors and database...\n\nNOTE: The progress bar only relates to computing vectors, not inserting them into the database.  Rest assured, after it reaches 100% it is still working unless you get an error message.\n", "yellow")
 
         start_time = time.time()
 
@@ -202,7 +182,7 @@ class CreateVectorDB:
         json_docs_to_save = documents
         
         # load audio documents
-        audio_documents = self.load_audio_documents()  # Now calling the method internally
+        audio_documents = self.load_audio_documents()
         documents.extend(audio_documents)
         if len(audio_documents) > 0:
             print(f"Loaded {len(audio_documents)} audio transcription(s)...")

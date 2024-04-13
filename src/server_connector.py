@@ -76,20 +76,9 @@ def initialize_vector_model(config):
     encode_kwargs = {'normalize_embeddings': False, 'batch_size': 1}
     
     if "instructor" in model_path:
-        if "xl" in model_path:
-            model_version = "xl"
-        elif "base" in model_path:
-            model_version = "base"
-        elif "large" in model_path:
-            model_version = "large"
-        else:
-            model_version = "default"
-        
-        model_name = f"hkunlp/instructor-{model_version}"
 
         return HuggingFaceInstructEmbeddings(
-            model_name=model_name,
-            cache_folder=model_path,
+            model_name=model_path,
             model_kwargs={"device": compute_device},
             encode_kwargs=encode_kwargs,
         )
@@ -98,14 +87,6 @@ def initialize_vector_model(config):
         query_instruction = config['embedding-models']['bge']['query_instruction']
         
         return HuggingFaceBgeEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, query_instruction=query_instruction, encode_kwargs=encode_kwargs)
-        
-    elif "nomic" in model_path:        
-        model = HuggingFaceBgeEmbeddings(
-            model_name=model_path,
-            model_kwargs={"device": compute_device, "trust_remote_code": True},
-            encode_kwargs=encode_kwargs,
-            query_instruction = "search_query: Answer this question.",
-        )
         
     else:
         return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, encode_kwargs=encode_kwargs)

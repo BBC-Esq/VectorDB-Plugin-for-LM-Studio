@@ -177,15 +177,7 @@ class WhisperSpeechAudio:
     def initialize_model(self):
 
         s2a_ref = 'collabora/whisperspeech:s2a-q4-base-en+pl.model'
-        # s2a_ref = 'collabora/whisperspeech:s2a-q4-hq-fast-en+pl.model' # only works with WhisperSpeech repo code
-        # s2a_ref = 'collabora/whisperspeech:s2a-q4-small-en+pl.model'
-        # s2a_ref = 'collabora/whisperspeech:s2a-q4-tiny-en+pl.model'
-
-        # t2s_ref = 'collabora/whisperspeech:t2s-base-en+pl.model'
-        # t2s_ref = 'collabora/whisperspeech:t2s-fast-medium-en+pl+yt.model'
-        # t2s_ref = 'collabora/whisperspeech:t2s-hq-fast-en+pl.model'
-        # t2s_ref = 'collabora/whisperspeech:t2s-small-en+pl.model'
-        t2s_ref = 'collabora/whisperspeech:t2s-tiny-en+pl.model'
+        t2s_ref = 'collabora/whisperspeech:t2s-base-en+pl.model'
 
         self.pipe = Pipeline(s2a_ref=s2a_ref, t2s_ref=t2s_ref)
         my_cprint(f"Using {s2a_ref} s2a model and {t2s_ref} t2s model.", "green")
@@ -284,7 +276,6 @@ class WhisperSpeechAudio:
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
 
-            # Force a garbage collection
             gc.collect()
 
             my_cprint("WhisperSpeech model removed from memory.", "red")
