@@ -9,7 +9,7 @@
 | 8.9                     | GeForce RTX 4090, RTX 4080 Super, RTX 4080, RTX 4070 Ti Super, RTX 4070 Ti, RTX 4070 Super, RTX 4070, RTX 4060 Ti, RTX 4060 |
 
 ## Ctranslate2 Quantization Compatibility
-
+* NOTE: Only Ampere and later Nvidia GPUs support the new ```flash_attention``` parameter in ```Ctranslate2```.
 ### CPU
 
 | Architecture              | int8_float32 | int8_float16 | int8_bfloat16 | int16 | float16 | bfloat16 |
