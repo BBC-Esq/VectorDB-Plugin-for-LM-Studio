@@ -64,13 +64,6 @@
       <td>❓</td>
       <td>❌</td>
     </tr>
-    <tr>
-      <td>Apple MLX</td>
-      <td>TBD</td>
-      <td>TBD</td>
-      <td>TBD</td>
-      <td>TBD</td>
-    </tr>
   </tbody>
 </table>
 </div>
