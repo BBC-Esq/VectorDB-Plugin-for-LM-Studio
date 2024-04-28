@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!  Now with Vision Models!</h1>
-  <h3>Ask questions about your documents and get an answer from LM Studio!<br><a href="https://youtu.be/8-ZAYI4MvtA">Introductory Video</a><br><a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h3>
+  <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
+  <h3>Ask questions about your documents!  Now with the ability to process images and audio files, Local chat models, and text to speech playback!<br><a href="https://youtu.be/8-ZAYI4MvtA">Introductory Video</a><br><a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h3>
 </div>
 
 <div align="center">
