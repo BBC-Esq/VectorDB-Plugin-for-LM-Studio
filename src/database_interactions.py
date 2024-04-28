@@ -37,6 +37,7 @@ class CreateVectorDB:
         with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
             return yaml.safe_load(stream)
     
+    @torch.inference_mode()
     def initialize_vector_model(self, embedding_model_name, config_data):
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
@@ -87,6 +88,15 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs
             )
             
+        elif "Alibaba" in embedding_model_name:
+            model_kwargs["trust_remote_code"] = True
+            model = HuggingFaceEmbeddings(
+                model_name=embedding_model_name,
+                show_progress=True,
+                model_kwargs=model_kwargs,
+                encode_kwargs=encode_kwargs
+            )
+        
         else:
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
@@ -97,6 +107,7 @@ class CreateVectorDB:
 
         return model, encode_kwargs
 
+    @torch.inference_mode()
     def create_database(self, texts, embeddings):
         my_cprint("Creating vectors and database...\n\nNOTE: The progress bar only relates to computing vectors, not inserting them into the database.  Rest assured, after it reaches 100% it is still working unless you get an error message.\n", "yellow")
 
@@ -168,6 +179,7 @@ class CreateVectorDB:
                 except Exception as e:
                     print(f"Failed to delete {item}: {e}")
     
+    @torch.inference_mode()
     def run(self):
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
@@ -208,26 +220,68 @@ class CreateVectorDB:
         self.clear_docs_for_db_folder()
         print("Cleared all files and symlinks in Docs_for_DB folder.")
 
-# To delete entries based on the "hash" metadata attribute, you can use this as_retriever method to create a retriever that filters documents based on their metadata. Once you retrieve the documents with the specific hash, you can then extract their IDs and use the delete method to remove them from the vectorstore.
 
-# class CreateVectorDB:
-    # # ... [other methods] ...
+class QueryVectorDB:
+    def __init__(self, config_file_path):
+        self.config = self.load_configuration(config_file_path)
+        self.embeddings = self.initialize_vector_model()
+        self.db = self.initialize_database()
+        self.retriever = self.initialize_retriever()
 
-    # def delete_entries_by_hash(self, target_hash):
-        # my_cprint(f"Deleting entries with hash: {target_hash}", "red")
+    def load_configuration(self, config_file_path):
+        with open(config_file_path, 'r') as config_file:
+            return yaml.safe_load(config_file)
 
-        # # Initialize the retriever with a filter for the specific hash
-        # retriever = self.db.as_retriever(search_kwargs={'filter': {'hash': target_hash}})
+    def initialize_vector_model(self):    
+        database_to_search = self.config['database']['database_to_search']
+        model_path = self.config['created_databases'][database_to_search]['model']
+        
+        compute_device = self.config['Compute_Device']['database_query']
+        encode_kwargs = {'normalize_embeddings': False, 'batch_size': 1}
+        
+        if "instructor" in model_path:
+            return HuggingFaceInstructEmbeddings(
+                model_name=model_path,
+                model_kwargs={"device": compute_device},
+                encode_kwargs=encode_kwargs,
+            )
+        elif "bge" in model_path:
+            query_instruction = self.config['embedding-models']['bge']['query_instruction']
+            return HuggingFaceBgeEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, query_instruction=query_instruction, encode_kwargs=encode_kwargs)
+        elif "Alibaba" in model_path:
+            return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device, "trust_remote_code": True}, encode_kwargs=encode_kwargs)
+        else:
+            return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, encode_kwargs=encode_kwargs)
 
-        # # Retrieve documents with the specific hash
-        # documents = retriever.search("")
+    def initialize_database(self):
+        database_to_search = self.config['database']['database_to_search']
+        persist_directory = Path(__file__).resolve().parent / "Vector_DB" / database_to_search
+        
+        return TileDB.load(index_uri=str(persist_directory), embedding=self.embeddings, allow_dangerous_deserialization=True)
 
-        # # Extract IDs from the documents
-        # ids_to_delete = [doc.id for doc in documents]
+    def initialize_retriever(self):
+        document_types = self.config['database'].get('document_types', '')
+        search_filter = {'document_type': document_types} if document_types else {}
+        score_threshold = float(self.config['database']['similarity'])
+        k = int(self.config['database']['contexts'])
+        search_type = "similarity"
+        
+        return self.db.as_retriever(
+            search_type=search_type,
+            search_kwargs={
+                'score_threshold': score_threshold,
+                'k': k,
+                'filter': search_filter
+            }
+        )
 
-        # # Delete entries with the extracted IDs
-        # if ids_to_delete:
-            # self.db.delete(ids=ids_to_delete)
-            # my_cprint(f"Deleted {len(ids_to_delete)} entries from the database.", "green")
-        # else:
-            # my_cprint("No entries found with the specified hash.", "yellow")
+    def search(self, query):
+        relevant_contexts = self.retriever.invoke(input=query)
+        
+        search_term = self.config['database'].get('search_term', '').lower()
+        filtered_contexts = [doc for doc in relevant_contexts if search_term in doc.page_content.lower()]
+        
+        contexts = [document.page_content for document in filtered_contexts]
+        metadata_list = [document.metadata for document in filtered_contexts]
+        
+        return contexts, metadata_list

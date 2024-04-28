@@ -88,6 +88,9 @@ def initialize_vector_model(config):
         
         return HuggingFaceBgeEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, query_instruction=query_instruction, encode_kwargs=encode_kwargs)
         
+    elif "Alibaba" in model_path:
+        return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device, "trust_remote_code": True}, encode_kwargs=encode_kwargs)
+    
     else:
         return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, encode_kwargs=encode_kwargs)
 
@@ -118,7 +121,7 @@ def initialize_retriever(config, db):
     return retriever
 
 def retrieve_and_filter_contexts(config, retriever, query):
-    relevant_contexts = retriever.get_relevant_documents(query=query)
+    relevant_contexts = retriever.invoke(input=query)
     
     search_term = config['database'].get('search_term', '').lower()
     filtered_contexts = [doc for doc in relevant_contexts if search_term in doc.page_content.lower()]

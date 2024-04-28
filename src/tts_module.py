@@ -20,6 +20,9 @@ from utilities import my_cprint
 
 warnings.filterwarnings("ignore", message="torch.nn.utils.weight_norm is deprecated in favor of torch.nn.utils.parametrizations.weight_norm.")
 warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
+warnings.filterwarnings("ignore", message="To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach()")
+warnings.filterwarnings("ignore", category=UserWarning, module="transformers.models.encodec.modeling_encodec", lineno=123)
+warnings.filterwarnings("ignore", message="The BetterTransformer implementation does not support padding during training, as the fused kernels do not support attention masks. Beware that passing padded batched data during training may result in unexpected outputs. Please refer to https://huggingface.co/docs/optimum/bettertransformer/overview for more details.")
 
 class BarkAudio:
     def __init__(self):
@@ -105,6 +108,7 @@ class BarkAudio:
 
         self.release_resources()
 
+    @torch.inference_mode()
     def process_text_thread(self):
         start_time = time.time()
         while self.running:
@@ -119,10 +123,9 @@ class BarkAudio:
                     inputs = self.processor(text=sentence, voice_preset=voice_preset, return_tensors="pt")
 
                     try:
-                        speech_output = self.model.generate(**inputs.to(self.device), pad_token_id=0, do_sample=True)
+                        speech_output = self.model.generate(**inputs.to(self.device), semantic_use_cache=True, coarse_use_cache=True, fine_use_cache=True, pad_token_id=0, do_sample=True)
                     except Exception:
                         continue
-
                     audio_array = speech_output[0].cpu().numpy()
                     audio_array = np.int16(audio_array / np.max(np.abs(audio_array)) * 32767)
                     sampling_rate = self.model.generation_config.sample_rate
@@ -182,6 +185,7 @@ class WhisperSpeechAudio:
         self.pipe = Pipeline(s2a_ref=s2a_ref, t2s_ref=t2s_ref)
         my_cprint(f"Using {s2a_ref} s2a model and {t2s_ref} t2s model.", "green")
 
+    @torch.inference_mode()
     def process_text_to_audio(self, sentences):
         start_time = time.time()
         try:

@@ -29,7 +29,9 @@ warnings.filterwarnings("ignore", module="xformers.*")
 warnings.filterwarnings("ignore", module=".*bitsandbytes.*")
 warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*", module=".*transformers.models.llama.modeling_llama.*")
 warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*", module=".*transformers.models.mistral.modeling_mistral.*")
-        
+
+ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+
 def get_best_device():
     if torch.cuda.is_available():
         return 'cuda'
@@ -51,10 +53,7 @@ class loader_cogvlm:
     def initialize_model_and_tokenizer(self):
         model_name = 'THUDM/cogvlm-chat-hf'
         
-        quantization_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.bfloat16,
-        )
+        quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
         
         model_settings = {
             'torch_dtype': torch.bfloat16,
@@ -69,11 +68,12 @@ class loader_cogvlm:
         my_cprint(f"Cogvlm model using 4-bit loaded into memory...", "green")
         return model, tokenizer
 
+    @torch.inference_mode()
     def cogvlm_process_images(self):
         script_dir = os.path.dirname(__file__)
         image_dir = os.path.join(script_dir, "Docs_for_DB")
         documents = []
-        allowed_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+        allowed_extensions = ALLOWED_EXTENSIONS
 
         image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
 
@@ -160,27 +160,10 @@ class loader_llava:
         elif chosen_model == 'llava' and chosen_size == '13b':
             model_id = "llava-hf/llava-1.5-13b-hf"
 
-        fp16_quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16,
-        )
-        
-        bf16_quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.bfloat16,
-        )
-        
-        fp16_model_config = {
-            'torch_dtype': torch.float16,
-            'resume_download': True,
-            'low_cpu_mem_usage': True,
-        }
-        
-        bf16_model_config = {
-            'torch_dtype': torch.bfloat16,
-            'resume_download': True,
-            'low_cpu_mem_usage': True,
-        }
+        fp16_quant_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
+        bf16_quant_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
+        fp16_model_config = {'torch_dtype': torch.float16, 'resume_download': True, 'low_cpu_mem_usage': True}
+        bf16_model_config = {'torch_dtype': torch.bfloat16, 'resume_download': True, 'low_cpu_mem_usage': True}
         
         device = get_best_device()
 
@@ -189,11 +172,17 @@ class loader_llava:
                 model_id,
                 torch_dtype=torch.float16,
                 low_cpu_mem_usage=True,
+                #attn_implementation="flash_attention_2",
                 resume_download=True
             ).to(device)
 
         elif chosen_model == 'llava' and chosen_quant == '4-bit':
-            model = LlavaForConditionalGeneration.from_pretrained(model_id, quantization_config=fp16_quant_config, **fp16_model_config)
+            model = LlavaForConditionalGeneration.from_pretrained(
+                model_id,
+                #attn_implementation="flash_attention_2",
+                quantization_config=fp16_quant_config,
+                **fp16_model_config
+            )
             
         elif chosen_model == 'bakllava' and chosen_quant == 'float16':
             model = LlavaForConditionalGeneration.from_pretrained(
@@ -212,11 +201,12 @@ class loader_llava:
         
         return model, processor, device, chosen_quant
 
+    @torch.inference_mode()
     def llava_process_images(self):
         script_dir = os.path.dirname(__file__)
         image_dir = os.path.join(script_dir, "Docs_for_DB")
         documents = []
-        allowed_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+        allowed_extensions = ALLOWED_EXTENSIONS
 
         image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
 
@@ -296,11 +286,12 @@ class loader_salesforce:
         
         return model, processor, device
 
+    @torch.inference_mode()
     def salesforce_process_images(self):
         script_dir = os.path.dirname(__file__)
         image_dir = os.path.join(script_dir, "Docs_for_DB")
         documents = []
-        allowed_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+        allowed_extensions = ALLOWED_EXTENSIONS
 
         image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
 
@@ -355,27 +346,10 @@ class loader_moondream:
     def initialize_model_and_tokenizer(self):
         device = get_best_device()
         
-        fp16_quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16,
-        )
-        
-        bf16_quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.bfloat16,
-        )
-        
-        fp16_model_config = {
-            'torch_dtype': torch.float16,
-            'resume_download': True,
-            'low_cpu_mem_usage': True,
-        }
-        
-        bf16_model_config = {
-            'torch_dtype': torch.bfloat16,
-            'resume_download': True,
-            'low_cpu_mem_usage': True,
-        }
+        fp16_quant_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
+        bf16_quant_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
+        fp16_model_config = {'torch_dtype': torch.float16, 'resume_download': True, 'low_cpu_mem_usage': True}
+        bf16_model_config = {'torch_dtype': torch.bfloat16, 'resume_download': True, 'low_cpu_mem_usage': True}
 
         model = AutoModelForCausalLM.from_pretrained("vikhyatk/moondream2", 
                                              trust_remote_code=True, 
@@ -390,11 +364,12 @@ class loader_moondream:
         
         return model, tokenizer, device
     
+    @torch.inference_mode()
     def moondream_process_images(self):
         script_dir = os.path.dirname(__file__)
         image_dir = os.path.join(script_dir, "Docs_for_DB")
         documents = []
-        allowed_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+        allowed_extensions = ALLOWED_EXTENSIONS
         
         image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
         

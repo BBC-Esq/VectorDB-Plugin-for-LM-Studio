@@ -23,8 +23,8 @@ class DocQA_GUI(QWidget):
         self.init_menu()
 
     def init_ui(self):
-        self.setWindowTitle('LM Studio ChromaDB Plugin - www.chintellalaw.com')
-        self.setGeometry(300, 300, 775, 950)
+        self.setWindowTitle('LM Studio VectorDB Plugin - www.chintellalaw.com')
+        self.setGeometry(300, 300, 775, 940)
         self.setMinimumSize(350, 410)
 
         # Main Layout

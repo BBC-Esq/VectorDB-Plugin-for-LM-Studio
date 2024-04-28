@@ -7,6 +7,7 @@ import subprocess
 import av
 import os
 from langchain_community.docstore.document import Document
+import torch
 
 '''
 # custom document object class mimicking langchain's
@@ -54,6 +55,7 @@ class WhisperTranscriber:
         process.start()
         process.join()
 
+    @torch.inference_mode()
     def transcribe_and_create_document(self):
         audio_file_str = str(self.audio_file)
         converted_audio_file = self.convert_to_wav(audio_file_str)

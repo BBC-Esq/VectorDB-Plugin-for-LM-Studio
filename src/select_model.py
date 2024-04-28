@@ -7,7 +7,7 @@ def load_config():
         return yaml.safe_load(stream)
 
 def select_embedding_model_directory():
-    initial_dir = Path('Embedding_Models') if Path('Embedding_Models').exists() else Path.home()
+    initial_dir = Path('Models') if Path('Models').exists() else Path.home()
     chosen_directory = QFileDialog.getExistingDirectory(None, "Select Embedding Model Directory", str(initial_dir))
     
     if chosen_directory:

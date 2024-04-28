@@ -97,7 +97,6 @@ def setup_windows_installation():
     #os.system("pip install git+https://github.com/SilasMarvin/instructor-embedding.git@silas-update-for-newer-sentence-transformers")
     os.system("pip3 install --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
     os.system("pip3 install git+https://github.com/collabora/WhisperSpeech.git")
-    os.system("pip3 install bitsandbytes")
     
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if proceed and cuda_version_num >= 12.1 and (major == 3 and minor in [10, 11]):

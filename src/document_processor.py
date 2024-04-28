@@ -43,19 +43,17 @@ def load_single_document(file_path: Path) -> Document:
     if not loader_class:
         raise ValueError(f"Document type for extension {file_extension} is undefined")
 
-    loader_options = {
-        "encoding": "utf-8",
-        "autodetect_encoding": True
-    }
+    loader_options = {}
 
     if file_extension in [".epub", ".rtf", ".odt", ".md", ".html"]:
         loader_options.update({"mode": "single", "strategy": "fast"})
     elif file_extension in [".xlsx", ".xlsd"]:
         loader_options.update({"mode": "single"})
-    elif file_extension in [".docx", ".csv", ".txt"]:
-        pass
-    else:
-        loader_options = {}
+    elif file_extension in [".csv", ".txt"]:
+        loader_options.update({
+            "encoding": "utf-8",
+            "autodetect_encoding": True
+        })
 
     loader = loader_class(str(file_path), **loader_options)
 

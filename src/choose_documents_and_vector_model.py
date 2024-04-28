@@ -2,7 +2,22 @@ import subprocess
 import os
 import yaml
 from pathlib import Path
-from PySide6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout
+from PySide6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QMessageBox
+import torch
+
+def check_cuda_for_images(files):
+    image_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+    # Check if any selected file is an image
+    if any(file.lower().endswith(tuple(image_extensions)) for file in files):
+        if not torch.cuda.is_available():
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setText("Processing images currently only available with GPU acceleration. Please remove any images and try again.")
+            msg_box.setWindowTitle("CUDA Support Required")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec()
+            return False
+    return True
 
 def choose_documents_directory():
     allowed_extensions = ['.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', '.rtf', '.odt',
@@ -13,6 +28,9 @@ def choose_documents_directory():
     file_paths, _ = file_dialog.getOpenFileNames(None, "Choose Documents and Images for Database", str(current_dir))
 
     if file_paths:
+        if not check_cuda_for_images(file_paths):
+            return  # Exit if CUDA not available and image files are found
+
         incompatible_files = []
         compatible_files = []
 
@@ -62,12 +80,13 @@ def choose_documents_directory():
                 symlink_target.unlink()
             symlink_target.symlink_to(file_path)
 
+
 def load_config():
     with open(Path("config.yaml"), 'r', encoding='utf-8') as stream:
         return yaml.safe_load(stream)
 
 def select_embedding_model_directory():
-    initial_dir = Path('Embedding_Models') if Path('Embedding_Models').exists() else Path.home()
+    initial_dir = Path('Models') if Path('Models').exists() else Path.home()
     chosen_directory = QFileDialog.getExistingDirectory(None, "Select Embedding Model Directory", str(initial_dir))
     
     if chosen_directory:

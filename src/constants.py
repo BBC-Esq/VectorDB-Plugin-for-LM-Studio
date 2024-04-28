@@ -1,159 +1,227 @@
 AVAILABLE_MODELS = {
-    'BAAI/bge-small-en-v1.5': {
-        'dimensions': 384,
-        'max_sequence': 512,
-        'size_mb': 134
-    },
-    'BAAI/bge-base-en-v1.5': {
-        'dimensions': 768,
-        'max_sequence': 512,
-        'size_mb': 438
-    },
-    'BAAI/bge-large-en-v1.5': {
-        'dimensions': 1024,
-        'max_sequence': 512,
-        'size_mb': 1340
-    },
-    'hkunlp/instructor-base': {
-        'dimensions': 768,
-        'max_sequence': 512,
-        'size_mb': 439
-    },
-    'hkunlp/instructor-large': {
-        'dimensions': 1024,
-        'max_sequence': 512,
-        'size_mb': 1340
-    },
-    'hkunlp/instructor-xl': {
-        'dimensions': 1024,
-        'max_sequence': 512,
-        'size_mb': 4960
-    },
-    #
-    #'jinaai/jina-embedding-s-en-v1': {
-    #    'dimensions': 512,
-    #    'max_sequence': 512,
-    #    'size_mb': 141
-    #},
-    #'jinaai/jina-embedding-b-en-v1': {
-    #    'dimensions': 768,
-    #    'max_sequence': 512,
-    #    'size_mb': 439
-    #},
-    #'jinaai/jina-embedding-l-en-v1': {
-    #    'dimensions': 1024,
-    #    'max_sequence': 512,
-    #    'size_mb': 1340
-    #},
-    
-    'sentence-transformers/msmarco-distilbert-cos-v5': {
-        'dimensions': 768,
-        'max_sequence': 512,
-        'size_mb': 265
-    },
-    'sentence-transformers/all-MiniLM-L6-v2': {
-        'dimensions': 384,
-        'max_sequence': 256,
-        'size_mb': 91
-    },
-    'sentence-transformers/all-MiniLM-L12-v2': {
-        'dimensions': 384,
-        'max_sequence': 256,
-        'size_mb': 120
-    },
-    'sentence-transformers/all-mpnet-base-v2': {
-        'dimensions': 768,
-        'max_sequence': 384,
-        'size_mb': 438
-    },
-    'sentence-transformers/sentence-t5-base': {
-        'dimensions': 768,
-        'max_sequence': 256,
-        'size_mb': 219
-    },
-    'sentence-transformers/sentence-t5-large': {
-        'dimensions': 768,
-        'max_sequence': 256,
-        'size_mb': 670
-    },
-    'sentence-transformers/sentence-t5-xl': {
-        'dimensions': 768,
-        'max_sequence': 256,
-        'size_mb': 2480
-    },
-    'sentence-transformers/sentence-t5-xxl': {
-        'dimensions': 768,
-        'max_sequence': 256,
-        'size_mb': 9230
-    },
-    'thenlper/gte-small': {
-        'dimensions': 384,
-        'max_sequence': 512,
-        'size_mb': 67
-    },
-    'thenlper/gte-base': {
-        'dimensions': 768,
-        'max_sequence': 512,
-        'size_mb': 219
-    },
-    'thenlper/gte-large': {
-        'dimensions': 1024,
-        'max_sequence': 512,
-        'size_mb': 670
-    },
-    #'nomic-ai/nomic-embed-text-v1.5': {
-    #    'dimensions': 768,
-    #    'max_sequence': 8192,
-    #    'size_mb': 547
-    #},
+    'BAAI': [
+        {
+            'name': 'bge-small-en-v1.5',
+            'dimensions': 384,
+            'max_sequence': 512,
+            'size_mb': 134,
+            'repo_id': 'BAAI/bge-small-en-v1.5'
+        },
+        {
+            'name': 'bge-base-en-v1.5',
+            'dimensions': 768,
+            'max_sequence': 512,
+            'size_mb': 438,
+            'repo_id': 'BAAI/bge-base-en-v1.5'
+        },
+        {
+            'name': 'bge-large-en-v1.5',
+            'dimensions': 1024,
+            'max_sequence': 512,
+            'size_mb': 1340,
+            'repo_id': 'BAAI/bge-large-en-v1.5'
+        },
+    ],
+    'hkunlp': [
+        {
+            'name': 'instructor-base',
+            'dimensions': 768,
+            'max_sequence': 512,
+            'size_mb': 439,
+            'repo_id': 'hkunlp/instructor-base'
+        },
+        {
+            'name': 'instructor-large',
+            'dimensions': 1024,
+            'max_sequence': 512,
+            'size_mb': 1340,
+            'repo_id': 'hkunlp/instructor-large'
+        },
+        {
+            'name': 'instructor-xl',
+            'dimensions': 1024,
+            'max_sequence': 512,
+            'size_mb': 4960,
+            'repo_id': 'hkunlp/instructor-xl'
+        },
+    ],
+    'sentence-transformers': [
+        {
+            'name': 'all-MiniLM-L6-v2',
+            'dimensions': 384,
+            'max_sequence': 256,
+            'size_mb': 91,
+            'repo_id': 'sentence-transformers/all-MiniLM-L6-v2'
+        },
+        {
+            'name': 'all-MiniLM-L12-v2',
+            'dimensions': 384,
+            'max_sequence': 256,
+            'size_mb': 120,
+            'repo_id': 'sentence-transformers/all-MiniLM-L12-v2'
+        },
+        {
+            'name': 'all-mpnet-base-v2',
+            'dimensions': 768,
+            'max_sequence': 384,
+            'size_mb': 438,
+            'repo_id': 'sentence-transformers/all-mpnet-base-v2'
+        },
+        {
+            'name': 'sentence-t5-base',
+            'dimensions': 768,
+            'max_sequence': 256,
+            'size_mb': 219,
+            'repo_id': 'sentence-transformers/sentence-t5-base'
+        },
+        {
+            'name': 'sentence-t5-large',
+            'dimensions': 768,
+            'max_sequence': 256,
+            'size_mb': 670,
+            'repo_id': 'sentence-transformers/sentence-t5-large'
+        },
+        {
+            'name': 'sentence-t5-xl',
+            'dimensions': 768,
+            'max_sequence': 256,
+            'size_mb': 2480,
+            'repo_id': 'sentence-transformers/sentence-t5-xl'
+        },
+        {
+            'name': 'sentence-t5-xxl',
+            'dimensions': 768,
+            'max_sequence': 256,
+            'size_mb': 9230,
+            'repo_id': 'sentence-transformers/sentence-t5-xxl'
+        },
+    ],
+    'thenlper': [
+        {
+            'name': 'gte-small',
+            'dimensions': 384,
+            'max_sequence': 512,
+            'size_mb': 67,
+            'repo_id': 'thenlper/gte-small'
+        },
+        {
+            'name': 'gte-base',
+            'dimensions': 768,
+            'max_sequence': 512,
+            'size_mb': 219,
+            'repo_id': 'thenlper/gte-base'
+        },
+        {
+            'name': 'gte-large',
+            'dimensions': 1024,
+            'max_sequence': 512,
+            'size_mb': 670,
+            'repo_id': 'thenlper/gte-large'
+        },
+    ],
 }
 
-VISION_MODELS = {
-    "salesforce": {
-        "available_quants": [
-            "float16",
-            "float32"
-        ],
-        "available_sizes": [
-            "fast-dude!"
-        ]
+    #{'name': 'msmarco-distilbert-cos-v5', 'dimensions': 768, 'max_sequence': 512, 'size_mb': 265},
+    #'jinaai/jina-embedding-s-en-v1': {'dimensions': 512, 'max_sequence': 512, 'size_mb': 141},
+    #'jinaai/jina-embedding-b-en-v1': {'dimensions': 768, 'max_sequence': 512, 'size_mb': 439},
+    #'jinaai/jina-embedding-l-en-v1': {'dimensions': 1024, 'max_sequence': 512, 'size_mb': 1340},
+    #'nomic-ai/nomic-embed-text-v1.5': {'dimensions': 768, 'max_sequence': 8192, 'size_mb': 547},
+    # 'Alibaba-NLP/gte-large-en-v1.5': {'dimensions': 1024, 'max_sequence': 8192, 'size_mb': 1740},
+    # 'Alibaba-NLP/gte-base-en-v1.5': {'dimensions': 768, 'max_sequence': 8192, 'size_mb': 547},
+
+
+CHAT_MODELS = {
+    "Qwen - 0.5b": {
+        "model": "Qwen - 0.5b",
+        "repo_id": "Qwen/Qwen1.5-0.5B-Chat",
+        "tokens_per_second": 60,
+        "context_length": 4096,
+        "avg_vram_usage": "3.9 GB",
+        "function": "Qwen1_5_0_5_chat",
     },
-    "moondream2": {
-        "available_quants": [
-            "float16"
-        ],
-        "available_sizes": [
-            "2b"
-        ]
+    # "Zephyr - 1.6b": {
+        # "model": "Zephyr - 1.6b",
+        # "repo_id": "stabilityai/stablelm-2-zephyr-1_6b",
+        # "tokens_per_second": 74,
+        # "context_length": 4096,
+        # "avg_vram_usage": "4.5 GB",
+        # "function": "StableLM_2_Zephyr_1_6B",
+    # },
+    # "Zephyr - 3b": {
+        # "model": "Zephyr - 3b",
+        # "repo_id": "stabilityai/stablelm-zephyr-3b",
+        # "tokens_per_second": 57,
+        # "context_length": 4096,
+        # "avg_vram_usage": "4.9 GB",
+        # "function": "StableLM_Zephyr_3B",
+    # },
+    # "Qwen - 1.8B": {
+        # "model": "Qwen - 1.8B",
+        # "repo_id": "Qwen/Qwen1.5-1.8B-Chat",
+        # "tokens_per_second": 65,
+        # "context_length": 4096,
+        # "avg_vram_usage": "5.7 GB",
+        # "function": "Qwen1_5_1_8b_chat",
+    # },
+    "Phi-3 - 3.8B": {
+        "model": "Phi-3 - 3.8B",
+        "repo_id": "microsoft/Phi-3-mini-4k-instruct",
+        "tokens_per_second": 50,
+        "context_length": 4096,
+        "avg_vram_usage": "6.6 GB",
+        "function": "Phi_3_mini_4k_instruct",
     },
-    "llava": {
-        "available_quants": [
-            "4-bit",
-            "float16"
-        ],
-        "available_sizes": [
-            "7b",
-            "13b"
-        ]
+    "Neural-Chat - 7b": {
+        "model": "Neural-Chat - 7b",
+        "repo_id": "Intel/neural-chat-7b-v3-3",
+        "tokens_per_second": 46,
+        "context_length": 4096,
+        "avg_vram_usage": "7.8 GB",
+        "function": "Neural_Chat_7b_v3_3",
     },
-    "bakllava": {
-        "available_quants": [
-            "4-bit",
-            "float16"
-        ],
-        "available_sizes": [
-            "7b"
-        ]
+    "Llama-2 - 7b": {
+        "model": "Llama-2 - 7b",
+        "repo_id": "meta-llama/Llama-2-7b-chat-hf",
+        "tokens_per_second": 45,
+        "context_length": 4096,
+        "avg_vram_usage": "7.9 GB",
+        "function": "Llama_2_7b_chat_hf",
     },
-    "cogvlm": {
-        "available_quants": [
-            "4-bit",
-        ],
-        "available_sizes": [
-            "17.6b"
-        ]
-    }
+    "Dolphin-Llama3 - 8b": {
+        "model": "Dolphin-Llama3 - 8b",
+        "repo_id": "cognitivecomputations/dolphin-2.9-llama3-8b",
+        "tokens_per_second": 41,
+        "context_length": 4096,
+        "avg_vram_usage": "9.2 GB",
+        "function": "Dolphin_Llama_3_8B_Instruct",
+    },
+    "Solar-Instruct - 10.7b": {
+        "model": "Solar-Instruct - 10.7b",
+        "repo_id": "stabilityai/stablelm-2-12b-chat",
+        "tokens_per_second": 28,
+        "context_length": 4096,
+        "avg_vram_usage": "9.3 GB",
+        "function": "SOLAR_10_7B_Instruct_v1_0",
+    },
+    # "Stablelm-2 - 12b": {
+        # "model": "Stablelm-2 - 12b",
+        # "repo_id": "upstage/SOLAR-10.7B-Instruct-v1.0",
+        # "tokens_per_second": 22,
+        # "context_length": 4096,
+        # "avg_vram_usage": "11.2 GB",
+        # "function": "stablelm_2_12b_chat",
+    # }
 }
+
+
+VISION_MODELS = {
+    "salesforce": {"available_quants": ["float16", "float32"], "available_sizes": ["470m"]},
+    "moondream2": {"available_quants": ["float16"], "available_sizes": ["2b"]},
+    "llava": {"available_quants": ["4-bit", "float16"], "available_sizes": ["7b", "13b"]},
+    "bakllava": {"available_quants": ["4-bit", "float16"], "available_sizes": ["7b"]},
+    "cogvlm": {"available_quants": ["4-bit"], "available_sizes": ["17.6b"]}
+}
+
 
 DOCUMENT_LOADERS = {
     ".pdf": "PyMuPDFLoader",
@@ -174,28 +242,12 @@ DOCUMENT_LOADERS = {
 }
 
 PROMPT_FORMATS = {
-    "ChatML": {
-        "prefix": "<|im_start|>",
-        "suffix": "<|im_end|>"
-    },
-    "Llama2/Mistral": {
-        "prefix": "[INST]",
-        "suffix": "[/INST]"
-    },
-    "Neural Chat/SOLAR": {
-        "prefix": "### User:",
-        "suffix": "### Assistant:"
-    },
-    "Orca2": {
-        "prefix": "<|im_start|>user",
-        "suffix": "<|im_end|><|im_start|>assistant"
-    },
-    "StableLM-Zephyr": {
-        "prefix": "<|user|>",
-        "suffix": "<|endoftext|> <|assistant|>"
-    }
+    "ChatML": {"prefix": "", "suffix": ""},
+    "Llama2/Mistral": {"prefix": "[INST]", "suffix": "[/INST]"},
+    "Neural Chat/SOLAR": {"prefix": "### User:", "suffix": "### Assistant:"},
+    "Orca2": {"prefix": "user", "suffix": "assistant"},
+    "StableLM-Zephyr": {"prefix": "", "suffix": " "}
 }
-
 
 
 MESSAGE_MS_BUILD_TOOLS = (

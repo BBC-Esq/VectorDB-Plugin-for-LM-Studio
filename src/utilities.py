@@ -16,16 +16,35 @@ def load_config(config_file):
 
 def is_nvidia_gpu_available(config):
     gpu_brand = config.get("Compute_Device", {}).get("gpu_brand")
-
     if isinstance(gpu_brand, str):
         normalized_gpu_brand = gpu_brand.strip().lower()
-        return normalized_gpu_brand == "nvidia"
+        return normalized_gpu_brand == "nvidia" and torch.cuda.is_available()
     return False
 
 config = load_config('config.yaml')
 
+# Import pynvml only if CUDA is available and an NVIDIA GPU is detected
 if is_nvidia_gpu_available(config):
     import pynvml
+
+    def print_cuda_memory_usage():
+        try:
+            pynvml.nvmlInit()
+            handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+
+            memory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+            print(f"Memory Total: {memory_info.total / 1024**2} MB")
+            print(f"Memory Used: {memory_info.used / 1024**2} MB")
+            print(f"Memory Free: {memory_info.free / 1024**2} MB")
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+        finally:
+            pynvml.nvmlShutdown()
+else:
+    def print_cuda_memory_usage():
+        print("CUDA is not available, or no NVIDIA GPU detected.")
 
 def validate_symbolic_links(source_directory):
     source_path = Path(source_directory)
@@ -90,10 +109,6 @@ def delete_file(file_path):
     except OSError:
         QMessageBox.warning(None, "Unable to delete file(s), please delete manually.")
 
-from PySide6.QtWidgets import QMessageBox
-import platform
-from pathlib import Path
-import yaml
 
 def check_preconditions_for_db_creation(script_dir, database_name):
     # is name valid
