@@ -16,19 +16,7 @@ bark:
   model_precision: float16
   size: small
   speaker: v2/en_speaker_6
-created_databases:
-  test:
-    chunk_overlap: 250
-    chunk_size: 700
-    model: D:/Scripts/ChromaDB-Plugin-for-LM-Studio/v4_3 - working/Embedding_Models/sentence-transformers--all-mpnet-base-v2
-  test3:
-    chunk_overlap: 250
-    chunk_size: 700
-    model: D:/Scripts/ChromaDB-Plugin-for-LM-Studio/v4_3 - working/Embedding_Models/sentence-transformers--all-mpnet-base-v2
-  treatises-all-bge-large:
-    chunk_overlap: 250
-    chunk_size: 700
-    model: D:/Scripts/ChromaDB-Plugin-for-LM-Studio/v4_3 - working/Embedding_Models/BAAI--bge-large-en-v1.5
+created_databases: {}
 database:
   chunk_overlap: 250
   chunk_size: 700
