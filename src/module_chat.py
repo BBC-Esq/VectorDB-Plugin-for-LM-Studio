@@ -68,14 +68,16 @@ common_generate_settings = {
 }
 
 @torch.inference_mode()
-def StableLM_2_Zephyr_1_6B(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "stabilityai--stablelm-2-zephyr-1_6b"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_float16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_float16_settings['model_settings'])
+def StableLM_2_Zephyr_1_6B(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "stabilityai--stablelm-2-zephyr-1_6b"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_float16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_float16_settings['model_settings'])
+        return model, tokenizer
 
+    # Use the provided model and tokenizer instances
     prompt = f"<|system|>\n{system_message}<|endoftext|>\n<|user|>\n{user_message}<|endoftext|>\n<|assistant|>"
-
     inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
     all_settings = {**inputs, **common_generate_settings}
     generated_text = model.generate(**all_settings, pad_token_id=tokenizer.eos_token_id)
@@ -83,18 +85,18 @@ def StableLM_2_Zephyr_1_6B(user_message, model, tokenizer):
     model_response = tokenizer.decode(generated_text[0], skip_special_tokens=True)
     start_idx = model_response.rfind("<|assistant|>") + len("<|assistant|>")
     full_response = model_response[start_idx:].strip()
-    
-    cleanup_resources(model, tokenizer)
 
     return full_response
 
 @torch.inference_mode()
-def StableLM_Zephyr_3B(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "stabilityai--stablelm-2-zephyr-3b"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
-    
+def StableLM_Zephyr_3B(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "stabilityai--stablelm-2-zephyr-3b"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
+        return model, tokenizer
+
     prompt = f"<|system|>\n{system_message}<|endoftext|>\n<|user|>\n{user_message}<|endoftext|>\n<|assistant|>"
     
     inputs = tokenizer(prompt, return_tensors="pt", return_attention_mask=True).to("cuda")
@@ -105,17 +107,17 @@ def StableLM_Zephyr_3B(user_message, model, tokenizer):
     start_idx = model_response.rfind("<|assistant|>") + len("<|assistant|>")
     full_response = model_response[start_idx:].strip()
     
-    cleanup_resources(model, tokenizer)
-    
     return full_response
 
 @torch.inference_mode()
-def stablelm_2_12b_chat(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "stabilityai--stablelm-2-12b-chat"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
-    
+def stablelm_2_12b_chat(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "stabilityai--stablelm-2-12b-chat"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
+        return model, tokenizer
+
     prompt = f"<|system|>\n{system_message}<|endoftext|>\n<|user|>\n{user_message}<|endoftext|>\n<|assistant|>"
     
     inputs = tokenizer(prompt, return_tensors="pt", return_attention_mask=True).to("cuda")
@@ -126,17 +128,17 @@ def stablelm_2_12b_chat(user_message, model, tokenizer):
     start_idx = model_response.rfind("<|assistant|>") + len("<|assistant|>")
     full_response = model_response[start_idx:].strip()
     
-    cleanup_resources(model, tokenizer)
-    
     return full_response
 
 @torch.inference_mode()
-def Llama_2_7b_chat_hf(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "meta-llama--Llama-2-7b-chat-hf"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_float16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_float16_settings['model_settings'])
-    
+def Llama_2_7b_chat_hf(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "meta-llama--Llama-2-7b-chat-hf"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_float16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_float16_settings['model_settings'])
+        return model, tokenizer
+
     prompt = f"<s>[INST] <<SYS>>\n{system_message}\n<</SYS>>\n\n{user_message}[/INST]"
     
     inputs = tokenizer(prompt, return_tensors="pt", return_attention_mask=True).to("cuda")
@@ -147,17 +149,17 @@ def Llama_2_7b_chat_hf(user_message, model, tokenizer):
     start_idx = model_response.rfind("[/INST]") + len("[/INST]")
     full_response = model_response[start_idx:].strip()
     
-    cleanup_resources(model, tokenizer)
-    
     return full_response
 
 @torch.inference_mode()
-def Neural_Chat_7b_v3_3(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "Intel--neural-chat-7b-v3-3"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_float16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_float16_settings['model_settings'])
-    
+def Neural_Chat_7b_v3_3(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "Intel--neural-chat-7b-v3-3"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_float16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_float16_settings['model_settings'])
+        return model, tokenizer
+
     prompt = f"### System:\n{system_message}\n### User:\n{user_message}\n### Assistant: "
     
     inputs = tokenizer(prompt, return_tensors="pt", return_attention_mask=True).to("cuda")
@@ -168,25 +170,25 @@ def Neural_Chat_7b_v3_3(user_message, model, tokenizer):
     start_idx = model_response.find("### Assistant: ") + len("### Assistant: ")
     full_response = model_response[start_idx:].strip()
     
-    cleanup_resources(model, tokenizer)
-    
     return full_response
 
 @torch.inference_mode()
-def Phi_3_mini_4k_instruct(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "microsoft--Phi-3-mini-4k-instruct"
+def Phi_3_mini_4k_instruct(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "microsoft--Phi-3-mini-4k-instruct"
 
-    modified_bnb_bfloat16_settings = {
-        **bnb_bfloat16_settings,
-        'model_settings': {
-            **bnb_bfloat16_settings['model_settings'],
-            'trust_remote_code': True
+        modified_bnb_bfloat16_settings = {
+            **bnb_bfloat16_settings,
+            'model_settings': {
+                **bnb_bfloat16_settings['model_settings'],
+                'trust_remote_code': True
+            }
         }
-    }
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **modified_bnb_bfloat16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **modified_bnb_bfloat16_settings['model_settings'])
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **modified_bnb_bfloat16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **modified_bnb_bfloat16_settings['model_settings'])
+        return model, tokenizer
 
     prompt = f"<s><|system|>{system_message}<|end|>\n<|user|>\n{user_message} *****<|end|>\n<|assistant|>"
     inputs = tokenizer(prompt, return_tensors="pt", return_attention_mask=True).to("cuda")
@@ -198,17 +200,17 @@ def Phi_3_mini_4k_instruct(user_message, model, tokenizer):
     model_response = tokenizer.decode(generated_text[0], skip_special_tokens=True)
     start_idx = model_response.rfind("*****") + len("*****")
     full_response = model_response[start_idx:].strip()
-    
-    cleanup_resources(model, tokenizer)
 
     return full_response
 
 @torch.inference_mode()
-def Qwen1_5_0_5_chat(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "Qwen--Qwen1.5-0.5B-Chat"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
+def Qwen1_5_0_5_chat(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "Qwen--Qwen1.5-0.5B-Chat"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
+        return model, tokenizer
 
     prompt = f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{user_message}\n<|im_end|>\n\n<|im_start|>assistant\n"
 
@@ -219,17 +221,17 @@ def Qwen1_5_0_5_chat(user_message, model, tokenizer):
     model_response = tokenizer.decode(generated_text[0], skip_special_tokens=True)
     start_idx = model_response.rfind('assistant') + len('assistant')
     full_response = model_response[start_idx:].strip()
-    
-    cleanup_resources(model, tokenizer)
 
     return full_response
 
 @torch.inference_mode()
-def Qwen1_5_1_8b_chat(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "Qwen--Qwen1.5-1.8B-Chat"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
+def Qwen1_5_1_8b_chat(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "Qwen--Qwen1.5-1.8B-Chat"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
+        return model, tokenizer
 
     prompt = f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{user_message}\n<|im_end|>\n\n<|im_start|>assistant\n"
 
@@ -240,17 +242,17 @@ def Qwen1_5_1_8b_chat(user_message, model, tokenizer):
     model_response = tokenizer.decode(generated_text[0], skip_special_tokens=True)
     start_idx = model_response.rfind('assistant') + len('assistant')
     full_response = model_response[start_idx:].strip()
-    
-    cleanup_resources(model, tokenizer)
 
     return full_response
 
 @torch.inference_mode()
-def SOLAR_10_7B_Instruct_v1_0(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "upstage--SOLAR-10.7B-Instruct-v1.0"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_float16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_float16_settings['model_settings'])
+def SOLAR_10_7B_Instruct_v1_0(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "upstage--SOLAR-10.7B-Instruct-v1.0"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_float16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_float16_settings['model_settings'])
+        return model, tokenizer
 
     prompt = f"<s>###System:\n{system_message}\n\n### User:\n\n{user_message}\n\n### Assistant:\n"
 
@@ -261,19 +263,17 @@ def SOLAR_10_7B_Instruct_v1_0(user_message, model, tokenizer):
     model_response = tokenizer.decode(generated_text[0], skip_special_tokens=True)
     start_idx = model_response.find("### Assistant:\n") + len("### Assistant:\n")
     full_response = model_response[start_idx:].strip()
-    
-    cleanup_resources(model, tokenizer)
-    
-    cleanup_resources(model, tokenizer)
 
     return full_response
 
 @torch.inference_mode()
-def Dolphin_Llama_3_8B_Instruct(user_message, model, tokenizer):
-    script_dir = Path(__file__).resolve().parent
-    model_name = script_dir / "Models" / "cognitivecomputations--dolphin-2.9-llama3-8b"
-    tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
-    model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
+def Dolphin_Llama_3_8B_Instruct(user_message, model=None, tokenizer=None):
+    if model is None or tokenizer is None:
+        script_dir = Path(__file__).resolve().parent
+        model_name = script_dir / "Models" / "cognitivecomputations--dolphin-2.9-llama3-8b"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **bnb_bfloat16_settings['tokenizer_settings'])
+        model = AutoModelForCausalLM.from_pretrained(model_name, **bnb_bfloat16_settings['model_settings'])
+        return model, tokenizer
 
     prompt = f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{user_message}<|im_end|>\n<|im_start|>assistant\n"
 
@@ -284,8 +284,6 @@ def Dolphin_Llama_3_8B_Instruct(user_message, model, tokenizer):
     model_response = tokenizer.decode(generated_text[0], skip_special_tokens=True)
     start_idx = model_response.rfind("<|im_start|>assistant") + len("<|im_start|>assistant")
     full_response = model_response[start_idx:].strip()
-    
-    cleanup_resources(model, tokenizer)
 
     return full_response
 
