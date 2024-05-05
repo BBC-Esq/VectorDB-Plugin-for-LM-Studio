@@ -35,3 +35,4 @@ platformdirs==4.2.1 # required by whisperS2T
 rich==13.7.1 # required by whisperS2T
 openai-whisper==20231117 # required by whisperS2T
 bitsandbytes==0.43.1
+webdataset==0.2.86
