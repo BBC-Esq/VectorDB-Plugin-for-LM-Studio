@@ -29,3 +29,21 @@
 | 6.2                | float32      | float32      | float32       | float32 | float32 | float32  |
 | 6.1                | int8_float32 | int8_float32 | int8_float32  | float32 | float32 | float32  |
 | <= 6.0             | float32      | float32      | float32       | float32 | float32 | float32  |
+
+## Chat Model Benchmarks
+* Tested using ```ctranslate2``` running in ```int8``` on an RTX 4090.
+
+| Model                       | Tokens per Second | VRAM Usage (GB) |
+|-----------------------------|:-----------------:|:---------------:|
+| gemma-1.1-2b-it             | 63.69             | 3.0             |
+| Phi-3-mini-4k-instruct      | 36.46             | 4.5             |
+| dolphin-llama2-7b           | 37.43             | 7.5             |
+| Orca-2-7b                   | 30.47             | 7.5             |
+| Llama-2-7b-chat-hf          | 37.78             | 7.6             |
+| neural-chat-7b-v3-3         | 28.38             | 8.1             |
+| Meta-Llama-3-8B-Instruct    | 30.12             | 8.8             |
+| dolphin-2.9-llama3-8b       | 34.16             | 8.8             |
+| Mistral-7B-Instruct-v0.3    | 32.24             | 7.9             |
+| SOLAR-10.7B-Instruct-v1.0   | 23.32             | 11.7            |
+| Llama-2-13b-chat-hf         | 25.12             | 14.0            |
+| Orca-2-13b                  | 20.01             | 14.1            |
