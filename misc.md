@@ -1,3 +1,29 @@
+## GPU Info
+
+| Model                      | Size (GB) | CUDA Cores |
+|----------------------------|-----------|------------|
+| GeForce RTX 3050           | 8         | 2304       |
+| GeForce RTX 3060           | 12        | 3584       |
+| GeForce RTX 3060 Ti        | 8         | 4864       |
+| GeForce RTX 3070           | 8         | 5888       |
+| GeForce RTX 3070 Ti        | 8         | 6144       |
+| GeForce RTX 3080           | 10        | 8704       |
+| GeForce RTX 3080 Ti        | 12        | 8960       |
+| GeForce RTX 3090           | 24        | 10496      |
+| GeForce RTX 3090 Ti        | 24        | 10752      |
+| GeForce RTX 4060           | 8         | 3072       |
+| GeForce RTX 4060 Ti        | 16        | 4352       |
+| GeForce RTX 4070           | 12        | 5888       |
+| GeForce RTX 4070 Super     | 12        | 7168       |
+| GeForce RTX 4070 Ti        | 12        | 7680       |
+| GeForce RTX 4070 Ti Super  | 16        | 8448       |
+| GeForce RTX 4080           | 12        | 7680       |
+| GeForce RTX 4080           | 16        | 9728       |
+| GeForce RTX 4080 Super     | 16        | 10240      |
+| GeForce RTX 4090 D         | 24        | 14592      |
+| GeForce RTX 4090           | 24        | 16384      |
+
+
 ## CUDA Compute Compatibility
 
 | CUDA Compute Capability | Architecture   | GeForce |
