@@ -159,7 +159,26 @@ def collect_gpu_metrics(handle):
 def collect_power_metrics(handle):
     if handle is None:
         return None, None  # Return None values if no NVIDIA GPU is detected
-    power_usage = pynvml.nvmlDeviceGetPowerUsage(handle) / 1000.0
-    power_limit = pynvml.nvmlDeviceGetPowerManagementLimit(handle) / 1000.0
-    power_percentage = (power_usage / power_limit) * 100 if power_limit > 0 else 0
+
+    try:
+        power_usage = pynvml.nvmlDeviceGetPowerUsage(handle) / 1000.0
+    except pynvml.NVMLError as err:
+        print(f"Error collecting power usage: {err}")
+        return None, None  # Return None if power usage cannot be retrieved
+
+    try:
+        power_limit = pynvml.nvmlDeviceGetPowerManagementLimit(handle) / 1000.0
+    except pynvml.NVMLError_NotSupported:
+        # Fallback to enforced power limit if available
+        try:
+            power_limit = pynvml.nvmlDeviceGetEnforcedPowerLimit(handle) / 1000.0
+        except pynvml.NVMLError:
+            print("Power management and enforced power limit not supported.")
+            power_limit = None  # Set to None if neither power limit can be fetched
+
+    if power_limit is not None and power_limit > 0:
+        power_percentage = (power_usage / power_limit) * 100
+    else:
+        power_percentage = 0  # Set to 0 if power limit is None or 0
+
     return power_percentage, power_limit
