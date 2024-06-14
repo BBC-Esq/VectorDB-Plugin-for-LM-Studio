@@ -72,7 +72,7 @@
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
   
-1) 🐍[Python 3.10](https://www.python.org/downloads/release/python-31011/) or [Python 3.11](https://www.python.org/downloads/release/python-3117/)
+1) 🐍[Python 3.11](https://www.python.org/downloads/release/python-3119/) (not tested on Python 3.12+)
 2) 📁[Git](https://git-scm.com/downloads)
 3) 📁[Git Large File Storage](https://git-lfs.com/).
 4) 🌐[Pandoc](https://github.com/jgm/pandoc/releases).
