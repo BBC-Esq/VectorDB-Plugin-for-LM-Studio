@@ -1,3 +1,23 @@
+## CUDA Releases
+
+| Date         | CUDA Version     |
+|--------------|------------------|
+| May 2024     | CUDA Toolkit 12.5.0 |
+| April 2024   | CUDA Toolkit 12.4.1 |
+| March 2024   | CUDA Toolkit 12.4.0 |
+| January 2024 | CUDA Toolkit 12.3.2 |
+| November 2023| CUDA Toolkit 12.3.1 |
+| October 2023 | CUDA Toolkit 12.3.0 |
+| August 2023  | CUDA Toolkit 12.2.2 |
+| July 2023    | CUDA Toolkit 12.2.1 |
+| June 2023    | CUDA Toolkit 12.2.0 |
+| April 2023   | CUDA Toolkit 12.1.1 |
+| February 2023| CUDA Toolkit 12.1.0 |
+| January 2023 | CUDA Toolkit 12.0.1 |
+| December 2022| CUDA Toolkit 12.0.0 |
+| October 2022 | CUDA Toolkit 11.8.0 |
+
+
 ## GPU Info
 
 | Model | Size (GB) | CUDA Cores |
