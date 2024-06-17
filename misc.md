@@ -1,3 +1,38 @@
+## GPU Info
+
+| Model | Size (GB) | CUDA Cores | Architecture | CUDA Compute |
+|-------------------------------|-----------|------------|--------------|--------------|
+| GeForce RTX 3050 Mobile/Laptop| 4 | 2048 | Ampere | 8.6 |
+| GeForce RTX 3050 | 8 | 2304 | Ampere | 8.6 |
+| GeForce RTX 4050 Mobile/Laptop| 6 | 2560 | Ada Lovelace | 8.9 |
+| GeForce RTX 3050 Ti Mobile/Laptop | 4 | 2560 | Ampere | 8.6 |
+| GeForce RTX 4060 | 8 | 3072 | Ada Lovelace | 8.9 |
+| GeForce RTX 3060 | 12 | 3584 | Ampere | 8.6 |
+| GeForce RTX 3060 Mobile/Laptop| 6 | 3840 | Ampere | 8.6 |
+| GeForce RTX 4060 Ti | 16 | 4352 | Ada Lovelace | 8.9 |
+| GeForce RTX 4070 Mobile/Laptop| 8 | 4608 | Ada Lovelace | 8.9 |
+| GeForce RTX 3060 Ti | 8 | 4864 | Ampere | 8.6 |
+| GeForce RTX 3070 Mobile/Laptop| 8 | 5120 | Ampere | 8.6 |
+| GeForce RTX 3070 | 8 | 5888 | Ampere | 8.6 |
+| GeForce RTX 4070 | 12 | 5888 | Ada Lovelace | 8.9 |
+| GeForce RTX 3070 Ti | 8 | 6144 | Ampere | 8.6 |
+| GeForce RTX 3070 Ti Mobile/Laptop | 8-16 | 6144 | Ampere | 8.6 |
+| GeForce RTX 4070 Super | 12 | 7168 | Ada Lovelace | 8.9 |
+| GeForce RTX 4080 Mobile/Laptop| 12 | 7424 | Ada Lovelace | 8.9 |
+| GeForce RTX 3080 Ti Mobile/Laptop | 16 | 7424 | Ampere | 8.6 |
+| GeForce RTX 4070 Ti | 12 | 7680 | Ada Lovelace | 8.9 |
+| GeForce RTX 4080 | 12 | 7680 | Ada Lovelace | 8.9 |
+| GeForce RTX 3080 | 10 | 8704 | Ampere | 8.6 |
+| GeForce RTX 4070 Ti Super | 16 | 8448 | Ada Lovelace | 8.9 |
+| GeForce RTX 3080 Ti | 12 | 8960 | Ampere | 8.6 |
+| GeForce RTX 4080 | 16 | 9728 | Ada Lovelace | 8.9 |
+| GeForce RTX 4090 Mobile/Laptop| 16 | 9728 | Ada Lovelace | 8.9 |
+| GeForce RTX 4080 Super | 16 | 10240 | Ada Lovelace | 8.9 |
+| GeForce RTX 3090 | 24 | 10496 | Ampere | 8.6 |
+| GeForce RTX 3090 Ti | 24 | 10752 | Ampere | 8.6 |
+| GeForce RTX 4090 D | 24 | 14592 | Ada Lovelace | 8.9 |
+| GeForce RTX 4090 | 24 | 16384 | Ada Lovelace | 8.9 |
+
 ## Using CUDA
 
 | Name                    | Function                                                                                  |
@@ -41,42 +76,6 @@
 | January 2023 | CUDA Toolkit 12.0.1 |
 | December 2022| CUDA Toolkit 12.0.0 |
 | October 2022 | CUDA Toolkit 11.8.0 |
-
-
-## GPU Info
-
-| Model | Size (GB) | CUDA Cores |
-|-------------------------------|-----------|------------|
-| GeForce RTX 3050 Mobile/Laptop| 4 | 2048 |
-| GeForce RTX 3050 | 8 | 2304 |
-| GeForce RTX 4050 Mobile/Laptop| 6 | 2560 |
-| GeForce RTX 3050 Ti Mobile/Laptop | 4 | 2560 |
-| GeForce RTX 4060 | 8 | 3072 |
-| GeForce RTX 3060 | 12 | 3584 |
-| GeForce RTX 3060 Mobile/Laptop| 6 | 3840 |
-| GeForce RTX 4060 Ti | 16 | 4352 |
-| GeForce RTX 4070 Mobile/Laptop| 8 | 4608 |
-| GeForce RTX 3060 Ti | 8 | 4864 |
-| GeForce RTX 3070 Mobile/Laptop| 8 | 5120 |
-| GeForce RTX 3070 | 8 | 5888 |
-| GeForce RTX 4070 | 12 | 5888 |
-| GeForce RTX 3070 Ti | 8 | 6144 |
-| GeForce RTX 3070 Ti Mobile/Laptop | 8-16 | 6144 |
-| GeForce RTX 4070 Super | 12 | 7168 |
-| GeForce RTX 4080 Mobile/Laptop| 12 | 7424 |
-| GeForce RTX 3080 Ti Mobile/Laptop | 16 | 7424 |
-| GeForce RTX 4070 Ti | 12 | 7680 |
-| GeForce RTX 4080 | 12 | 7680 |
-| GeForce RTX 3080 | 10 | 8704 |
-| GeForce RTX 4070 Ti Super | 16 | 8448 |
-| GeForce RTX 3080 Ti | 12 | 8960 |
-| GeForce RTX 4080 | 16 | 9728 |
-| GeForce RTX 4090 Mobile/Laptop| 16 | 9728 |
-| GeForce RTX 4080 Super | 16 | 10240 |
-| GeForce RTX 3090 | 24 | 10496 |
-| GeForce RTX 3090 Ti | 24 | 10752 |
-| GeForce RTX 4090 D | 24 | 14592 |
-| GeForce RTX 4090 | 24 | 16384 |
 
 ## CUDA Compute Compatibility
 
