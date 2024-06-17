@@ -68,7 +68,7 @@
 </table>
 </div>
 
-* 🔥I don't currently have time to support all backends/platforms.  This table is only current as of ```Release v3.5.2```.  Any release after version 3.5.2 only supports the ```Windows``` + ```Nvidia GPU``` combination.  Hopefully more time will free up in the future to support more platforms and backends.
+* 🔥This table is only current as of ```Release v3.5.2``` due to the fact that I don't currently have time to support all backends/platforms.  Any release after version 3.5.2 only supports the ```Windows``` + ```Nvidia GPU``` combination.  Hopefully more time will free up in the future to support more platforms and backends.
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
   
