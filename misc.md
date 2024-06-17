@@ -1,3 +1,26 @@
+## Parts of CUDA
+
+| Name                    | Function                                                                                  |
+|-------------------------|-------------------------------------------------------------------------------------------|
+| nvidia-cublas           | Provides the cuBLAS library for GPU-accelerated dense linear algebra computations.        |
+| nvidia-cuda-runtime     | Includes runtime components necessary to execute CUDA applications.                      |
+| nvidia-cuda-cupti       | Provides the CUDA Profiling Tools Interface (CUPTI) for profiling and tracing applications.|
+| nvidia-cuda-nvcc        | Contains the NVIDIA CUDA Compiler (NVCC) for compiling CUDA code.                        |
+| nvidia-cuda-nvrtc       | Provides the NVIDIA Runtime Compilation (NVRTC) library for just-in-time compilation.     |
+| nvidia-cuda-sanitizer-api| Offers tools for memory and thread error detection in CUDA applications.                 |
+| nvidia-cufft            | Provides the cuFFT library for computing fast Fourier transforms on GPUs.                |
+| nvidia-curand           | Includes the cuRAND library for generating pseudorandom and quasirandom numbers.         |
+| nvidia-cusolver         | Provides the cuSOLVER library for solving linear systems, eigenvalue, and SVD problems.  |
+| nvidia-cusparse         | Contains the cuSPARSE library for sparse matrix operations on GPUs.                      |
+| nvidia-npp              | Provides the NVIDIA Performance Primitives (NPP) library for image and signal processing. |
+| nvidia-nvfatbin         | Manages and executes fat binaries for multiple GPU architectures.                        |
+| nvidia-nvjitlink        | Provides NVJITLINK for just-in-time linking of device code.                              |
+| nvidia-nvjpeg           | Includes the nvJPEG library for fast JPEG decoding on GPUs.                              |
+| nvidia-nvml-dev         | Provides the NVIDIA Management Library (NVML) for monitoring and managing GPU devices.    |
+| nvidia-nvtx             | Includes the NVIDIA Tools Extension (NVTX) library for annotating and instrumenting code. |
+| nvidia-opencl           | Provides the OpenCL library for running OpenCL applications on NVIDIA GPUs.              |
+
+
 ## CUDA Releases
 
 | Date         | CUDA Version     |
