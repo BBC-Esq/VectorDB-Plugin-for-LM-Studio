@@ -19,6 +19,8 @@
 | nvidia-nvml-dev         | Provides the NVIDIA Management Library (NVML) for monitoring and managing GPU devices.    |
 | nvidia-nvtx             | Includes the NVIDIA Tools Extension (NVTX) library for annotating and instrumenting code. |
 | nvidia-opencl           | Provides the OpenCL library for running OpenCL applications on NVIDIA GPUs.              |
+| nvidia-cudnn            | Provides the cuDNN library for deep neural networks, offering highly optimized primitives for standard routines such as forward and backward convolution, pooling, normalization, and activation layers. |
+
 
 
 ## CUDA Releases
