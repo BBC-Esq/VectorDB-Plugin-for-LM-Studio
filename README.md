@@ -68,7 +68,7 @@
 </table>
 </div>
 
-* 🔥Due to time constraints I'm currently unable to support all backends/platforms; therefore, this table is only current as of ```Release v3.5.2```.  Any release after v3.5.2 is only guaranteed to support the ```Windows``` + ```Nvidia GPU``` combination.  My goal is to also support the ```Windows``` + ```No Nvidia GPU``` setup.  However, I will not have time to test this and will SOLELY be relying on users submitting an issue in GitHub to identify bugs.  However, I will address any bugs submitted as a GitHub issue.
+* 🔥I don't currently have time to support all backends/platforms.  This table is only current as of ```Release v3.5.2```.  Any release after version 3.5.2 only supports the ```Windows``` + ```Nvidia GPU``` combination.  Hopefully more time will free up in the future to support more platforms and backends.
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
   
