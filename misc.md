@@ -1,3 +1,19 @@
+## Vision
+
+| Model Name                        | CPU Metrics (Tokens/sec, Memory)       | GPU Metrics (Tokens/sec, Memory)       |
+|-----------------------------------|----------------------------------------|----------------------------------------|
+| Florence2 - base                  | 36.41 tokens/sec, 5 GB                 | 163.06 tokens/sec, 2.6 GB              |
+| Florence2 - large                 | 15.77 tokens/sec, 10 GB                | 113.32 tokens/sec, 5.3 GB              |
+| Moondream2                        | 4.15 tokens/sec, 8 GB                  | 79.07 tokens/sec, 4.6 GB               |
+| Bakllava - 7b                     | N/A                                    | 50.03 tokens/sec, 6 GB                 |
+| Llava 1.5 - 7b                    | N/A                                    | 42.61 tokens/sec, 5.6 GB               |
+| Qwen-VL-Chat - 4b                 | N/A                                    | 42.46 tokens/sec, 11 GB                |
+| Llava 1.5 - 13b                   | N/A                                    | 35.54 tokens/sec, 9.8 GB               |
+| MiniCPM_v2 - 3.4b                 | N/A                                    | 33.37 tokens/sec, 10 GB                |
+| llava-llama-3-8b-v1_1-transformers | N/A                                    | 31.83 tokens/sec, 7.3 GB               |
+| Cogvlm-chat-hf - 17.6b            | N/A                                    | 9.8 tokens/sec, 12.8 GB                |
+
+
 ## GPU Info
 
 | Model | Size (GB) | CUDA Cores | Architecture | CUDA Compute |
