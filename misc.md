@@ -9,15 +9,15 @@
 | [internlm/internlm2-chat-1_8b](https://huggingface.co/internlm/internlm2-chat-1_8b) | 2.8 GB | 55.51 |
 | [stabilityai/stablelm-zephyr-3b](https://huggingface.co/stabilityai/stablelm-zephyr-3b) | 2.9 GB | 57 |
 | [Qwen/Qwen2-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2-1.5B-Instruct) | 3.0 GB | 53.62 |
-| [Qwen/Qwen1.5-1.8B-Chat](https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat) | 5.7 GB | 65 |
 | [microsoft/Phi-3-mini-4k-instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct) | 4.0 GB | 50 |
 | [cognitivecomputations/dolphin-2.9.3-qwen2-1.5b](https://huggingface.co/cognitivecomputations/dolphin-2.9.3-qwen2-1.5b) | 4.2 GB | 58.07 |
 | [01-ai/Yi-1.5-6B-Chat](https://huggingface.co/01-ai/Yi-1.5-6B-Chat) | 5.2 GB | 45.10 |
 | [Qwen/Qwen1.5-4B-Chat](https://huggingface.co/Qwen/Qwen1.5-4B-Chat) | 5.4 GB | 41.57 |
-| [meta-llama/Llama-2-7b-chat-hf](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) | 5.8 GB | 45 |
-| [microsoft/Orca-2-7b](https://huggingface.co/microsoft/Orca-2-7b) | 5.9 GB | 47.10 |
+| [Qwen/Qwen1.5-1.8B-Chat](https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat) | 5.7 GB | 65 |
 | [mistralai/Mistral-7B-Instruct-v0.3](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3) | 5.7 GB | 50.40 |
+| [meta-llama/Llama-2-7b-chat-hf](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) | 5.8 GB | 45 |
 | [Intel/neural-chat-7b-v3-3](https://huggingface.co/Intel/neural-chat-7b-v3-3) | 5.8 GB | 46 |
+| [microsoft/Orca-2-7b](https://huggingface.co/microsoft/Orca-2-7b) | 5.9 GB | 47.10 |
 | [internlm/internlm2-chat-7b](https://huggingface.co/internlm/internlm2-chat-7b) | 6.7 GB | 36.83 |
 | [01-ai/Yi-1.5-9B-Chat](https://huggingface.co/01-ai/Yi-1.5-9B-Chat) | 7 GB | 45.10 |
 | [meta-llama/Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct) | 7.1 GB | 44.48 |
@@ -33,6 +33,7 @@
 | [meta-llama/Llama-2-13b-chat-hf](https://huggingface.co/meta-llama/Llama-2-13b-chat-hf) | 10.0 GB | 36.80 |
 | [stabilityai/stablelm-2-12b-chat](https://huggingface.co/stabilityai/stablelm-2-12b-chat) | 11.3 GB | 28 |
 | [internlm/internlm2-chat-20b](https://huggingface.co/internlm/internlm2-chat-20b) | 14.2 GB | 20.21 |
+
 
 ## Vision
 
