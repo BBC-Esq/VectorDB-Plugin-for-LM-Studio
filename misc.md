@@ -2,37 +2,37 @@
 
 | Model | VRAM Usage | Tok/s |
 |-------|------------|-------|
-| [Qwen/Qwen2-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2-0.5B-Instruct) | 1.9 GB | 66.64 |
+| [Qwen/Qwen2-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2-0.5B-Instruct) | 1.9 GB | 66 |
 | [Qwen/Qwen1.5-0.5B-Chat](https://huggingface.co/Qwen/Qwen1.5-0.5B-Chat) | 1.9 GB | 60 |
-| [cognitivecomputations/dolphin-2.9.3-qwen2-0.5b](https://huggingface.co/cognitivecomputations/dolphin-2.9.3-qwen2-0.5b) | 2.4 GB | 67.66 |
+| [cognitivecomputations/dolphin-2.9.3-qwen2-0.5b](https://huggingface.co/cognitivecomputations/dolphin-2.9.3-qwen2-0.5b) | 2.4 GB | 67 |
 | [stabilityai/stablelm-2-zephyr-1_6b](https://huggingface.co/stabilityai/stablelm-2-zephyr-1_6b) | 2.5 GB | 74 |
-| [internlm/internlm2-chat-1_8b](https://huggingface.co/internlm/internlm2-chat-1_8b) | 2.8 GB | 55.51 |
+| [internlm/internlm2-chat-1_8b](https://huggingface.co/internlm/internlm2-chat-1_8b) | 2.8 GB | 55 |
 | [stabilityai/stablelm-zephyr-3b](https://huggingface.co/stabilityai/stablelm-zephyr-3b) | 2.9 GB | 57 |
-| [Qwen/Qwen2-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2-1.5B-Instruct) | 3.0 GB | 53.62 |
+| [Qwen/Qwen2-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2-1.5B-Instruct) | 3.0 GB | 53 |
 | [microsoft/Phi-3-mini-4k-instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct) | 4.0 GB | 50 |
-| [cognitivecomputations/dolphin-2.9.3-qwen2-1.5b](https://huggingface.co/cognitivecomputations/dolphin-2.9.3-qwen2-1.5b) | 4.2 GB | 58.07 |
-| [01-ai/Yi-1.5-6B-Chat](https://huggingface.co/01-ai/Yi-1.5-6B-Chat) | 5.2 GB | 45.10 |
-| [Qwen/Qwen1.5-4B-Chat](https://huggingface.co/Qwen/Qwen1.5-4B-Chat) | 5.4 GB | 41.57 |
+| [cognitivecomputations/dolphin-2.9.3-qwen2-1.5b](https://huggingface.co/cognitivecomputations/dolphin-2.9.3-qwen2-1.5b) | 4.2 GB | 58 |
+| [01-ai/Yi-1.5-6B-Chat](https://huggingface.co/01-ai/Yi-1.5-6B-Chat) | 5.2 GB | 45 |
+| [Qwen/Qwen1.5-4B-Chat](https://huggingface.co/Qwen/Qwen1.5-4B-Chat) | 5.4 GB | 41 |
 | [Qwen/Qwen1.5-1.8B-Chat](https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat) | 5.7 GB | 65 |
-| [mistralai/Mistral-7B-Instruct-v0.3](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3) | 5.7 GB | 50.40 |
+| [mistralai/Mistral-7B-Instruct-v0.3](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3) | 5.7 GB | 50 |
 | [meta-llama/Llama-2-7b-chat-hf](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) | 5.8 GB | 45 |
 | [Intel/neural-chat-7b-v3-3](https://huggingface.co/Intel/neural-chat-7b-v3-3) | 5.8 GB | 46 |
-| [microsoft/Orca-2-7b](https://huggingface.co/microsoft/Orca-2-7b) | 5.9 GB | 47.10 |
-| [internlm/internlm2-chat-7b](https://huggingface.co/internlm/internlm2-chat-7b) | 6.7 GB | 36.83 |
-| [01-ai/Yi-1.5-9B-Chat](https://huggingface.co/01-ai/Yi-1.5-9B-Chat) | 7 GB | 45.10 |
-| [meta-llama/Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct) | 7.1 GB | 44.48 |
+| [microsoft/Orca-2-7b](https://huggingface.co/microsoft/Orca-2-7b) | 5.9 GB | 47 |
+| [internlm/internlm2-chat-7b](https://huggingface.co/internlm/internlm2-chat-7b) | 6.7 GB | 36 |
+| [01-ai/Yi-1.5-9B-Chat](https://huggingface.co/01-ai/Yi-1.5-9B-Chat) | 7 GB | 45 |
+| [meta-llama/Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct) | 7.1 GB | 44 |
 | [cognitivecomputations/dolphin-2.9-llama3-8b](https://huggingface.co/cognitivecomputations/dolphin-2.9-llama3-8b) | 7.1 GB | 41 |
-| [cognitivecomputations/dolphin-2.9.1-yi-1.5-9b](https://huggingface.co/cognitivecomputations/dolphin-2.9.1-yi-1.5-9b) | 7.2 GB | 30.85 |
-| [Qwen/Qwen2-7B-Instruct](https://huggingface.co/Qwen/Qwen2-7B-Instruct) | 8.0 GB | 54.10 |
-| [NousResearch/Nous-Hermes-Llama2-13b](https://huggingface.co/NousResearch/Nous-Hermes-Llama2-13b) | 9.9 GB | 38.29 |
-| [microsoft/Orca-2-13b](https://huggingface.co/microsoft/Orca-2-13b) | 9.9 GB | 36.11 |
-| [microsoft/Phi-3-medium-4k-instruct](https://huggingface.co/microsoft/Phi-3-medium-4k-instruct) | 9.8 GB | 34.60 |
+| [cognitivecomputations/dolphin-2.9.1-yi-1.5-9b](https://huggingface.co/cognitivecomputations/dolphin-2.9.1-yi-1.5-9b) | 7.2 GB | 30 |
+| [Qwen/Qwen2-7B-Instruct](https://huggingface.co/Qwen/Qwen2-7B-Instruct) | 8.0 GB | 54 |
+| [NousResearch/Nous-Hermes-Llama2-13b](https://huggingface.co/NousResearch/Nous-Hermes-Llama2-13b) | 9.9 GB | 38 |
+| [microsoft/Orca-2-13b](https://huggingface.co/microsoft/Orca-2-13b) | 9.9 GB | 36 |
+| [microsoft/Phi-3-medium-4k-instruct](https://huggingface.co/microsoft/Phi-3-medium-4k-instruct) | 9.8 GB | 34 |
 | [cognitivecomputations/dolphin-2.9.2-qwen2-7b](https://huggingface.co/cognitivecomputations/dolphin-2.9.2-qwen2-7b) | 9.2 GB | 52 |
 | [cognitivecomputations/dolphin-2.9.2-Phi-3-Medium](https://huggingface.co/cognitivecomputations/dolphin-2.9.2-Phi-3-Medium) | 9.3 GB | 40 |
 | [upstage/SOLAR-10.7B-Instruct-v1.0](https://huggingface.co/upstage/SOLAR-10.7B-Instruct-v1.0) | 9.3 GB | 28 |
-| [meta-llama/Llama-2-13b-chat-hf](https://huggingface.co/meta-llama/Llama-2-13b-chat-hf) | 10.0 GB | 36.80 |
+| [meta-llama/Llama-2-13b-chat-hf](https://huggingface.co/meta-llama/Llama-2-13b-chat-hf) | 10.0 GB | 36 |
 | [stabilityai/stablelm-2-12b-chat](https://huggingface.co/stabilityai/stablelm-2-12b-chat) | 11.3 GB | 28 |
-| [internlm/internlm2-chat-20b](https://huggingface.co/internlm/internlm2-chat-20b) | 14.2 GB | 20.21 |
+| [internlm/internlm2-chat-20b](https://huggingface.co/internlm/internlm2-chat-20b) | 14.2 GB | 20 |
 
 
 ## Vision
