@@ -97,29 +97,25 @@
   <summary>🪟WINDOWS INSTRUCTIONS</summary>
   
 ### Step 1
-🟢 Nvidia GPU ➜ Install CUDA 12.1+
-
-🔴 AMD GPU - (AMD GPU acceleration support coming in future releases).
-### Step 2
 Download the ZIP file for the latest "release," extract its contents, navigate to the "src" folder to run the commands below.
   * NOTE: If you clone this repository you WILL NOT get the latest release.  Instead, you will development versions of this program which may or may not be stable.
-### Step 3
+### Step 2
 Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
 ```
 python -m venv .
 ```
-### Step 4
+### Step 3
 Activate the virtual environment:
 ```
 .\Scripts\activate
 ```
-### Step 5
+### Step 4
 Run setup:
 ```
 python setup.py
 ```
 
-### Optional Step 6
+### Optional Step 5
 Run this command if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
