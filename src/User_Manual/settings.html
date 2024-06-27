@@ -24,7 +24,7 @@
     }
 
     main {
-      max-width: 800px;
+      max-width: 2160px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -80,6 +80,13 @@
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       color: #333;
     }
+	
+	a {
+	  color: #0d4885; /* Change this to your desired color */
+	}
+	a:visited {
+	  color: #0d4885; /* Color for visited links */
+	}
   </style>
 </head>
 <body>
@@ -103,79 +110,112 @@
 	vector database search.  Different LLM's are trained with different "prompt formats" and your results
 	will degrade if you don't use the correct one.</p>
 
-	<p>I recommend using a model within LM Studio that matches a present provided in this program since I've tested the models
+	<p>I recommend using a model within LM Studio that matches a preset provided in this program since I've tested the models
 	specifically for RAG, but there's also space to enter a custom prefix/suffix if you want to try different models.  Make sure
 	to clear the prefix and suffix boxes as well as disable "automatic prompt formatting" within LM Studio as there
 	have been bug reports if you don't.</p>
 	
 	<p><code>Disable</code>: Disables prompt formatting so you can exclusively use the prompt formatting settings within LM Studio.</p>
 	
-	<h2><u>Database Creation</u></h2>
+	<h2><u>Database Creation Settings</u></h2>
 	
-	<p>Before text is put into the vector database (whether it originates from a pdf, audio transcription or image description) it
-	must be broken into chunks by the "Recursive Character Text Splitter" (aka, "Splitter") created by Langchain so that when you
-	search the database you can get relevant chunks/contexts.  The chunks of text are then converted into vectors by the embedding
-	model and put into the vector database.</p>
+	<p><code>Create Device</code>:  Either "cpu" and/or "cuda" depending on your hardware.  Always use "cuda" if available.
 	
-	<p><code>Chunk Size</code>: The maximum length of a chunk/context in characters (NOT tokens).  The Splitter will strive to
-	achieve this limit. but may create shorter chunks by splitting between paragraphs sentences to keep related ideas together.</p>
+	<p>Before text is entered into the vector database it must be broken into chunks, which are then converted to vectors that are
+	ultimately what's entered into the database.</p>
+	
+	<p><code>Chunk Size</code>: The maximum length of a chunk/context in characters (NOT tokens).  The text splitter tries to
+	come as close to the maximum chunk size as possible while simultaneously trying to only chunk at paragraph/sentence/word breaks.
+	It does this to try and preserve related ideas in a single chunk.  The optimal chunk size heavily depends on the type of
+	document you are processing; for example, a book or a spreadshset.  It's recommended to review the documents before processing,
+	analyzing the number of characters that important ideas or concepts are usually communicated in, and then setting the
+	<code>Chunk Size</code> a little above that.</p>
 
-	<p><code>Chunk Overlap</code>:Specifies the maximum number of characters (NOT tokens) that each chunk will include from the
-	previous chunk.  For example, if <code>chunk overlap</code> is set to 250 then first 250 characters of "Chunk #2" will consist
-	of the last 250 characters of "Chunk #1."  The goal is to try and preserve meaning if, for example, text is split in the
-	middle of a sentence.</p>
+	<p><code>Chunk Overlap</code>: Specifies the maximum number of characters (again, NOT tokens) that each chunk will
+	include from the previous chunk.  For example, if <code>chunk overlap</code> is set to 250 then first 250 characters of
+	"Chunk #2" will consist of the last 250 characters of "Chunk #1."  The text splitter does this to preserve meaning in case
+	the text is split in the middle of an important concept or idea.  A good rule of thumb is to
+	set <code>chunk overlap</code> to 1/4 to 1/2 of the <code>chunk size</code>.  Remember, however, more "overlap" means more
+	chunks, which means more processing time.</p>
 	
-	<p>A good rule of thumb is to set <code>chunk overlap</code> to 1/4 or 1/3 of the <code>chunk size</code>.</p>
+	<h2><u>Database Query Setting</u></h2>
 	
-	<h2><u>Database Query</u></h2>
-	<p><code>Create Device</code>: Automatically populated with "cpu", "cuda" or "mps" based on your hardware.  Always use
-	"cuda" or "mps" if available.</p>
+	<p><code>Create Device</code>: Either "cpu" or "cuda" based on your hardware.  I recommend "cpu."  The computation required
+	to vectorize a search is infinitely less than when creating the database (where you should always use "cuda").  Using
+	"cpu" will force your system to use RAM and conserve VRAM.</p>
 	
-	<p><code>Contexts</code>: The maximum number of chunks/contexts that can be returned.  This is an upper limit, however,
-	and a chunk will only be returned if its meets the <code>similarity</code> threshhold setting.  For example, a setting of "10"
-	will return the 10 most relevant chunks/contexts (provided they all meet the similarity setting).</p>
+	<p><code>Contexts</code>: The maximum number of chunks/contexts that can be returned.  This is subject to the
+	<code>Similarity</code> setting discussed below.</p>
 	
-	<p><code>Similarity</code>: The threshhold of how relevant a chunk/context must be before it will be returned.  A setting
-	of <code>.1</code> is a low-relevance while .9 would be very high.  Do not use "1."</p>
+	<p><code>Similarity</code>: A decimal number beween 0 and 1 that specifies how relevant a chunk/context must be.  A setting
+	closer to "1" will retrieve more documents.  CAUTION: Do not use "1".  The default is ".9".</p>
 	
-	<p><code>Search Filter</code>: After chunks have been obtained, excludes a chunk/context unless it contains the specified
-	search term VERBATIM (but is not case-sensitive).  This filter only runs AFTER the <code>contexts</code> and
-	<code>similarity</code> settings.</p>
-
-	For example, if the filter is "book" then only chunks that contain "book" would be sent to the LLM or displayed (if
-	"chunks only" is checked).  Even chunks with terms like "books", "bookend," or similar derivations would still be excluded,
-	but terms like "Book," "book" or "bOoK" would not result in the chunk being excluded.</p>
+	<p><code>Search Term Filter</code>: Removes chunks/contexts that do not contain the specified search term.  The filter is
+	NOT case sensitive but does require a verbatim match.  For example, if you used the term "child" it would NOT exclude
+	chunks/contexts that contain the word "Child," but it would exclude ones that only contain "children."</p>
 	
-	<p><code>Clear Filter</code>: Removes any filters.
+	<p>The <code>Clear Filter</code> button clears the <code>Search Term Filter</code>.</p>
 	
-	<p>The pulldown menu with <code>All Files</code>, <code>Images-Only</code>, <code>Documents-Only</code>, and
-	<code>Audio-Only</code> provides yet another filter and it is cumulative with the search term filter.  "Audio" refers to
-	audio transcriptions, "images" is self-explanatory, "and "documents" refers to everything that is not an image or transcription.</p>
+	<p><code>Document Type</code>: The chunks/contexts contain metadata indicating which document type they originated from.
+	the pulldown menu allows you to only search certain document types (or specify all types).</p>
 	
-	<p>The <code>chunks only</code> checkbox is located near the search button.  If checked, only the relevant chunks will be
-	returned and LM Studio will not be connected to.  This is a good way to test the quality of a vector model as well as the
-	settings you choose.</p>
+	<p><u>Here is a summary of how all of the settings/filters operate together</u>:</p>
 	
-	<h2><u>Bark Settings</u></h2>
+	<ol>
+		<li>A search is conducted and only chunks/contexts that originate from the specified file type will be searched.</li><br>
+		<li>Out of these, only chunks/contexts that meet the <code>Similarity</code> threshold can be returned.</li><br>
+		<li>Out of these "eligible" chunks/contexts, only the most relevant ones up to the <code>Contexts</code> limit
+		will actually be returned.</li><br>
+		<li>The <code>Search Term Filter</code> removes any chunks/contexts that do not contain the required term.</li><br>
+		<li>Any remaining chunks/contexts can be displayed (if "chunks only" is checked) or sent to the LLM for a response.</li>
+	</ol>
 	
-	<p>The "Bark Response" button will convert the LLM's response to audio.  I only recommend using this feature if you have
-	gpu-acceleration and I've disabled it for certain platforms due to compatibility issues until I find a better solution.</p>
+	<h2><u>Text to Speech Settings</u></h2>
 	
-	<p><code>Size</code>: Size of the Bark model to use, each with its own resource requirements, speed, and accuracy.</p>
+	<p>The "TTS" button within the Query Database tab will convert the LLM's response to audio.  The "Bark" and "WhisperSpeech"
+	options require a GPU.  Feel free to experiment with the available options:</p>
 	
-	<p><code>Quant</code>: <u>float32</u> casts the bark model in its original floating point format.  <u>float16</u> cuts the
-	memory/compute requirements by half with a relatively small loss in quality.</p>
+	<p>Currently, this program only implements customazation for the <code>Bark</code> backend.  You can the model size and/or
+	precisoin to suit your memory and compute requirements.</p>
 	
-	<p><code>Voices</code>: Choose different voices.  <code>v2/en_speaker_6</code> is the highest quality IMHO but it's fun to
-	experiment.  The only female voice is <code>v2/en_speaker_9</code>.
-	<h2><u>Vision Models</u></h2>
+	<p><code>v2/en_speaker_6</code> is the highest quality voice IMHO.  The only female voice is <code>v2/en_speaker_9</code>.
 	
-	<p>Consult the "Vision" tab within the User Guide.</p>
+	<h2><u>Vision Models Settings</u></h2>
 	
-	<h2>Break in Case of Emergency</h2>
-	<p>Settings for this program are stored in <code>config.yaml</code>.  If you mistakenly change a setting or lose this file,
-	there is a backup within the <u>User Guide</u> folder.</p>
+	<p>Consult the "Vision" tab within the User Guide for more information regarding the various visions models themselves.</p>
+	
+	<p>It's recommended to test them before spending a large amount of time processing images only to find out that
+	your are not satisfied with the quality of a summary provided by a given model.  However, I've only included vision
+	models that I've vetted and are within the range of "reasonableness" considering their memory and compute requirements.</p>
+	
+	<ol>
+		<li>Within the Create Database tab, add one or more images that you would hypothetically want in the database.</li>
+		<li>In the Settings tab, select the vision model you want to test.</li>
+		<li>Within the Tools tab, click "Process."</li>
+		<li>Summaries of the images that would would hypothetically be entered into the database will be displayed.</li>
+	</ol>
+	
+	<h2>Configuration Backup File</h2>
+	<p>This program relies on a config.yaml file.  If this file is corrupted or lost for any reason
+	simply copy the backup config.yaml from the User Guide folder to the main folder.</p>
+	
+	<p>PLEASE NOTE: When a database is created, the	config.yaml file is updated and likewise when a database is deleted.
+	Copying the config.yaml file from the User Guide folder will destroy the record of any databases that you've created.
+	However, the files constituting the database (and their backup) will still be in the Vector_DB and Vector_DB_Backup
+	folders, respectively.  It is extremely rare that a problem arises with the config.yaml file.  However, if you find
+	yourself facing a problem or want to take pre-emptive action, you have a couple options:</p>
     
+	<ol>
+		<li>Manually copy the config.yaml file to a location of your chosing for custom backups of it.</li>
+		<li>Study the key structure on the config.yaml file and enter your database information
+		again, making sure to have the correct paths verbatim.</li>
+		<li>If you decide to abandon the databases that are no longer listed in the config.yaml file, make sure
+		and delete their respective folders wihtin the "Vector_DB" and "Vector_DB_Backup" folders.  This will
+		prevent a situation where you try to create a new database with the same name but the program doesn't know
+		that the files for the old database are still there.
+	</ol>
+
+	
   </main>
 
   <footer>

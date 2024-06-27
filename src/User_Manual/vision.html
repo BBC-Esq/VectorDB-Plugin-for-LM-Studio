@@ -25,7 +25,7 @@
 		}
 
 		main {
-			max-width: 800px;
+			max-width: 2160px;
 			margin: 0 auto;
 			padding: 20px;
 		}
@@ -81,6 +81,13 @@
 			font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 			color: #333;
 		}
+		
+		a {
+		  color: #0d4885; /* Change this to your desired color */
+		}
+		a:visited {
+		  color: #0d4885; /* Color for visited links */
+		}
 	</style>
 
 </head>
@@ -94,83 +101,43 @@
 		
 		<h2 style="color: #f0f0f0;" align="center">What are Vision Models?</h2>
 		
-		<p>Vision models are basically large language models that can analyze an image and either answers questions about it or
-		describe it.  Vision models are used in this program to create detailed descriptions of multiple images and input each
-		of those descriptions into a vector database to be searched.</p>
+		<p>For purposes of this program, vision models refer to large language models specifically trained to create summaries
+		of what an image depicts.  These summaries are then entered into the vector database and can be searched.</p>
 		
 		<h2 style="color: #f0f0f0;" align="left">Types of Vision Models</h2>
 		
-		<p>This program uses four different vision models.</p>
-				
-		<p>The <code>llava</code> models were one of the first to become mainstream.  They come in 7b and 13b ("7b" meaning
-		7 billion parameters) sizes and are based on the <code>llama2</code> architecture.  The <code>bakllava</code> model
-		is based on the <code>mistral</code> architecture and has 7 billion parameters.</p>
+		<p>The table below outlines the various vision models available to use in this program.  I highly encourage you to
+		test them out (instructions in the Settings portion of this User Guide) before spending the time to process
+		a large number of images only to find out you don't like the quality of the one you chose.</p>
 		
-		<p><code>cogvlm</code> has 18 billion parameters and is the largest and most resource-intensive model.  However, it also
-		produces the highest quality image descriptions.</p>
+		<p>Whichever vision model is selected when you create the vector database will be used.  There is no need to
+		click the "update settings" button to ensure this.</p>
 		
-		<p>Finally, the <code>moondream2</code> model is a recent addition and it by far strikes the best balance of quality
-		and resource requirements.  For example, if you want 75% of the quality of <code>cogvlm</code> at 100x less processing
-		time, use <code>moondream2</code>.</p>
+		<p><code>Florence2</code> will automatically be selected if you do not have a GPU, but don't let it fool you.
+		It is extremely high quality for its size.  My favorite is <code>Moondream2</code> when weighing quality,
+		compute time, and resources.  When only considering quality, however, IMHO it's a toss-up between
+		<code>Moondream2</code>, <code>COGVLM</code>, and the recently-added <code>MiniCPM-Llama3-V-2_5-int4</code></p>.
+		Nowadays, the models have gotten so good it's difficult to distinguish.</p>
 		
-		</p>Ignoring the compute requirements altogether, I personally rank the models' quality as follows.  My opinion takes
-		into account both the "comprehensiveness" of the vision model's summary (i.e. how many things in the image did the
-		vision model identify as important enough to describe) and "accuracy" (i.e. how many of those descriptions were
-		actually accurate).  I highly recommend using the highest quality vision model you can.
-		
-		<ol>
-			<li>cogvlm (9.5)</li>
-			<li>bakllava (7.5)</li>
-			<li>llava (7)</li>
-			<li>moondream2 (6.5)</li>
-		</ol>
-		</p>
-
-		<h2 style="color: #f0f0f0;" align="center">Vision Model Settings</h2>
-		
-		<p><code>Quant</code> or "quantization" refers to the floating point format of the model you want to use.  You can
-		read more about "quantization" in general in the "Whisper" tab within the User Guide.  I've included multiple
-		quality levels based on how a particular vision model was originally created as well as resource requirements - within
-		reason.  For example, I have not included the option to run the <code>cogvlm</code> model in its original floating
-		point format because it cannot fit on a consumer GPU having 24 GB of VRAM.</p>
-		
-		<p>The <code>4-bit</code> option used the well-known "bitsandbytes" library to quantize the model from its original
-		floating point format, thus reducing the memory and compute requirements.  "Bitsandbytes" is only available for
-		certain model architectures, however, but I've included it where possible.  There is a loss in quality when choosing
-		<code>4-bit</code>, but most of the time it's minimal or, even if it isn't minimal, it's worth the tradeoff in compute
-		time and resources.  I've personally found that running <code>cogvlm</code> with "4-bit" is still MUCH MUCH better than
-		even running <code>bakllava</code> at "float16."</p>
-		
-		<p>Make sure and test your settings on a single image before committing 100 images to be processed.  This can be done
-		within the "Tools Tab."</p>
-
-		<h2 style="color: #f0f0f0;" align="center">Additional Tips</h2>
-		
-		<p>A greater number of parametrs generally improves quality more than choosing a smaller model with a larger quantization.
-		The sole exception woudld be <code>moondream2</code>.  In my experience, this model at only 2 billion parameters, when
-		running in <code>float16</code> produced better results than both <code>llava</code> and <code>bakllava</code> running
-		in <code>4-bit</code>...desipte these latter two models having 7 billion parameters.</p>
-		
-		<p>Nothing can beat <code>cogvlm</code> in terms of quality.  Use it in <code>4-bit</code> if you have the resources
-		and/or time.  Also, I do not recommend <code>8-bit</code> mode since there's a very small increase in quality in
-		exchange for much larger compute time and resource requirements.</p>
-		
-		<p>Make sure your chunk size setting is at least as large as the longest summary that you expect the vision model you
-		choose will create.  This is because you don't want to split one description into multiple chunks.  This is usually not
-		an issue, however, since the descriptions are typically between 100-300 characters.  You can use the "Tools Tab" to
-		get a sense of how longer your image descriptions will be.</p>
+		<section>
+            <img src="chart_vision.png" alt="Vision Models">
+        </section>
 
 		<h2 style="color: #f0f0f0;" align="center">Tips</h2>
 		
-		<p>As always, before performing a transcription, proessing images or creating the vector database, "eject" the LLM
-		from within LM Studio.  However, this is especially important when processing images with <code>cogvlm</code> because
-		even in <code>4-bit</code> mode it requires a lot of resources.</p>
+		- Test all vision models first, as outlined in the Settings portion of this User Guide.
 		
-		<p>Make sure that the "chunk size" setting for creating the vector database is larger than the largest summary of an image
-		that will be created.  The vision models typically create summaries ranging from 100-400 characters.  Therefore, if you
-		specify a "chunk size" of at least 500-600 each summary will considered its own "chunk."  In other words, each summary
-		of an image will be its own chunk instead and will not be split by the Recursive Character Text Splitter (discussed
-		in the Settings tab).</p>
+		<p>The number of parameters DOES NOT always correlate with quality.  The vision models in this program came out at
+		different times (i.e. technical advancements) by different vendors and quality can vary accordingly.</p>
+		
+		<p>Make sure your chunk size setting is at least as large as the longest summary that you expect the vision model
+		will create. You DO NOT
+		want the summary of a single image to be split, which will lead to nonsensical search results.</p>
+		
+		<p>Usually this is not an issue because the stereotypical chunk size setting is 500-700 and the average image summary
+		length is 100-300, but just be aware of this if you are experimenting with lower chunks sizes.</p>
+		
+		<p>Unless you need a database with both images and documents, it's good practice to have an "images only" database.</p>
 
 	</main>
 

@@ -41,7 +41,7 @@
 		}
 		
 		main {
-			max-width: 800px;
+			max-width: 2160px;
 			margin: 0 auto;
 			padding: 20px;
 		}
@@ -141,6 +141,13 @@
 			max-width: 100%;
 			height: auto;
 		}
+		
+		a {
+		  color: #0d4885; /* Change this to your desired color */
+		}
+		a:visited {
+		  color: #0d4885; /* Color for visited links */
+		}
     </style>
 </head>
 
@@ -156,7 +163,7 @@
 	
 	<p><b>This program uses state-of-the-art Whisper models to:</b></p>
 <ol>
-    <li>Transcribe your question into the question box</li>
+    <li>Transcribe your question into the question box</li><br>
     <li>Transcribe an audio file to a <code>.txt</code> file that will be put into the vector database.</li>
 </ol>
 
@@ -164,40 +171,52 @@
 	
 	<p>The <code>Record Question</code> button starts the recording.  Speak and then click it gain to stop recording
 	and your question will automatically be transcribed to the question box.  Currently the <code>small.en</code>
-	whisper model is us by default but I plan on adding the ability to change the size and quantization in a future
-	release.</p>
+	whisper model is us by default but you can modify the source code to use a different model.</p>
 	
 	<h2>Transcribe File</h2>
 	
-	<p>To add audio files to a vector database you do not select them en masse like other file types; you must
-	transcribe them first.  Go to the "Tools Tab" and select a file to transcribe and the quality of the Whisper
-	model to use.  It's recommended to use the highest quality Whisper model and quantization that you feel is
-	"reasonable" based on your system hardware and the processing time required as a result.  This is because
-	ideally you only transcribe the file once before it's put into the vector database and you want reliable search
-	results.</p>
+	<p>Within the Tools tab is the option transcribe an audio file to text, which then automaticall puts the
+	transcription in the folder queued to be entered into the database.  Currently, audio files must be transcribed
+	individually but "batch" processing will be added in the future.</p>
 	
-	<p>It's highly recommended to use gpu-acceleration within the "Settings Tab" when transcribing an audio file.
-	If you're forced to use CPU the smallest model I recommend is <code>small-en</code> using a quantization
-	of <code>float32</code></p>
+	<p>The transcripton is performed by the powerful <code>WhisperS2T</code> library, which allows batch processing
+	using the <code>Ctranslate2</code> backend.  The slider bar controls the "batch size" parameter.  It is important
+	to NOT use a bacch size that will exceed your GPU's VRAM capacity; otherwise, the data will overflow into system
+	RAM and be extremely slow.  Below is a chart showing VRAM usage for most (but not all) of the "Whisper" models
+	used.  Please note that when choosing a batch size always take into account "background" VRAM usage by your
+	system - e.g. multiple monitors.  The Tips portion of this User Guide contains tips for freeing up VRAM.
+	Also, these benchmarks were done using <code>bfloat</code> precision so if you use "float32" you would reduce
+	the batch size by approximatly half.</p>
+	
+	<img src="chart_batch_whisper.png" alt="Whisper Models and Batch Size">
+	
+	<p>Notice that a certain point increasing the batch size results in little to no improvment at the cost of
+	exponential increase in VRAM usage so adjust to your liking.  For example, when using the "large" model there is
+	little to no benefit of using a batch size above 30 (15 if using "float 32) so plan accordingly based off of
+	your time and hardware.</p>
+	
+	<h2 style="color: #f0f0f0;" align="center">Tips</h2>
+	
+	<p>Use the highest quality Whisper model and quantization level as possible, even reducing the batch size if
+	necessary.  Assuming you have the time, using a lower batch size enables you to choose a higher quality Whisper
+	model, which, in turn, increases the quality of the transcriptions.  You only want to transcribe audios files
+	once and want the highest quality possible for more reliable search results.</p>
+	
+	<p>Here is another benchmark showing batch size related to Whisper model size to make an informed decison,
+	comparing other well-known libraries just for fun:</p>
+	
+	<img src="chart_whisper_backends.png" alt="Whisper Models and Batch Size">
 	
 	<p>Once the transcription is complete you will see it in the "Create Database" tab and it's ready to be put into
 	the vector database.  Simply add any additional files/transcriptions and create the database.</p>
-
-	<p>The <code>Speed</code> setting allows you to reduce the time it takes to transcribe a file at the cost of increased
-	memory and compute requirements.  This setting essentially sets the number of "batches" sent to the Whisper model
-	at once.  Thus, sending the a certain number of batches to the <code>whisper-large-v2</code> model will consume
-	much more resources/compute than the same number of batches sent to the <code>small-en</code> model.  In general,
-	a "Speed" setting of approximately 40 when using the <code>large-v2</code> model will still fit within the
-	VRAM of an RTX 4090 whereas using the <code>tiny-en</code> allows a batch size of well over 125.  Experiment
-	to find the fastest setting that does not exceed your avaialble VRAM.  If it exceeds your VRAM, the transcription
-	process will be MUCH MUCH SLOWER.</p>
 	
-	<p>If you're not using gpu-acceleration obviously a much lower Speed setting is necessary.</p>
+	<p>What follows is a primer on floating point formats just for general edification but it's not essential to
+	understand in order to use this program.</p>
 	
         <h2 id="floating">Primer on Floating Point Formats</h2>
 		
 		<section>
-            <img src="./float.png" alt="Floating Point">
+            <img src="float.png" alt="Floating Point">
         </section>
 
         <p>Running an embedding model or an LLM requires a lot of math calculations and computers don't understand

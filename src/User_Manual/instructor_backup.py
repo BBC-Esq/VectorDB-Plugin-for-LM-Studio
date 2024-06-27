@@ -456,7 +456,7 @@ class INSTRUCTOR(SentenceTransformer):
 
         return batched_input_features, labels
 
-    def _load_sbert_model(self, model_path, token=None, cache_folder=None, revision=None, trust_remote_code=False, local_files_only=False, model_kwargs=None, tokenizer_kwargs=None, config_kwargs=None):
+    def _load_sbert_model(self, model_path, token=None, cache_folder=None, revision=None, trust_remote_code=False):
         if os.path.isdir(model_path):
             model_path = str(model_path)
         else:
@@ -467,7 +467,6 @@ class INSTRUCTOR(SentenceTransformer):
                 "token": token,
                 "cache_dir": cache_folder,
                 "tqdm_class": disabled_tqdm,
-                "local_files_only": local_files_only,
             }
             model_path = snapshot_download(**download_kwargs)
 
