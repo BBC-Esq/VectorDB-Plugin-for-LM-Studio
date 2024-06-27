@@ -153,22 +153,21 @@ python gui.py
 > Only systems with an Nvidia GPU will display gpu power, usage, and VRAM metrics.
 
 # 🔥Important🔥
-* Read the User Guide before sending me questions.
+* Read the User Guide.
 
 ## Download Vector Model
-* In the ```Models Tab``` tab, choose the embedding model you want to download.  The ```User Guide Tab``` contains information about the various models.
+* In the ```Models Tab``` tab, choose the embedding model you want to download.  The ```User Guide``` tab contains more details about the models.
 
 ## Create a Vector Database
 * In the ```Create Database``` tab, click ```Choose Files``` and select one or more files to add.  This can be repeated as many times as you wish.
   * Supported documents are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
-* If you selected any image files, I highly recommend that you adjust the vision model settings within the ```Settings``` tab and testing the settings while processing a single image, which can easily be done within the ```Tools``` tab.
+* If you selected any image files, I highly recommend that you adjust the vision model settings within the ```Settings``` tab and test a particular vision model in the ```Tools``` tab.
   * Supported images are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
-* 🔥 To add audio files you must transcribe one or more audio files from the ```Tools Tab```.  The transcriptions will be saved and added when you create the vector database.
+* 🔥 To add audio files you must first transcribe them from the ```Tools Tab```.  The transcriptions will be saved and added when you create the vector database.
   * Supported audio extensions include, but are not limited to: ```.mp3```, ```.wav```, ```.m4a```, ```.ogg```, ```.wma```
-* Click ```Choose Model```.
-* Click 🔥ONCE🔥 on the directory containing the vector model you want to use and then click "OK."
-* In the input box, enter a name for the database you want to create (accepts numbers, lowercase letters, and the characters "-" or "_").
-* In the ```Settings Tab```, set the chunk size, chunk overlap, and the device you want to use.  More information is in the User Guide.
+* Select a vector model from the pulldown menu.
+* Enter a name for the database you want to create.
+* In the ```Settings``` tab, set the chunk size, chunk overlap, and the device you want to use.  More information is in the User Guide.
 * Click the ```Create Vector Database``` button.
   * 🔥 MAKE SURE to wait until the command prompt states that the database has been successfully created before proceeding.
 
@@ -179,12 +178,12 @@ python gui.py
 ## Query a Database (No LM Studio)
 * In the ```Query Database``` tab, select the database you want to use from the pulldown menu.
 * Enter your question by typing it or using the ```Record Question``` button.
-* Check the ```chunks only``` checkbox.
-* Click ```Submit Question```, which will return chunks relevant to your query.
+* Check the ```chunks only``` checkbox to only receive the relevant contexts.
+* Click ```Submit Question```.
   * In the ```Settings``` tab, you can change multiple settings regarding querying the database.  More information can be found in the User Guide.
 
 ## Query a Database with a Response From LM Studio
-This program can get relevant chunks from the vector database and forwarding them - along with your question - to LM Studio for an answer!
+This program gets relevant chunks from the vector database and forwarding them - along with your question - to LM Studio for an answer!
 * Perform the above steps regarding entering a question and choosing settings, but make sure that ```Chunks Only``` is 🔥UNCHECKED🔥.
 * Start LM Studio and go to the Server tab on the left.
 * Load a model.  I've personally tested the following models as good:
