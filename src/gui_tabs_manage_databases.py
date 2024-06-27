@@ -1,26 +1,30 @@
-import shutil
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QTreeView, QFileSystemModel, QMenu, QGroupBox, QLabel, QComboBox, QMessageBox
-from PySide6.QtGui import QAction
-from PySide6.QtCore import Qt, QTimer
-from pathlib import Path
-import yaml
-from utilities import open_file
 import json
+import shutil
+from pathlib import Path
+
+import yaml
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QTreeView, QFileSystemModel, QMenu,
+                               QGroupBox, QLabel, QComboBox, QMessageBox)
+
+from utilities import open_file
 
 class CustomFileSystemModel(QFileSystemModel):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole and index.column() == 0:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole and index.column() == 0:
             file_path = self.filePath(index)
             if file_path.endswith('.json'):
                 try:
                     with open(file_path, 'r', encoding='utf-8') as file:
-                        document = json.load(file)
-                    return document['metadata'].get('file_name', 'Unknown')  
+                        return json.load(file)['metadata'].get('file_name', 'Unknown')
                 except FileNotFoundError:
                     return "File Missing"
+                except json.JSONDecodeError:
+                    return "Invalid JSON"
                 except Exception as e:
                     print(f"Error loading JSON file {file_path}: {e}")
                     return "Error"
@@ -92,7 +96,7 @@ class ManageDatabasesTab(QWidget):
         selected_database = self.pull_down_menu.currentText()
         if selected_database:
             self.documents_group_box.show()
-            new_path = Path(__file__).resolve().parent / "Docs_for_DB" / selected_database
+            new_path = Path(__file__).resolve().parent / "Vector_DB" / selected_database / "json"
             if new_path.exists():
                 self.model.setRootPath(str(new_path))
                 self.tree_view.setRootIndex(self.model.index(str(new_path)))
@@ -114,22 +118,20 @@ class ManageDatabasesTab(QWidget):
             self.display_no_databases_message()
 
     def on_double_click(self, index):
-        tree_view = self.sender()
-        model = tree_view.model()
-        file_path = model.filePath(index)
-        try:
-            if file_path.endswith('.json'):
+        file_path = self.tree_view.model().filePath(index)
+        if file_path.endswith('.json'):
+            try:
                 with open(file_path, 'r', encoding='utf-8') as json_file:
                     document = json.load(json_file)
-                    actual_file_path = document['metadata'].get('file_path')
-                    if actual_file_path:
-                        open_file(actual_file_path)
-                    else:
-                        raise ValueError("File path is missing in the document metadata.")
-            else:
-                open_file(file_path)
-        except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
-            QMessageBox.warning(self, "Error", f"Failed to open file: {e}")
+                actual_file_path = document['metadata'].get('file_path')
+                if actual_file_path and Path(actual_file_path).exists():
+                    open_file(actual_file_path)
+                else:
+                    raise ValueError("File path is missing or invalid in the document metadata.")
+            except (json.JSONDecodeError, ValueError) as e:
+                QMessageBox.warning(self, "Error", f"Failed to open file: {e}")
+        else:
+            open_file(file_path)
 
     def toggle_group_box(self, group_box, checked):
         self.groups[group_box] = 1 if checked else 0
@@ -174,9 +176,8 @@ class ManageDatabasesTab(QWidget):
                 deletion_failed = False
                 for folder_name in ["Vector_DB", "Vector_DB_Backup", "Docs_for_DB"]:
                     dir_path = base_dir / folder_name / selected_database
-                    if dir_path.exists() and dir_path.is_dir():
-                        shutil.rmtree(dir_path)
-
+                    if dir_path.exists():
+                        shutil.rmtree(dir_path, ignore_errors=True)
                         if dir_path.exists():
                             deletion_failed = True
                             print(f"Failed to delete: {dir_path}")
@@ -185,7 +186,7 @@ class ManageDatabasesTab(QWidget):
                     QMessageBox.warning(self, "Delete Database", "Some files/folders could not be deleted. Please check manually.")
                 else:
                     QMessageBox.information(self, "Delete Database", f"Database '{selected_database}' and associated files have been deleted.")
-                    self.refresh_pull_down_menu()
+                self.refresh_pull_down_menu()
             else:
                 QMessageBox.warning(self, "Delete Database", "Configuration file missing or corrupted.")
 

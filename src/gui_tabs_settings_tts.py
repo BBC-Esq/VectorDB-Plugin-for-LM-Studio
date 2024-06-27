@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QGridLayout, QCheckBox, QRadioButton, QButtonGroup
 import yaml
 from pathlib import Path
+
+from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QGridLayout, QCheckBox, QRadioButton, QButtonGroup
 
 class BarkModelSettingsTab(QWidget):
     
@@ -16,12 +17,18 @@ class BarkModelSettingsTab(QWidget):
 
         self.radio_button_group = QButtonGroup(self)
 
-        self.use_bark_radio = QRadioButton("Use Bark")
+        self.use_bark_radio = QRadioButton("Bark - GPU only")
         self.radio_button_group.addButton(self.use_bark_radio)
 
-        self.use_whisper_radio = QRadioButton("Use WhisperSpeech")
+        self.use_whisper_radio = QRadioButton("WhisperSpeech - GPU only")
         self.use_whisper_radio.setChecked(True)
         self.radio_button_group.addButton(self.use_whisper_radio)
+
+        self.use_chattts_radio = QRadioButton("ChatTTS - GPU or CPU")
+        self.radio_button_group.addButton(self.use_chattts_radio)
+
+        self.use_googletts_radio = QRadioButton("Google TTS - free cloud based")
+        self.radio_button_group.addButton(self.use_googletts_radio)
 
         main_layout.addWidget(self.use_bark_radio, 0, 0, 1, 2)
 
@@ -54,6 +61,8 @@ class BarkModelSettingsTab(QWidget):
         main_layout.addWidget(self.speaker_combo, 0, 7)
 
         main_layout.addWidget(self.use_whisper_radio, 1, 0, 1, 2)
+        main_layout.addWidget(self.use_chattts_radio, 2, 0, 1, 2)
+        main_layout.addWidget(self.use_googletts_radio, 3, 0, 1, 2)
 
         self.setLayout(main_layout)
 
@@ -77,6 +86,10 @@ class BarkModelSettingsTab(QWidget):
         tts_model = config.get('tts', {}).get('model', 'whisperspeech') if config else 'whisperspeech'
         if tts_model == 'bark':
             self.use_bark_radio.setChecked(True)
+        elif tts_model == 'chattts':
+            self.use_chattts_radio.setChecked(True)
+        elif tts_model == 'googletts':
+            self.use_googletts_radio.setChecked(True)
         else:
             self.use_whisper_radio.setChecked(True)
 
@@ -86,8 +99,12 @@ class BarkModelSettingsTab(QWidget):
         self.speaker_combo.currentTextChanged.connect(self.update_config)
         self.use_bark_radio.toggled.connect(self.update_widgets_state)
         self.use_whisper_radio.toggled.connect(self.update_widgets_state)
+        self.use_chattts_radio.toggled.connect(self.update_widgets_state)
+        self.use_googletts_radio.toggled.connect(self.update_widgets_state)
         self.use_bark_radio.toggled.connect(self.update_tts_model)
         self.use_whisper_radio.toggled.connect(self.update_tts_model)
+        self.use_chattts_radio.toggled.connect(self.update_tts_model)
+        self.use_googletts_radio.toggled.connect(self.update_tts_model)
 
     def update_config(self):
         config_file_path = Path('config.yaml')
@@ -132,6 +149,10 @@ class BarkModelSettingsTab(QWidget):
         tts_config = config.get('tts', {})
         if self.use_bark_radio.isChecked():
             tts_config['model'] = 'bark'
+        elif self.use_chattts_radio.isChecked():
+            tts_config['model'] = 'chattts'
+        elif self.use_googletts_radio.isChecked():
+            tts_config['model'] = 'googletts'
         else:
             tts_config['model'] = 'whisperspeech'
         config['tts'] = tts_config

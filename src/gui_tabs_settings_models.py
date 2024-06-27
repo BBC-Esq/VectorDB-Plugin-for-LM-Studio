@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QGroupBox, QVBoxLayout, QSizePolicy
-from PySide6.QtCore import Qt
 import yaml
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QGroupBox, QVBoxLayout, QSizePolicy
 
 class ModelsSettingsTab(QWidget):
     def __init__(self):

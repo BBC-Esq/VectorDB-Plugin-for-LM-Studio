@@ -1,9 +1,11 @@
-from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QGridLayout, QMessageBox
-from PySide6.QtCore import Qt
 import ctranslate2
 import yaml
-from voice_recorder_module import VoiceRecorder
 from pathlib import Path
+
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QGridLayout, QMessageBox
+
+from module_voice_recorder import VoiceRecorder
 
 class TranscriberSettingsTab(QWidget):
     

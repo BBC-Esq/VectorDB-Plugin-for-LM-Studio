@@ -1,7 +1,7 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePolicy, QComboBox
-from PySide6.QtGui import QIntValidator
-from PySide6.QtCore import Qt
 import yaml
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIntValidator
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePolicy, QComboBox
 
 class ChunkSettingsTab(QWidget):
     def __init__(self):

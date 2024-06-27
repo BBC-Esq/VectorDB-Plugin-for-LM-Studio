@@ -4,7 +4,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 import constants as c
-from replace_sourcecode import replace_pdf_file, replace_instructor_file
+from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
     root = tk.Tk()
@@ -21,89 +21,82 @@ def tkinter_message_box(title, message, type="info", yes_no=False):
 
 def check_python_version_and_confirm():
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
-    if major < 3 or (major == 3 and minor < 10):
-        tkinter_message_box("Python Version Error", "This program is currently only compatible with Python 3.10 or 3.11.", type="error")
-        return False
-    elif major >= 3 and minor >= 12:
-        tkinter_message_box("Python Version Error", "Python 3.12+ detected. PyTorch is not currently compatible with Python 3.12 - exiting installer.", type="error")
-        return False
+    if major == 3 and minor == 11:
+        return tkinter_message_box("Confirmation", f"Python version {sys.version.split()[0]} was detected, which is compatible.\n\n Click YES to proceed or NO to exit.", type="yesno", yes_no=True)
     else:
-        return tkinter_message_box("Confirmation", f"Python version {sys.version.split()[0]} detected. Click OK to proceed with the installation, or Cancel to stop.", type="yesno", yes_no=True)
+        tkinter_message_box("Python Version Error", "This program requires Python 3.11.x.\n\n  The Pytorch library does not support Python 3.12 yet and I have chosen to no longer support Python 3.10.\n\n Exiting the installer...", type="error")
+        return False
 
-def check_cuda_version():
+def get_platform_info():  # returns windows, linux or darwin
+    os_name = platform.system().lower()
+    return os_name
+
+def is_nvidia_gpu_installed():
     try:
-        cuda_version_output = subprocess.check_output(["nvcc", "--version"]).decode('utf-8')
-        if "release" in cuda_version_output:
-            cuda_version = cuda_version_output.split("release ")[1].split(",")[0]
-            major, minor = cuda_version.split('.')[:2]
-            cuda_version_num = float(f"{major}.{minor}")
-            return cuda_version_num
-        else:
-            return None
-    except FileNotFoundError:
-        return None
+        output = subprocess.check_output(["nvidia-smi"])
+        return True
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
 
-def display_cuda_message():
-    cuda_version_num = check_cuda_version()
-    if cuda_version_num is None:
-        proceed_without_cuda = tkinter_message_box("CUDA Check", "No CUDA installation detected. Would you like to proceed with a CPU-only installation?", type="yesno", yes_no=True)
-        return None, proceed_without_cuda
-    elif cuda_version_num >= 12.1:
-        proceed_with_cuda = tkinter_message_box("CUDA Check", f"CUDA version {cuda_version_num} detected. Would you like to proceed with the GPU-accelerated installation?", type="yesno", yes_no=True)
-        return cuda_version_num, proceed_with_cuda
+def display_gpu_message():
+    if is_nvidia_gpu_installed():
+        proceed_with_gpu = tkinter_message_box("GPU Check", "NVIDIA GPU detected. Click YES to install with gpu-acceleration or NO to exit the installer.", type="yesno", yes_no=True)
+        return proceed_with_gpu
     else:
-        update_cuda = tkinter_message_box("CUDA Check", f"Incorrect version of CUDA installed (Version: {cuda_version}). Would you like to proceed with a CPU-only installation?", type="yesno", yes_no=True)
-        if update_cuda:
-            return None, True
-        else:
-            print("Exiting installer.")
-            sys.exit(0)
+        proceed_without_gpu = tkinter_message_box("GPU Check", "No NVIDIA GPU detected. Click YES to install without GPU-acceleration or NO to exit the installer.", type="yesno", yes_no=True)
+        return proceed_without_gpu
 
 def manual_installation_confirmation():
-    if not tkinter_message_box("Confirmation", c.MESSAGE_GIT, type="yesno", yes_no=True):
+    if not tkinter_message_box("Confirmation", "Have you installed Git?\n\nClick YES to confirm or NO to cancel installation.", type="yesno", yes_no=True):
         return False
-    if not tkinter_message_box("Confirmation", c.MESSAGE_GIT_LFS, type="yesno", yes_no=True):
+    if not tkinter_message_box("Confirmation", "Have you installed Git Large File Storage?\n\nClick YES to confirm or NO to cancel installation.", type="yesno", yes_no=True):
         return False
-    if not tkinter_message_box("Confirmation", c.MESSAGE_PANDOC, type="yesno", yes_no=True):
+    if not tkinter_message_box("Confirmation", "Have you installed Pandoc?\n\nClick YES to confirm or NO to cancel installation.", type="yesno", yes_no=True):
         return False
-    if not tkinter_message_box("Confirmation", c.MESSAGE_MS_BUILD_TOOLS, type="yesno", yes_no=True):
+    if not tkinter_message_box("Confirmation", "Have you installed Microsoft Build Tools and/or Visual Studio with the necessary libraries to compile code?\n\nClick YES to confirm or NO to cancel installation.", type="yesno", yes_no=True):
         return False
     return True
 
-def install_pytorch(cuda_version_num, cuda_installed): # also installs Triton for if cuda available
+def install_pytorch(gpu_available):
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
-    if cuda_installed and cuda_version_num is not None and cuda_version_num >= 12.1:
-        if minor == 11:
-            os.system("pip3 install https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp311-cp311-win_amd64.whl https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl")
-        elif minor == 10:
-            os.system("pip3 install https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp310-cp310-win_amd64.whl https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp310-cp310-win_amd64.whl https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp310-cp310-win_amd64.whl https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp310-cp310-win_amd64.whl")
+    if gpu_available:
+        os.system("pip install https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp311-cp311-win_amd64.whl https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl")
+        os.system("pip install https://github.com/bdashore3/flash-attention/releases/download/v2.5.9.post1/flash_attn-2.5.9.post1+cu122torch2.2.2cxx11abiFALSE-cp311-cp311-win_amd64.whl") # need to make this conditional on cuda compute level
     else:
-        if minor == 11:
-            os.system("pip3 install https://download.pytorch.org/whl/cpu/torch-2.2.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=88e63c916e3275fa30a220ee736423a95573b96072ded85e5c0171fd8f37a755 https://download.pytorch.org/whl/cpu/torchvision-0.17.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=54ae4b89038065e7393c65bc8ff141d1bf3c2f70f88badc834247666608ba9f4 https://download.pytorch.org/whl/cpu/torchaudio-2.2.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=6e718df4834f9cef28b7dc1edc9ceabfe477d4dbd5527b51234e96bf91465d9d")
-        elif minor == 10:
-            os.system("pip3 install https://download.pytorch.org/whl/cpu/torch-2.2.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=fc29dda2795dd7220d769c5926b1c50ddac9b4827897e30a10467063691cdf54 https://download.pytorch.org/whl/cpu/torchvision-0.17.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=acad6f9573b9d6b50a5a3942d0145cb0f9100608acb53a09bfc11ed5720dcfe3 https://download.pytorch.org/whl/cpu/torchaudio-2.2.2%2Bcpu-cp310-cp310-win_amd64.whl#sha256=012cd8efbd9e0011abcd79daff98d312136b5e49417062bef1d38cd208f0c05f")
+        os.system("pip install https://download.pytorch.org/whl/cpu/torch-2.2.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=88e63c916e3275fa30a220ee736423a95573b96072ded85e5c0171fd8f37a755 https://download.pytorch.org/whl/cpu/torchvision-0.17.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=54ae4b89038065e7393c65bc8ff141d1bf3c2f70f88badc834247666608ba9f4 https://download.pytorch.org/whl/cpu/torchaudio-2.2.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=6e718df4834f9cef28b7dc1edc9ceabfe477d4dbd5527b51234e96bf91465d9d")
 
 def setup_windows_installation():
     if not check_python_version_and_confirm():
         return
     if not manual_installation_confirmation():
         return
-    cuda_version_num, proceed = display_cuda_message()
-    if not proceed:
+    gpu_available = display_gpu_message()
+    if not gpu_available:
         return
-    os.system("python -m pip install --upgrade pip")
-    install_pytorch(cuda_version_num, proceed)
-    os.system("pip3 install -r requirements.txt")
-    #os.system("pip install git+https://github.com/SilasMarvin/instructor-embedding.git@silas-update-for-newer-sentence-transformers")
-    os.system("pip3 install --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
-    os.system("pip3 install git+https://github.com/collabora/WhisperSpeech.git")
+    os.system("python -m pip install --upgrade pip setuptools wheel")
     
-    major, minor = map(int, sys.version.split()[0].split('.')[:2])
-    if proceed and cuda_version_num >= 12.1 and (major == 3 and minor in [10, 11]):
+    # if is_nvidia_gpu_installed():
+    os.system("pip install nvidia-cuda-runtime-cu12==12.2.140 nvidia-cublas-cu12==12.2.5.6 nvidia-cudnn-cu12==8.9.7.29")
+    # nvidia-cuda-nvrtc-cu12==12.2.140 nvidia-cufft-cu12==11.0.8.103 nvidia-cusolver-cu12==11.5.2.141 nvidia-cusparse-cu12==12.1.2.141 nvidia-nvml-dev-cu12==12.2.140 nvidia-cuda-opencl-cu12==12.2.140 nvidia-cuda-nvcc-cu12==12.2.140
+    
+    os.system("pip install fsspec==2024.5.0") # accelerate requires pytorch, and pytorch will force this version if not specified
+    os.system("pip install numpy==1.26.4") # langchain will force install this verison if not specified
+    
+    install_pytorch(gpu_available)
+    
+    os.system("pip install -r requirements.txt")
+    
+    if is_nvidia_gpu_installed():
         os.system("pip install xformers==0.0.25.post1")
-        os.system("pip3 install nvidia-ml-py==12.535.133")
+        os.system("pip install nvidia-ml-py")
 
-    replace_pdf_file()
-    replace_instructor_file()
+    os.system("pip install --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
+    os.system("pip install --no-deps -U git+https://github.com/BBC-Esq/WhisperSpeech.git@add_cache_dir")
+    # os.system("pip install --no-deps -U git+https://github.com/collabora/WhisperSpeech.git") # will force unwanted torch version if installed with dependencies
+    os.system("pip install --no-deps chattts-fork==0.0.8")
+    
+    replace_pdf_file() # replaces pymupdf parser within langchain
+    replace_instructor_file() # replaces instructor-embeddings
+    replace_sentence_transformer_file() # replaces SentenceTransformer
 
 setup_windows_installation()

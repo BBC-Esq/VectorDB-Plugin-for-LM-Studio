@@ -1,46 +1,54 @@
 import datetime
 import gc
 import os
+import logging
 import platform
 import time
+import warnings
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
+
 import torch
 import yaml
 from PIL import Image
 from tqdm import tqdm
 from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    AutoProcessor,
-    BlipForConditionalGeneration,
-    BlipProcessor,
-    LlamaTokenizer,
-    LlavaForConditionalGeneration,
-    BitsAndBytesConfig
+    AutoModelForCausalLM, AutoModel, AutoTokenizer, AutoProcessor, BlipForConditionalGeneration, BlipProcessor,
+    LlamaTokenizer, LlavaForConditionalGeneration, BitsAndBytesConfig
 )
+
 from langchain_community.docstore.document import Document
+
 from extract_metadata import extract_image_metadata
 from utilities import my_cprint
-from concurrent.futures import ProcessPoolExecutor
-import warnings
+from constants import VISION_MODELS
 
-warnings.filterwarnings("ignore", message="Torch was not compiled with flash attention.")
-warnings.filterwarnings("ignore", message="No module named 'triton'")
-warnings.filterwarnings("ignore", module="xformers.*")
-warnings.filterwarnings("ignore", module=".*bitsandbytes.*")
-warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*", module=".*transformers.models.llama.modeling_llama.*")
-warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*", module=".*transformers.models.mistral.modeling_mistral.*")
+datasets_logger = logging.getLogger('datasets')
+datasets_logger.setLevel(logging.WARNING)
+
+logging.getLogger("transformers").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger().setLevel(logging.WARNING)
 
 ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
+
+current_directory = Path(__file__).parent
+CACHE_DIR = current_directory / "models" / "vision"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 def get_best_device():
     if torch.cuda.is_available():
         return 'cuda'
-    elif torch.backends.mps.is_available():
-        return 'mps'
-    elif hasattr(torch.version, 'hip') and torch.version.hip and platform.system() == 'Linux':
-        return 'cuda'
     else:
         return 'cpu'
+
+def check_for_images(image_dir):
+    return any(
+        os.path.splitext(file)[1].lower() in ALLOWED_EXTENSIONS
+        for file in os.listdir(image_dir)
+    )
 
 def run_loader_in_process(loader_func):
     try:
@@ -48,390 +56,437 @@ def run_loader_in_process(loader_func):
     except Exception as e:
         my_cprint(f"Error processing images: {e}", "red")
         return []
-        
-class loader_cogvlm:
-    def initialize_model_and_tokenizer(self):
-        model_name = 'THUDM/cogvlm-chat-hf'
-        
-        quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
-        
-        model_settings = {
-            'torch_dtype': torch.bfloat16,
-            'resume_download': True,
-            'low_cpu_mem_usage': True,
-            'trust_remote_code': True,
-        }
 
-        tokenizer = LlamaTokenizer.from_pretrained('lmsys/vicuna-7b-v1.5')
-        model = AutoModelForCausalLM.from_pretrained(model_name, quantization_config=quantization_config, **model_settings)
-
-        my_cprint(f"Cogvlm model using 4-bit loaded into memory...", "green")
-        return model, tokenizer
-
-    @torch.inference_mode()
-    def cogvlm_process_images(self):
-        script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Docs_for_DB")
-        documents = []
-        allowed_extensions = ALLOWED_EXTENSIONS
-
-        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
-
-        if not image_files:
-            return []
-
-        with open('config.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-
-        device = get_best_device()
-        
-        # initialize model and tokenizer
-        model, tokenizer = self.initialize_model_and_tokenizer()
-
-        print("Processing images...")
-        
-        total_start_time = time.time()
-
-        with tqdm(total=len(image_files), unit="image") as progress_bar:
-            for file_name in image_files:
-                full_path = os.path.join(image_dir, file_name)
-                prompt = "Describe what this image depicts in as much detail as possible."
-
-                try:
-                    with Image.open(full_path).convert('RGB') as raw_image:
-                        inputs = model.build_conversation_input_ids(tokenizer, query=prompt, history=[], images=[raw_image])
-                        if config['vision']['chosen_quant'] == '4-bit':
-                            inputs = {
-                                'input_ids': inputs['input_ids'].unsqueeze(0).to(device),
-                                'token_type_ids': inputs['token_type_ids'].unsqueeze(0).to(device),
-                                'attention_mask': inputs['attention_mask'].unsqueeze(0).to(device),
-                                'images': [[inputs['images'][0].to('cuda').to(torch.bfloat16)]],
-                            }
-                        elif config['vision']['chosen_quant'] == '8-bit':
-                            inputs = {
-                                'input_ids': inputs['input_ids'].unsqueeze(0).to(device),
-                                'token_type_ids': inputs['token_type_ids'].unsqueeze(0).to(device),
-                                'attention_mask': inputs['attention_mask'].unsqueeze(0).to(device),
-                                'images': [[inputs['images'][0].to(device).to(torch.float16)]],
-                            }
-
-                        gen_kwargs = {"max_length": 2048, "do_sample": False}
-                        with torch.no_grad():
-                            output = model.generate(**inputs, **gen_kwargs)
-                            output = output[:, inputs['input_ids'].shape[1]:]
-                            model_response = tokenizer.decode(output[0], skip_special_tokens=True).split("ASSISTANT: ")[-1]
-
-                            extracted_text = model_response
-                            extracted_metadata = extract_image_metadata(full_path)
-                            document = Document(page_content=extracted_text, metadata=extracted_metadata)
-                            documents.append(document)
-
-                except Exception as e:
-                    print(f"{file_name}: Error processing image - {e}")
-
-                progress_bar.update(1)
-
-        total_end_time = time.time()
-        total_time_taken = total_end_time - total_start_time
-        print(f"Loaded {len(documents)} image(s)...")
-        print(f"Total image processing time: {total_time_taken:.2f} seconds")
-
-        del model
-        del tokenizer
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        gc.collect()
-
-        my_cprint("Cogvlm model removed from memory.", "red")
-
-        return documents
-
-class loader_llava:
-    def initialize_model_and_tokenizer(self, config):
-        chosen_model = config['vision']['chosen_model']
-        chosen_size = config['vision']['chosen_size']
-        chosen_quant = config['vision']['chosen_quant']
-        
-        model_id = ""
-        if chosen_model == 'llava' and chosen_size == '7b':
-            model_id = "llava-hf/llava-1.5-7b-hf"
-        elif chosen_model == 'bakllava':
-            model_id = "llava-hf/bakLlava-v1-hf"
-        elif chosen_model == 'llava' and chosen_size == '13b':
-            model_id = "llava-hf/llava-1.5-13b-hf"
-
-        fp16_quant_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
-        bf16_quant_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
-        fp16_model_config = {'torch_dtype': torch.float16, 'resume_download': True, 'low_cpu_mem_usage': True}
-        bf16_model_config = {'torch_dtype': torch.bfloat16, 'resume_download': True, 'low_cpu_mem_usage': True}
-        
-        device = get_best_device()
-
-        if chosen_model == 'llava' and chosen_quant == 'float16':
-            model = LlavaForConditionalGeneration.from_pretrained(
-                model_id,
-                torch_dtype=torch.float16,
-                low_cpu_mem_usage=True,
-                #attn_implementation="flash_attention_2",
-                resume_download=True
-            ).to(device)
-
-        elif chosen_model == 'llava' and chosen_quant == '4-bit':
-            model = LlavaForConditionalGeneration.from_pretrained(
-                model_id,
-                #attn_implementation="flash_attention_2",
-                quantization_config=fp16_quant_config,
-                **fp16_model_config
-            )
-            
-        elif chosen_model == 'bakllava' and chosen_quant == 'float16':
-            model = LlavaForConditionalGeneration.from_pretrained(
-                model_id,
-                torch_dtype=torch.float16,
-                low_cpu_mem_usage=True,
-                resume_download=True
-            ).to(device)
-
-        elif chosen_model == 'bakllava' and chosen_quant == '4-bit':
-            model = LlavaForConditionalGeneration.from_pretrained(model_id, quantization_config=bf16_quant_config, **bf16_model_config)
-        
-        my_cprint(f"{chosen_model} {chosen_size} model using {chosen_quant} loaded into memory...", "green")
-        
-        processor = AutoProcessor.from_pretrained(model_id, resume_download=True)
-        
-        return model, processor, device, chosen_quant
-
-    @torch.inference_mode()
-    def llava_process_images(self):
-        script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Docs_for_DB")
-        documents = []
-        allowed_extensions = ALLOWED_EXTENSIONS
-
-        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
-
-        if not image_files:
-            return []
-
-        with open('config.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-
-        model, processor, device, chosen_quant = self.initialize_model_and_tokenizer(config)
-
-        print("Processing images...")
-        
-        total_start_time = time.time()
-
-        with tqdm(total=len(image_files), unit="image") as progress_bar:
-            for file_name in image_files:
-                full_path = os.path.join(image_dir, file_name)
-                prompt = "USER: <image>\nDescribe what this image depicts in as much detail as possible.\nASSISTANT:"
-
-                try:
-                    with Image.open(full_path) as raw_image:
-                        inputs = processor(prompt, raw_image, return_tensors='pt').to(device)
-
-                        if chosen_quant == 'bfloat16' and chosen_model == 'bakllava':
-                            inputs = inputs.to(torch.bfloat16)
-                        elif chosen_quant == 'float16':
-                            inputs = inputs.to(torch.float16)
-                        elif chosen_quant == '8-bit':
-                            inputs = inputs.to(torch.float16)
-                        elif chosen_quant == '4-bit':
-                            inputs = inputs.to(torch.float32)
-
-                        output = model.generate(**inputs, max_new_tokens=200, do_sample=True)
-                        full_response = processor.decode(output[0][2:], skip_special_tokens=True, do_sample=True)
-                        model_response = full_response.split("ASSISTANT: ")[-1]
-                        extracted_text = model_response
-                        extracted_metadata = extract_image_metadata(full_path)
-                        document = Document(page_content=extracted_text, metadata=extracted_metadata)
-                        documents.append(document)
-                        progress_bar.update(1)
-
-                except Exception as e:
-                    print(f"{file_name}: Error processing image - {e}")
-
-        total_end_time = time.time()
-        total_time_taken = total_end_time - total_start_time
-        print(f"Loaded {len(documents)} image(s)...")
-        print(f"Total image processing time: {total_time_taken:.2f} seconds")
-
-        del model
-        del processor
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        gc.collect()
-
-        my_cprint("Llava/Bakllava model removed from memory.", "red")
-
-        return documents
-
-class loader_salesforce:
-    def initialize_model_and_processor(self):
-        with open('config.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-        
-        chosen_quant = config['vision']['chosen_quant']
-        device = get_best_device()
-        
-        if chosen_quant == 'float32':
-            processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
-            model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large").to(device)
-        elif chosen_quant == 'float16':
-            processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
-            model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large", torch_dtype=torch.float16).to(device)
-        
-        my_cprint(f"Salesforce using {chosen_quant} loaded into memory...", "green")
-        
-        return model, processor, device
-
-    @torch.inference_mode()
-    def salesforce_process_images(self):
-        script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Docs_for_DB")
-        documents = []
-        allowed_extensions = ALLOWED_EXTENSIONS
-
-        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
-
-        if not image_files:
-            return []
-
-        with open('config.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-        
-        model, processor, device = self.initialize_model_and_processor()
-        
-        print("Processing images...")
-        
-        total_start_time = time.time()
-
-        with tqdm(total=len(image_files), unit="image") as progress_bar:
-            for file_name in image_files:
-                full_path = os.path.join(image_dir, file_name)
-                try:
-                    with Image.open(full_path) as raw_image:
-                        text = "an image of"
-                        if config['vision']['chosen_quant'] == 'float32':
-                            inputs = processor(raw_image, text, return_tensors="pt").to(device)
-                        elif config['vision']['chosen_quant'] == 'float16':
-                            inputs = processor(raw_image, text, return_tensors="pt").to(device, torch.float16)
-                        output = model.generate(**inputs, max_new_tokens=100)
-                        caption = processor.decode(output[0], skip_special_tokens=True)
-                        extracted_metadata = extract_image_metadata(full_path)
-                        document = Document(page_content=caption, metadata=extracted_metadata)
-                        documents.append(document)
-                        progress_bar.update(1)
-
-                except Exception as e:
-                    print(f"{file_name}: Error processing image - {e}")
-
-        total_end_time = time.time()
-        total_time_taken = total_end_time - total_start_time
-        print(f"Loaded {len(documents)} image(s)...")
-        print(f"Total image processing time: {total_time_taken:.2f} seconds")
-
-        del model
-        del processor
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        gc.collect()
-
-        my_cprint("Salesforce model removed from memory.", "red")
-
-        return documents
-
-class loader_moondream:
-    def initialize_model_and_tokenizer(self):
-        device = get_best_device()
-        
-        fp16_quant_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
-        bf16_quant_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
-        fp16_model_config = {'torch_dtype': torch.float16, 'resume_download': True, 'low_cpu_mem_usage': True}
-        bf16_model_config = {'torch_dtype': torch.bfloat16, 'resume_download': True, 'low_cpu_mem_usage': True}
-
-        model = AutoModelForCausalLM.from_pretrained("vikhyatk/moondream2", 
-                                             trust_remote_code=True, 
-                                             revision="2024-03-05", 
-                                             torch_dtype=torch.float16, 
-                                             low_cpu_mem_usage=True,
-                                             resume_download=True).to(device)
-
-        my_cprint(f"Moondream2 model using float16 loaded into memory...", "green")
-        
-        tokenizer = AutoTokenizer.from_pretrained("vikhyatk/moondream2", revision="2024-03-05")
-        
-        return model, tokenizer, device
-    
-    @torch.inference_mode()
-    def moondream_process_images(self):
-        script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Docs_for_DB")
-        documents = []
-        allowed_extensions = ALLOWED_EXTENSIONS
-        
-        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
-        
-        if not image_files:
-            return []
-            
-        model, tokenizer, device = self.initialize_model_and_tokenizer()
-        
-        print("Processing images...")
-        
-        total_start_time = time.time()
-        
-        with tqdm(total=len(image_files), unit="image") as progress_bar:
-            for file_name in image_files:
-                full_path = os.path.join(image_dir, file_name)
-                try:
-                    with Image.open(full_path) as raw_image:
-                        enc_image = model.encode_image(raw_image)
-                        summary = model.answer_question(enc_image, "Describe what this image depicts in as much detail as possible.", tokenizer)
-                        extracted_metadata = extract_image_metadata(full_path)
-                        document = Document(page_content=summary, metadata=extracted_metadata)
-                        documents.append(document)
-                        progress_bar.update(1)
-                except Exception as e:
-                    print(f"{file_name}: Error processing image - {e}")
-                    
-        total_end_time = time.time()
-        total_time_taken = total_end_time - total_start_time
-        print(f"Loaded {len(documents)} image(s)...")
-        print(f"Total image processing time: {total_time_taken:.2f} seconds")
-
-        del model
-        del tokenizer
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        gc.collect()
-
-        my_cprint("Moondream2 model removed from memory.", "red")
-        
-        return documents
-
-def specify_image_loader():
+def choose_image_loader():
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
     
     chosen_model = config["vision"]["chosen_model"]
 
-    if chosen_model in ['llava', 'bakllava']:
-        loader_func = loader_llava().llava_process_images
-    elif chosen_model == 'cogvlm':
-        loader_func = loader_cogvlm().cogvlm_process_images
-    elif chosen_model == 'salesforce':
-        loader_func = loader_salesforce().salesforce_process_images
-    elif chosen_model == 'moondream2':
-        loader_func = loader_moondream().moondream_process_images
+    if chosen_model in ['llava 1.5 - 7b', 'bakllava 1.5 - 7b', 'llava 1.5 - 13b', ]:
+        loader_func = loader_llava(config).process_images
+    elif chosen_model == 'Cogvlm':
+        loader_func = loader_cogvlm(config).process_images
+    elif chosen_model == 'Moondream2':
+        loader_func = loader_moondream(config).process_images
+    elif chosen_model in ["Florence-2-large", "Florence-2-base"]:
+        loader_func = loader_florence2(config).process_images
+    elif chosen_model == 'Phi-3-vision-128k-instruct':
+        loader_func = loader_phi3vision(config).process_images
+    elif chosen_model == 'MiniCPM-Llama3-V-2_5-int4':
+        loader_func = loader_minicpm_llama3v(config).process_images
+    # elif chosen_model in ['bunny_v1_1_4b', 'bunny_v1_1_llama_3_8b_v']:
+        # loader_func = loader_bunny(config).process_images
     else:
         my_cprint("No valid image model specified in config.yaml", "red")
         return []
 
+    script_dir = os.path.dirname(__file__)
+    image_dir = os.path.join(script_dir, "Docs_for_DB")
+
+    if not check_for_images(image_dir):
+        print("No images selected for processing...")
+        return []
+
     with ProcessPoolExecutor(1) as executor:
         future = executor.submit(run_loader_in_process, loader_func)
-        processed_docs = future.result()
+        try:
+            processed_docs = future.result()
+        except Exception as e:
+            my_cprint(f"Error occurred during image processing: {e}", "red")
+            return []
+
         if processed_docs is None:
             return []
         return processed_docs
+
+
+class BaseLoader:
+    def __init__(self, config):
+        self.config = config
+        self.device = get_best_device()
+        self.model = None
+        self.tokenizer = None
+        self.processor = None
+
+    def initialize_model_and_tokenizer(self):
+        raise NotImplementedError("Subclasses must implement initialize_model_and_tokenizer method")
+
+    def process_images(self):
+        script_dir = os.path.dirname(__file__)
+        image_dir = os.path.join(script_dir, "Docs_for_DB")
+        documents = []
+        allowed_extensions = ALLOWED_EXTENSIONS
+
+        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
+
+        self.model, self.tokenizer, self.processor = self.initialize_model_and_tokenizer()
+
+        print("Processing images...")
+        
+        total_start_time = time.time()
+
+        with tqdm(total=len(image_files), unit="image") as progress_bar:
+            for file_name in image_files:
+                full_path = os.path.join(image_dir, file_name)
+                try:
+                    with Image.open(full_path) as raw_image:
+                        extracted_text = self.process_single_image(raw_image)
+                        extracted_metadata = extract_image_metadata(full_path)
+                        document = Document(page_content=extracted_text, metadata=extracted_metadata)
+                        documents.append(document)
+                        progress_bar.update(1)
+                except Exception as e:
+                    print(f"{file_name}: Error processing image - {e}")
+
+        total_end_time = time.time()
+        total_time_taken = total_end_time - total_start_time
+        print(f"Loaded {len(documents)} image(s)...")
+        print(f"Total image processing time: {total_time_taken:.2f} seconds")
+
+        my_cprint("Model removed from memory.", "red")
+
+        return documents
+
+    def process_single_image(self, raw_image):
+        raise NotImplementedError("Subclasses must implement process_single_image method")
+
+class loader_cogvlm(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        model_name = 'THUDM/cogvlm-chat-hf'
+        TORCH_TYPE = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8 else torch.float16
+        quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=TORCH_TYPE)
+
+        tokenizer = LlamaTokenizer.from_pretrained('lmsys/vicuna-7b-v1.5')
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            quantization_config=quantization_config,
+            torch_dtype=TORCH_TYPE,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True
+        )
+
+        my_cprint(f"Cogvlm loaded into memory...", "green")
+        return model, tokenizer, None
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        TORCH_TYPE = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8 else torch.float16
+        prompt = "Describe what this image depicts in as much detail as possible."
+        inputs = self.model.build_conversation_input_ids(self.tokenizer, query=prompt, history=[], images=[raw_image])
+        inputs = {
+            'input_ids': inputs['input_ids'].unsqueeze(0).to(self.device),
+            'token_type_ids': inputs['token_type_ids'].unsqueeze(0).to(self.device),
+            'attention_mask': inputs['attention_mask'].unsqueeze(0).to(self.device),
+            'images': [[inputs['images'][0].to('cuda').to(TORCH_TYPE)]],
+        }
+
+        gen_kwargs = {"max_length": 2048, "do_sample": False}
+        output = self.model.generate(**inputs, **gen_kwargs)
+        output = output[:, inputs['input_ids'].shape[1]:]
+        model_response = self.tokenizer.decode(output[0], skip_special_tokens=True).split("ASSISTANT: ")[-1]
+        return model_response
+
+class loader_llava(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        
+        model_info = VISION_MODELS[chosen_model]
+        model_id = model_info['repo_id']
+        precision = model_info['precision']
+        save_dir = model_info["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        if precision == '4-bit':
+            quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
+        else:
+            quantization_config = None
+        
+        model = LlavaForConditionalGeneration.from_pretrained(
+            model_id,
+            quantization_config=quantization_config,
+            torch_dtype=torch.float16,
+            low_cpu_mem_usage=True,
+            cache_dir=cache_dir
+        )
+        
+        my_cprint(f"{chosen_model} loaded into memory...", "green")
+        
+        processor = AutoProcessor.from_pretrained(model_id, cache_dir=cache_dir)
+        
+        return model, None, processor
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        prompt = "USER: <image>\nDescribe what this image depicts in as much detail as possible.\nASSISTANT:"
+        inputs = self.processor(prompt, raw_image, return_tensors='pt').to(self.device)
+        inputs = inputs.to(torch.float32)
+
+        output = self.model.generate(**inputs, max_new_tokens=512, do_sample=False)
+        full_response = self.processor.decode(output[0][2:], skip_special_tokens=True, do_sample=False)
+        model_response = full_response.split("ASSISTANT: ")[-1]
+        return model_response
+
+
+class loader_moondream(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        
+        model_info = VISION_MODELS[chosen_model]
+        model_id = model_info['repo_id']
+        save_dir = model_info["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        model = AutoModelForCausalLM.from_pretrained(model_id, 
+                                                     trust_remote_code=True, 
+                                                     revision="2024-05-20", 
+                                                     torch_dtype=torch.float16,
+                                                     cache_dir=cache_dir,
+                                                     low_cpu_mem_usage=True).to(self.device)
+
+        my_cprint(f"Moondream2 model loaded into memory...", "green")
+        
+        tokenizer = AutoTokenizer.from_pretrained("vikhyatk/moondream2", revision="2024-05-20", cache_dir=cache_dir)
+        
+        return model, tokenizer, None
+    
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        enc_image = self.model.encode_image(raw_image)
+        summary = self.model.answer_question(enc_image, "Describe what this image depicts in as much detail as possible.", self.tokenizer)
+        return summary
+
+
+class loader_florence2(BaseLoader):
+    def __init__(self, config):
+        super().__init__(config)
+        from utilities import my_cprint, get_device_and_precision
+        self.my_cprint = my_cprint
+        self.get_device_and_precision = get_device_and_precision
+        warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
+
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        repo_id = VISION_MODELS[chosen_model]["repo_id"]
+        save_dir = VISION_MODELS[chosen_model]["cache_dir"]
+        
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        model = AutoModelForCausalLM.from_pretrained(repo_id, trust_remote_code=True, cache_dir=cache_dir)
+        processor = AutoProcessor.from_pretrained(repo_id, trust_remote_code=True, cache_dir=cache_dir)
+
+        device_type, precision_type = self.get_device_and_precision()
+        
+        if device_type == "cuda":
+            self.device = torch.device("cuda")
+            model = model.to(self.device)
+        else:
+            self.device = torch.device("cpu")
+        
+        if precision_type == "float16":
+            model = model.half()
+        elif precision_type == "bfloat16":
+            model = model.bfloat16()
+        
+        self.my_cprint(f"{chosen_model} loaded with {precision_type}.", color="green")
+        
+        self.precision_type = precision_type
+        return model, None, processor
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        prompt = "<MORE_DETAILED_CAPTION>"
+        inputs = self.processor(text=prompt, images=raw_image, return_tensors="pt")
+        
+        if self.device.type == "cuda":
+            inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        
+        if self.precision_type != "float32":
+            inputs["pixel_values"] = inputs["pixel_values"].to(getattr(torch, self.precision_type))
+        
+        generated_ids = self.model.generate(
+            input_ids=inputs["input_ids"],
+            pixel_values=inputs["pixel_values"],
+            max_new_tokens=1024,
+            num_beams=1,
+            do_sample=False,
+            early_stopping=False
+        )
+        
+        generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=False)[0]
+        parsed_answer = self.processor.post_process_generation(generated_text, task=prompt, image_size=(raw_image.width, raw_image.height))
+        
+        return parsed_answer['<MORE_DETAILED_CAPTION>']
+
+
+class loader_phi3vision(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        repo_id = VISION_MODELS[chosen_model]["repo_id"]
+        save_dir = VISION_MODELS[chosen_model]["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True, 
+            bnb_4bit_compute_dtype=torch.bfloat16, 
+            bnb_4bit_quant_type="nf4"
+        )
+        
+        # microsoft/Phi-3-vision-128k-instruct
+        model = AutoModelForCausalLM.from_pretrained(
+            repo_id,
+            device_map="cuda",
+            trust_remote_code=True,
+            torch_dtype="auto",
+            attn_implementation='flash_attention_2',
+            quantization_config=quantization_config,
+            cache_dir=cache_dir
+        )
+        
+        processor = AutoProcessor.from_pretrained(repo_id, trust_remote_code=True, cache_dir=cache_dir)
+        
+        my_cprint(f"Microsoft-Phi-3-vision model loaded into memory...", "green")
+        
+        return model, None, processor
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        prompt = f"""<|user|>
+<|image_1|>
+Describe what this image depicts in as much detail as possible.<|end|>
+<|assistant|>
+"""
+        inputs = self.processor(prompt, [raw_image], return_tensors="pt").to(self.device)
+        
+        generation_args = {
+            "max_new_tokens": 500,
+            "temperature": None,
+            "do_sample": False,
+        }
+        
+        generate_ids = self.model.generate(
+            **inputs, 
+            eos_token_id=self.processor.tokenizer.eos_token_id, 
+            **generation_args
+        )
+        
+        generate_ids = generate_ids[:, inputs['input_ids'].shape[1]:]
+        response = self.processor.batch_decode(
+            generate_ids, 
+            skip_special_tokens=True, 
+            clean_up_tokenization_spaces=False
+        )[0]
+        
+        return response
+
+
+class loader_minicpm_llama3v(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        repo_id = VISION_MODELS[chosen_model]["repo_id"]
+        save_dir = VISION_MODELS[chosen_model]["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        warnings.filterwarnings("ignore", category=UserWarning)
+        
+        # openbmb/MiniCPM-Llama3-V-2_5-int4
+        model = AutoModel.from_pretrained(
+            repo_id,
+            trust_remote_code=True,
+            low_cpu_mem_usage=True,
+            cache_dir=cache_dir
+        )
+        tokenizer = AutoTokenizer.from_pretrained(
+            repo_id,
+            trust_remote_code=True,
+            cache_dir=cache_dir
+        )
+        model.eval()
+        
+        my_cprint(f"MiniCPM-Llama3-V model loaded into memory...", "green")
+        
+        return model, tokenizer, None
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        question = 'Describe in as much detail as you possibly can what this image depicts.'
+        msgs = [{'role': 'user', 'content': question}]
+        
+        response = self.model.chat(
+            image=raw_image,
+            msgs=msgs,
+            context=None,
+            tokenizer=self.tokenizer,
+            sampling=False,
+            temperature=None
+        )
+        
+        if isinstance(response, tuple) and len(response) == 3:
+            res, context, _ = response
+        else:
+            res = response
+        
+        return res
+
+'''
+class loader_bunny(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        transformers.logging.set_verbosity_error()
+        transformers.logging.disable_progress_bar()
+        warnings.filterwarnings('ignore')
+        
+        #BAAI/Bunny-v1_1-4B
+        # BAAI/Bunny-v1_1-Llama-3-8B-V
+        
+        chosen_model = self.config['vision']['chosen_model']
+        model_path = VISION_MODELS[chosen_model]["model_path"]
+        
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True, 
+            bnb_4bit_compute_dtype=torch.float16, 
+            bnb_4bit_quant_type="nf4"
+        )
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            torch_dtype=torch.float16,
+            device_map='auto',
+            trust_remote_code=True,
+            quantization_config=quantization_config
+        )
+        
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_path,
+            trust_remote_code=True
+        )
+        
+        my_cprint(f"Bunny model loaded into memory...", "green")
+        
+        return model, tokenizer, None
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        prompt = "Describe what this image depicts in as much detail as possible."
+        text = f"A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. USER: <image>\n{prompt} ASSISTANT:"
+        
+        text_chunks = [self.tokenizer(chunk).input_ids for chunk in text.split('<image>')]
+        input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1][1:], dtype=torch.long).unsqueeze(0).to(self.device)
+        
+        image_tensor = self.model.process_images([raw_image], self.model.config).to(dtype=self.model.dtype, device=self.device)
+        
+        output_ids = self.model.generate(
+            input_ids,
+            images=image_tensor,
+            max_length=4096,
+            use_cache=True,
+            repetition_penalty=1.0
+        )[0].to(self.device)
+        
+        result = self.tokenizer.decode(output_ids[input_ids.shape[1]:], skip_special_tokens=True).strip()
+        return result
+'''

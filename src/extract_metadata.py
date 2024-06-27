@@ -22,7 +22,7 @@ def extract_common_metadata(file_path):
         "file_path": file_path,
         "file_type": file_type,
         "file_name": file_name,
-        "file_size": file_size,
+        # "file_size": file_size,
         "creation_date": creation_date,
         "modification_date": modification_date,
         "hash": file_hash

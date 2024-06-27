@@ -1,7 +1,9 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox, QComboBox
-from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
 from pathlib import Path
+
+from PySide6.QtGui import QIntValidator, QDoubleValidator
+from PySide6.QtWidgets import (QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox, QComboBox)
+
 from constants import PROMPT_FORMATS
 
 class ServerSettingsTab(QWidget):

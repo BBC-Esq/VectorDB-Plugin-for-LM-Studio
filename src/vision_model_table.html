@@ -9,81 +9,110 @@
             color: #f9f9f9;
             font-family: Arial, sans-serif;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 0 auto; /* Center table */
         }
-
         th, td {
             border: 1px solid #f9f9f9; /* Text color for border */
             text-align: center;
             padding: 8px;
         }
-
         th {
-            background-color: #104c17;
+            background-color: #004D40;
             color: black; /* For contrast against light background */
         }
+        .main-header {
+            background-color: #004D40;
+        }
+		a {
+		  color: #00bf9e; /* Change this to your desired color */
+		}
+		a:visited {
+		  color: #00bf9e; /* Color for visited links */
+	
+	00bf9e	
+
+
     </style>
 </head>
 <body>
-    <table>
-        <tr>
-            <th>Model</th>
-            <th>Size</th>
-            <th>Quant</th>
-            <th>VRAM Usage</th>
-        </tr>
-		<tr>
-            <td>moondream2</td>
-            <td>2b</td>
-            <td>float16</td>
-            <td>5</td>
-        </tr>
-        <tr>
-            <td>llava</td>
-            <td>7B</td>
-            <td>4-bit</td>
-            <td>6.5</td>
-        </tr>
-        <tr>
-            <td>bakllava</td>
-            <td>7B</td>
-            <td>4-bit</td>
-            <td>7.5</td>
-        </tr>
-        <tr>
-            <td>llava</td>
-            <td>13B</td>
-            <td>4-bit</td>
-            <td>10.56</td>
-        </tr>
-        <tr>
-            <td>llava</td>
-            <td>7b</td>
-            <td>float16</td>
-            <td>14.66</td>
-        </tr>
-        <tr>
-            <td>cogvlm</td>
-            <td>18B</td>
-            <td>4-bit</td>
-            <td>15.1</td>
-        </tr>
-        <tr>
-            <td>bakllava</td>
-            <td>7b</td>
-            <td>float16</td>
-            <td>16.5</td>
-        </tr>
-        <tr>
-            <td>cogvlm</td>
-            <td>18B</td>
-            <td>8-bit</td>
-            <td>24</td>
-        </tr>
-    </table>
+<table>
+    <tr>
+        <th rowspan="2">Model Name</th>
+        <th colspan="2" class="main-header">CPU Metrics</th>
+        <th colspan="2" class="main-header">GPU Metrics</th>
+    </tr>
+    <tr>
+        <th>Tokens/sec</th>
+        <th>Memory</th>
+        <th>Tokens/sec</th>
+        <th>Memory</th>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/microsoft/Florence-2-base">Microsoft-Florence2-Base - 223m</a></td>
+        <td>36.41</td>
+        <td>5.0 GB</td>
+        <td>163.06</td>
+        <td>2.6 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/vikhyatk/moondream2">Moondream2 - 2b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>82.28</td>
+        <td>4.6 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/microsoft/Florence-2-large">Microsoft-Florence2-Large - 772m</a></td>
+        <td>15.77</td>
+        <td>10.0 GB</td>
+        <td>113.32</td>
+        <td>5.3 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/microsoft/Phi-3-vision-128k-instruct">Microsoft-Phi3-Vision - 4.2b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>28.50</td>
+        <td>5.7 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/llava-hf/llava-1.5-7b-hf">Llava 1.5 - 7b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>48.30</td>
+        <td>5.7 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/llava-hf/bakLlava-v1-hf">Bakllava - 7b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>48.30</td>
+        <td>5.9 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/openbmb/MiniCPM-Llama3-V-2_5-int4">MiniCPM-Llama3 2.5 - 8.4b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>13.25</td>
+        <td>9.2 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/llava-hf/llava-1.5-13b-hf">Llava 1.5 - 13b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>38.03</td>
+        <td>9.8 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/THUDM/cogvlm-chat-hf">Cogvlm-chat - 17.b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>10.36</td>
+        <td>12.9 GB</td>
+    </tr>
+</table>
 </body>
 </html>

@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePolicy, QComboBox, QPushButton
-from PySide6.QtGui import QIntValidator, QDoubleValidator
 import yaml
+from PySide6.QtGui import QIntValidator, QDoubleValidator
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePolicy, QComboBox, QPushButton
 
 class DatabaseSettingsTab(QWidget):
     def __init__(self):

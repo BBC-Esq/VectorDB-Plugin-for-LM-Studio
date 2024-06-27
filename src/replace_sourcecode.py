@@ -71,5 +71,11 @@ def replace_instructor_file():
     updater = DependencyUpdater()
     updater.update_file_in_dependency("user_manual", "instructor.py", ["InstructorEmbedding"])
 
+def replace_sentence_transformer_file():
+    updater = DependencyUpdater()
+    updater.update_file_in_dependency("user_manual", "SentenceTransformer.py", ["sentence_transformers"])
+
 if __name__ == "__main__":
     replace_pdf_file()
+    replace_instructor_file()
+    replace_sentence_transformer_file()

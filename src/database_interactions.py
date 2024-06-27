@@ -1,37 +1,47 @@
-import shutil
-import yaml
 import gc
-from langchain_community.docstore.document import Document
-from langchain_community.embeddings import HuggingFaceInstructEmbeddings, HuggingFaceEmbeddings, HuggingFaceBgeEmbeddings
-from langchain_community.vectorstores import TileDB
-from document_processor import load_documents, split_documents
-from loader_images import specify_image_loader
-import torch
-from utilities import validate_symbolic_links, my_cprint
-from pathlib import Path
-import os
 import logging
-from PySide6.QtCore import QDir
-import time
+import warnings
+import os
 import pickle
-from InstructorEmbedding import INSTRUCTOR
+import shutil
+import time
+from pathlib import Path
 from typing import Dict, Optional, Union
+
+import torch
+import yaml
+from InstructorEmbedding import INSTRUCTOR
+from PySide6.QtCore import QDir
 from huggingface_hub import snapshot_download
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.docstore.document import Document
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
+from langchain_community.vectorstores import TileDB
+
+from document_processor import load_documents, split_documents
+from module_process_images import choose_image_loader
+from utilities import my_cprint
+
+datasets_logger = logging.getLogger('datasets')
+datasets_logger.setLevel(logging.WARNING)
+
+logging.getLogger("transformers").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger().setLevel(logging.WARNING)
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(name)s - %(pathname)s:%(lineno)s - %(funcName)s'
+    format='%(levelname)s:%(filename)s:%(lineno)d - %(message)s'
 )
-logging.getLogger('chromadb.db.duckdb').setLevel(logging.WARNING)
-logging.getLogger('sentence_transformers').setLevel(logging.WARNING)
-
             
 class CreateVectorDB:
     def __init__(self, database_name):
         self.ROOT_DIRECTORY = Path(__file__).resolve().parent
         self.SOURCE_DIRECTORY = self.ROOT_DIRECTORY / "Docs_for_DB"
         self.PERSIST_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB" / database_name
-        self.SAVE_JSON_DIRECTORY = self.ROOT_DIRECTORY / "Docs_for_DB" / database_name
+        self.SAVE_JSON_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB" / database_name / "json"
 
     def load_config(self, root_directory):
         with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
@@ -41,7 +51,7 @@ class CreateVectorDB:
     def initialize_vector_model(self, embedding_model_name, config_data):
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
-        model_kwargs = {"device": compute_device}
+        model_kwargs = {"device": compute_device, "trust_remote_code": True}
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 8}
 
         if compute_device.lower() == 'cpu':
@@ -54,7 +64,7 @@ class CreateVectorDB:
                 ('jina-embedding-l', 'bge-large', 'gte-large', 'roberta-large'): 4,
                 'jina-embedding-s': 9,
                 ('bge-small', 'gte-small'): 10,
-                ('MiniLM',): 20,
+                ('MiniLM',): 30,
             }
 
             for key, value in batch_size_mapping.items():
@@ -87,54 +97,63 @@ class CreateVectorDB:
                 query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs
             )
-            
-        elif "Alibaba" in embedding_model_name:
-            model_kwargs["trust_remote_code"] = True
-            model = HuggingFaceEmbeddings(
-                model_name=embedding_model_name,
-                show_progress=True,
-                model_kwargs=model_kwargs,
-                encode_kwargs=encode_kwargs
-            )
         
         else:
+            # model_kwargs["trust_remote_code"] = True
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
                 show_progress=True,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs
             )
+            # model.client.to(dtype=torch.float16) # currently this works while adding the parameter within "model_kwargs" does not for reasons I have yet to figure out.  Moreover, it only worked with all-mpnet and sentence-xxl and not instructor-based models.  TO DO!!!
 
+        my_cprint(f"{EMBEDDING_MODEL_NAME.rsplit('/', 1)[-1]} loaded.", "green")
+        
         return model, encode_kwargs
 
     @torch.inference_mode()
     def create_database(self, texts, embeddings):
-        my_cprint("Creating vectors and database...\n\nNOTE: The progress bar only relates to computing vectors, not inserting them into the database.  Rest assured, after it reaches 100% it is still working unless you get an error message.\n", "yellow")
+        logging.info("Entering create_database method")
+        logging.info(f"Number of documents to be inserted into the database: {len(texts)}")
+        logging.info(f"Type of texts variable: {type(texts)}")
+
+        my_cprint("Creating vectors and database...\n\nNOTE: The progress bar relates to computing vectors.  Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
 
         start_time = time.time()
 
+        logging.info(f"Checking if directory {self.PERSIST_DIRECTORY} exists")
         if not self.PERSIST_DIRECTORY.exists():
             self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
+            logging.info(f"Created directory: {self.PERSIST_DIRECTORY}")
+        else:
+            logging.info(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
-        db = TileDB.from_documents(
-            documents=texts,
-            embedding=embeddings,
-            index_uri=str(self.PERSIST_DIRECTORY),
-            allow_dangerous_deserialization=True,
-            metric="euclidean",
-            index_type="FLAT",
-        )
+        try:
+            logging.info("Calling TileDB.from_documents()")
+            db = TileDB.from_documents(
+                documents=texts,
+                embedding=embeddings,
+                index_uri=str(self.PERSIST_DIRECTORY),
+                allow_dangerous_deserialization=True,
+                metric="euclidean",
+                index_type="FLAT",
+            )
+        except Exception as e:
+            logging.error(f"Error creating TileDB database: {str(e)}")
+            raise
 
         print("Database created.")
 
         end_time = time.time()
         elapsed_time = end_time - start_time
 
-        my_cprint("Database saved.", "cyan")
-        print(f"Creation of vectors and inserting into the database took {elapsed_time:.2f} seconds.")
+        print("Database saved to disk.")
+        logging.info(f"Creation of vectors and inserting into the database took {elapsed_time:.2f} seconds.")
         
     def save_documents_to_json(self, json_docs_to_save):
-        self.SAVE_JSON_DIRECTORY.mkdir(parents=True, exist_ok=True)
+        if not self.SAVE_JSON_DIRECTORY.exists():
+            self.SAVE_JSON_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
         for document in json_docs_to_save:
             document_hash = document.metadata.get('hash', None)
@@ -178,6 +197,30 @@ class CreateVectorDB:
                     item.unlink()
                 except Exception as e:
                     print(f"Failed to delete {item}: {e}")
+
+    def save_document_structures(self, documents):
+        with open(self.ROOT_DIRECTORY / "document_structures.txt", 'w', encoding='utf-8') as file:
+            for doc in documents:
+                file.write(str(doc))
+                file.write('\n\n')
+
+
+    def save_documents_to_pickle(self, documents):
+        pickle_directory = self.ROOT_DIRECTORY / "pickle"
+        
+        if not pickle_directory.exists():
+            pickle_directory.mkdir(parents=True, exist_ok=True)
+        
+        for file in pickle_directory.glob("*.pickle"):
+            file.unlink()
+
+        time.sleep(3)
+
+        for i, doc in enumerate(documents):
+            pickle_file_path = pickle_directory / f"document_{i}.pickle"
+            with open(pickle_file_path, 'wb') as pickle_file:
+                pickle.dump(doc, pickle_file)
+
     
     @torch.inference_mode()
     def run(self):
@@ -185,27 +228,61 @@ class CreateVectorDB:
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         
         # load non-image/non-audio documents
+        print("Processing documents, if any...")
         documents = load_documents(self.SOURCE_DIRECTORY)
+        logging.info(f"Type of documents after load_documents: {type(documents)}")
+        if isinstance(documents, list) and documents:
+            logging.info(f"Type of first element in documents: {type(documents[0])}")
         
         # load image documents
-        image_documents = specify_image_loader()
-        documents.extend(image_documents)
+        # time.sleep(3)
+        print("Processing images, if any...")
+        image_documents = choose_image_loader()
+        logging.info(f"Type of image_documents: {type(image_documents)}")
+        if isinstance(image_documents, list) and image_documents:
+            logging.info(f"Type of first element in image_documents: {type(image_documents[0])}")
+        if len(image_documents) > 0:
+            documents.extend(image_documents)
         
         json_docs_to_save = documents
         
         # load audio documents
+        print("Processing audio transcripts, if any...")
         audio_documents = self.load_audio_documents()
+        logging.info(f"Type of audio_documents: {type(audio_documents)}")
+        if isinstance(audio_documents, list) and audio_documents:
+            logging.info(f"Type of first element in audio_documents: {type(audio_documents[0])}")
         documents.extend(audio_documents)
         if len(audio_documents) > 0:
             print(f"Loaded {len(audio_documents)} audio transcription(s)...")
 
+        # Before splitting
+        logging.info(f"Type of documents before split_documents: {type(documents)}")
+        if isinstance(documents, list) and documents:
+            logging.info(f"Type of first element in documents: {type(documents[0])}")
+
         # split each document in the list of documents
+        print("Splitting documents...")
         texts = split_documents(documents)
+
+        # After splitting
+        logging.info(f"Type of texts after split_documents: {type(texts)}")
+        if isinstance(texts, list) and texts:
+            logging.info(f"Type of first element in texts: {type(texts[0])}")
+
+        self.save_documents_to_pickle(texts)
+        self.save_document_structures(texts)
 
         # initialize vector model
         embeddings, encode_kwargs = self.initialize_vector_model(EMBEDDING_MODEL_NAME, config_data)
 
+        # Before creating database
+        logging.info(f"Type of texts before create_database: {type(texts)}")
+        if isinstance(texts, list) and texts:
+            logging.info(f"Type of first element in texts: {type(texts[0])}")
+
         # create database
+        print("Starting vector database creation process...")
         self.create_database(texts, embeddings)
         
         self.save_documents_to_json(json_docs_to_save)
@@ -214,27 +291,26 @@ class CreateVectorDB:
         del embeddings
         torch.cuda.empty_cache()
         gc.collect()
-        my_cprint("Embedding model removed from memory.", "red")
+        my_cprint("Vector model removed from memory.", "red")
         
-        # clear ingest folder
         self.clear_docs_for_db_folder()
-        print("Cleared all files and symlinks in Docs_for_DB folder.")
 
 
 class QueryVectorDB:
-    def __init__(self, config_file_path):
-        self.config = self.load_configuration(config_file_path)
+    def __init__(self, selected_database):
+        self.config = self.load_configuration()
+        self.selected_database = selected_database
         self.embeddings = self.initialize_vector_model()
         self.db = self.initialize_database()
         self.retriever = self.initialize_retriever()
 
-    def load_configuration(self, config_file_path):
+    def load_configuration(self):
+        config_file_path = Path(__file__).resolve().parent / "config.yaml"
         with open(config_file_path, 'r') as config_file:
             return yaml.safe_load(config_file)
 
     def initialize_vector_model(self):    
-        database_to_search = self.config['database']['database_to_search']
-        model_path = self.config['created_databases'][database_to_search]['model']
+        model_path = self.config['created_databases'][self.selected_database]['model']
         
         compute_device = self.config['Compute_Device']['database_query']
         encode_kwargs = {'normalize_embeddings': False, 'batch_size': 1}
@@ -248,14 +324,11 @@ class QueryVectorDB:
         elif "bge" in model_path:
             query_instruction = self.config['embedding-models']['bge']['query_instruction']
             return HuggingFaceBgeEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, query_instruction=query_instruction, encode_kwargs=encode_kwargs)
-        elif "Alibaba" in model_path:
-            return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device, "trust_remote_code": True}, encode_kwargs=encode_kwargs)
         else:
-            return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, encode_kwargs=encode_kwargs)
+            return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device, "trust_remote_code": True}, encode_kwargs=encode_kwargs)
 
     def initialize_database(self):
-        database_to_search = self.config['database']['database_to_search']
-        persist_directory = Path(__file__).resolve().parent / "Vector_DB" / database_to_search
+        persist_directory = Path(__file__).resolve().parent / "Vector_DB" / self.selected_database
         
         return TileDB.load(index_uri=str(persist_directory), embedding=self.embeddings, allow_dangerous_deserialization=True)
 

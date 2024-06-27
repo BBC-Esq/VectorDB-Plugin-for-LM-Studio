@@ -1,14 +1,20 @@
+import platform
 import sys
 import time
 from collections import deque
-from PySide6.QtCore import QThread, Signal
-from PySide6.QtWidgets import QWidget, QGridLayout, QProgressBar, QLabel
+
 import psutil
 import torch
-import platform
+from PySide6.QtCore import QThread, Signal
+from PySide6.QtWidgets import QWidget, QGridLayout, QProgressBar, QLabel
+import subprocess
 
 def is_nvidia_gpu_available():
-    return torch.cuda.is_available() and "nvidia" in torch.cuda.get_device_name(0).lower()
+    try:
+        output = subprocess.check_output(["nvidia-smi"])
+        return True
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
 
 if is_nvidia_gpu_available():
     import pynvml
@@ -16,6 +22,7 @@ if is_nvidia_gpu_available():
     handle = pynvml.nvmlDeviceGetHandleByIndex(0)
 else:
     handle = None
+
 
 class MetricsCollector(QThread):
     metrics_updated = Signal(tuple)
@@ -34,7 +41,7 @@ class MetricsCollector(QThread):
                 power_usage_percent, power_limit_percent = None, None
 
             self.metrics_updated.emit((cpu_usage, ram_usage_percent, gpu_utilization, vram_usage_percent, power_usage_percent, power_limit_percent))
-            time.sleep(0.2)  # Update frequency
+            time.sleep(0.1)  # Update frequency
 
 class MetricsBar(QWidget):
     def __init__(self):
@@ -158,27 +165,26 @@ def collect_gpu_metrics(handle):
 
 def collect_power_metrics(handle):
     if handle is None:
-        return None, None  # Return None values if no NVIDIA GPU is detected
+        return None, None
 
     try:
         power_usage = pynvml.nvmlDeviceGetPowerUsage(handle) / 1000.0
     except pynvml.NVMLError as err:
         print(f"Error collecting power usage: {err}")
-        return None, None  # Return None if power usage cannot be retrieved
+        return None, None
 
     try:
         power_limit = pynvml.nvmlDeviceGetPowerManagementLimit(handle) / 1000.0
     except pynvml.NVMLError_NotSupported:
-        # Fallback to enforced power limit if available
         try:
             power_limit = pynvml.nvmlDeviceGetEnforcedPowerLimit(handle) / 1000.0
         except pynvml.NVMLError:
             print("Power management and enforced power limit not supported.")
-            power_limit = None  # Set to None if neither power limit can be fetched
+            power_limit = None
 
     if power_limit is not None and power_limit > 0:
         power_percentage = (power_usage / power_limit) * 100
     else:
-        power_percentage = 0  # Set to 0 if power limit is None or 0
+        power_percentage = 0
 
     return power_percentage, power_limit

@@ -1,21 +1,18 @@
-import whisper_s2t
+import os
 import pickle
+import subprocess
 from multiprocessing import Process
 from pathlib import Path
-from extract_metadata import extract_audio_metadata
-import subprocess
-import av
-import os
-from langchain_community.docstore.document import Document
-import torch
+import warnings
 
-'''
-# custom document object class mimicking langchain's
-class Document:
-    def __init__(self, page_content: str, metadata: dict):
-        self.page_content = page_content
-        self.metadata = metadata
-'''
+import torch
+import av
+from langchain_community.docstore.document import Document
+
+import whisper_s2t
+from extract_metadata import extract_audio_metadata
+
+warnings.filterwarnings("ignore")
 
 class WhisperTranscriber:
     def __init__(self, model_identifier="ctranslate2-4you/whisper-mediuim.en-ct2-int8", batch_size=16, compute_type='int8'):
@@ -65,34 +62,34 @@ class WhisperTranscriber:
         self.create_document_object(transcription, audio_file_str)
 
     def convert_to_wav(self, audio_file):
-        output_file = Path(audio_file).stem + "_converted.wav"
+        output_file = f"{Path(audio_file).stem}_converted.wav"
         output_path = Path(__file__).parent / output_file
         
-        container = av.open(audio_file)
-        stream = next(s for s in container.streams if s.type == 'audio')
-        
-        resampler = av.AudioResampler(
-            format='s16',
-            layout='mono',
-            rate=16000,
-        )
-        
-        output_container = av.open(str(output_path), mode='w')
-        output_stream = output_container.add_stream('pcm_s16le', rate=16000)
-        output_stream.layout = 'mono'
-        
-        for frame in container.decode(audio=0):
-            frame.pts = None
-            resampled_frames = resampler.resample(frame)
-            if resampled_frames is not None:
-                for resampled_frame in resampled_frames:
-                    for packet in output_stream.encode(resampled_frame):
-                        output_container.mux(packet)
-        
-        for packet in output_stream.encode(None):
-            output_container.mux(packet)
-        
-        output_container.close()
+        with av.open(audio_file) as container:
+            stream = next(s for s in container.streams if s.type == 'audio')
+            
+            resampler = av.AudioResampler(
+                format='s16',
+                layout='mono',
+                rate=16000,
+            )
+            
+            output_container = av.open(str(output_path), mode='w')
+            output_stream = output_container.add_stream('pcm_s16le', rate=16000)
+            output_stream.layout = 'mono'
+            
+            for frame in container.decode(audio=0):
+                frame.pts = None
+                resampled_frames = resampler.resample(frame)
+                if resampled_frames is not None:
+                    for resampled_frame in resampled_frames:
+                        for packet in output_stream.encode(resampled_frame):
+                            output_container.mux(packet)
+            
+            for packet in output_stream.encode(None):
+                output_container.mux(packet)
+            
+            output_container.close()
         
         return str(output_path)
 
@@ -117,9 +114,7 @@ class WhisperTranscriber:
         audio_file_name = Path(audio_file_path).stem
         json_file_path = docs_dir / f"{audio_file_name}.json"
         
-        with open(json_file_path, 'w', encoding='utf-8') as file:
-            json_string = doc.json(indent=4)
-            file.write(json_string)
+        json_file_path.write_text(doc.json(indent=4), encoding='utf-8')
             
         script_dir = Path(__file__).parent
         converted_audio_file_name = f"{Path(audio_file_path).stem}_converted.wav"
@@ -127,7 +122,7 @@ class WhisperTranscriber:
 
         if converted_audio_file_full_path.exists():
             try:
-                os.remove(converted_audio_file_full_path)
+                converted_audio_file_full_path.unlink()
             except Exception as e:
                 print(f"Error deleting file {converted_audio_file_full_path}: {e}")
         else:

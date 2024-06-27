@@ -1,18 +1,19 @@
-from pathlib import Path
-from PySide6.QtWidgets import QMessageBox, QApplication
-import shutil
-import platform
-from pathlib import Path
-import os
-import yaml
 import gc
+import os
+import platform
+import shutil
 import sys
-from termcolor import cprint
+from pathlib import Path
+
 import torch
+import yaml
+from PySide6.QtWidgets import QMessageBox, QApplication
+from termcolor import cprint
 
 def load_config(config_file):
     with open(config_file, 'r') as file:
         return yaml.safe_load(file)
+
 
 def is_nvidia_gpu_available(config):
     gpu_brand = config.get("Compute_Device", {}).get("gpu_brand")
@@ -22,6 +23,7 @@ def is_nvidia_gpu_available(config):
     return False
 
 config = load_config('config.yaml')
+
 
 # Import pynvml only if CUDA is available and an NVIDIA GPU is detected
 if is_nvidia_gpu_available(config):
@@ -46,16 +48,6 @@ else:
     def print_cuda_memory_usage():
         print("CUDA is not available, or no NVIDIA GPU detected.")
 
-def validate_symbolic_links(source_directory):
-    source_path = Path(source_directory)
-    symbolic_links = [entry for entry in source_path.iterdir() if entry.is_symlink()]
-
-    for symlink in symbolic_links:
-        target_path = symlink.resolve(strict=False)
-
-        if not target_path.exists():
-            print(f"Warning: Symbolic link {symlink.name} points to a missing file. It will be skipped.")
-            symlink.unlink()
 
 def load_stylesheet(filename):
     script_dir = Path(__file__).parent
@@ -64,16 +56,19 @@ def load_stylesheet(filename):
         stylesheet = file.read()
     return stylesheet
 
+
 def list_theme_files():
     script_dir = Path(__file__).parent
     theme_dir = script_dir / 'CSS'
     return [f.name for f in theme_dir.iterdir() if f.suffix == '.css']
+
 
 def make_theme_changer(theme_name):
     def change_theme():
         stylesheet = load_stylesheet(theme_name)
         QApplication.instance().setStyleSheet(stylesheet)
     return change_theme
+
 
 def backup_database():
     source_directory = Path('Vector_DB')
@@ -90,7 +85,7 @@ def backup_database():
 
     shutil.copytree(source_directory, backup_directory, dirs_exist_ok=True)
 
-# gui_tabs_databases.py
+
 def open_file(file_path):
     try:
         if platform.system() == "Windows":
@@ -102,7 +97,7 @@ def open_file(file_path):
     except OSError:
         QMessageBox.warning(None, "Error", "No default viewer detected.")
 
-# gui_tabs_databases.py
+
 def delete_file(file_path):
     try:
         os.remove(file_path)
@@ -180,14 +175,8 @@ def check_preconditions_for_submit_question(script_dir):
 
     vector_db_subdir = script_dir / "Vector_DB" / str(database_to_search) if database_to_search else None
 
-    # Commenting out the portion checking for the existence of Parquet files
-    """
-    if not database_to_search or not vector_db_subdir or not vector_db_subdir.exists() or not any(f.suffix == '.parquet' for f in vector_db_subdir.iterdir()):
-        print("One or more checks failed: Database name not specified, vector database directory does not exist, or no .parquet files found")
-        return False, "Must create and select a vector database to search before proceeding."
-    """
-
     return True, ""
+
 
 def my_cprint(*args, **kwargs):
     filename = os.path.basename(sys._getframe(1).f_code.co_filename)
@@ -195,6 +184,7 @@ def my_cprint(*args, **kwargs):
     # modified_message = f"{filename}: {args[0]}" # uncomment to print script name as well
     kwargs['flush'] = True
     cprint(modified_message, *args[1:], **kwargs)
+    
     
 def print_cuda_memory_usage():
     try:
@@ -212,6 +202,7 @@ def print_cuda_memory_usage():
     finally:
         pynvml.nvmlShutdown()
 
+
 def get_cuda_compute_capabilities():
     ccs = []
     for i in range(torch.cuda.device_count()):
@@ -220,7 +211,38 @@ def get_cuda_compute_capabilities():
 
     return ccs
 
+
 def get_cuda_version():
     major, minor = map(int, torch.version.cuda.split("."))
 
     return f'{major}{minor}'
+
+
+def get_device_and_precision():
+    if torch.cuda.is_available():
+        device = "cuda"
+        capability = torch.cuda.get_device_capability()
+        if capability >= (8, 6):
+            precision = "bfloat16"
+        else:
+            precision = "float16"
+    else:
+        device = "cpu"
+        precision = "float32"
+    return device, precision
+
+
+'''
+open a text file on multiple platforms
+    try:
+        if os.name == 'nt':
+            os.startfile(output_file_path)
+        elif sys.platform == 'darwin':
+            subprocess.Popen(['open', output_file_path])
+        elif sys.platform.startswith('linux'):
+            subprocess.Popen(['xdg-open', output_file_path])
+        else:
+            raise NotImplementedError("Unsupported operating system")
+    except Exception as e:
+        print(f"Error opening file: {e}")
+'''

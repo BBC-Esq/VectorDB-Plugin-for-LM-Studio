@@ -1,15 +1,28 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox, QTreeView, QFileSystemModel, QMenu, QGroupBox, QLineEdit, QGridLayout, QSizePolicy
+import os
+import logging
+import warnings
+import platform
+import pickle
+import shutil
+from pathlib import Path
+
+import yaml
 from PySide6.QtCore import QDir, Qt, QTimer, QThread, Signal, QRegularExpression
 from PySide6.QtGui import QAction, QRegularExpressionValidator
-import os
-import shutil
-import platform
-from pathlib import Path
-import yaml
-from choose_documents_and_vector_model import select_embedding_model_directory, choose_documents_directory
+from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox, QTreeView, QFileSystemModel,
+                               QMenu, QGroupBox, QLineEdit, QGridLayout, QSizePolicy, QComboBox)
+
 import database_interactions
+from choose_documents_and_vector_model import select_embedding_model_directory, choose_documents_directory
 from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database
-import pickle
+
+datasets_logger = logging.getLogger('datasets')
+datasets_logger.setLevel(logging.WARNING)
+
+logging.getLogger("transformers").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+logging.getLogger().setLevel(logging.WARNING)
 
 class CreateDatabaseThread(QThread):
     creationComplete = Signal()
@@ -20,7 +33,7 @@ class CreateDatabaseThread(QThread):
 
     def run(self):
         create_vector_db = database_interactions.CreateVectorDB(database_name=self.database_name)
-        create_vector_db.run() # calls database_interactions.py
+        create_vector_db.run() # initiates database creation
         self.update_config_with_database_name()
         backup_database()
         
@@ -79,15 +92,16 @@ class DatabasesTab(QWidget):
         self.choose_docs_button = QPushButton("Choose Files")
         self.choose_docs_button.clicked.connect(choose_documents_directory)
 
-        self.choose_model_dir_button = QPushButton("Choose Model")
-        self.choose_model_dir_button.clicked.connect(select_embedding_model_directory)
+        self.model_combobox = QComboBox()
+        self.populate_model_combobox()
+        self.model_combobox.currentIndexChanged.connect(self.on_model_selected)
 
         self.create_db_button = QPushButton("Create Vector Database")
         self.create_db_button.clicked.connect(self.on_create_db_clicked)
         self.create_db_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         grid_layout_top_buttons.addWidget(self.choose_docs_button, 0, 0)
-        grid_layout_top_buttons.addWidget(self.choose_model_dir_button, 0, 1)
+        grid_layout_top_buttons.addWidget(self.model_combobox, 0, 1)
         grid_layout_top_buttons.addWidget(self.create_db_button, 0, 2)
 
         number_of_columns = 3
@@ -105,6 +119,68 @@ class DatabasesTab(QWidget):
 
         self.layout.addLayout(grid_layout_top_buttons)
         self.layout.addLayout(hbox2)
+
+        self.sync_combobox_with_config()
+
+    def populate_model_combobox(self):
+        self.model_combobox.clear()
+        self.model_combobox.addItem("Select a model", None)  # Add a blank item
+
+        script_dir = Path(__file__).resolve().parent
+        vector_dir = script_dir / "Models" / "vector"
+        
+        if not vector_dir.exists():
+            print(f"Warning: Vector directory not found at {vector_dir}")
+            return
+
+        model_found = False
+        for folder in vector_dir.iterdir():
+            if folder.is_dir():
+                model_found = True
+                display_name = folder.name.split('--')[-1]
+                full_path = str(folder)
+                self.model_combobox.addItem(display_name, full_path)
+        
+        if not model_found:
+            print(f"Warning: No model directories found in {vector_dir}")
+
+    def sync_combobox_with_config(self):
+        config_path = Path(__file__).resolve().parent / "config.yaml"
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as file:
+                config_data = yaml.safe_load(file) or {}
+            current_model = config_data.get("EMBEDDING_MODEL_NAME")
+            
+            if current_model:
+                model_index = self.model_combobox.findData(current_model)
+                if model_index != -1:
+                    self.model_combobox.setCurrentIndex(model_index)
+                else:
+                    print(f"Warning: Model {current_model} from config not found in combo box")
+                    self.model_combobox.setCurrentIndex(0)
+            else:
+                print("No model specified in config, defaulting to 'Select a model'")
+                self.model_combobox.setCurrentIndex(0)
+        else:
+            print("Config file not found, defaulting to 'Select a model'")
+            self.model_combobox.setCurrentIndex(0)
+
+    def on_model_selected(self, index):
+        selected_path = self.model_combobox.itemData(index)
+        config_path = Path(__file__).resolve().parent / "config.yaml"
+        config_data = {}
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as file:
+                config_data = yaml.safe_load(file) or {}
+        
+        if selected_path:
+            config_data["EMBEDDING_MODEL_NAME"] = selected_path
+        else:
+            if "EMBEDDING_MODEL_NAME" in config_data:
+                del config_data["EMBEDDING_MODEL_NAME"]
+        
+        with open(config_path, 'w', encoding='utf-8') as file:
+            yaml.safe_dump(config_data, file, allow_unicode=True)
 
     def create_group_box(self, title, directory_name):
         group_box = QGroupBox(title)
@@ -177,10 +253,14 @@ class DatabasesTab(QWidget):
                 delete_file(file_path)
 
     def on_create_db_clicked(self):
+        if self.model_combobox.currentIndex() == 0:
+            QMessageBox.warning(self, "No Model Selected", "Please select a model before creating a database.")
+            return
+
         # disable widgets
         self.create_db_button.setDisabled(True)
         self.choose_docs_button.setDisabled(True)
-        self.choose_model_dir_button.setDisabled(True)
+        self.model_combobox.setDisabled(True)
         self.database_name_input.setDisabled(True)
         
         database_name = self.database_name_input.text().strip()
@@ -193,8 +273,9 @@ class DatabasesTab(QWidget):
         if not checks_passed:
             self.create_db_button.setDisabled(False)
             self.choose_docs_button.setDisabled(False)
-            self.choose_model_dir_button.setDisabled(False)
+            self.model_combobox.setDisabled(False)
             self.database_name_input.setDisabled(False)
+            QMessageBox.warning(self, "Validation Failed", message)
             return
 
         print(f"Database will be named: '{database_name}'")
@@ -207,7 +288,7 @@ class DatabasesTab(QWidget):
     def reenable_create_db_button(self):
         self.create_db_button.setDisabled(False)
         self.choose_docs_button.setDisabled(False)
-        self.choose_model_dir_button.setDisabled(False)
+        self.model_combobox.setDisabled(False)
         self.database_name_input.setDisabled(False)
 
     def toggle_group_box(self, group_box, checked):

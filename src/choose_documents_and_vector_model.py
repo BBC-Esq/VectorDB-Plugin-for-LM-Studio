@@ -1,27 +1,22 @@
 import subprocess
-import os
-import yaml
 from pathlib import Path
+import yaml
 from PySide6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QMessageBox
 import torch
 
 def check_cuda_for_images(files):
-    image_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
-    # Check if any selected file is an image
-    if any(file.lower().endswith(tuple(image_extensions)) for file in files):
+    image_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff'}
+    if any(Path(file).suffix.lower() in image_extensions for file in files):
         if not torch.cuda.is_available():
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Warning)
-            msg_box.setText("Processing images currently only available with GPU acceleration. Please remove any images and try again.")
-            msg_box.setWindowTitle("CUDA Support Required")
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.exec()
+            QMessageBox.warning(None, "CUDA Support Required", 
+                "Processing images currently only available with GPU acceleration. Please remove any images and try again.")
             return False
     return True
 
 def choose_documents_directory():
-    allowed_extensions = ['.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', '.rtf', '.odt',
-                          '.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff', '.html', '.htm', '.md', '.doc']
+    allowed_extensions = {'.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', 
+                          '.rtf', '.odt', '.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff', '.html', 
+                          '.htm', '.md', '.doc'}
     current_dir = Path(__file__).parent.resolve()
     file_dialog = QFileDialog()
     file_dialog.setFileMode(QFileDialog.ExistingFiles)
@@ -29,17 +24,10 @@ def choose_documents_directory():
 
     if file_paths:
         if not check_cuda_for_images(file_paths):
-            return  # Exit if CUDA not available and image files are found
+            return
 
-        incompatible_files = []
-        compatible_files = []
-
-        for file_path in file_paths:
-            extension = Path(file_path).suffix.lower()
-            if extension in allowed_extensions:
-                compatible_files.append(file_path)
-            else:
-                incompatible_files.append(Path(file_path).name)
+        compatible_files = [file for file in file_paths if Path(file).suffix.lower() in allowed_extensions]
+        incompatible_files = [Path(file).name for file in file_paths if Path(file).suffix.lower() not in allowed_extensions]
 
         if incompatible_files:
             dialog_text = "The following files cannot be added here due to their file extension:\n\n" + "\n".join(incompatible_files) + "\n\nHowever, if any of them are audio files you can still add them directly in the Tools Tab."
@@ -72,17 +60,14 @@ def choose_documents_directory():
                 return
 
         target_folder = current_dir / "Docs_for_DB"
+        target_folder.mkdir(parents=True, exist_ok=True)
         for file_path in compatible_files:
             symlink_target = target_folder / Path(file_path).name
-            if not target_folder.exists():
-                target_folder.mkdir(parents=True, exist_ok=True)
-            if symlink_target.exists():
-                symlink_target.unlink()
+            symlink_target.unlink(missing_ok=True)
             symlink_target.symlink_to(file_path)
 
-
 def load_config():
-    with open(Path("config.yaml"), 'r', encoding='utf-8') as stream:
+    with open("config.yaml", 'r', encoding='utf-8') as stream:
         return yaml.safe_load(stream)
 
 def select_embedding_model_directory():
@@ -91,16 +76,7 @@ def select_embedding_model_directory():
     
     if chosen_directory:
         config_file_path = Path("config.yaml")
-        if config_file_path.exists():
-            try:
-                with open(config_file_path, 'r', encoding='utf-8') as file:
-                    config_data = yaml.safe_load(file)
-            except Exception:
-                config_data = {}
-
+        config_data = yaml.safe_load(config_file_path.read_text(encoding='utf-8')) if config_file_path.exists() else {}
         config_data["EMBEDDING_MODEL_NAME"] = chosen_directory
-
-        with open(config_file_path, 'w', encoding='utf-8') as file:
-            yaml.dump(config_data, file)
-
+        config_file_path.write_text(yaml.dump(config_data), encoding='utf-8')
         print(f"Selected directory: {chosen_directory}")

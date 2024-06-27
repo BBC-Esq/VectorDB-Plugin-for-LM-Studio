@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QPushButton, QHBoxLayout, QWidget, QMessageBox
 from gui_tabs_settings_server import ServerSettingsTab
-#from gui_tabs_settings_whisper import TranscriberSettingsTab
 from gui_tabs_settings_database_create import ChunkSettingsTab
 from gui_tabs_settings_database_query import DatabaseSettingsTab
 from gui_tabs_settings_tts import BarkModelSettingsTab
@@ -29,11 +28,10 @@ class GuiSettingsTab(QWidget):
         self.layout = QVBoxLayout()
 
         classes = {
-            "LM Studio Server": (ServerSettingsTab, 4),
-            #"VOICE RECORDER": (TranscriberSettingsTab, 1),
+            "LM Studio Server": (ServerSettingsTab, 5),
             "Database Query": (DatabaseSettingsTab, 3),
-            "Database Creation": (ChunkSettingsTab, 2),
-            "Text to Speech": (BarkModelSettingsTab, 3),
+            "Database Creation": (ChunkSettingsTab, 1),
+            "Text to Speech": (BarkModelSettingsTab, 4),
         }
 
         self.groups = {}
@@ -49,14 +47,13 @@ class GuiSettingsTab(QWidget):
             group.setChecked(True)
             self.groups[group] = stretch
             self.configs[title] = settings
-
             self.layout.addWidget(group, stretch)
             group.toggled.connect(lambda checked, group=group: (
-                self.configs[group.title()].setVisible(checked),
+                self.configs[group.title()].setVisible(checked) if group.title() in self.configs else None,
                 adjust_stretch(self.groups, self.layout)
             ))
 
-        # VisionSettingsTab
+        # VisionSettingsTab - handled separately
         visionSettings = VisionSettingsTab()
         visionGroup = QGroupBox("Vision Models")
         visionLayout = QVBoxLayout()
@@ -64,7 +61,13 @@ class GuiSettingsTab(QWidget):
         visionGroup.setLayout(visionLayout)
         visionGroup.setCheckable(True)
         visionGroup.setChecked(True)
-        self.layout.addWidget(visionGroup, 2)
+        self.layout.addWidget(visionGroup, 1)
+
+        self.groups[visionGroup] = 1
+        visionGroup.toggled.connect(lambda checked: (
+            visionSettings.setVisible(checked),
+            adjust_stretch(self.groups, self.layout)
+        ))
 
         self.update_all_button = QPushButton("Update Settings")
         self.update_all_button.setStyleSheet("min-width: 200px;")
