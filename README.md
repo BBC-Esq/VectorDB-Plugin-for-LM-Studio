@@ -89,8 +89,6 @@
      <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
    </details>
 
-6) 🟢Nvidia GPU acceleration requires [CUDA 12.1+](https://developer.nvidia.com/cuda-toolkit).
-
 <div align="center"> <h2>INSTALLATION</h2></div>
 
 <details>
