@@ -1,6 +1,27 @@
 import sys
 import os
 from pathlib import Path
+
+def set_cuda_paths():
+    script_dir = Path(__file__).parent.resolve()
+    cuda_path = script_dir / 'Lib' / 'site-packages' / 'nvidia'
+    cublas_path = cuda_path / 'cublas' / 'bin'
+    cudnn_path = cuda_path / 'cudnn' / 'bin'
+
+    paths_to_add = [str(cuda_path), str(cublas_path), str(cudnn_path)]
+
+    env_vars = ['CUDA_PATH', 'CUDA_PATH_V12_2', 'PATH']
+
+    for env_var in env_vars:
+        current_value = os.environ.get(env_var, '')
+        new_value = os.pathsep.join(paths_to_add + [current_value] if current_value else paths_to_add)
+        os.environ[env_var] = new_value
+
+    print("CUDA paths have been set or updated in the environment variables.")
+
+# Execute the function immediately
+set_cuda_paths()
+
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget,
     QStyleFactory, QMenuBar
@@ -10,24 +31,6 @@ from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from gui_tabs import create_tabs
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
-
-def set_cuda_paths():
-    venv_base = Path(sys.executable).parent
-    nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
-    cudnn_bin_path = nvidia_base_path / 'cudnn' / 'bin'
-    
-    # Set CUDA_PATH and CUDA_PATH_V12_2
-    for env_var in ['CUDA_PATH', 'CUDA_PATH_V12_2']:
-        current_path = os.environ.get(env_var, '')
-        os.environ[env_var] = os.pathsep.join(filter(None, [str(nvidia_base_path), current_path]))
-    
-    # Add nvidia folder and cudnn bin folder to system PATH
-    current_path = os.environ.get('PATH', '')
-    new_path = os.pathsep.join(filter(None, [str(cudnn_bin_path), str(nvidia_base_path), current_path]))
-    os.environ['PATH'] = new_path
-
-set_cuda_paths()
-
 
 class DocQA_GUI(QWidget):
     def __init__(self):
