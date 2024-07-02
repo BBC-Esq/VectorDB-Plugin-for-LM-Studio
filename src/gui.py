@@ -17,9 +17,6 @@ def set_cuda_paths():
         new_value = os.pathsep.join(paths_to_add + [current_value] if current_value else paths_to_add)
         os.environ[env_var] = new_value
 
-    print("CUDA paths have been set or updated in the environment variables.")
-
-# Execute the function immediately
 set_cuda_paths()
 
 from PySide6.QtWidgets import (
