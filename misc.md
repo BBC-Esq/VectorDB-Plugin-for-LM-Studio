@@ -181,27 +181,25 @@
 | Orca-2-13b                  | 20.01             | 14.1            |
 
 ## Concurrency
-
 | **Library/Tool**             | **Type**                         | **Best Use Case**                                      | **Pros**                                           | **Cons**                                         |
 |------------------------------|----------------------------------|--------------------------------------------------------|----------------------------------------------------|--------------------------------------------------|
-| **Python `threading`**       | Threading                        | I/O-bound tasks                                        | Simple API, good for I/O-bound tasks               | GIL limits effectiveness for CPU-bound tasks     |
-| **Python `multiprocessing`** | Multiprocessing                  | CPU-bound tasks                                        | True parallelism, bypasses GIL                     | Higher memory overhead, complex IPC              |
-| **Python `subprocess`**      | Process control                  | Running external commands                              | Simple process control, capture I/O                | Limited to external process management           |
-| **concurrent.futures**       | High-level API for Threading & Multiprocessing | Unified task management                                | Simplifies task execution, combines threading and multiprocessing | Limited flexibility, higher abstraction          |
-| **asyncio**                  | Async/Coroutine                  | I/O-bound, high concurrency tasks                      | Non-blocking I/O, single-threaded concurrency      | Steeper learning curve due to coroutines and event loop |
-| **QThread**                  | Threading                        | Integrating threads into the Qt event loop, signal-slot communication | Seamless Qt integration, easy inter-thread communication | More boilerplate, requires subclassing           |
+| **Python `threading`**       | Threading                        | I/O-bound tasks, concurrent I/O operations, maintaining GUI responsiveness | Simple API, good for I/O-bound tasks, useful for GUI responsiveness | GIL limits effectiveness for CPU-bound tasks     |
+| **Python `multiprocessing`** | Multiprocessing                  | CPU-bound tasks, parallelizing across multiple cores   | True parallelism, bypasses GIL                     | Higher memory overhead, complex IPC              |
+| **Python `subprocess`**      | Process control                  | Running external commands, integrating system commands and other languages | Simple process control, capture I/O                | Limited to external process management           |
+| **concurrent.futures**       | High-level API for Threading & Multiprocessing | Unified task management                                | Simplifies task execution, combines threading and multiprocessing, easy switching between ThreadPoolExecutor and ProcessPoolExecutor | Limited flexibility, higher abstraction          |
+| **asyncio**                  | Async/Coroutine                  | I/O-bound, high concurrency tasks, network programming, web scraping | Non-blocking I/O, single-threaded concurrency      | Steeper learning curve due to coroutines and event loop |
+| **QThread**                  | Threading                        | Integrating threads into the Qt event loop, signal-slot communication, long-running background tasks | Seamless Qt integration, easy inter-thread communication | More boilerplate, requires subclassing           |
 | **QRunnable/QThreadPool**    | Threading                        | Managing multiple short-lived tasks within Qt applications | Efficient task management, less boilerplate        | Requires understanding of Qt threading architecture |
-| **QtConcurrent**             | Threading                        | High-level parallel tasks in Qt                        | High-level functions for parallel execution, automatic thread pooling | Less control over individual threads             |
-| **QProcess**                 | Process control                  | Running external commands in Qt applications           | Integrates with Qt, handles process I/O            | Limited to process control                       |
+| **QtConcurrent**             | Threading                        | High-level parallel tasks in Qt, map-reduce style operations | High-level functions for parallel execution, automatic thread pooling | Less control over individual threads             |
+| **QProcess**                 | Process control                  | Running external commands in Qt applications           | Integrates with Qt, handles process I/O, more control and integration with Qt's event loop | Limited to process control                       |
 
 ### Summary
-
-> - **Python `threading`**: Best for simple I/O-bound tasks.
-> - **Python `multiprocessing`**: Best for CPU-bound tasks requiring true parallelism.
-> - **Python `subprocess`**: Simple external process management. Use when you need straightforward process control and portability across different environments.
-> - **concurrent.futures**: Unified API for high-level task management.
-> - **asyncio**: Suitable for I/O-bound tasks with high concurrency, single-threaded.
-> - **QThread**: Ideal for complex threading in Qt applications with signal-slot communication.
+> - **Python `threading`**: Best for simple I/O-bound tasks, concurrent I/O operations, and maintaining responsiveness in GUI applications.
+> - **Python `multiprocessing`**: Best for CPU-bound tasks requiring true parallelism, good for parallelizing CPU-intensive tasks across multiple cores.
+> - **Python `subprocess`**: Simple external process management. Use when you need straightforward process control and portability across different environments. Useful for integrating with system commands and other programming languages.
+> - **concurrent.futures**: Unified API for high-level task management. Provides both ThreadPoolExecutor and ProcessPoolExecutor, allowing easy switching between threading and multiprocessing.
+> - **asyncio**: Suitable for I/O-bound tasks with high concurrency, single-threaded. Particularly effective for network programming and web scraping tasks.
+> - **QThread**: Ideal for complex threading in Qt applications with signal-slot communication. Useful for long-running background tasks in Qt applications.
 > - **QRunnable/QThreadPool**: Efficient for managing multiple short-lived tasks in Qt.
-> - **QtConcurrent**: Simplifies parallel task execution in Qt applications.
-> - **QProcess**: Handles running and managing external processes within Qt applications. Use when you need tight integration with the Qt event loop and signal-slot mechanism.
+> - **QtConcurrent**: Simplifies parallel task execution in Qt applications. Particularly good for map-reduce style operations.
+> - **QProcess**: Handles running and managing external processes within Qt applications. Use when you need tight integration with the Qt event loop and signal-slot mechanism. Provides more control and integration with Qt's event loop compared to Python's subprocess.
