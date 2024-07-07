@@ -47,7 +47,7 @@
 | Qwen-VL-Chat - 4b                 | N/A                                    | 42.46 tokens/sec, 11 GB                |
 | Llava 1.5 - 13b                   | N/A                                    | 35.54 tokens/sec, 9.8 GB               |
 | MiniCPM_v2 - 3.4b                 | N/A                                    | 33.37 tokens/sec, 10 GB                |
-| llava-llama-3-8b-v1_1-transformers | N/A                                    | 31.83 tokens/sec, 7.3 GB               |
+| MiniCPM-Llama3 2.5 | N/A                                    | 13.25 tokens/sec, 9.3 GB               |
 | Cogvlm-chat-hf - 17.6b            | N/A                                    | 9.8 tokens/sec, 12.8 GB                |
 
 
