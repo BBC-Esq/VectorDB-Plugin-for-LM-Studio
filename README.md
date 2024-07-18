@@ -110,7 +110,7 @@ Activate the virtual environment:
 ### Step 4
 Run setup:
 ```
-python setup.py
+python setup_windows.py
 ```
 
 ### Optional Step 5
