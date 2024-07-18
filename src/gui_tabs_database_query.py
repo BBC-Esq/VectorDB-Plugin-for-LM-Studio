@@ -204,7 +204,7 @@ class DatabaseQueryTab(QWidget):
             QMessageBox.warning(self, "Error", "The Text to Speech backend you selected requires GPU-acceleration.")
             return
 
-        if not (script_dir / 'chat_history.txt').exissts():
+        if not (script_dir / 'chat_history.txt').exists():
             QMessageBox.warning(self, "Error", "No response to play.")
             return
 
