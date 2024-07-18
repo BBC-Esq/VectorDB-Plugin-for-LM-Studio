@@ -1,7 +1,7 @@
-openai==1.23.6
-langchain==0.2.5
+# openai==1.23.6
+# langchain==0.2.5
 # langchain==0.2.5 requires numpy<2,>=1
-langchain-community==0.2.5
+# langchain-community==0.2.5
 ctranslate2==4.3.1
 tiledb==0.27.1
 tiledb-vector-search==0.2.2
@@ -31,7 +31,7 @@ timm==0.9.16
 sounddevice==0.4.6
 platformdirs==4.2.1
 rich==13.7.1
-openai-whisper
+openai-whisper==20231117
 bitsandbytes==0.43.1
 webdataset==0.2.86
 sentence-transformers==3.0.1
