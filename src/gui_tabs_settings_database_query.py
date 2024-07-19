@@ -19,7 +19,7 @@ class DatabaseSettingsTab(QWidget):
         self.field_data = {}
         self.label_data = {}
 
-        self.query_device_label = QLabel(f"Query Device: {self.database_query_device}")
+        self.query_device_label = QLabel(f"Device: {self.database_query_device}")
         self.query_device_combo = QComboBox()
         self.query_device_combo.addItems(self.compute_device_options)
         if self.database_query_device in self.compute_device_options:

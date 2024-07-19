@@ -254,6 +254,8 @@ class CreateVectorDB:
             if len(audio_documents) > 0:
                 print(f"Loaded {len(audio_documents)} audio transcription(s)...")
 
+        texts = [] # listed created to hold split documents
+        
         # split documents
         if isinstance(documents, list) and documents:
             texts = split_documents(documents)

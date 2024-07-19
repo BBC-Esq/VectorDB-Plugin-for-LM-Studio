@@ -122,29 +122,29 @@ def split_documents(documents):
             chunk_overlap = config["database"]["chunk_overlap"]
         
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-        print(f"Text splitter type: {type(text_splitter)}, content: {text_splitter.__dict__}")
+        # print(f"Text splitter type: {type(text_splitter)}, content: {text_splitter.__dict__}")
         
         # Summarize documents before conversion
-        type_count = defaultdict(int)
-        exceptions = []
-        for i, doc in enumerate(documents):
-            doc_type = type(doc).__name__
-            content_type = type(doc.page_content).__name__
-            type_key = f"{doc_type}, content type: {content_type}"
-            type_count[type_key] += 1
+        # type_count = defaultdict(int)
+        # exceptions = []
+        # for i, doc in enumerate(documents):
+            # doc_type = type(doc).__name__
+            # content_type = type(doc.page_content).__name__
+            # type_key = f"{doc_type}, content type: {content_type}"
+            # type_count[type_key] += 1
             
-            if content_type != 'str':
-                exceptions.append(f"Document {i} has unexpected content type: {content_type}")
+            # if content_type != 'str':
+                # exceptions.append(f"Document {i} has unexpected content type: {content_type}")
         
-        print("Document summary before conversion:")
-        print(f"Total documents: {len(documents)}")
-        for type_key, count in type_count.items():
-            print(f"{count} documents of type: {type_key}")
+        # print("Document summary before conversion:")
+        # print(f"Total documents: {len(documents)}")
+        # for type_key, count in type_count.items():
+            # print(f"{count} documents of type: {type_key}")
         
-        if exceptions:
-            print("\nExceptions found:")
-            for exception in exceptions:
-                print(exception)
+        # if exceptions:
+            # print("\nExceptions found:")
+            # for exception in exceptions:
+                # print(exception)
         
         # Convert "page content" within each document object to a string if it isn't already
         for i, doc in enumerate(documents):
@@ -153,26 +153,26 @@ def split_documents(documents):
                 documents[i].page_content = str(doc.page_content)
         
         # Summarize documents after conversion
-        type_count.clear()
-        exceptions.clear()
-        for i, doc in enumerate(documents):
-            doc_type = type(doc).__name__
-            content_type = type(doc.page_content).__name__
-            type_key = f"{doc_type}, content type: {content_type}"
-            type_count[type_key] += 1
+        # type_count.clear()
+        # exceptions.clear()
+        # for i, doc in enumerate(documents):
+            # doc_type = type(doc).__name__
+            # content_type = type(doc.page_content).__name__
+            # type_key = f"{doc_type}, content type: {content_type}"
+            # type_count[type_key] += 1
             
-            if content_type != 'str':
-                exceptions.append(f"Document {i} has unexpected content type: {content_type}")
+            # if content_type != 'str':
+                # exceptions.append(f"Document {i} has unexpected content type: {content_type}")
         
-        print("\nDocument summary after conversion:")
-        print(f"Total documents: {len(documents)}")
-        for type_key, count in type_count.items():
-            print(f"{count} documents of type: {type_key}")
+        # print("\nDocument summary after conversion:")
+        # print(f"Total documents: {len(documents)}")
+        # for type_key, count in type_count.items():
+            # print(f"{count} documents of type: {type_key}")
         
-        if exceptions:
-            print("\nExceptions found:")
-            for exception in exceptions:
-                print(exception)
+        # if exceptions:
+            # print("\nExceptions found:")
+            # for exception in exceptions:
+                # print(exception)
         
         try:
             print(f"\nSplitting {len(documents)} documents.")

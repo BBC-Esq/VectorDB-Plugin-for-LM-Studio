@@ -6,17 +6,15 @@ from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePoli
 class ChunkSettingsTab(QWidget):
     def __init__(self):
         super(ChunkSettingsTab, self).__init__()
-
         with open('config.yaml', 'r', encoding='utf-8') as f:
             config_data = yaml.safe_load(f)
             self.database_config = config_data['database']
             self.compute_device_options = config_data['Compute_Device']['available']
             self.database_creation_device = config_data['Compute_Device']['database_creation']
-
         grid_layout = QGridLayout()
-
+        
         # Device selection and current setting
-        self.device_label = QLabel("Create Device:")
+        self.device_label = QLabel("Device:")
         grid_layout.addWidget(self.device_label, 0, 0)
         self.device_combo = QComboBox()
         self.device_combo.addItems(self.compute_device_options)
@@ -26,29 +24,29 @@ class ChunkSettingsTab(QWidget):
         grid_layout.addWidget(self.device_combo, 0, 2)
         self.current_device_label = QLabel(f"{self.database_creation_device}")
         grid_layout.addWidget(self.current_device_label, 0, 1)
-
-        # Chunk overlap and current setting
-        self.chunk_overlap_label = QLabel("Chunk Overlap:")
-        grid_layout.addWidget(self.chunk_overlap_label, 0, 3)
-        self.chunk_overlap_edit = QLineEdit()
-        self.chunk_overlap_edit.setPlaceholderText("Enter new chunk_overlap...")
-        self.chunk_overlap_edit.setValidator(QIntValidator())
-        grid_layout.addWidget(self.chunk_overlap_edit, 0, 5)
-        current_overlap = self.database_config.get('chunk_overlap', '')
-        self.current_overlap_label = QLabel(f"{current_overlap}")
-        grid_layout.addWidget(self.current_overlap_label, 0, 4)
-
-        # Chunk size and current setting
-        self.chunk_size_label = QLabel("Chunk Size:")
-        grid_layout.addWidget(self.chunk_size_label, 0, 6)
+        
+        # Chunk size and current setting (moved to the left)
+        self.chunk_size_label = QLabel("Chunk Size (# characters):")
+        grid_layout.addWidget(self.chunk_size_label, 0, 3)
         self.chunk_size_edit = QLineEdit()
         self.chunk_size_edit.setPlaceholderText("Enter new chunk_size...")
         self.chunk_size_edit.setValidator(QIntValidator())
-        grid_layout.addWidget(self.chunk_size_edit, 0, 8)
+        grid_layout.addWidget(self.chunk_size_edit, 0, 5)
         current_size = self.database_config.get('chunk_size', '')
         self.current_size_label = QLabel(f"{current_size}")
-        grid_layout.addWidget(self.current_size_label, 0, 7)
-
+        grid_layout.addWidget(self.current_size_label, 0, 4)
+        
+        # Chunk overlap and current setting (moved to the right)
+        self.chunk_overlap_label = QLabel("Overlap (# characters):")
+        grid_layout.addWidget(self.chunk_overlap_label, 0, 6)
+        self.chunk_overlap_edit = QLineEdit()
+        self.chunk_overlap_edit.setPlaceholderText("Enter new chunk_overlap...")
+        self.chunk_overlap_edit.setValidator(QIntValidator())
+        grid_layout.addWidget(self.chunk_overlap_edit, 0, 8)
+        current_overlap = self.database_config.get('chunk_overlap', '')
+        self.current_overlap_label = QLabel(f"{current_overlap}")
+        grid_layout.addWidget(self.current_overlap_label, 0, 7)
+        
         self.setLayout(grid_layout)
 
     def update_config(self):
