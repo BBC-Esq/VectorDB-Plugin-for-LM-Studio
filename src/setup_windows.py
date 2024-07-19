@@ -95,7 +95,7 @@ def setup_windows_installation():
         os.system("pip install --no-cache-dir xformers==0.0.25.post1")
         os.system("pip install --no-cache-dir nvidia-ml-py")
 
-    os.system("pip install --no-cache-dir -U git+https://github.com/shashikg/WhisperS2T.git")
+    os.system("pip install --no-cache-dir --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
     os.system("pip install --no-cache-dir --no-deps -U git+https://github.com/BBC-Esq/WhisperSpeech.git@add_cache_dir")
     # os.system("pip install --no-deps -U git+https://github.com/collabora/WhisperSpeech.git") # will force unwanted torch version if installed with dependencies
     os.system("pip install --no-cache-dir --no-deps chattts-fork==0.0.8")

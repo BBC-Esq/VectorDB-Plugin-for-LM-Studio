@@ -390,15 +390,15 @@ CHAT_MODELS = {
         'avg_vram_usage': '9.9 GB',
         'function': 'Orca2_13b'
     },
-    'Phi-3 Medium 4k - 14b': {
-        'model': 'Phi-3 Medium 4k - 14b',
-        'repo_id': 'microsoft/Phi-3-medium-4k-instruct',
-        'cache_dir': 'microsoft--Phi-3-medium-4k-instruct',
-        'tokens_per_second': 34.60,
-        'context_length': 4096,
-        'avg_vram_usage': '9.8 GB',
-        'function': 'Phi3_medium_4k'
-    },
+    # 'Phi-3 Medium 4k - 14b': {
+        # 'model': 'Phi-3 Medium 4k - 14b',
+        # 'repo_id': 'microsoft/Phi-3-medium-4k-instruct',
+        # 'cache_dir': 'microsoft--Phi-3-medium-4k-instruct',
+        # 'tokens_per_second': 34.60,
+        # 'context_length': 4096,
+        # 'avg_vram_usage': '9.8 GB',
+        # 'function': 'Phi3_medium_4k'
+    # },
     'Dolphin-Qwen 2 - 7b': {
         'model': 'Dolphin-Qwen 2 - 7b',
         'repo_id': 'cognitivecomputations/dolphin-2.9.2-qwen2-7b',

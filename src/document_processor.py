@@ -3,6 +3,8 @@ import logging
 import warnings
 import yaml
 import math
+import tqdm
+from collections import defaultdict
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
 from pathlib import Path
@@ -50,7 +52,6 @@ for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
 
 def load_single_document(file_path: Path) -> Document:
-    # logging.info(f"Loading document: {file_path.name}")
     file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
 
@@ -82,7 +83,6 @@ def load_single_document(file_path: Path) -> Document:
     return document
 
 def load_document_batch(filepaths, threads_per_process):
-    # logging.info(f"Loading a batch of {len(filepaths)} documents with {threads_per_process} threads")
     with ThreadPoolExecutor(threads_per_process) as exe:
         futures = [exe.submit(load_single_document, name) for name in filepaths]
         data_list = [future.result() for future in futures]
@@ -92,8 +92,6 @@ def load_documents(source_dir: Path) -> list:
     all_files = list(source_dir.iterdir())
     doc_paths = [f for f in all_files if f.suffix.lower() in (key.lower() for key in DOCUMENT_LOADERS.keys())]
     
-    # logging.info(f"Found {len(doc_paths)} document(s) to load")
-    
     docs = []
 
     if doc_paths:
@@ -102,8 +100,6 @@ def load_documents(source_dir: Path) -> list:
         total_cores = os.cpu_count()
         max_threads = max(4, total_cores - 8)
         threads_per_process = 1
-        
-        # logging.info(f"Using {n_workers} processes with {threads_per_process} threads each...")
         
         with ProcessPoolExecutor(n_workers) as executor:
             chunksize = math.ceil(len(doc_paths) / n_workers)
@@ -119,40 +115,74 @@ def load_documents(source_dir: Path) -> list:
     return docs
 
 def split_documents(documents):
-    logging.info("Entering split_documents function")
     try:
         with open("config.yaml", "r", encoding='utf-8') as config_file:
             config = yaml.safe_load(config_file)
             chunk_size = config["database"]["chunk_size"]
             chunk_overlap = config["database"]["chunk_overlap"]
         
-        logging.info(f"Loaded chunk_size: {chunk_size}")
-        logging.info(f"Loaded chunk_overlap: {chunk_overlap}")
-        
-        logging.info("Creating RecursiveCharacterTextSplitter instance")
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-        logging.info("RecursiveCharacterTextSplitter instance created")
+        print(f"Text splitter type: {type(text_splitter)}, content: {text_splitter.__dict__}")
         
-        logging.info(f"Number of documents passed to split_documents: {len(documents)}")
-        
-        # Convert document content to string if it's not already
+        # Summarize documents before conversion
+        type_count = defaultdict(int)
+        exceptions = []
         for i, doc in enumerate(documents):
-            logging.info(f"Document {i} content type: {type(doc.page_content)}")
+            doc_type = type(doc).__name__
+            content_type = type(doc.page_content).__name__
+            type_key = f"{doc_type}, content type: {content_type}"
+            type_count[type_key] += 1
+            
+            if content_type != 'str':
+                exceptions.append(f"Document {i} has unexpected content type: {content_type}")
+        
+        print("Document summary before conversion:")
+        print(f"Total documents: {len(documents)}")
+        for type_key, count in type_count.items():
+            print(f"{count} documents of type: {type_key}")
+        
+        if exceptions:
+            print("\nExceptions found:")
+            for exception in exceptions:
+                print(exception)
+        
+        # Convert "page content" within each document object to a string if it isn't already
+        for i, doc in enumerate(documents):
             if not isinstance(doc.page_content, str):
                 logging.warning(f"Document {i} content is not a string. Converting to string.")
                 documents[i].page_content = str(doc.page_content)
         
-        logging.info(f"Splitting documents...")
+        # Summarize documents after conversion
+        type_count.clear()
+        exceptions.clear()
+        for i, doc in enumerate(documents):
+            doc_type = type(doc).__name__
+            content_type = type(doc.page_content).__name__
+            type_key = f"{doc_type}, content type: {content_type}"
+            type_count[type_key] += 1
+            
+            if content_type != 'str':
+                exceptions.append(f"Document {i} has unexpected content type: {content_type}")
+        
+        print("\nDocument summary after conversion:")
+        print(f"Total documents: {len(documents)}")
+        for type_key, count in type_count.items():
+            print(f"{count} documents of type: {type_key}")
+        
+        if exceptions:
+            print("\nExceptions found:")
+            for exception in exceptions:
+                print(exception)
+        
         try:
+            print(f"\nSplitting {len(documents)} documents.")
             texts = text_splitter.split_documents(documents)
-            logging.info("Documents split successfully")
+            print(f"Created {len(texts)} chunks.")
         except Exception as e:
             logging.error(f"Error during document splitting: {str(e)}")
             logging.error(f"Error type: {type(e)}")
             logging.error(f"Error traceback: {traceback.format_exc()}")
             raise  # Re-raise the exception after logging
-        
-        logging.info(f"Number of chunks created: {len(texts)}")
         
         return texts
     

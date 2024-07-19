@@ -1,4 +1,5 @@
 import os
+import logging
 import signal
 import threading
 from pathlib import Path
@@ -15,6 +16,10 @@ from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP, CHAT_MODELS
 from module_tts import run_tts
 from module_voice_recorder import VoiceRecorder
 from utilities import check_preconditions_for_submit_question, my_cprint
+
+logging.basicConfig(level=logging.DEBUG, 
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    filename='app.log')
 
 current_dir = Path(__file__).resolve().parent
 input_text_file = str(current_dir / 'chat_history.txt')
@@ -123,6 +128,7 @@ class DatabaseQueryTab(QWidget):
         self.local_model_chat.signals.error_signal.connect(self.show_error_message)
         self.local_model_chat.signals.finished_signal.connect(self.on_submission_finished)
         self.local_model_chat.signals.model_loaded_signal.connect(self.on_model_loaded)
+        self.local_model_chat.signals.model_unloaded_signal.connect(self.on_model_unloaded)  # New line
 
     def on_model_source_changed(self, text):
         if text == "Local Model":
@@ -162,15 +168,32 @@ class DatabaseQueryTab(QWidget):
             self.lm_studio_chat_thread.start()
         else:  # Local Model
             selected_model = self.model_combo_box.currentText()
-            if selected_model != self.local_model_chat.current_model:
-                if self.local_model_chat.is_model_loaded():
-                    self.local_model_chat.terminate_current_process()
-                self.local_model_chat.start_model_process(selected_model)
-            self.local_model_chat.start_chat(user_question, chunks_only, selected_model, selected_database)
+            try:
+                if selected_model != self.local_model_chat.current_model:
+                    if self.local_model_chat.is_model_loaded():
+                        self.local_model_chat.terminate_current_process()
+                    self.local_model_chat.start_model_process(selected_model)
+                self.local_model_chat.start_chat(user_question, chunks_only, selected_model, selected_database)
+            except Exception as e:
+                logging.exception(f"Error starting or using local model: {e}")
+                self.show_error_message(f"Error with local model: {str(e)}")
+                self.submit_button.setDisabled(False)
 
     def eject_model(self):
-        self.local_model_chat.terminate_current_process()
+        if self.local_model_chat.is_model_loaded():
+            try:
+                self.local_model_chat.eject_model()
+            except Exception as e:
+                logging.exception(f"Error during model ejection: {e}")
+            finally:
+                self.eject_button.setEnabled(False)
+                self.model_combo_box.setEnabled(True)
+        else:
+            logging.info("No model is currently loaded.")
+
+    def on_model_unloaded(self):
         self.eject_button.setEnabled(False)
+        self.model_combo_box.setEnabled(True)
 
     def on_model_loaded(self):
         self.eject_button.setEnabled(True)

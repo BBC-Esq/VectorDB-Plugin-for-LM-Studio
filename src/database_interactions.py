@@ -79,7 +79,6 @@ class CreateVectorDB:
 
         if "instructor" in embedding_model_name:
             encode_kwargs['show_progress_bar'] = True
-            print(f"Using embedding model path: {embedding_model_name}")
 
             model = HuggingFaceInstructEmbeddings(
                 model_name=embedding_model_name,
@@ -108,21 +107,17 @@ class CreateVectorDB:
             )
             # model.client.to(dtype=torch.float16) # currently this works while adding the parameter within "model_kwargs" does not for reasons I have yet to figure out.  Moreover, it only worked with all-mpnet and sentence-xxl and not instructor-based models.  TO DO!!!
 
-        my_cprint(f"{EMBEDDING_MODEL_NAME.rsplit('/', 1)[-1]} loaded.", "green")
+        model_name = Path(EMBEDDING_MODEL_NAME).name
+        my_cprint(f"{model_name} vector model loaded into memory.", "green")
         
         return model, encode_kwargs
 
     @torch.inference_mode()
     def create_database(self, texts, embeddings):
-        logging.info("Entering create_database method")
-        logging.info(f"Number of documents to be inserted into the database: {len(texts)}")
-        logging.info(f"Type of texts variable: {type(texts)}")
-
-        my_cprint("Creating vectors and database...\n\nNOTE: The progress bar relates to computing vectors.  Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
+        my_cprint("The progress bar relates to computing vectors. Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
 
         start_time = time.time()
 
-        logging.info(f"Checking if directory {self.PERSIST_DIRECTORY} exists")
         if not self.PERSIST_DIRECTORY.exists():
             self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
             logging.info(f"Created directory: {self.PERSIST_DIRECTORY}")
@@ -130,17 +125,22 @@ class CreateVectorDB:
             logging.info(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            logging.info("Calling TileDB.from_documents()")
-            db = TileDB.from_documents(
-                documents=texts,
+            # Extract text and metadata from Document objects
+            text_content = [doc.page_content for doc in texts]
+            metadatas = [doc.metadata for doc in texts]
+
+            logging.info("Calling TileDB.from_texts()")
+            db = TileDB.from_texts(
+                texts=text_content,
                 embedding=embeddings,
+                metadatas=metadatas,
                 index_uri=str(self.PERSIST_DIRECTORY),
                 allow_dangerous_deserialization=True,
                 metric="euclidean",
                 index_type="FLAT",
             )
         except Exception as e:
-            logging.error(f"Error creating TileDB database: {str(e)}")
+            logging.error(f"Error creating database: {str(e)}")
             raise
 
         print("Database created.")
@@ -227,73 +227,60 @@ class CreateVectorDB:
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         
-        # load non-image/non-audio documents
-        print("Processing documents, if any...")
-        documents = load_documents(self.SOURCE_DIRECTORY)
-        logging.info(f"Type of documents after load_documents: {type(documents)}")
-        if isinstance(documents, list) and documents:
-            logging.info(f"Type of first element in documents: {type(documents[0])}")
+        # create  a list to hold langchain "document objects"        
+        # langchain_core.documents.base.Document
+        documents = []
         
-        # load image documents
-        # time.sleep(3)
-        print("Processing images, if any...")
+        # add text documents
+        print("Processing any text documents...")
+        text_documents = load_documents(self.SOURCE_DIRECTORY)
+        if isinstance(text_documents, list) and text_documents:
+            documents.extend(text_documents)
+        
+        # add image documents
+        print("Processing any images...")
         image_documents = choose_image_loader()
-        logging.info(f"Type of image_documents: {type(image_documents)}")
         if isinstance(image_documents, list) and image_documents:
-            logging.info(f"Type of first element in image_documents: {type(image_documents[0])}")
-        if len(image_documents) > 0:
-            documents.extend(image_documents)
+            if len(image_documents) > 0:
+                documents.extend(image_documents)
         
         json_docs_to_save = documents
         
-        # load audio documents
-        print("Processing audio transcripts, if any...")
+        # add audio documents
+        print("Processing any audio transcripts...")
         audio_documents = self.load_audio_documents()
-        logging.info(f"Type of audio_documents: {type(audio_documents)}")
         if isinstance(audio_documents, list) and audio_documents:
-            logging.info(f"Type of first element in audio_documents: {type(audio_documents[0])}")
-        documents.extend(audio_documents)
-        if len(audio_documents) > 0:
-            print(f"Loaded {len(audio_documents)} audio transcription(s)...")
+            documents.extend(audio_documents)
+            if len(audio_documents) > 0:
+                print(f"Loaded {len(audio_documents)} audio transcription(s)...")
 
-        # Before splitting
-        logging.info(f"Type of documents before split_documents: {type(documents)}")
+        # split documents
         if isinstance(documents, list) and documents:
-            logging.info(f"Type of first element in documents: {type(documents[0])}")
+            texts = split_documents(documents)
 
-        # split each document in the list of documents
-        print("Splitting documents...")
-        texts = split_documents(documents)
-
-        # After splitting
-        logging.info(f"Type of texts after split_documents: {type(texts)}")
+        # create database and cleanup
         if isinstance(texts, list) and texts:
-            logging.info(f"Type of first element in texts: {type(texts[0])}")
+            self.save_documents_to_pickle(texts) # serialize the split documents temporarily
+            self.save_document_structures(texts) # optional for troubleshooting
 
-        self.save_documents_to_pickle(texts)
-        self.save_document_structures(texts)
+            # initialize vector model
+            embeddings, encode_kwargs = self.initialize_vector_model(EMBEDDING_MODEL_NAME, config_data)
 
-        # initialize vector model
-        embeddings, encode_kwargs = self.initialize_vector_model(EMBEDDING_MODEL_NAME, config_data)
-
-        # Before creating database
-        logging.info(f"Type of texts before create_database: {type(texts)}")
-        if isinstance(texts, list) and texts:
-            logging.info(f"Type of first element in texts: {type(texts[0])}")
-
-        # create database
-        print("Starting vector database creation process...")
-        self.create_database(texts, embeddings)
-        
-        self.save_documents_to_json(json_docs_to_save)
-        
-        del embeddings.client
-        del embeddings
-        torch.cuda.empty_cache()
-        gc.collect()
-        my_cprint("Vector model removed from memory.", "red")
-        
-        self.clear_docs_for_db_folder()
+            # create database
+            if isinstance(texts, list) and texts:
+                print("Creating vector database...")
+                self.create_database(texts, embeddings)
+            
+            self.save_documents_to_json(json_docs_to_save)
+            
+            # cleanup
+            del embeddings.client
+            del embeddings
+            torch.cuda.empty_cache()
+            gc.collect()
+            my_cprint("Vector model removed from memory.", "red")
+            
+            self.clear_docs_for_db_folder()
 
 
 class QueryVectorDB:
@@ -313,7 +300,7 @@ class QueryVectorDB:
         model_path = self.config['created_databases'][self.selected_database]['model']
         
         compute_device = self.config['Compute_Device']['database_query']
-        encode_kwargs = {'normalize_embeddings': False, 'batch_size': 1}
+        encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
         
         if "instructor" in model_path:
             return HuggingFaceInstructEmbeddings(
@@ -323,9 +310,18 @@ class QueryVectorDB:
             )
         elif "bge" in model_path:
             query_instruction = self.config['embedding-models']['bge']['query_instruction']
-            return HuggingFaceBgeEmbeddings(model_name=model_path, model_kwargs={"device": compute_device}, query_instruction=query_instruction, encode_kwargs=encode_kwargs)
+            return HuggingFaceBgeEmbeddings(
+                model_name=model_path,
+                model_kwargs={"device": compute_device},
+                query_instruction=query_instruction,
+                encode_kwargs=encode_kwargs
+            )
         else:
-            return HuggingFaceEmbeddings(model_name=model_path, model_kwargs={"device": compute_device, "trust_remote_code": True}, encode_kwargs=encode_kwargs)
+            return HuggingFaceEmbeddings(
+                model_name=model_path,
+                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                encode_kwargs=encode_kwargs
+            )
 
     def initialize_database(self):
         persist_directory = Path(__file__).resolve().parent / "Vector_DB" / self.selected_database

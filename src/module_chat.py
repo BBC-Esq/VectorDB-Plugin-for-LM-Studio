@@ -423,17 +423,17 @@ class Phi3_mini_4k(BaseModel):
         pass
 
 
-class Phi3_medium_4k(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Phi-3 Medium 4k - 14b']
-        super().__init__(model_info, bnb_bfloat16_settings)
+# class Phi3_medium_4k(BaseModel):
+    # def __init__(self):
+        # model_info = CHAT_MODELS['Phi-3 Medium 4k - 14b']
+        # super().__init__(model_info, bnb_bfloat16_settings)
 
-    def create_prompt(self, user_message):
-        return f"<s><|system|>\n{system_message}<|end|>\n<|user|>\n{user_message}<|end|>\n<|assistant|> *****\n"
+    # def create_prompt(self, user_message):
+        # return f"<s><|system|>\n{system_message}<|end|>\n<|user|>\n{user_message}<|end|>\n<|assistant|> *****\n"
 
-    @extract_response_decorator("*****")
-    def extract_response(self, model_response):
-        pass
+    # @extract_response_decorator("*****")
+    # def extract_response(self, model_response):
+        # pass
 
 
 class Qwen1_5_0_5(BaseModel):

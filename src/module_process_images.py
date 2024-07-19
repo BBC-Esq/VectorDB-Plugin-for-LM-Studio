@@ -2,6 +2,7 @@ import datetime
 import gc
 import os
 import logging
+import traceback
 import platform
 import time
 import warnings
@@ -54,7 +55,8 @@ def run_loader_in_process(loader_func):
     try:
         return loader_func()
     except Exception as e:
-        my_cprint(f"Error processing images: {e}", "red")
+        error_message = f"Error processing images: {e}\n\nTraceback:\n{traceback.format_exc()}"
+        my_cprint(error_message, "red")
         return []
 
 def choose_image_loader():
@@ -144,7 +146,7 @@ class BaseLoader:
         print(f"Loaded {len(documents)} image(s)...")
         print(f"Total image processing time: {total_time_taken:.2f} seconds")
 
-        my_cprint("Model removed from memory.", "red")
+        my_cprint("Vision model removed from memory.", "red")
 
         return documents
 
@@ -166,7 +168,7 @@ class loader_cogvlm(BaseLoader):
             trust_remote_code=True
         )
 
-        my_cprint(f"Cogvlm loaded into memory...", "green")
+        my_cprint(f"Cogvlm vision model loaded into memory...", "green")
         return model, tokenizer, None
 
     @torch.inference_mode()
@@ -211,7 +213,7 @@ class loader_llava(BaseLoader):
             cache_dir=cache_dir
         )
         
-        my_cprint(f"{chosen_model} loaded into memory...", "green")
+        my_cprint(f"{chosen_model} vision model loaded into memory...", "green")
         
         processor = AutoProcessor.from_pretrained(model_id, cache_dir=cache_dir)
         
@@ -246,7 +248,7 @@ class loader_moondream(BaseLoader):
                                                      cache_dir=cache_dir,
                                                      low_cpu_mem_usage=True).to(self.device)
 
-        my_cprint(f"Moondream2 model loaded into memory...", "green")
+        my_cprint(f"Moondream2 vision model loaded into memory...", "green")
         
         tokenizer = AutoTokenizer.from_pretrained("vikhyatk/moondream2", revision="2024-05-20", cache_dir=cache_dir)
         
@@ -408,7 +410,7 @@ class loader_minicpm_llama3v(BaseLoader):
         )
         model.eval()
         
-        my_cprint(f"MiniCPM-Llama3-V model loaded into memory...", "green")
+        my_cprint(f"MiniCPM-Llama3-V vision model loaded into memory...", "green")
         
         return model, tokenizer, None
 
@@ -465,7 +467,7 @@ class loader_bunny(BaseLoader):
             trust_remote_code=True
         )
         
-        my_cprint(f"Bunny model loaded into memory...", "green")
+        my_cprint(f"Bunny vision model loaded into memory...", "green")
         
         return model, tokenizer, None
 
