@@ -327,6 +327,15 @@ CHAT_MODELS = {
         'avg_vram_usage': '6.7 GB',
         'function': 'InternLM2_7b'
     },
+    'Internlm2_5 - 7b': {
+        'model': 'Internlm2_5 - 7b',
+        'repo_id': 'internlm/internlm2_5-7b-chat',
+        'cache_dir': 'internlm--internlm2_5-7b-chat',
+        'tokens_per_second': 35.12,
+        'context_length': 4096,
+        'avg_vram_usage': '6.8 GB',
+        'function': 'InternLM2_5_7b'
+    },
     # 'Yi 1.5 - 9B': {
         # 'model': 'Yi 1.5 - 9B',
         # 'repo_id': '01-ai/Yi-1.5-9B-Chat',

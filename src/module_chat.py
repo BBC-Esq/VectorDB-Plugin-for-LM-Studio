@@ -273,6 +273,24 @@ class InternLM2_7b(BaseModel):
         return generated_text
 
 
+class InternLM2_5_7b(BaseModel):
+    def __init__(self):
+        model_info = CHAT_MODELS['Internlm2_5 - 7b']
+        super().__init__(model_info, bnb_bfloat16_settings)
+
+    def create_prompt(self, user_message):
+        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{user_message}<|im_end|>\n<|im_start|>assistant\n"
+
+    @extract_response_decorator("assistant")
+    def extract_response(self, model_response):
+        pass
+
+    def generate_response(self, inputs):
+        all_settings = {**inputs, **common_generate_settings}
+        generated_text = self.model.generate(**all_settings, eos_token_id=self.tokenizer.convert_tokens_to_ids("<|im_end|>"))
+        return generated_text
+
+
 class InternLM2_1_8b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Internlm2 - 1.8b']
