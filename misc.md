@@ -1,40 +1,192 @@
 ## KoboldAI Flags
 
-| Parameter | Description |
-|-----------|-------------|
-| `model_param` | Model file to load (positional argument) |
-| `port_param` | Port to listen on (positional argument) |
-| `--model [filename]` | Model file to load |
-| `--port [portnumber]` | Port to listen on |
-| `--host [ipaddr]` | Host IP to listen on. If empty, all routable interfaces are accepted |
-| `--config [filename]` | Load settings from a .kcpps file. Other arguments will be ignored |
-| `--threads [threads]` | Use a custom number of threads if specified. Otherwise, uses an amount based on CPU cores |
-| `--usecublas [[lowvram|normal] [main GPU ID] [mmq] [rowsplit] ...]` | Use CuBLAS for GPU Acceleration. Requires CUDA |
-| `--usevulkan [[Device ID] ...]` | Use Vulkan for GPU Acceleration |
-| `--useclblast {0,1,2,3,4,5,6,7,8} {0,1,2,3,4,5,6,7,8}` | Use CLBlast for GPU Acceleration |
-| `--noblas` | Do not use any accelerated prompt ingestion |
-| `--contextsize [256,512,1024,2048,3072,4096,6144,8192,12288,16384,24576,32768,49152,65536,98304,131072]` | Controls the memory allocated for maximum context size |
-| `--gpulayers [[GPU layers]]` | Set number of layers to offload to GPU when using GPU |
-| `--tensor_split [Ratios] ...` | For CUDA and Vulkan only, ratio to split tensors across multiple GPUs |
-| `--ropeconfig [rope-freq-scale] [[rope-freq-base] ...]` | Uses customized RoPE scaling from configured frequency scale and frequency base |
-| `--blasbatchsize {-1,32,64,128,256,512,1024,2048}` | Sets the batch size used in BLAS processing (default 512) |
-| `--blasthreads [threads]` | Use a different number of threads during BLAS if specified |
-| `--noshift` | Do not attempt to Trim and Shift the GGUF context |
-| `--nommap` | Do not use mmap to load newer models |
-| `--usemlock` | Force system to keep model in RAM rather than swapping or compressing (for Apple Systems) |
-| `--noavx2` | Do not use AVX2 instructions, a slower compatibility mode for older devices |
-| `--debugmode [DEBUGMODE]` | Shows additional debug info in the terminal |
-| `--skiplauncher` | Doesn't display or use the GUI launcher |
-| `--onready [shell command]` | An optional shell command to execute after the model has been loaded |
-| `--multiuser [limit]` | Runs in multiuser mode, which queues incoming requests instead of blocking them |
-| `--highpriority` | Increases the process CPU priority, potentially speeding up generation (experimental) |
-| `--foreground` | Sends the terminal to the foreground every time a new prompt is generated (Windows only) |
-| `--quiet` | Enable quiet mode, which hides generation inputs and outputs in the terminal |
-| `--ssl [cert_pem] [[key_pem] ...]` | Allows all content to be served over SSL instead |
-| `--nocertify` | Allows insecure SSL connections |
-| `--chatcompletionsadapter CHATCOMPLETIONSADAPTER` | Select an optional ChatCompletions Adapter JSON file to force custom instruct tags |
-| `--flashattention` | Enables flash attention |
-| `--quantkv [quantization level 0/1/2]` | Sets the KV cache data type quantization (requires Flash Attention) |
+## KoboldAI Flags
+
+<h2>🚀 Usage</h2>
+
+<style>
+  .arg-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .arg-table th, 
+  .arg-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .arg-table th:first-child, 
+  .arg-table td:first-child {
+    width: 150px; /* Adjust this value as needed */
+  }
+  .arg-table th:last-child, 
+  .arg-table td:last-child {
+    width: 600px; /* Adjust this value as needed */
+  }
+</style>
+
+<h3>Positional Arguments</h3>
+<table class="arg-table">
+  <tr>
+    <th>Argument</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>model_param</code></td>
+    <td>Model file to load (positional)</td>
+  </tr>
+  <tr>
+    <td><code>port_param</code></td>
+    <td>Port to listen on (positional)</td>
+  </tr>
+</table>
+
+<h3>Optional Arguments</h3>
+<table class="arg-table">
+  <tr>
+    <th>Argument</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>--model [filename]</code></td>
+    <td>Model file to load</td>
+  </tr>
+  <tr>
+    <td><code>--port [portnumber]</code></td>
+    <td>Port to listen on</td>
+  </tr>
+  <tr>
+    <td><code>--host [ipaddr]</code></td>
+    <td>Host IP to listen on. If empty, all routable interfaces are accepted.</td>
+  </tr>
+  <tr>
+    <td><code>--config [filename]</code></td>
+    <td>Load settings from a .kcpps file. Other arguments will be ignored</td>
+  </tr>
+  <tr>
+    <td><code>--threads [threads]</code></td>
+    <td>Use a custom number of threads if specified. Otherwise, uses an amount based on CPU cores</td>
+  </tr>
+  <tr>
+    <td><code>--usecublas [[lowvram|normal] [main GPU ID] [mmq] [rowsplit] [[lowvram|normal] [main GPU ID] [mmq] [rowsplit] ...]]</code></td>
+    <td>Use CuBLAS for GPU Acceleration. Requires CUDA. Select lowvram to not allocate VRAM scratch buffer. Enter a number afterwards to select and use 1 GPU. Leaving no number will use all GPUs. For hipBLAS binaries, please check YellowRoseCx rocm fork.</td>
+  </tr>
+  <tr>
+    <td><code>--usevulkan [[Device ID] [[Device ID] ...]]</code></td>
+    <td>Use Vulkan for GPU Acceleration. Can optionally specify GPU Device ID (e.g. --usevulkan 0).</td>
+  </tr>
+  <tr>
+    <td><code>--useclblast {0,1,2,3,4,5,6,7,8} {0,1,2,3,4,5,6,7,8}</code></td>
+    <td>Use CLBlast for GPU Acceleration. Must specify exactly 2 arguments, platform ID and device ID (e.g. --useclblast 1 0).</td>
+  </tr>
+  <tr>
+    <td><code>--noblas</code></td>
+    <td>Do not use any accelerated prompt ingestion</td>
+  </tr>
+  <tr>
+    <td><code>--contextsize [256,512,1024,2048,3072,4096,6144,8192,12288,16384,24576,32768,49152,65536,98304,131072]</code></td>
+    <td>Controls the memory allocated for maximum context size, only change if you need more RAM for big contexts. (default 4096). Supported values are [256,512,1024,2048,3072,4096,6144,8192,12288,16384,24576,32768,49152,65536,98304,131072]. IF YOU USE ANYTHING ELSE YOU ARE ON YOUR OWN.</td>
+  </tr>
+  <tr>
+    <td><code>--gpulayers [[GPU layers]]</code></td>
+    <td>Set number of layers to offload to GPU when using GPU. Requires GPU.</td>
+  </tr>
+  <tr>
+    <td><code>--tensor_split [Ratios] [[Ratios] ...]</code></td>
+    <td>For CUDA and Vulkan only, ratio to split tensors across multiple GPUs, space-separated list of proportions, e.g. 7 3</td>
+  </tr>
+</table>
+
+<h3>Advanced Commands</h3>
+<table class="arg-table">
+  <tr>
+    <th>Argument</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>--ropeconfig [rope-freq-scale] [[rope-freq-base] ...]</code></td>
+    <td>If set, uses customized RoPE scaling from configured frequency scale and frequency base (e.g. --ropeconfig 0.25 10000). Otherwise, uses NTK-Aware scaling set automatically based on context size. For linear rope, simply set the freq-scale and ignore the freq-base</td>
+  </tr>
+  <tr>
+    <td><code>--blasbatchsize {-1,32,64,128,256,512,1024,2048}</code></td>
+    <td>Sets the batch size used in BLAS processing (default 512). Setting it to -1 disables BLAS mode, but keeps other benefits like GPU offload.</td>
+  </tr>
+  <tr>
+    <td><code>--blasthreads [threads]</code></td>
+    <td>Use a different number of threads during BLAS if specified. Otherwise, has the same value as --threads</td>
+  </tr>
+  <tr>
+    <td><code>--noshift</code></td>
+    <td>If set, do not attempt to Trim and Shift the GGUF context.</td>
+  </tr>
+  <tr>
+    <td><code>--nommap</code></td>
+    <td>If set, do not use mmap to load newer models</td>
+  </tr>
+  <tr>
+    <td><code>--usemlock</code></td>
+    <td>For Apple Systems. Force system to keep model in RAM rather than swapping or compressing</td>
+  </tr>
+  <tr>
+    <td><code>--noavx2</code></td>
+    <td>Do not use AVX2 instructions, a slower compatibility mode for older devices.</td>
+  </tr>
+  <tr>
+    <td><code>--debugmode [DEBUGMODE]</code></td>
+    <td>Shows additional debug info in the terminal.</td>
+  </tr>
+  <tr>
+    <td><code>--skiplauncher</code></td>
+    <td>Doesn't display or use the GUI launcher.</td>
+  </tr>
+  <tr>
+    <td><code>--onready [shell command]</code></td>
+    <td>An optional shell command to execute after the model has been loaded.</td>
+  </tr>
+  <tr>
+    <td><code>--multiuser [limit]</code></td>
+    <td>Runs in multiuser mode, which queues incoming requests instead of blocking them.</td>
+  </tr>
+  <tr>
+    <td><code>--highpriority</code></td>
+    <td>Experimental flag. If set, increases the process CPU priority, potentially speeding up generation. Use caution.</td>
+  </tr>
+  <tr>
+    <td><code>--foreground</code></td>
+    <td>Windows only. Sends the terminal to the foreground every time a new prompt is generated. This helps avoid some idle slowdown issues.</td>
+  </tr>
+  <tr>
+    <td><code>--quiet</code></td>
+    <td>Enable quiet mode, which hides generation inputs and outputs in the terminal. Quiet mode is automatically enabled when running a horde worker.</td>
+  </tr>
+  <tr>
+    <td><code>--ssl [cert_pem] [[key_pem] ...]</code></td>
+    <td>Allows all content to be served over SSL instead. A valid UNENCRYPTED SSL cert and key .pem files must be provided</td>
+  </tr>
+  <tr>
+    <td><code>--nocertify</code></td>
+    <td>Allows insecure SSL connections. Use this if you have cert errors and need to bypass certificate restrictions.</td>
+  </tr>
+  <tr>
+    <td><code>--chatcompletionsadapter CHATCOMPLETIONSADAPTER</code></td>
+    <td>Select an optional ChatCompletions Adapter JSON file to force custom instruct tags.</td>
+  </tr>
+  <tr>
+    <td><code>--flashattention</code></td>
+    <td>Enables flash attention.</td>
+  </tr>
+  <tr>
+    <td><code>--quantkv [quantization level 0/1/2]</code></td>
+    <td>Sets the KV cache data type quantization, 0=f16, 1=q8, 2=q4. Requires Flash Attention, and disables context shifting.</td>
+  </tr>
+</table>
+
+
+
 
 ## Chat
 
