@@ -134,16 +134,16 @@ Samplers determine how the AI selects the next token from a list of possible tok
 
 ### Sampler Order:
 
-- Description: Controls the sequence in which samplers are applied to the list of token candidates when choosing the next token.
-- Parameter: `sampler_order`
-- Recommendation: It is STRONGLY advised to use the default order of `[6,0,1,3,4,2,5]` to avoid poor outputs.
+- Controls the sequence in which samplers are applied to the list of token candidates when choosing the next token.
+- Hardcoded into the source code as `[6,0,1,3,4,2,5]` to avoid poor outputs (0 = Top K  1 = Top P, 2 = Typical P, 3 = Top A, 4 = Min P, 5 = Temperature, 6 = TFS) 
+- Don't change.
 
 ### Good Default Settings:
 
-- Top-P: 0.92
-- RepPen: 1.1
-- Temperature: 0.7
-- Sampler Order: `[6,0,1,3,4,2,5]` (leave everything else disabled by default)
+- `top_p`: 0.92
+- `rep_pen`: 1.1
+- `Temperature`: 0.7
+- Leave everything else disabled by default
 
 ### Sampler Descriptions:
 
@@ -177,11 +177,9 @@ Samplers determine how the AI selects the next token from a list of possible tok
    - Parameter: `rep_pen`
    - Function: Applies a penalty to reduce the usage of recently used words, making the output less repetitive.
 
-## --contextsize Argument
+## --contextsize
 
-### Description:
-
-- Purpose: Controls the memory allocated for maximum context size. Adjust this if you need more RAM for larger contexts.
+- Controls the memory allocated for maximum context size. Adjust this if you need more RAM for larger contexts.
 - Default: 4096
 - Supported Values:
   - 256, 512, 1024, 2048, 3072, 4096, 6144, 8192, 12288, 16384, 24576, 32768, 49152, 65536, 98304, 131072
@@ -196,7 +194,7 @@ Samplers determine how the AI selects the next token from a list of possible tok
 
 Context Shifting is a better version of Smart Context that only works for GGUF models. This feature utilizes KV cache shifting to automatically remove old tokens from context and add new ones without requiring any reprocessing. It is on by default. To disable Context Shifting, use the flag `--noshift`.
 
-## Streaming Options in KoboldCpp
+## Streaming
 
 KoboldCpp now supports a variety of streaming options. Kobold Lite UI supports streaming out of the box, which can be toggled in Kobold Lite settings. Note: the `--stream` parameter is now deprecated and should not be used.
 
