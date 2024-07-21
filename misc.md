@@ -4,6 +4,7 @@
 
 - `--model [filename]`: Model file to load.
 - `--port [portnumber]`: Port to listen on.
+- You can use the foregoing as "positional" arguments but just using the flags makes things more uniform.
 
 ## Optional Arguments
 
