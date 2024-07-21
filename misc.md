@@ -1,3 +1,51 @@
+## KoboldAI Flags
+
+| Parameter | Description |
+|-----------|-------------|
+| `model_param` | Model file to load (positional argument) |
+| `port_param` | Port to listen on (positional argument) |
+| `-h, --help` | Show help message and exit |
+| `--model [filename]` | Model file to load |
+| `--port [portnumber]` | Port to listen on |
+| `--host [ipaddr]` | Host IP to listen on. If empty, all routable interfaces are accepted |
+| `--launch` | Launches a web browser when load is completed |
+| `--config [filename]` | Load settings from a .kcpps file. Other arguments will be ignored |
+| `--threads [threads]` | Use a custom number of threads if specified. Otherwise, uses an amount based on CPU cores |
+| `--usecublas [[lowvram|normal] [main GPU ID] [mmq] [rowsplit] ...]` | Use CuBLAS for GPU Acceleration. Requires CUDA |
+| `--usevulkan [[Device ID] ...]` | Use Vulkan for GPU Acceleration. Can optionally specify GPU Device ID |
+| `--useclblast {0,1,2,3,4,5,6,7,8} {0,1,2,3,4,5,6,7,8}` | Use CLBlast for GPU Acceleration. Must specify platform ID and device ID |
+| `--noblas` | Do not use any accelerated prompt ingestion |
+| `--contextsize [256,512,1024,2048,3072,4096,6144,8192,12288,16384,24576,32768,49152,65536,98304,131072]` | Controls the memory allocated for maximum context size |
+| `--gpulayers [[GPU layers]]` | Set number of layers to offload to GPU when using GPU |
+| `--tensor_split [Ratios] ...` | For CUDA and Vulkan only, ratio to split tensors across multiple GPUs |
+| `--ropeconfig [rope-freq-scale] [[rope-freq-base] ...]` | Uses customized RoPE scaling from configured frequency scale and frequency base |
+| `--blasbatchsize {-1,32,64,128,256,512,1024,2048}` | Sets the batch size used in BLAS processing |
+| `--blasthreads [threads]` | Use a different number of threads during BLAS if specified |
+| `--lora [lora_filename] [[lora_base] ...]` | LLAMA models only, applies a lora file on top of model |
+| `--noshift` | Do not attempt to Trim and Shift the GGUF context |
+| `--nommap` | Do not use mmap to load newer models |
+| `--usemlock` | For Apple Systems. Force system to keep model in RAM |
+| `--noavx2` | Do not use AVX2 instructions, a slower compatibility mode for older devices |
+| `--debugmode [DEBUGMODE]` | Shows additional debug info in the terminal |
+| `--skiplauncher` | Doesn't display or use the GUI launcher |
+| `--onready [shell command]` | An optional shell command to execute after the model has been loaded |
+| `--benchmark [[filename]]` | Run benchmarks instead of starting server |
+| `--multiuser [limit]` | Runs in multiuser mode, queuing incoming requests |
+| `--remotetunnel` | Uses Cloudflare to create a remote tunnel for internet access |
+| `--highpriority` | Increases the process CPU priority |
+| `--foreground` | Windows only. Sends terminal to foreground for new prompts |
+| `--preloadstory PRELOADSTORY` | Configures a prepared story json save file to be hosted on the server |
+| `--quiet` | Enable quiet mode, hiding generation inputs and outputs in the terminal |
+| `--ssl [cert_pem] [[key_pem] ...]` | Serves content over SSL. Requires valid UNENCRYPTED SSL cert and key .pem files |
+| `--nocertify` | Allows insecure SSL connections |
+| `--mmproj MMPROJ` | Select a multimodal projector file for LLaVA |
+| `--password PASSWORD` | Enter a password required to use this instance |
+| `--ignoremissing` | Ignores all missing non-essential files |
+| `--chatcompletionsadapter CHATCOMPLETIONSADAPTER` | Select an optional ChatCompletions Adapter JSON file |
+| `--flashattention` | Enables flash attention |
+| `--quantkv [quantization level 0/1/2]` | Sets the KV cache data type quantization |
+| `--forceversion [version]` | Override the detected model file format |
+
 ## Chat
 
 | Model | VRAM Usage | Tok/s |
