@@ -1,191 +1,221 @@
-## KoboldAI Flags
+# Kobold AI API Documentation
 
-## KoboldAI Flags
+## Required Arguments
 
-<h2>🚀 Usage</h2>
+- `--model [filename]`: Model file to load.
+- `--port [portnumber]`: Port to listen on.
 
-<style>
-  .arg-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-  .arg-table th, 
-  .arg-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    vertical-align: top;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-  }
-  .arg-table th:first-child, 
-  .arg-table td:first-child {
-    width: 150px; /* Adjust this value as needed */
-  }
-  .arg-table th:last-child, 
-  .arg-table td:last-child {
-    width: 600px; /* Adjust this value as needed */
-  }
-</style>
+## Optional Arguments
 
-<h3>Positional Arguments</h3>
-<table class="arg-table">
-  <tr>
-    <th>Argument</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td><code>model_param</code></td>
-    <td>Model file to load (positional)</td>
-  </tr>
-  <tr>
-    <td><code>port_param</code></td>
-    <td>Port to listen on (positional)</td>
-  </tr>
-</table>
+- `--config [filename]`: Load settings from a `.kcpps` file. Other arguments will be ignored.
+- `--noavx2`: Do not use AVX2 instructions; enables a slower compatibility mode for older devices.
+- `--nommap`: If set, do not use `mmap` to load newer models.
+- `--usemlock`: For Apple systems. Forces the system to keep the model in RAM rather than swapping or compressing. On systems with limited RAM, setting `--usemlock` can prevent frequent memory swapping and improve performance. Disabled by default.
+- `--skiplauncher`: Doesn't display or use the GUI launcher.
+- `--quiet`: Enable quiet mode, which hides generation inputs and outputs in the terminal. Quiet mode is automatically enabled when running a horde worker.
+- `--onready [shell command]`: An optional shell command to execute after the model has been loaded.
+  - This is an advanced parameter intended for script or command line usage. You can pass a terminal command (e.g., start a Python script) to be executed after Koboldcpp has finished loading. This runs as a subprocess and can be useful for starting Cloudflare tunnels, displaying URLs, etc.
+  - Example: `--onready "python script.py"` runs the specified Python script after the model is loaded.
+- `--threads [number]`: Specifies the number of CPU threads to use for text generation.
+  - If a number is not specified a default value is calculated.
+    - If CPU core count > 1: Uses half the physical cores, with a minimum of 3 and maximum of (physical cores - 1)
+    - For systems with 1 core: Uses 1 thread.
+  - Intel CPU Specific: For Intel processors, the maximum default is capped at 8 threads to avoid using efficiency cores
+  - Usage: `--threads [number]`
+    - Note: If not specified, the program uses the calculated default value
 
-<h3>Optional Arguments</h3>
-<table class="arg-table">
-  <tr>
-    <th>Argument</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td><code>--model [filename]</code></td>
-    <td>Model file to load</td>
-  </tr>
-  <tr>
-    <td><code>--port [portnumber]</code></td>
-    <td>Port to listen on</td>
-  </tr>
-  <tr>
-    <td><code>--host [ipaddr]</code></td>
-    <td>Host IP to listen on. If empty, all routable interfaces are accepted.</td>
-  </tr>
-  <tr>
-    <td><code>--config [filename]</code></td>
-    <td>Load settings from a .kcpps file. Other arguments will be ignored</td>
-  </tr>
-  <tr>
-    <td><code>--threads [threads]</code></td>
-    <td>Use a custom number of threads if specified. Otherwise, uses an amount based on CPU cores</td>
-  </tr>
-  <tr>
-    <td><code>--usecublas [[lowvram|normal] [main GPU ID] [mmq] [rowsplit] [[lowvram|normal] [main GPU ID] [mmq] [rowsplit] ...]]</code></td>
-    <td>Use CuBLAS for GPU Acceleration. Requires CUDA. Select lowvram to not allocate VRAM scratch buffer. Enter a number afterwards to select and use 1 GPU. Leaving no number will use all GPUs. For hipBLAS binaries, please check YellowRoseCx rocm fork.</td>
-  </tr>
-  <tr>
-    <td><code>--usevulkan [[Device ID] [[Device ID] ...]]</code></td>
-    <td>Use Vulkan for GPU Acceleration. Can optionally specify GPU Device ID (e.g. --usevulkan 0).</td>
-  </tr>
-  <tr>
-    <td><code>--useclblast {0,1,2,3,4,5,6,7,8} {0,1,2,3,4,5,6,7,8}</code></td>
-    <td>Use CLBlast for GPU Acceleration. Must specify exactly 2 arguments, platform ID and device ID (e.g. --useclblast 1 0).</td>
-  </tr>
-  <tr>
-    <td><code>--noblas</code></td>
-    <td>Do not use any accelerated prompt ingestion</td>
-  </tr>
-  <tr>
-    <td><code>--contextsize [256,512,1024,2048,3072,4096,6144,8192,12288,16384,24576,32768,49152,65536,98304,131072]</code></td>
-    <td>Controls the memory allocated for maximum context size, only change if you need more RAM for big contexts. (default 4096). Supported values are [256,512,1024,2048,3072,4096,6144,8192,12288,16384,24576,32768,49152,65536,98304,131072]. IF YOU USE ANYTHING ELSE YOU ARE ON YOUR OWN.</td>
-  </tr>
-  <tr>
-    <td><code>--gpulayers [[GPU layers]]</code></td>
-    <td>Set number of layers to offload to GPU when using GPU. Requires GPU.</td>
-  </tr>
-  <tr>
-    <td><code>--tensor_split [Ratios] [[Ratios] ...]</code></td>
-    <td>For CUDA and Vulkan only, ratio to split tensors across multiple GPUs, space-separated list of proportions, e.g. 7 3</td>
-  </tr>
-</table>
+## --usecublas
 
-<h3>Advanced Commands</h3>
-<table class="arg-table">
-  <tr>
-    <th>Argument</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td><code>--ropeconfig [rope-freq-scale] [[rope-freq-base] ...]</code></td>
-    <td>If set, uses customized RoPE scaling from configured frequency scale and frequency base (e.g. --ropeconfig 0.25 10000). Otherwise, uses NTK-Aware scaling set automatically based on context size. For linear rope, simply set the freq-scale and ignore the freq-base</td>
-  </tr>
-  <tr>
-    <td><code>--blasbatchsize {-1,32,64,128,256,512,1024,2048}</code></td>
-    <td>Sets the batch size used in BLAS processing (default 512). Setting it to -1 disables BLAS mode, but keeps other benefits like GPU offload.</td>
-  </tr>
-  <tr>
-    <td><code>--blasthreads [threads]</code></td>
-    <td>Use a different number of threads during BLAS if specified. Otherwise, has the same value as --threads</td>
-  </tr>
-  <tr>
-    <td><code>--noshift</code></td>
-    <td>If set, do not attempt to Trim and Shift the GGUF context.</td>
-  </tr>
-  <tr>
-    <td><code>--nommap</code></td>
-    <td>If set, do not use mmap to load newer models</td>
-  </tr>
-  <tr>
-    <td><code>--usemlock</code></td>
-    <td>For Apple Systems. Force system to keep model in RAM rather than swapping or compressing</td>
-  </tr>
-  <tr>
-    <td><code>--noavx2</code></td>
-    <td>Do not use AVX2 instructions, a slower compatibility mode for older devices.</td>
-  </tr>
-  <tr>
-    <td><code>--debugmode [DEBUGMODE]</code></td>
-    <td>Shows additional debug info in the terminal.</td>
-  </tr>
-  <tr>
-    <td><code>--skiplauncher</code></td>
-    <td>Doesn't display or use the GUI launcher.</td>
-  </tr>
-  <tr>
-    <td><code>--onready [shell command]</code></td>
-    <td>An optional shell command to execute after the model has been loaded.</td>
-  </tr>
-  <tr>
-    <td><code>--multiuser [limit]</code></td>
-    <td>Runs in multiuser mode, which queues incoming requests instead of blocking them.</td>
-  </tr>
-  <tr>
-    <td><code>--highpriority</code></td>
-    <td>Experimental flag. If set, increases the process CPU priority, potentially speeding up generation. Use caution.</td>
-  </tr>
-  <tr>
-    <td><code>--foreground</code></td>
-    <td>Windows only. Sends the terminal to the foreground every time a new prompt is generated. This helps avoid some idle slowdown issues.</td>
-  </tr>
-  <tr>
-    <td><code>--quiet</code></td>
-    <td>Enable quiet mode, which hides generation inputs and outputs in the terminal. Quiet mode is automatically enabled when running a horde worker.</td>
-  </tr>
-  <tr>
-    <td><code>--ssl [cert_pem] [[key_pem] ...]</code></td>
-    <td>Allows all content to be served over SSL instead. A valid UNENCRYPTED SSL cert and key .pem files must be provided</td>
-  </tr>
-  <tr>
-    <td><code>--nocertify</code></td>
-    <td>Allows insecure SSL connections. Use this if you have cert errors and need to bypass certificate restrictions.</td>
-  </tr>
-  <tr>
-    <td><code>--chatcompletionsadapter CHATCOMPLETIONSADAPTER</code></td>
-    <td>Select an optional ChatCompletions Adapter JSON file to force custom instruct tags.</td>
-  </tr>
-  <tr>
-    <td><code>--flashattention</code></td>
-    <td>Enables flash attention.</td>
-  </tr>
-  <tr>
-    <td><code>--quantkv [quantization level 0/1/2]</code></td>
-    <td>Sets the KV cache data type quantization, 0=f16, 1=q8, 2=q4. Requires Flash Attention, and disables context shifting.</td>
-  </tr>
-</table>
+The `--usecublas` argument enables GPU acceleration using CuBLAS (for NVIDIA GPUs) or hipBLAS (for AMD GPUs). For hipBLAS binaries, check the YellowRoseCx ROCm fork.
 
+### Usage:
 
+- `--usecublas [lowvram|normal] [main GPU ID] [mmq] [rowsplit]`
+- Example: `--usecublas lowvram 0 mmq rowsplit`
+
+### Optional Parameters:
+
+- `lowvram` or `normal`
+  - `lowvram`: Prevents offloading to the GPU the KV layers. Suitable for GPUs with limited memory.
+  - `normal`: Default mode.
+- `main GPU ID`: A number (e.g. 0, 1, 2, or 3) selecting a specific GPU. If not specified, all available GPUs will be used.
+- `mmq`: Uses “quantized matrix multiplication” during prompt processing instead of cuBLAS. This is slightly faster and uses slightly less memory for Q4_0, but is slower for K-quants. Generally, cuBLAS is faster but uses slightly more VRAM.
+- `rowsplit`: If multiple GPUs are being used, splitting occurs by “rows” instead of “layers,” which can be beneficial on some older GPUs.
+
+### Unique Features:
+
+- Can use `--flashattention`, which can be faster and more memory efficient.
+  - If `--flashattention` is used `--quantkv [level]` can also be used but “context shifting” will be disabled. Here, level 0=f16, 1=q8, 2=q4.
+
+## --usevulkan
+
+Enables GPU acceleration using Vulkan, which is compatible with a broader range of GPUs and iGPUs. See more info at [Vulkan GPU Info](https://vulkan.gpuinfo.org/).
+
+### Optional Parameter:
+
+- `Device ID`: An integer specifying which GPU device to use. If not provided, it defaults to the first available Vulkan-compatible GPU.
+
+### Usage:
+
+- `--usevulkan [Device ID]`
+- Example: `--usevulkan 0`
+
+## Using Multiple GPUs
+
+The program first determines how many layers are computed on the GPU(s) based on `--gpulayers`. Those layers are split according to the `--tensor_split` parameter. Layers not offloaded will be computed on the CPU. It is possible to specify `--usecublas`, `--usevulkan` or `--useclblast` and not specify `--gpulayers` in which case the prompt processing will occur on the GPU(s) but the per-token inference will not.
+
+### Not Specifying GPU IDs:
+
+- By default, if no GPU IDs are specified after `--usecublas` or `--usevulkan` all compatible GPUs will be used and layers will be distributed equally.
+  - NOTE: This can be bad if the GPUs are different sizes.
+- Use `--tensor_split` to control the ratio, e.g., `--tensor_split 4 1` for a 80%/20% split on two GPUs.
+- The number of values in `--tensor_split` should match the total number of available GPUs.
+
+### Specifying a Single GPU ID:
+
+- Don't use `--tensor_split`. However, you can still use `--gpulayers`.
+
+### Specifying Some GPUs:
+
+- If some (but not all) GPU IDs are provided after `--usecublas` or `--usevulkan`, only those GPUs will be used for layer offloading.
+- Use `--tensor_split` to control the distribution ratio among the specified GPUs.
+- The number of values in `--tensor_split` should match the number of GPUs selected.
+  - Example: With four GPUs available but only specifying the last two with `--usecublas 2 3`, also using `--tensor_split 1 1` would offload an equal amount of layers to the third and fourth GPUs but none to the first two.
+
+### Usage with `--useclblast`:
+
+- `--gpulayers` is supported by `--useclblast` but `--tensor_split` is not.
+
+## --useclblast
+
+Enables GPU acceleration using CLBlast, based on OpenCL. Compatible with a wide range of GPUs including NVIDIA, AMD, Intel, and Intel iGPUs. More info can be found at [CLBlast README](https://github.com/CNugteren/CLBlast/blob/master/README.md).
+
+### Required Arguments:
+
+- `Platform ID`: An integer between 0 and 8 (inclusive).
+- `Device ID`: An integer between 0 and 8 (inclusive).
+
+### Usage:
+
+- `--useclblast [Platform ID] [Device ID]`
+  - Platform ID: An integer between 0 and 8 (inclusive).
+  - Device ID: An integer between 0 and 8 (inclusive).
+- Both arguments are required.
+- Example: `--useclblast 1 0`
+  - The API instructions are unclear whether more than one compatible device can be specified. In any event, `--tensor_split` cannot be used.
+
+## OpenBLAS:
+
+- Only used by CPU, not GPU.
+- Enabled in Windows by default, but other platforms require a separate installation.
+
+## BLAS Configuration
+
+All BLAS acceleration (including OpenBLAS) can be disabled using `--noblas` or `--blasbatchsize -1`. Setting to -1 disables BLAS mode but retains other benefits like GPU offload.
+
+### --blasbatchsize
+
+Sets the batch size used in BLAS processing.
+
+- Default: 512
+- Options: -1, 32, 64, 128, 256, 512, 1024, 2048
+
+### --blasthreads
+
+Specifies the number of threads to use during BLAS processing.
+
+- If not specified, it uses the same value as `--threads`.
+- If left blank, it will automatically set to a value slightly less than the CPU count.
+- Recommendation: When running with full GPU offload, setting it to 1 thread may be sufficient.
+
+## Samplers in KoboldCpp
+
+Samplers determine how the AI selects the next token from a list of possible tokens. There are various samplers with different properties, but generally, you will only need a few.
+
+### Sampler Order:
+
+- Description: Controls the sequence in which samplers are applied to the list of token candidates when choosing the next token.
+- Parameter: `sampler_order`
+- Recommendation: It is STRONGLY advised to use the default order of `[6,0,1,3,4,2,5]` to avoid poor outputs.
+
+### Good Default Settings:
+
+- Top-P: 0.92
+- RepPen: 1.1
+- Temperature: 0.7
+- Sampler Order: `[6,0,1,3,4,2,5]` (leave everything else disabled by default)
+
+### Sampler Descriptions:
+
+1. **Top-K**: 
+   - Parameter: `top_k`
+   - Function: Limits the number of possible words to the top K most likely options, removing everything else.
+   - Usage: Can be used with Top-P. Set value to 0 to disable its effect.
+2. **Top-A**: 
+   - Parameter: `top_a`
+   - Function: Alternative to Top-P. Removes all tokens with a softmax probability less than `top_a * m^2` where `m` is the maximum softmax probability.
+   - Usage: Set value to 0 to disable its effect.
+3. **Top-P**: 
+   - Parameter: `top_p`
+   - Function: Discards unlikely text during sampling. Considers words with the highest cumulative probabilities summing up to P.
+   - Effect: Low values make the text predictable by removing uncommon tokens.
+   - Usage: Set value to 1 to disable its effect.
+4. **TFS (Top-Filter Sampling)**: 
+   - Parameter: `tfs`
+   - Function: Alternative to Top-P. Removes the least probable words from consideration, using second-order derivatives.
+   - Benefit: Can improve the quality and coherence of generated text.
+5. **Typical**: 
+   - Parameter: `typical_p`
+   - Function: Selects words randomly with equal probability.
+   - Effect: Produces more diverse but potentially less coherent text.
+   - Usage: Set value to 1 to disable its effect.
+6. **Temperature**: 
+   - Parameter: `temperature`
+   - Function: Controls the randomness of the output by scaling probabilities without removing options.
+   - Effect: Lower values produce more logical, less creative text.
+7. **Repetition Penalty**: 
+   - Parameter: `rep_pen`
+   - Function: Applies a penalty to reduce the usage of recently used words, making the output less repetitive.
+
+## --contextsize Argument
+
+### Description:
+
+- Purpose: Controls the memory allocated for maximum context size. Adjust this if you need more RAM for larger contexts.
+- Default: 4096
+- Supported Values:
+  - 256, 512, 1024, 2048, 3072, 4096, 6144, 8192, 12288, 16384, 24576, 32768, 49152, 65536, 98304, 131072
+- Warning: Use values outside the supported range at your own risk.
+
+### Usage:
+
+- `--contextsize [Value]`
+- Example: `--contextsize 8192` allocates memory for a context size of 8192.
+
+## Context Shifting
+
+Context Shifting is a better version of Smart Context that only works for GGUF models. This feature utilizes KV cache shifting to automatically remove old tokens from context and add new ones without requiring any reprocessing. It is on by default. To disable Context Shifting, use the flag `--noshift`.
+
+## Streaming Options in KoboldCpp
+
+KoboldCpp now supports a variety of streaming options. Kobold Lite UI supports streaming out of the box, which can be toggled in Kobold Lite settings. Note: the `--stream` parameter is now deprecated and should not be used.
+
+### Streaming Methods:
+
+1. **Polled-Streaming (Recommended)**:
+   - Default Method: Used by the Kobold Lite UI.
+   - Mechanism: Polls for updates on the `/api/extra/generate/check` endpoint every second.
+   - Advantages: Relatively fast and simple to use.
+   - Drawback: Some may find it a bit "chunky" as it does not update instantaneously for every single token.
+2. **Pseudo-Streaming**:
+   - Status: An older method no longer recommended due to performance overheads.
+   - Usage with Kobold Lite: Enable streaming and append `&streamamount=x` to the end of the Lite URL, where `x` is the number of tokens per request.
+   - Drawback: Has a negative performance impact.
+3. **SSE (True Streaming)**:
+   - Supported by: A few third-party clients such as SillyTavern and Agnaistic, available only via the API.
+   - Mechanism: Provides instantaneous per-token updates.
+   - Requirements: Requires a persistent connection and special handling on the client side with SSE support.
+   - Usage: This mode is not used in Lite or the main KoboldAI client. It uses a different API endpoint, so configure it from your third-party client according to their provided instructions.
 
 
 ## Chat
