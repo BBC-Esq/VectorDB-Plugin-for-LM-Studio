@@ -138,25 +138,30 @@ Enables GPU acceleration using Vulkan, which is compatible with a broader range 
 
 ## Using Multiple GPUs
 
-The program first determines how many layers are computed on the GPU(s) based on `--gpulayers`. Those layers are split according to the `--tensor_split` parameter. Layers not offloaded will be computed on the CPU. It is possible to specify `--usecublas`, `--usevulkan` or `--useclblast` and not specify `--gpulayers` in which case the prompt processing will occur on the GPU(s) but the per-token inference will not.
+The program first determines how many layers are computed on the GPU(s) based on `--gpulayers`. Those layers are split according to the `--tensor_split` parameter. Layers not offloaded will be computed on the CPU. It is possible to specify `--usecublas`, `--usevulkan`, or `--useclblast` and not specify `--gpulayers`, in which case the prompt processing will occur on the GPU(s) but the per-token inference will not.
 
 ### Not Specifying GPU IDs:
 
-- By default, if no GPU IDs are specified after `--usecublas` or `--usevulkan` all compatible GPUs will be used and layers will be distributed equally.
+- By default, if no GPU IDs are specified after `--usecublas` or `--usevulkan`, all compatible GPUs will be used and layers will be distributed equally.
   - NOTE: This can be bad if the GPUs are different sizes.
-- Use `--tensor_split` to control the ratio, e.g., `--tensor_split 4 1` for a 80%/20% split on two GPUs.
+- Use `--tensor_split` to control the ratio, e.g., `--tensor_split 4 1` for an 80%/20% split on two GPUs.
 - The number of values in `--tensor_split` should match the total number of available GPUs.
 
 ### Specifying a Single GPU ID:
 
 - Don't use `--tensor_split`. However, you can still use `--gpulayers`.
 
-### Specifying Some GPUs:
+### Specifying Some GPUs and Offloading Layers to Those GPUs:
 
 - If some (but not all) GPU IDs are provided after `--usecublas` or `--usevulkan`, only those GPUs will be used for layer offloading.
 - Use `--tensor_split` to control the distribution ratio among the specified GPUs.
 - The number of values in `--tensor_split` should match the number of GPUs selected.
-  - Example: With four GPUs available but only specifying the last two with `--usecublas 2 3`, also using `--tensor_split 1 1` would offload an equal amount of layers to the third and fourth GPUs but none to the first two.
+  - Example: With four GPUs available but only specifying the last two with `--usecublas 2 3`, using `--tensor_split 1 1` would offload an equal amount of layers to the third and fourth GPUs but none to the first two.
+
+### Specifying Some GPUs to Process Layers While Allowing Other GPUs for Prompt Processing:
+
+- Use `--usecublas` or `--usevulkan` without specifying the GPU Ids, which makes available all GPUs for prompt processing.
+- Only assign layers to certain GPUs.  Example: Using `--usecublas` and `--tensor_split 5 0 3 2` will offload 50% of the layers to the first GPU, 30% to the third, and 20% to the fourth.  However, the second GPU will still be available for other processing that doesn't require layers of the model.
 
 ### Usage with `--useclblast`:
 
