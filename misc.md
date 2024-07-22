@@ -1,4 +1,32 @@
-Kobold AI - Selectable Backends
+## Kobold AI - Binary Details
+
+| DLL Files                    | koboldcpp_nocuda.exe | koboldcpp.exe | koboldcpp_oldcpu.exe | koboldcpp_cu12.exe |
+|------------------------------|:--------------------:|:-------------:|:--------------------:|:------------------:|
+| OpenCL.dll                   |          ✓           |       ✓       |          ✓           |         ✓          |
+| koboldcpp_default.dll        |          ✓           |       ✓       |          ✓           |         ✓          |
+| koboldcpp_openblas.dll       |          ✓           |       ✓       |                      |         ✓          |
+| koboldcpp_failsafe.dll       |          ✓           |       ✓       |          ✓           |         ✓          |
+| koboldcpp_noavx2.dll         |          ✓           |       ✓       |          ✓           |         ✓          |
+| libopenblas.dll              |          ✓           |       ✓       |                      |         ✓          |
+| koboldcpp_clblast.dll        |          ✓           |       ✓       |          ✓           |         ✓          |
+| koboldcpp_clblast_noavx2.dll |          ✓           |       ✓       |          ✓           |         ✓          |
+| koboldcpp_vulkan_noavx2.dll  |          ✓           |       ✓       |          ✓           |         ✓          |
+| clblast.dll                  |          ✓           |       ✓       |          ✓           |         ✓          |
+| koboldcpp_vulkan.dll         |          ✓           |       ✓       |          ✓           |         ✓          |
+| vulkan-1.dll                 |          ✓           |       ✓       |          ✓           |         ✓          |
+| koboldcpp_cublas.dll         |                      |       ✓       |          ✓           |         ✓          |
+| cublas64_11.dll              |                      |       ✓       |          ✓           |                    |
+| cublasLt64_11.dll            |                      |       ✓       |          ✓           |                    |
+| cudart64_110.dll             |                      |       ✓       |          ✓           |                    |
+| cublas64_12.dll              |                      |               |                      |         ✓          |
+| cublasLt64_12.dll            |                      |               |                      |         ✓          |
+| cudart64_12.dll              |                      |               |                      |         ✓          |
+| msvcp140.dll                 |                      |       ✓       |          ✓           |         ✓          |
+| msvcp140_codecvt_ids.dll     |                      |       ✓       |          ✓           |         ✓          |
+| vcruntime140.dll             |                      |       ✓       |          ✓           |         ✓          |
+| vcruntime140_1.dll           |                      |       ✓       |          ✓           |         ✓          |
+
+## Kobold AI - Selectable Backends
 
 | Choice | OpenBLAS | CLBlast | CuBLAS | Vulkan | No BLAS | NoAVX2 | NoMMAP | Low VRAM | MMQ | Row-Split | GPU Layers | Tensor Split |
 |--------|----------|---------|--------|--------|---------|--------|--------|----------|-----|-----------|------------|--------------|
