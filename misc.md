@@ -1,4 +1,22 @@
+# KoboldCpp Preset Options and Parameter Compatibility
 
+| Preset Option | Description | Compatible Parameters | Incompatible Parameters | Notes |
+|---------------|-------------|----------------------|-------------------------|-------|
+| Use OpenBLAS | CPU-only acceleration | Most general parameters | `--usecublas`, `--usevulkan`, `--useclblast`, `--lowvram`, `--mmq`, `--rowsplit`, `--gpulayers`, `--tensor_split` | Default option for CPU-only systems |
+| Use CLBlast | GPU acceleration using OpenCL | `--useclblast`, `--gpulayers` | `--usecublas`, `--usevulkan`, `--noblas`, `--lowvram`, `--mmq`, `--rowsplit` | Must specify exactly 2 arguments for platform ID and device ID |
+| Use CuBLAS | GPU acceleration for NVIDIA GPUs | `--usecublas`, `--gpulayers`, `--tensor_split`, `--lowvram`, `--mmq`, `--rowsplit` | `--usevulkan`, `--useclblast`, `--noblas` | Best option for NVIDIA GPUs |
+| Use Vulkan | GPU acceleration using Vulkan | `--usevulkan`, `--gpulayers`, `--tensor_split` | `--usecublas`, `--useclblast`, `--noblas`, `--lowvram`, `--mmq` | Compatible with a wide range of GPUs |
+| Use No BLAS | No accelerated prompt ingestion | `--noblas` | `--usecublas`, `--usevulkan`, `--useclblast`, `--lowvram`, `--mmq`, `--rowsplit`, `--gpulayers`, `--tensor_split` | Slowest option, but most compatible |
+| CLBlast NoAVX2 (Old CPU) | CLBlast for older CPUs | Same as "Use CLBlast" | Same as "Use CLBlast" | Automatically sets `--noavx2` |
+| Vulkan NoAVX2 (Old CPU) | Vulkan for older CPUs | Same as "Use Vulkan" | Same as "Use Vulkan" | Automatically sets `--noavx2` |
+| NoAVX2 Mode (Old CPU) | Compatibility mode for older CPUs | Most general parameters | `--usecublas`, `--usevulkan`, `--useclblast` | Automatically sets `--noavx2` |
+| Failsafe Mode (Old CPU) | Most compatible mode for very old systems | Basic parameters only | `--usecublas`, `--usevulkan`, `--useclblast`, `--lowvram`, `--mmq`, `--rowsplit`, `--gpulayers`, `--tensor_split` | Automatically sets `--noavx2`, `--noblas`, and `--nommap` |
+
+## General Notes:
+- The `--gpulayers` option is only available for Vulkan, CLBlast, and CuBLAS modes.
+- The `--tensor_split` option is only available for CuBLAS and Vulkan modes.
+- The `--lowvram`, `--mmq`, and `--rowsplit` options are only available for CuBLAS mode.
+- Always refer to the official documentation for the most up-to-date and detailed information.
 
 
 ## Kobold AI - Menu Options by Binary
