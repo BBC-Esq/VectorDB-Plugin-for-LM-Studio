@@ -4,8 +4,8 @@
 |---------------|-------------|----------------------|-------------------------|-------|
 | Use OpenBLAS | CPU-only acceleration | Most general parameters | `--usecublas`, `--usevulkan`, `--useclblast`, `--lowvram`, `--mmq`, `--rowsplit`, `--gpulayers`, `--tensor_split` | Default option for CPU-only systems |
 | Use CLBlast | GPU acceleration using OpenCL | `--useclblast`, `--gpulayers` | `--usecublas`, `--usevulkan`, `--noblas`, `--lowvram`, `--mmq`, `--rowsplit` | Must specify exactly 2 arguments for platform ID and device ID |
-| Use CuBLAS | GPU acceleration for NVIDIA GPUs | `--usecublas`, `--gpulayers`, `--tensor_split`, `--lowvram`, `--mmq`, `--rowsplit` | `--usevulkan`, `--useclblast`, `--noblas` | Best option for NVIDIA GPUs |
-| Use Vulkan | GPU acceleration using Vulkan | `--usevulkan`, `--gpulayers`, `--tensor_split` | `--usecublas`, `--useclblast`, `--noblas`, `--lowvram`, `--mmq` | Compatible with a wide range of GPUs |
+| Use CuBLAS | GPU acceleration for NVIDIA GPUs | `--usecublas`, `--gpulayers`, `--tensor_split`, `--lowvram`, `--mmq`, `--rowsplit` | `--usevulkan`, `--useclblast`, `--noblas`, `--noavx2` | Best option for NVIDIA GPUs |
+| Use Vulkan | GPU acceleration using Vulkan | `--usevulkan`, `--gpulayers`, `--tensor_split` | `--usecublas`, `--useclblast`, `--noblas`, `--lowvram`, `--mmq`, `--noavx2` | Compatible with a wide range of GPUs |
 | Use No BLAS | No accelerated prompt ingestion | `--noblas` | `--usecublas`, `--usevulkan`, `--useclblast`, `--lowvram`, `--mmq`, `--rowsplit`, `--gpulayers`, `--tensor_split` | Slowest option, but most compatible |
 | CLBlast NoAVX2 (Old CPU) | CLBlast for older CPUs | Same as "Use CLBlast" | Same as "Use CLBlast" | Automatically sets `--noavx2` |
 | Vulkan NoAVX2 (Old CPU) | Vulkan for older CPUs | Same as "Use Vulkan" | Same as "Use Vulkan" | Automatically sets `--noavx2` |
