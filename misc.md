@@ -61,22 +61,6 @@
 | vcruntime140.dll             |                      |       ✓       |          ✓           |         ✓          |
 | vcruntime140_1.dll           |                      |       ✓       |          ✓           |         ✓          |
 
-## Kobold AI - Selectable Backends
-
-| Choice | OpenBLAS | CLBlast | CuBLAS | Vulkan | No BLAS | NoAVX2 | NoMMAP | Low VRAM | MMQ | Row-Split | GPU Layers | Tensor Split |
-|--------|----------|---------|--------|--------|---------|--------|--------|----------|-----|-----------|------------|--------------|
-| Use OpenBLAS | ✅ | | | | | | | | | | | |
-| Use CLBlast | | ✅ | | | | | | | | | ✅ | |
-| Use CuBLAS | | | ✅ | | | | | ✅* | ✅* | ✅* | ✅ | ✅ |
-| Use Vulkan | | | | ✅ | | | | | | | ✅ | ✅ |
-| Use No BLAS | | | | | ✅ | | | | | | | |
-| CLBlast NoAVX2 | | ✅ | | | | ✅ | | | | | ✅ | |
-| Vulkan NoAVX2 | | | | ✅ | | ✅ | | | | | ✅ | ✅ |
-| NoAVX2 Mode | | | | | | ✅ | | | | | | |
-| Failsafe Mode | | | | | ✅ | ✅ | ✅ | | | | | |
-
-✅* = Optional setting for CuBLAS
-
 ## KoboldAI Misc.
 
 | Mode                      | Required DLLs                                                                               |
