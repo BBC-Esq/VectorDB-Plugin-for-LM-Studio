@@ -1,3 +1,17 @@
+## Kobold AI - Menu Options by Binary
+
+| Menu Option                  | koboldcpp_nocuda.exe | koboldcpp.exe | koboldcpp_oldcpu.exe | koboldcpp_cu12.exe |
+|------------------------------|:--------------------:|:-------------:|:--------------------:|:------------------:|
+| Use OpenBLAS                 |          ✓           |       ✓       |                      |         ✓          |
+| Use CLBlast                  |          ✓           |       ✓       |          ✓           |         ✓          |
+| Use CuBLAS                   |                      |       ✓       |          ✓           |         ✓          |
+| Use Vulkan                   |          ✓           |       ✓       |          ✓           |         ✓          |
+| Use No BLAS                  |          ✓           |       ✓       |          ✓           |         ✓          |
+| CLBlast NoAVX2 (Old CPU)     |          ✓           |       ✓       |          ✓           |         ✓          |
+| Vulkan NoAVX2 (Old CPU)      |          ✓           |       ✓       |          ✓           |         ✓          |
+| NoAVX2 Mode (Old CPU)        |          ✓           |       ✓       |          ✓           |         ✓          |
+| Failsafe Mode (Old CPU)      |          ✓           |       ✓       |          ✓           |         ✓          |
+
 ## Kobold AI - Binary Details
 
 | DLL Files                    | koboldcpp_nocuda.exe | koboldcpp.exe | koboldcpp_oldcpu.exe | koboldcpp_cu12.exe |
