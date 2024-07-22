@@ -1,10 +1,13 @@
+
+
+
 ## Kobold AI - Menu Options by Binary
 
 | Menu Option                  | koboldcpp_nocuda.exe | koboldcpp.exe | koboldcpp_oldcpu.exe | koboldcpp_cu12.exe |
 |------------------------------|:--------------------:|:-------------:|:--------------------:|:------------------:|
-| Use OpenBLAS                 |          ✓           |       ✓       |                      |         ✓          |
+| Use OpenBLAS                 |          ✓           |       ✓       |          (no AVX2)            |         ✓          |
 | Use CLBlast                  |          ✓           |       ✓       |          ✓           |         ✓          |
-| Use CuBLAS                   |                      |       ✓       |          ✓           |         ✓          |
+| Use CuBLAS                   |                      |       ✓ (CUDA 11)       |          ✓ (CUDA 11)           |         ✓ (CUDA 12)          |
 | Use Vulkan                   |          ✓           |       ✓       |          ✓           |         ✓          |
 | Use No BLAS                  |          ✓           |       ✓       |          ✓           |         ✓          |
 | CLBlast NoAVX2 (Old CPU)     |          ✓           |       ✓       |          ✓           |         ✓          |
@@ -55,6 +58,20 @@
 | Failsafe Mode | | | | | ✅ | ✅ | ✅ | | | | | |
 
 ✅* = Optional setting for CuBLAS
+
+## KoboldAI Misc.
+
+| Mode                      | Required DLLs                                                                               |
+|---------------------------|----------------------------------------------------------------------------------------------|
+| **Default/No acceleration**| koboldcpp_default.dll                                                                        |
+| **OpenBLAS**              | koboldcpp_openblas.dll<br>libopenblas.dll (must exist alongside)                             |
+| **CLBlast**               | koboldcpp_clblast.dll<br>clblast.dll (must exist alongside)<br>OpenCL.dll (implied by Makefile's use of OpenCL.lib) |
+| **CuBLAS (NVIDIA GPU acceleration)**| koboldcpp_cublas.dll<br>cuda.dll<br>cublas.dll<br>cudart.dll<br>cublasLt.dll           |
+| **HipBLAS (AMD GPU acceleration)**| koboldcpp_hipblas.dll<br>Additional AMD ROCm libraries (not explicitly listed in Makefile) |
+| **Vulkan**                | koboldcpp_vulkan.dll<br>vulkan-1.dll                                                         |
+| **NoAVX2 variants (for older CPUs)**| koboldcpp_noavx2.dll<br>koboldcpp_clblast_noavx2.dll (requires same dependencies as CLBlast)<br>koboldcpp_vulkan_noavx2.dll (requires same dependency as Vulkan) |
+| **Failsafe mode**         | koboldcpp_failsafe.dll                                                                       |
+
 
 # Kobold AI API Documentation
 
