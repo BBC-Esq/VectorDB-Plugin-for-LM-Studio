@@ -1,4 +1,4 @@
-Kobold AI Summary
+Kobold AI - Selectable Backends
 
 | Choice | OpenBLAS | CLBlast | CuBLAS | Vulkan | No BLAS | NoAVX2 | NoMMAP | Low VRAM | MMQ | Row-Split | GPU Layers | Tensor Split |
 |--------|----------|---------|--------|--------|---------|--------|--------|----------|-----|-----------|------------|--------------|
