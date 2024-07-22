@@ -12,6 +12,11 @@
 | NoAVX2 Mode (Old CPU) | Most general parameters | `--usecublas`, `--usevulkan`, `--useclblast` | Automatically sets `--noavx2` |
 | Failsafe Mode (Old CPU) | Basic parameters only | `--usecublas`, `--usevulkan`, `--useclblast`, `--lowvram`, `--mmq`, `--rowsplit`, `--gpulayers`, `--tensor_split` | Automatically sets `--noavx2`, `--noblas`, and `--nommap` |
 
+> Notes:
+> - The `--gpulayers` option is only available for Vulkan, CLBlast, and CuBLAS modes.
+> - The `--tensor_split` option is only available for CuBLAS and Vulkan modes.
+> - The `--lowvram`, `--mmq`, and `--rowsplit` options are only available for CuBLAS mode.
+
 ## Kobold AI - Menu Options by Binary
 
 | Menu Option                  | koboldcpp_nocuda.exe | koboldcpp.exe | koboldcpp_oldcpu.exe | koboldcpp_cu12.exe |
