@@ -31,7 +31,7 @@
 | NoAVX2 Mode (Old CPU)        |          ✓           |       ✓       |          ✓           |         ✓          |
 | Failsafe Mode (Old CPU)      |          ✓           |       ✓       |          ✓           |         ✓          |
 
-## Kobold AI - Binary Details
+## Kobold AI - .dll files per binary
 
 | DLL Files                    | koboldcpp_nocuda.exe | koboldcpp.exe | koboldcpp_oldcpu.exe | koboldcpp_cu12.exe |
 |------------------------------|:--------------------:|:-------------:|:--------------------:|:------------------:|
