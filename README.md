@@ -6,7 +6,7 @@
 
 
 * 🔥 Currently only supported on ```Windows``` systems with an ```Nvidia GPU```.  Feel free to contribute to support other setups!
-* 🔥 Due to time constraints, ```Release v3.5.2``` was the last one that attempted to support Linux/MacOS and ```Release v6.1.0``` was the last one that attempted to support CPU-only systems. due to the fact that I don't currently have time to support all backends/platforms.
+* 🔥 Due to time constraints, ```Release v3.5.2``` was the last one that attempted to support Linux/MacOS and ```Release v6.1.0``` was the last one that attempted to support CPU-only systems.
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
   
