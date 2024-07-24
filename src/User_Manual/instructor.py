@@ -535,7 +535,7 @@ class INSTRUCTOR(SentenceTransformer):
             input_was_string = True
 
         if device is None:
-            device = self._target_device
+            device = self.device
 
         self.to(device)
 
