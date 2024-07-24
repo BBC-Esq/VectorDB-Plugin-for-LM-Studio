@@ -4,6 +4,7 @@ import time
 import os
 import tkinter as tk
 from tkinter import messagebox
+from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
     root = tk.Tk()
@@ -312,3 +313,7 @@ elif not all_failed:
 
 if all_failed:
     sys.exit(1)
+    
+replace_pdf_file() # replaces pymupdf parser within langchain
+replace_instructor_file() # replaces instructor-embeddings
+replace_sentence_transformer_file() # replaces SentenceTransformer
