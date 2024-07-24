@@ -1,35 +1,31 @@
 import sys
 import subprocess
+import time
 import os
 import tkinter as tk
 from tkinter import messagebox
-import constants as c
-from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
     root = tk.Tk()
     root.withdraw()
-    if type == "info":
-        messagebox.showinfo(title, message)
+    if yes_no:
+        result = messagebox.askyesno(title, message)
     elif type == "error":
         messagebox.showerror(title, message)
-    elif type == "yesno" and yes_no:
-        response = messagebox.askyesno(title, message)
-        root.destroy()
-        return response
+        result = False
+    else:
+        messagebox.showinfo(title, message)
+        result = True
     root.destroy()
+    return result
 
 def check_python_version_and_confirm():
     major, minor = map(int, sys.version.split()[0].split('.')[:2])
     if major == 3 and minor == 11:
-        return tkinter_message_box("Confirmation", f"Python version {sys.version.split()[0]} was detected, which is compatible.\n\n Click YES to proceed or NO to exit.", type="yesno", yes_no=True)
+        return tkinter_message_box("Confirmation", f"Python version {sys.version.split()[0]} was detected, which is compatible.\n\nClick YES to proceed or NO to exit.", type="yesno", yes_no=True)
     else:
-        tkinter_message_box("Python Version Error", "This program requires Python 3.11.x.\n\n  The Pytorch library does not support Python 3.12 yet and I have chosen to no longer support Python 3.10.\n\n Exiting the installer...", type="error")
+        tkinter_message_box("Python Version Error", "This program requires Python 3.11.x.\n\nThe Pytorch library does not support Python 3.12 yet and I have chosen to no longer support Python 3.10.\n\nExiting the installer...", type="error")
         return False
-
-def get_platform_info():  # returns windows, linux or darwin
-    os_name = platform.system().lower()
-    return os_name
 
 def is_nvidia_gpu_installed():
     try:
@@ -37,14 +33,6 @@ def is_nvidia_gpu_installed():
         return True
     except (FileNotFoundError, subprocess.CalledProcessError):
         return False
-
-def display_gpu_message():
-    if is_nvidia_gpu_installed():
-        proceed_with_gpu = tkinter_message_box("GPU Check", "NVIDIA GPU detected. Click YES to install with gpu-acceleration or NO to exit the installer.", type="yesno", yes_no=True)
-        return proceed_with_gpu
-    else:
-        proceed_without_gpu = tkinter_message_box("GPU Check", "No NVIDIA GPU detected. Click YES to install without GPU-acceleration or NO to exit the installer.", type="yesno", yes_no=True)
-        return proceed_without_gpu
 
 def manual_installation_confirmation():
     if not tkinter_message_box("Confirmation", "Have you installed Git?\n\nClick YES to confirm or NO to cancel installation.", type="yesno", yes_no=True):
@@ -57,51 +45,270 @@ def manual_installation_confirmation():
         return False
     return True
 
-def install_pytorch(gpu_available):
-    major, minor = map(int, sys.version.split()[0].split('.')[:2])
-    if gpu_available:
-        os.system("pip install --no-cache-dir https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp311-cp311-win_amd64.whl https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl")
-        os.system("pip install --no-cache-dir https://github.com/bdashore3/flash-attention/releases/download/v2.5.9.post1/flash_attn-2.5.9.post1+cu122torch2.2.2cxx11abiFALSE-cp311-cp311-win_amd64.whl") # need to make this conditional on cuda compute level
+if not check_python_version_and_confirm():
+    sys.exit(1)
+
+nvidia_gpu_detected = is_nvidia_gpu_installed()
+if nvidia_gpu_detected:
+    message = "An NVIDIA GPU has been detected.\n\nDo you want to proceed with the installation?"
+else:
+    message = "No NVIDIA GPU has been detected. An NVIDIA GPU is required for this script to function properly.\n\nDo you still want to proceed with the installation?"
+
+if not tkinter_message_box("GPU Detection", message, type="yesno", yes_no=True):
+    sys.exit(1)
+
+if not manual_installation_confirmation():
+    sys.exit(1)
+
+def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
+    upgrade_commands = [
+        [sys.executable, "-m", "pip", "install", "--upgrade", "pip", "--no-cache-dir"],
+        [sys.executable, "-m", "pip", "install", "--upgrade", "setuptools", "--no-cache-dir"],
+        [sys.executable, "-m", "pip", "install", "--upgrade", "wheel", "--no-cache-dir"]
+    ]
+    
+    for command in upgrade_commands:
+        package = command[5]
+        for attempt in range(max_retries):
+            try:
+                print(f"\nAttempt {attempt + 1} of {max_retries}: Upgrading {package}...")
+                process = subprocess.run(command, check=True, capture_output=True, text=True, timeout=180)
+                print(f"Successfully upgraded {package}")
+                break
+            except subprocess.CalledProcessError as e:
+                print(f"Attempt {attempt + 1} failed. Error: {e.stderr.strip()}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                else:
+                    print(f"Failed to upgrade {package} after {max_retries} attempts.")
+            except Exception as e:
+                print(f"An unexpected error occurred while upgrading {package}: {str(e)}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                else:
+                    print(f"Failed to upgrade {package} after {max_retries} attempts due to unexpected errors.")
+
+def pip_install_with_retry(library, max_retries=5, delay=3):
+    if library.startswith("torch=="):
+        pip_args = ["pip", "install", "torch==2.2.2", "torchvision==0.17.2", "torchaudio==2.2.2", 
+                    "--index-url", "https://download.pytorch.org/whl/cu121", "--no-deps"]
+    elif "@" in library or "git+" in library:
+        pip_args = ["pip", "install", library, "--no-deps"]
     else:
-        os.system("pip install --no-cache-dir https://download.pytorch.org/whl/cpu/torch-2.2.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=88e63c916e3275fa30a220ee736423a95573b96072ded85e5c0171fd8f37a755 https://download.pytorch.org/whl/cpu/torchvision-0.17.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=54ae4b89038065e7393c65bc8ff141d1bf3c2f70f88badc834247666608ba9f4 https://download.pytorch.org/whl/cpu/torchaudio-2.2.2%2Bcpu-cp311-cp311-win_amd64.whl#sha256=6e718df4834f9cef28b7dc1edc9ceabfe477d4dbd5527b51234e96bf91465d9d")
+        pip_args = ["pip", "install", library, "--no-deps"]
 
-def setup_windows_installation():
-    if not check_python_version_and_confirm():
-        return
-    if not manual_installation_confirmation():
-        return
-    gpu_available = display_gpu_message()
-    if not gpu_available:
-        return
-    # os.system("python -m pip install --no-cache-dir --upgrade pip")
-    os.system("python -m pip install --no-cache-dir --upgrade pip setuptools wheel")
-    
-    # if is_nvidia_gpu_installed():
-    os.system("pip install --no-cache-dir nvidia-cuda-runtime-cu12==12.2.140 nvidia-cublas-cu12==12.2.5.6 nvidia-cudnn-cu12==8.9.7.29")
-    # nvidia-cuda-nvrtc-cu12==12.2.140 nvidia-cufft-cu12==11.0.8.103 nvidia-cusolver-cu12==11.5.2.141 nvidia-cusparse-cu12==12.1.2.141 nvidia-nvml-dev-cu12==12.2.140 nvidia-cuda-opencl-cu12==12.2.140 nvidia-cuda-nvcc-cu12==12.2.140
-    
-    os.system("pip install --no-cache-dir fsspec==2024.5.0") # accelerate requires pytorch, and pytorch will force this version if not specified
-    os.system("pip install --no-cache-dir numpy==1.26.4") # langchain will force install this verison if not specified
-    
-    install_pytorch(gpu_available)
-    
-    os.system("pip install --no-cache-dir openai==1.23.6")
-    os.system("pip install --no-cache-dir langchain==0.2.5")
-    os.system("pip install --no-cache-dir langchain-community==0.2.5")
-    
-    os.system("pip install --no-cache-dir -r requirements.txt")
-    
-    if is_nvidia_gpu_installed():
-        os.system("pip install --no-cache-dir xformers==0.0.25.post1")
-        os.system("pip install --no-cache-dir nvidia-ml-py")
+    for attempt in range(max_retries):
+        try:
+            print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {library}")
+            print(f"Running command: {' '.join(pip_args)}")
+            result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=180)
+            print(f"Successfully installed {library}")
+            return attempt + 1
+        except subprocess.CalledProcessError as e:
+            print(f"Attempt {attempt + 1} failed. Error: {e.stderr.strip()}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                print(f"Failed to install {library} after {max_retries} attempts.")
+                return 0
 
-    os.system("pip install --no-cache-dir --no-deps -U git+https://github.com/shashikg/WhisperS2T.git")
-    os.system("pip install --no-cache-dir --no-deps -U git+https://github.com/BBC-Esq/WhisperSpeech.git@add_cache_dir")
-    # os.system("pip install --no-deps -U git+https://github.com/collabora/WhisperSpeech.git") # will force unwanted torch version if installed with dependencies
-    os.system("pip install --no-cache-dir --no-deps chattts-fork==0.0.8")
-    
-    replace_pdf_file() # replaces pymupdf parser within langchain
-    replace_instructor_file() # replaces instructor-embeddings
-    replace_sentence_transformer_file() # replaces SentenceTransformer
+def install_libraries(libraries):
+    failed_installations = []
+    multiple_attempts = []
 
-setup_windows_installation()
+    for library in libraries:
+        attempts = pip_install_with_retry(library)
+        if attempts == 0:
+            failed_installations.append(library)
+        elif attempts > 1:
+            multiple_attempts.append((library, attempts))
+        time.sleep(0.1)
+
+    return failed_installations, multiple_attempts
+
+# Libraries to install first
+priority_libraries = [
+    "flash_attn @ https://github.com/bdashore3/flash-attention/releases/download/v2.5.9.post1/flash_attn-2.5.9.post1+cu122torch2.2.2cxx11abiFALSE-cp311-cp311-win_amd64.whl",
+    "torch==2.2.2",
+    "triton @ https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl#sha256=2c78f5f85cf88d46eb9664c23691052d6c153a6043656fc15c50a0d13bc5565c",
+    "whisper_s2t @ git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
+    "WhisperSpeech @ git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8"
+]
+
+other_libraries = [
+    "accelerate==0.33.0",
+    "aiohttp==3.9.5",
+    "aiosignal==1.3.1",
+    "anndata==0.10.8",
+    "annotated-types==0.7.0",
+    "antlr4-python3-runtime==4.9.3",
+    "anyio==4.4.0",
+    "array_api_compat==1.7.1",
+    "attrs==23.2.0",
+    "av==12.3.0",
+    "bitsandbytes==0.43.1",
+    "braceexpand==0.1.7",
+    "certifi==2024.7.4",
+    "cffi==1.16.0",
+    "charset-normalizer==3.3.2",
+    "chattts-fork==0.0.8",
+    "click==8.1.7",
+    "cloudpickle==2.2.1",
+    "colorama==0.4.6",
+    "coloredlogs==15.0.1",
+    "ctranslate2==4.3.1",
+    "dataclasses-json==0.6.7",
+    "datasets==2.20.0",
+    "dill==0.3.8",
+    "distro==1.9.0",
+    "einops==0.8.0",
+    "einx==0.3.0",
+    "encodec==0.1.1",
+    "fastcore==1.5.54",
+    "fastprogress==1.0.3",
+    "filelock==3.15.4",
+    "frozendict==2.4.4",
+    "frozenlist==1.4.1",
+    "fsspec==2024.5.0",
+    "greenlet==3.0.3",
+    "gTTS==2.5.1",
+    "h11==0.14.0",
+    "h5py==3.11.0",
+    "httpcore==1.0.5",
+    "httpx==0.27.0",
+    "huggingface-hub==0.24.1",
+    "humanfriendly==10.0",
+    "HyperPyYAML==1.2.2",
+    "idna==3.7",
+    "importlib_metadata==8.1.0",
+    "InstructorEmbedding==1.0.1",
+    "Jinja2==3.1.4",
+    "joblib==1.4.2",
+    "jsonpatch==1.33",
+    "jsonpointer==3.0.0",
+    "langchain==0.2.5",
+    "langchain-community==0.2.5",
+    "langchain-core==0.2.23",
+    "langchain-huggingface==0.0.3",
+    "langchain-text-splitters==0.2.2",
+    "langsmith==0.1.93",
+    "llvmlite==0.43.0",
+    "markdown-it-py==3.0.0",
+    "MarkupSafe==2.1.5",
+    "marshmallow==3.21.3",
+    "mdurl==0.1.2",
+    "more-itertools==10.3.0",
+    "mpmath==1.3.0",
+    "multidict==6.0.5",
+    "multiprocess==0.70.16",
+    "mypy-extensions==1.0.0",
+    "natsort==8.4.0",
+    "networkx==3.3",
+    "numba==0.60.0",
+    "numpy==1.26.4",
+    "nvidia-cublas-cu12==12.1.3.1",
+    "nvidia-cuda-runtime-cu12==12.1.105",
+    "nvidia-cuda-nvrtc-cu12==12.1.105",
+    "nvidia-cudnn-cu12==8.9.7.29",
+    "nvidia-ml-py==12.555.43",
+    "omegaconf==2.3.0",
+    "openai==1.23.6",
+    "openai-whisper==20231117",
+    "optimum==1.21.2",
+    "orjson==3.10.6",
+    "packaging==24.1",
+    "pandas==2.2.2",
+    "pillow==10.4.0",
+    "platformdirs==4.2.2",
+    "protobuf==5.27.2",
+    "psutil==6.0.0",
+    "pyarrow==17.0.0",
+    "pyarrow-hotfix==0.6",
+    "pycparser==2.22",
+    "pydantic==2.7.4",
+    "pydantic_core==2.18.4",
+    "Pygments==2.18.0",
+    "pyreadline3==3.4.1",
+    "PySide6==6.7.2",
+    "PySide6_Addons==6.7.2",
+    "PySide6_Essentials==6.7.2",
+    "python-dateutil==2.9.0.post0",
+    "pytz==2024.1",
+    "PyYAML==6.0.1",
+    "regex==2024.5.15",
+    "requests==2.32.3",
+    "rich==13.7.1",
+    "ruamel.yaml==0.18.6",
+    "ruamel.yaml.clib==0.2.8",
+    "safetensors==0.4.3",
+    "scikit-learn==1.5.1",
+    "scipy==1.14.0",
+    "sentence-transformers==3.0.1",
+    "sentencepiece==0.2.0",
+    "shiboken6==6.7.2",
+    "six==1.16.0",
+    "sniffio==1.3.1",
+    "sounddevice==0.4.6",
+    "soundfile==0.12.1",
+    "speechbrain==0.5.16",
+    "SQLAlchemy==2.0.31",
+    "sympy==1.13.1",
+    "tblib==1.7.0",
+    "tenacity==8.5.0",
+    "termcolor==2.4.0",
+    "threadpoolctl==3.5.0",
+    "tiktoken==0.7.0",
+    "tiledb==0.27.1",
+    "tiledb-cloud==0.12.18",
+    "tiledb-vector-search==0.2.2",
+    "timm==0.9.16",
+    "tokenizers==0.19.1",
+    "tqdm==4.66.4",
+    "transformers==4.41.1",
+    "typing-inspect==0.9.0",
+    "typing_extensions==4.12.2",
+    "tzdata==2024.1",
+    "urllib3==2.2.2",
+    "vector-quantize-pytorch==1.15.3",
+    "vocos==0.1.0",
+    "webdataset==0.2.86",
+    "xformers==0.0.25.post1",
+    "xxhash==3.4.1",
+    "yarl==1.9.4",
+    "zipp==3.19.2"
+]
+
+print("\033[92mUpgrading pip, setuptools, and wheel:\033[0m")
+upgrade_pip_setuptools_wheel()
+
+print("\033[92m\nInstalling priority libraries:\033[0m")
+priority_failed, priority_multiple = install_libraries(priority_libraries)
+
+print("\033[92m\nInstalling other libraries:\033[0m")
+other_failed, other_multiple = install_libraries(other_libraries)
+
+print("\n--- Installation Summary ---")
+
+all_failed = priority_failed + other_failed
+all_multiple = priority_multiple + other_multiple
+
+if all_failed:
+    print(f"\033[91m\nThe following libraries failed to install:\033[0m")
+    for lib in all_failed:
+        print(f"\033[91m- {lib}\033[0m")
+
+if all_multiple:
+    print(f"\033[93m\nThe following libraries required multiple attempts to install:\033[0m")
+    for lib, attempts in all_multiple:
+        print(f"\033[93m- {lib} (took {attempts} attempts)\033[0m")
+
+if not all_failed and not all_multiple:
+    print(f"\033[93m\nAll libraries installed successfully on the first attempt.\033[0m")
+elif not all_failed:
+    print(f"\033[93m\nAll libraries were eventually installed successfully.\033[0m")
+
+if all_failed:
+    sys.exit(1)
