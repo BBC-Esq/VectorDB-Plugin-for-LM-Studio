@@ -3,72 +3,8 @@
   <h2>Now with the ability to process images and audio files, Local chat models, and text to speech playback!<br><a href="https://youtu.be/8-ZAYI4MvtA">Introductory Video</a><br><a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h2>
 </div>
 
-<div align="center">
-<table>
-  <thead>
-    <tr>
-      <th></th>
-      <th>Database</th>
-      <th>Transcribe</th>
-      <th>Bark/TTS</th>
-      <th>Vision</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Intel CPU</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>AMD CPU</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Nvidia GPU</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>AMD GPU on Windows</td>
-      <td>❌</td>
-      <td>❌</td>
-      <td>❌</td>
-      <td>❌</td>
-    </tr>
-    <tr>
-      <td>AMD GPU on Linux</td>
-      <td>✅</td>
-      <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Apple CPU</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>❌</td>
-    </tr>
-    <tr>
-      <td>Apple Metal/MPS</td>
-      <td>✅</td>
-      <td>❌</td>
-      <td>❓</td>
-      <td>❌</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-* 🔥This table is only current as of ```Release v3.5.2``` due to the fact that I don't currently have time to support all backends/platforms.  Any release after version 3.5.2 only supports the ```Windows``` + ```Nvidia GPU``` combination.  Hopefully more time will free up in the future to support more platforms and backends.
+* 🔥 Currently only supported on ```Windows``` systems with an ```Nvidia GPU```.  Feel free to contribute to support other setups!
+* 🔥 Due to time constraints, ```Release v3.5.2``` was the last one that attempted to support Linux/MacOS and ```Release v6.1.0``` was the last one that attempted to support CPU-only systems. due to the fact that I don't currently have time to support all backends/platforms.
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
   
@@ -76,7 +12,8 @@
 2) 📁[Git](https://git-scm.com/downloads)
 3) 📁[Git Large File Storage](https://git-lfs.com/).
 4) 🌐[Pandoc](https://github.com/jgm/pandoc/releases).
-5) Build Tools.
+5) CUDA is technically "required" but the installation script installs it automatically.
+6) Build Tools.
    > Certain dependencies don't have pre-compiled "wheels" so you must build them with something like [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  I recommend Visual Studio, but make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing "SDK."
 
    <details>
@@ -180,12 +117,7 @@ python gui.py
 This program gets relevant chunks from the vector database and forwarding them - along with your question - to LM Studio for an answer!
 * Perform the above steps regarding entering a question and choosing settings, but make sure that ```Chunks Only``` is 🔥UNCHECKED🔥.
 * Start LM Studio and go to the Server tab on the left.
-* Load a model.  I've personally tested the following models as good:
-  * ```Marx_3B_V3```
-  * ```Mistral_7B_Instruct_v0_2```
-  * ```Neural_Chat_7b_v3_3```
-  * ```Llama_2_13b_chat_hf```
-  * ```SOLAR_10_7B_Instruct_v1_0```
+* Load a model.
 * Turn ```Apply Prompt Formatting``` to "OFF."
 * On the right side within ```Prompt Format```, make sure that all of the following settings are blank:
   * ```System Message Prefix```
