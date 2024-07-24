@@ -58,13 +58,17 @@ class CreateVectorDB:
             encode_kwargs['batch_size'] = 2
         else:
             batch_size_mapping = {
-                'sentence-t5-xxl': 1,
-                ('instructor-xl', 'sentence-t5-xl'): 2,
-                'instructor-large': 3,
-                ('jina-embedding-l', 'bge-large', 'gte-large', 'roberta-large'): 4,
-                'jina-embedding-s': 9,
-                ('bge-small', 'gte-small'): 10,
-                ('MiniLM',): 30,
+                'instructor-xl': 2,
+                'bge-large': 4,
+                'instructor-large': 4,
+                'gte-large': 4,
+                'instructor-base': 8,
+                'mpnet': 8,
+                'bge-base': 8,
+                'gte-base': 8,
+                'bge-small': 10,
+                'gte-small': 10,
+                'MiniLM': 30,
             }
 
             for key, value in batch_size_mapping.items():
