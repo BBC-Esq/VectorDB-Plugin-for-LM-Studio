@@ -15,9 +15,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 logging.getLogger().setLevel(logging.WARNING)
 
-system_message = """
-You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. Here are one or more contexts to solely base your answer off of. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer.
-"""
+system_message = """You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. Here are one or more contexts to solely base your answer off of. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."""
 
 bnb_bfloat16_settings = {
     'tokenizer_settings': {
@@ -449,17 +447,17 @@ class Orca2_13b(BaseModel):
         pass
 
 
-class Phi3_mini_4k(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Phi-3 Mini 4k - 3.8B']
-        super().__init__(model_info, bnb_bfloat16_settings)
+# class Phi3_mini_4k(BaseModel):
+    # def __init__(self):
+        # model_info = CHAT_MODELS['Phi-3 Mini 4k - 3.8B']
+        # super().__init__(model_info, bnb_bfloat16_settings)
 
-    def create_prompt(self, user_message):
-        return f"<s><|system|>\n{system_message}<|end|>\n<|user|>\n{user_message}<|end|>\n<|assistant|> *****\n"
+    # def create_prompt(self, user_message):
+        # return f"<s><|system|>\n{system_message}<|end|>\n<|user|>\n{user_message}<|end|>\n<|assistant|> *****\n"
 
-    @extract_response_decorator("*****")
-    def extract_response(self, model_response):
-        pass
+    # @extract_response_decorator("*****")
+    # def extract_response(self, model_response):
+        # pass
 
 
 # class Phi3_medium_4k(BaseModel):

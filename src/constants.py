@@ -164,14 +164,6 @@ VECTOR_MODELS = {
     ],
 }
 
-    #{'name': 'msmarco-distilbert-cos-v5', 'dimensions': 768, 'max_sequence': 512, 'size_mb': 265},
-    #'jinaai/jina-embedding-s-en-v1': {'dimensions': 512, 'max_sequence': 512, 'size_mb': 141},
-    #'jinaai/jina-embedding-b-en-v1': {'dimensions': 768, 'max_sequence': 512, 'size_mb': 439},
-    #'jinaai/jina-embedding-l-en-v1': {'dimensions': 1024, 'max_sequence': 512, 'size_mb': 1340},
-    #'nomic-ai/nomic-embed-text-v1.5': {'dimensions': 768, 'max_sequence': 8192, 'size_mb': 547},
-    # 'Alibaba-NLP/gte-large-en-v1.5': {'dimensions': 1024, 'max_sequence': 8192, 'size_mb': 1740},
-    # 'Alibaba-NLP/gte-base-en-v1.5': {'dimensions': 768, 'max_sequence': 8192, 'size_mb': 547},
-
 
 CHAT_MODELS = {
     'Qwen 2 - 0.5b': {
@@ -246,15 +238,15 @@ CHAT_MODELS = {
         'avg_vram_usage': '3.7 GB',
         'function': 'Qwen1_5_1_8b'
     },
-    'Phi-3 Mini 4k - 3.8B': {
-        'model': 'Phi-3 Mini 4k - 3.8B',
-        'repo_id': 'microsoft/Phi-3-mini-4k-instruct',
-        'cache_dir': 'microsoft--Phi-3-mini-4k-instruct',
-        'tokens_per_second': 50,
-        'context_length': 4096,
-        'avg_vram_usage': '4.0 GB',
-        'function': 'Phi3_mini_4k'
-    },
+    # 'Phi-3 Mini 4k - 3.8B': {
+        # 'model': 'Phi-3 Mini 4k - 3.8B',
+        # 'repo_id': 'microsoft/Phi-3-mini-4k-instruct',
+        # 'cache_dir': 'microsoft--Phi-3-mini-4k-instruct',
+        # 'tokens_per_second': 50,
+        # 'context_length': 4096,
+        # 'avg_vram_usage': '4.0 GB',
+        # 'function': 'Phi3_mini_4k'
+    # },
     'Dolphin-Qwen 2 - 1.5b': {
         'model': 'Dolphin-Qwen 2 - 1.5b',
         'repo_id': 'cognitivecomputations/dolphin-2.9.3-qwen2-1.5b',
