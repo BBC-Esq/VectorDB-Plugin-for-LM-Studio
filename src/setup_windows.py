@@ -268,7 +268,7 @@ other_libraries = [
     "timm==0.9.16",
     "tokenizers==0.19.1",
     "tqdm==4.66.4",
-    "transformers==4.41.1",
+    "transformers==4.43.1",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
     "tzdata==2024.1",

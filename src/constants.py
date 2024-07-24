@@ -444,6 +444,15 @@ CHAT_MODELS = {
         'avg_vram_usage': '10.0 GB',
         'function': 'Llama2_13b'
     },
+    'Dolphin-Mistral-Nemo - 12b': {
+        'model': 'Dolphin-Mistral-Nemo - 12b',
+        'repo_id': 'cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b',
+        'cache_dir': 'cognitivecomputations--dolphin-2.9.3-mistral-nemo-12b',
+        'tokens_per_second': 35.86,
+        'context_length': 8192,
+        'avg_vram_usage': '10.0 GB',
+        'function': 'Dolphin_Mistral_Nemo'
+    },
     'Stablelm 2 - 12b': {
         'model': 'Stablelm 2 - 12b',
         'repo_id': 'stabilityai/stablelm-2-12b-chat',

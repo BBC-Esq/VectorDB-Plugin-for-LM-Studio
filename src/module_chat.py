@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 logging.getLogger().setLevel(logging.WARNING)
 
 system_message = """
-You are a helpful assistant who clearly and directly answers questions in a succinct fashion based on contexts provided to you. Here are one or more contexts to solely base your answer off of. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer.
+You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. Here are one or more contexts to solely base your answer off of. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer.
 """
 
 bnb_bfloat16_settings = {
@@ -134,6 +134,27 @@ class Dolphin_Llama3_8B_Instruct(BaseModel):
 
     def generate_response(self, inputs):
         all_settings = {**inputs, **common_generate_settings}
+        generated_text = self.model.generate(**all_settings, eos_token_id=self.tokenizer.convert_tokens_to_ids("<|im_end|>"))
+        return generated_text
+
+    def decode_response(self, generated_text):
+        return self.tokenizer.decode(generated_text[0], skip_special_tokens=True)
+
+class Dolphin_Mistral_Nemo(BaseModel):
+    def __init__(self):
+        model_info = CHAT_MODELS['Dolphin-Mistral-Nemo - 12b']
+        super().__init__(model_info, bnb_bfloat16_settings)
+
+    def create_prompt(self, user_message):
+        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{user_message}<|im_end|>\n<|im_start|>assistant\n"
+
+    @extract_response_decorator("assistant")
+    def extract_response(self, model_response):
+        pass
+
+    def generate_response(self, inputs):
+        mistral_generate_settings = {**common_generate_settings, 'max_length': 8192}
+        all_settings = {**inputs, **mistral_generate_settings}
         generated_text = self.model.generate(**all_settings, eos_token_id=self.tokenizer.convert_tokens_to_ids("<|im_end|>"))
         return generated_text
 
