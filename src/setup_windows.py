@@ -150,10 +150,13 @@ other_libraries = [
     "array_api_compat==1.7.1",
     "attrs==23.2.0",
     "av==12.3.0",
+    "backoff==2.2.1",
+    "beautifulsoup4==4.12.3",
     "bitsandbytes==0.43.1",
     "braceexpand==0.1.7",
     "certifi==2024.7.4",
     "cffi==1.16.0",
+    "chardet==5.2.0",
     "charset-normalizer==3.3.2",
     "chattts-fork==0.0.8",
     "click==8.1.7",
@@ -163,13 +166,18 @@ other_libraries = [
     "ctranslate2==4.3.1",
     "dataclasses-json==0.6.7",
     "datasets==2.20.0",
+    "deepdiff==7.0.1",
     "dill==0.3.8",
     "distro==1.9.0",
+    "docx2txt==0.8",
     "einops==0.8.0",
     "einx==0.3.0",
+    "emoji==2.12.1",
     "encodec==0.1.1",
+    "et-xmlfile==1.1.0",
     "fastcore==1.5.54",
     "fastprogress==1.0.3",
+    "filetype==1.2.0",
     "filelock==3.15.4",
     "frozendict==2.4.4",
     "frozenlist==1.4.1",
@@ -183,31 +191,39 @@ other_libraries = [
     "huggingface-hub==0.24.1",
     "humanfriendly==10.0",
     "HyperPyYAML==1.2.2",
+    "iso-639==0.4.5",
     "idna==3.7",
     "importlib_metadata==8.1.0",
     "InstructorEmbedding==1.0.1",
     "Jinja2==3.1.4",
     "joblib==1.4.2",
     "jsonpatch==1.33",
+    "jsonpath-python==1.0.6",
     "jsonpointer==3.0.0",
     "langchain==0.2.5",
     "langchain-community==0.2.5",
     "langchain-core==0.2.23",
     "langchain-huggingface==0.0.3",
     "langchain-text-splitters==0.2.2",
+    "langdetect==1.0.9",
     "langsmith==0.1.93",
     "llvmlite==0.43.0",
+    "lxml==5.2.2",
+    "Markdown==3.6",
     "markdown-it-py==3.0.0",
     "MarkupSafe==2.1.5",
     "marshmallow==3.21.3",
     "mdurl==0.1.2",
     "more-itertools==10.3.0",
     "mpmath==1.3.0",
+    "msg-parser==1.2.0",
     "multidict==6.0.5",
     "multiprocess==0.70.16",
     "mypy-extensions==1.0.0",
     "natsort==8.4.0",
+    "nest-asyncio==1.6.0",
     "networkx==3.3",
+    "nltk==3.8.1",
     "numba==0.60.0",
     "numpy==1.26.4",
     "nvidia-cublas-cu12==12.1.3.1",
@@ -215,10 +231,13 @@ other_libraries = [
     "nvidia-cuda-nvrtc-cu12==12.1.105",
     "nvidia-cudnn-cu12==8.9.7.29",
     "nvidia-ml-py==12.555.43",
+    "olefile==0.47",
     "omegaconf==2.3.0",
     "openai==1.23.6",
     "openai-whisper==20231117",
+    "openpyxl==3.1.2",
     "optimum==1.21.2",
+    "ordered-set==4.1.0",
     "orjson==3.10.6",
     "packaging==24.1",
     "pandas==2.2.2",
@@ -232,15 +251,25 @@ other_libraries = [
     "pydantic==2.7.4",
     "pydantic_core==2.18.4",
     "Pygments==2.18.0",
+    # "PyMuPDF==1.24.9",
+    # "PyMuPDFb==1.24.1",
+    "pypandoc==1.13",
+    "pypdf==4.3.1",
+    "python-magic==0.4.27",
     "pyreadline3==3.4.1",
-    "PySide6==6.7.2",
-    "PySide6_Addons==6.7.2",
-    "PySide6_Essentials==6.7.2",
+    # "PySide6==6.7.2",
+    # "PySide6_Addons==6.7.2",
+    # "PySide6_Essentials==6.7.2",
     "python-dateutil==2.9.0.post0",
+    "python-docx==1.1.0",
+    "python-iso639==2024.4.27",
+    "python-magic==0.4.27",
     "pytz==2024.1",
     "PyYAML==6.0.1",
+    "rapidfuzz==3.9.4",
     "regex==2024.5.15",
     "requests==2.32.3",
+    "requests-toolbelt==1.0.0",
     "rich==13.7.1",
     "ruamel.yaml==0.18.6",
     "ruamel.yaml.clib==0.2.8",
@@ -249,14 +278,16 @@ other_libraries = [
     "scipy==1.14.0",
     "sentence-transformers==3.0.1",
     "sentencepiece==0.2.0",
-    "shiboken6==6.7.2",
+    "shiboken6==6.6.3.1",
     "six==1.16.0",
     "sniffio==1.3.1",
     "sounddevice==0.4.6",
     "soundfile==0.12.1",
+    "soupsieve==2.5",
     "speechbrain==0.5.16",
     "SQLAlchemy==2.0.31",
     "sympy==1.13.1",
+    "tabulate==0.9.0",
     "tblib==1.7.0",
     "tenacity==8.5.0",
     "termcolor==2.4.0",
@@ -271,16 +302,59 @@ other_libraries = [
     "transformers==4.43.1",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
+    "unstructured==0.13.4",
+    "unstructured-client==0.24.1",
     "tzdata==2024.1",
     "urllib3==2.2.2",
     "vector-quantize-pytorch==1.15.3",
     "vocos==0.1.0",
     "webdataset==0.2.86",
+    "wrapt==1.16.0",
     "xformers==0.0.25.post1",
+    "xlrd==2.0.1",
     "xxhash==3.4.1",
     "yarl==1.9.4",
     "zipp==3.19.2"
 ]
+
+full_install_libraries = [
+    "pyside6",
+    "pymupdf",
+    "unstructured"
+]
+
+def pip_install_with_deps(library, max_retries=5, delay=3):
+    pip_args = ["pip", "install", library]
+
+    for attempt in range(max_retries):
+        try:
+            print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {library} with dependencies")
+            print(f"Running command: {' '.join(pip_args)}")
+            result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=300)
+            print(f"Successfully installed {library} with dependencies")
+            return attempt + 1
+        except subprocess.CalledProcessError as e:
+            print(f"Attempt {attempt + 1} failed. Error: {e.stderr.strip()}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                print(f"Failed to install {library} after {max_retries} attempts.")
+                return 0
+
+def install_libraries_with_deps(libraries):
+    failed_installations = []
+    multiple_attempts = []
+
+    for library in libraries:
+        attempts = pip_install_with_deps(library)
+        if attempts == 0:
+            failed_installations.append(library)
+        elif attempts > 1:
+            multiple_attempts.append((library, attempts))
+        time.sleep(0.1)
+
+    return failed_installations, multiple_attempts
 
 print("\033[92mUpgrading pip, setuptools, and wheel:\033[0m")
 upgrade_pip_setuptools_wheel()
@@ -291,10 +365,13 @@ priority_failed, priority_multiple = install_libraries(priority_libraries)
 print("\033[92m\nInstalling other libraries:\033[0m")
 other_failed, other_multiple = install_libraries(other_libraries)
 
+print("\033[92m\nInstalling libraries with dependencies:\033[0m")
+full_install_failed, full_install_multiple = install_libraries_with_deps(full_install_libraries)
+
 print("\n--- Installation Summary ---")
 
-all_failed = priority_failed + other_failed
-all_multiple = priority_multiple + other_multiple
+all_failed = priority_failed + other_failed + full_install_failed
+all_multiple = priority_multiple + other_multiple + full_install_multiple
 
 if all_failed:
     print(f"\033[91m\nThe following libraries failed to install:\033[0m")
@@ -314,6 +391,6 @@ elif not all_failed:
 if all_failed:
     sys.exit(1)
     
-replace_pdf_file() # replaces pymupdf parser within langchain
-replace_instructor_file() # replaces instructor-embeddings
-replace_sentence_transformer_file() # replaces SentenceTransformer
+replace_pdf_file()
+replace_instructor_file()
+replace_sentence_transformer_file()
