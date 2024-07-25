@@ -37,6 +37,7 @@ class DocQA_GUI(QWidget):
         try:
             initialize_system()
             self.metrics_bar = MetricsBar()
+            self.tab_widget = create_tabs()  # Store the tab widget
             self.init_ui()
             self.init_menu()
             logging.info("GUI initialized successfully")
@@ -52,7 +53,7 @@ class DocQA_GUI(QWidget):
             self.setMinimumSize(350, 410)
             
             main_layout = QVBoxLayout(self)
-            main_layout.addWidget(create_tabs())
+            main_layout.addWidget(self.tab_widget)  # Use the stored tab widget
             main_layout.addWidget(self.metrics_bar)
             logging.info("UI initialized successfully")
         except Exception as e:
@@ -72,6 +73,13 @@ class DocQA_GUI(QWidget):
             logging.debug(traceback.format_exc())
             raise
 
+    def cleanup_tabs(self):
+        for i in range(self.tab_widget.count()):
+            tab = self.tab_widget.widget(i)
+            if hasattr(tab, 'cleanup') and callable(tab.cleanup):
+                tab.cleanup()
+                logging.info(f"Cleaned up tab: {self.tab_widget.tabText(i)}")
+
     def closeEvent(self, event):
         try:
             docs_dir = Path(__file__).parent / 'Docs_for_DB'
@@ -79,6 +87,10 @@ class DocQA_GUI(QWidget):
                 if item.is_file():
                     item.unlink()
             self.metrics_bar.stop_metrics_collector()
+            
+            # Add this line to call cleanup on all tabs
+            self.cleanup_tabs()
+            
             logging.info("Application closed successfully")
             super().closeEvent(event)
         except Exception as e:

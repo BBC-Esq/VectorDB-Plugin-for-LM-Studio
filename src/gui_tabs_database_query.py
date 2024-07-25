@@ -265,3 +265,8 @@ class DatabaseQueryTab(QWidget):
 
     def update_transcription(self, transcription_text):
         self.text_input.setPlainText(transcription_text)
+
+    def cleanup(self):
+        if self.local_model_chat.is_model_loaded():
+            self.local_model_chat.eject_model()
+        print("Cleanup completed")
