@@ -46,6 +46,10 @@ current_directory = Path(__file__).parent
 CACHE_DIR = current_directory / "models" / "vision"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
+current_directory = Path(__file__).parent
+VISION_DIR = current_directory / "models" / "vision"
+VISION_DIR.mkdir(parents=True, exist_ok=True)
+
 def get_best_device():
     if torch.cuda.is_available():
         return 'cuda'
@@ -283,30 +287,26 @@ class loader_llava_next(BaseLoader):
 class loader_moondream(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']
-        
-        model_info = VISION_MODELS[chosen_model]
-        model_id = model_info['repo_id']
-        save_dir = model_info["cache_dir"]
-        cache_dir = CACHE_DIR / save_dir
-        cache_dir.mkdir(parents=True, exist_ok=True)
+        model_id = VISION_MODELS[chosen_model]['repo_id']
+        cache_dir=VISION_DIR
         
         model = AutoModelForCausalLM.from_pretrained(model_id, 
                                                      trust_remote_code=True, 
-                                                     revision="2024-05-20", 
+                                                     revision="2024-07-23",
                                                      torch_dtype=torch.float16,
                                                      cache_dir=cache_dir,
                                                      low_cpu_mem_usage=True).to(self.device)
 
         my_cprint(f"Moondream2 vision model loaded into memory...", "green")
         
-        tokenizer = AutoTokenizer.from_pretrained("vikhyatk/moondream2", revision="2024-05-20", cache_dir=cache_dir)
+        tokenizer = AutoTokenizer.from_pretrained(model_id, revision="2024-05-20", cache_dir=cache_dir)
         
         return model, tokenizer, None
     
     @torch.inference_mode()
     def process_single_image(self, raw_image):
         enc_image = self.model.encode_image(raw_image)
-        summary = self.model.answer_question(enc_image, "Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself.", self.tokenizer)
+        summary = self.model.answer_question(enc_image, "Describe what this image depicts in as much detail as possible.", self.tokenizer)
         return summary
 
 
