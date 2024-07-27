@@ -84,7 +84,7 @@ def choose_image_loader():
         loader_func = loader_phi3vision(config).process_images
     elif chosen_model == 'MiniCPM-Llama3-V-2_5-int4':
         loader_func = loader_minicpm_llama3v(config).process_images
-    elif chosen_model in == ['Llava 1.6 Vicuna - 7b', 'Llava 1.6 Vicuna - 13b']:
+    elif chosen_model in ['Llava 1.6 Vicuna - 7b', 'Llava 1.6 Vicuna - 13b']:
         loader_func = loader_llava_next(config).process_images
     else:
         my_cprint("No valid image model specified in config.yaml", "red")
