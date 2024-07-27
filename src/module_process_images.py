@@ -299,7 +299,7 @@ class loader_moondream(BaseLoader):
 
         my_cprint(f"Moondream2 vision model loaded into memory...", "green")
         
-        tokenizer = AutoTokenizer.from_pretrained(model_id, revision="2024-05-20", cache_dir=cache_dir)
+        tokenizer = AutoTokenizer.from_pretrained(model_id, revision="2024-07-23", cache_dir=cache_dir)
         
         return model, tokenizer, None
     
