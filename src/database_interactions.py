@@ -102,7 +102,6 @@ class CreateVectorDB:
             )
         
         else:
-            # model_kwargs["trust_remote_code"] = True
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
                 show_progress=True,
@@ -132,6 +131,15 @@ class CreateVectorDB:
             # Extract text and metadata from Document objects
             text_content = [doc.page_content for doc in texts]
             metadatas = [doc.metadata for doc in texts]
+            
+            # Get the EMBEDDING_MODEL_NAME from config
+            with open(self.ROOT_DIRECTORY / "config.yaml", 'r', encoding='utf-8') as config_file:
+                config_data = yaml.safe_load(config_file)
+            embedding_model_name = config_data.get("EMBEDDING_MODEL_NAME", "")
+
+            # If "intfloat" in the model's name add "passage:" to each page_content
+            if "intfloat" in embedding_model_name.lower():
+                text_content = [f"passage: {content}" for content in text_content]
 
             logging.info("Calling TileDB.from_texts()")
             db = TileDB.from_texts(
@@ -350,7 +358,14 @@ class QueryVectorDB:
             }
         )
 
+    def is_intfloat_model(self):
+        model_path = self.config['created_databases'][self.selected_database]['model']
+        return "intfloat" in model_path.lower() # ensures searches of "intfloat" DBs has the correct prefix
+
     def search(self, query):
+        if self.is_intfloat_model():
+            query = f"query: {query}"
+        
         relevant_contexts = self.retriever.invoke(input=query)
         
         search_term = self.config['database'].get('search_term', '').lower()

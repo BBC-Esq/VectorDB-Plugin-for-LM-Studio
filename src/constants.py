@@ -162,6 +162,35 @@ VECTOR_MODELS = {
             'type': 'vector'
         },
     ],
+    'intfloat': [
+        {
+            'name': 'e5-small-v2',
+            'dimensions': 384,
+            'max_sequence': 512,
+            'size_mb': 134,
+            'repo_id': 'intfloat/e5-small-v2',
+            'cache_dir': 'intfloat--e5-small-v2',
+            'type': 'vector'
+        },
+        {
+            'name': 'e5-base-v2',
+            'dimensions': 768,
+            'max_sequence': 512,
+            'size_mb': 438,
+            'repo_id': 'intfloat/e5-base-v2',
+            'cache_dir': 'intfloat--e5-base-v2',
+            'type': 'vector'
+        },
+        {
+            'name': 'e5-large-v2',
+            'dimensions': 1024,
+            'max_sequence': 512,
+            'size_mb': 1340,
+            'repo_id': 'intfloat/e5-large-v2',
+            'cache_dir': 'intfloat--e5-large-v2',
+            'type': 'vector'
+        },
+    ],
 }
 
 
