@@ -15,7 +15,7 @@ from PIL import Image
 from tqdm import tqdm
 from transformers import (
     AutoModelForCausalLM, AutoModel, AutoTokenizer, AutoProcessor, BlipForConditionalGeneration, BlipProcessor,
-    LlamaTokenizer, LlavaForConditionalGeneration, BitsAndBytesConfig
+    LlamaTokenizer, LlavaForConditionalGeneration, LlavaNextForConditionalGeneration, LlavaNextProcessor, BitsAndBytesConfig
 )
 
 from langchain_community.docstore.document import Document
@@ -32,6 +32,13 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 logging.getLogger().setLevel(logging.WARNING)
+
+# warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
+# # logging.getLogger("transformers").setLevel(logging.CRITICAL)
+# logging.getLogger("transformers").setLevel(logging.ERROR)
+# logging.getLogger("transformers").setLevel(logging.WARNING)
+# logging.getLogger("transformers").setLevel(logging.INFO)
+# logging.getLogger("transformers").setLevel(logging.DEBUG)
 
 ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
 
@@ -77,8 +84,8 @@ def choose_image_loader():
         loader_func = loader_phi3vision(config).process_images
     elif chosen_model == 'MiniCPM-Llama3-V-2_5-int4':
         loader_func = loader_minicpm_llama3v(config).process_images
-    # elif chosen_model in ['bunny_v1_1_4b', 'bunny_v1_1_llama_3_8b_v']:
-        # loader_func = loader_bunny(config).process_images
+    elif chosen_model in == ['Llava 1.6 Vicuna - 7b', 'Llava 1.6 Vicuna - 13b']:
+        loader_func = loader_llava_next(config).process_images
     else:
         my_cprint("No valid image model specified in config.yaml", "red")
         return []
@@ -174,7 +181,7 @@ class loader_cogvlm(BaseLoader):
     @torch.inference_mode()
     def process_single_image(self, raw_image):
         TORCH_TYPE = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8 else torch.float16
-        prompt = "Describe what this image depicts in as much detail as possible."
+        prompt = "Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself."
         inputs = self.model.build_conversation_input_ids(self.tokenizer, query=prompt, history=[], images=[raw_image])
         inputs = {
             'input_ids': inputs['input_ids'].unsqueeze(0).to(self.device),
@@ -200,10 +207,7 @@ class loader_llava(BaseLoader):
         cache_dir = CACHE_DIR / save_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
         
-        if precision == '4-bit':
-            quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
-        else:
-            quantization_config = None
+        quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
         
         model = LlavaForConditionalGeneration.from_pretrained(
             model_id,
@@ -221,13 +225,58 @@ class loader_llava(BaseLoader):
 
     @torch.inference_mode()
     def process_single_image(self, raw_image):
-        prompt = "USER: <image>\nDescribe what this image depicts in as much detail as possible.\nASSISTANT:"
+        prompt = "USER: <image>\nDescribe this image in as much detail as possible while still trying to be succinct and not repeat yourself.\nASSISTANT:"
         inputs = self.processor(prompt, raw_image, return_tensors='pt').to(self.device)
         inputs = inputs.to(torch.float32)
 
         output = self.model.generate(**inputs, max_new_tokens=512, do_sample=False)
         full_response = self.processor.decode(output[0][2:], skip_special_tokens=True, do_sample=False)
         model_response = full_response.split("ASSISTANT: ")[-1]
+        return model_response
+
+
+class loader_llava_next(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        
+        model_info = VISION_MODELS[chosen_model]
+        model_id = model_info['repo_id']
+        precision = model_info['precision']
+        save_dir = model_info["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+        
+        model = LlavaNextForConditionalGeneration.from_pretrained(
+            model_id,
+            quantization_config=quantization_config,
+            torch_dtype=torch.float16,
+            low_cpu_mem_usage=True,
+            cache_dir=cache_dir
+        )
+        
+        my_cprint(f"{chosen_model} vision model loaded into memory...", "green")
+        
+        processor = LlavaNextProcessor.from_pretrained(model_id, cache_dir=cache_dir)
+        
+        return model, None, processor
+
+    @ torch.inference_mode()
+    def process_single_image(self, raw_image):
+        user_prompt = "Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself."
+        prompt = f"USER: <image>\n{user_prompt} ASSISTANT:"
+        inputs = self.processor(text=prompt, images=raw_image, return_tensors="pt").to(self.device)
+        
+        output = self.model.generate(**inputs, max_new_tokens=512, do_sample=False)
+        
+        response = self.processor.decode(output[0], skip_special_tokens=True) # possibly adjust to "full_response = self.processor.decode(output[0][2:], skip_special_tokens=True)" or something similar if output is preceded by special tokens inexplicatly
+        model_response = response.split("ASSISTANT:")[-1].strip()
+        
         return model_response
 
 
@@ -257,7 +306,7 @@ class loader_moondream(BaseLoader):
     @torch.inference_mode()
     def process_single_image(self, raw_image):
         enc_image = self.model.encode_image(raw_image)
-        summary = self.model.answer_question(enc_image, "Describe what this image depicts in as much detail as possible.", self.tokenizer)
+        summary = self.model.answer_question(enc_image, "Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself.", self.tokenizer)
         return summary
 
 
@@ -359,7 +408,7 @@ class loader_phi3vision(BaseLoader):
     def process_single_image(self, raw_image):
         prompt = f"""<|user|>
 <|image_1|>
-Describe what this image depicts in as much detail as possible.<|end|>
+Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself.<|end|>
 <|assistant|>
 """
         inputs = self.processor(prompt, [raw_image], return_tensors="pt").to(self.device)
@@ -416,7 +465,7 @@ class loader_minicpm_llama3v(BaseLoader):
 
     @torch.inference_mode()
     def process_single_image(self, raw_image):
-        question = 'Describe in as much detail as you possibly can what this image depicts.'
+        question = 'Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself.'
         msgs = [{'role': 'user', 'content': question}]
         
         response = self.model.chat(

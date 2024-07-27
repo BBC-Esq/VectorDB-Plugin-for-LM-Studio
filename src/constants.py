@@ -509,6 +509,13 @@ VISION_MODELS = {
         'cache_dir': 'llava-hf--bakLlava-v1-hf',
         'requires_cuda': True
     },
+    'Llava 1.6 Vicuna - 7b': {
+        'precision': '4-bit',
+        'size': '7b',
+        'repo_id': 'llava-hf/llava-v1.6-vicuna-7b-hf',
+        'cache_dir': 'llava-hf--llava-v1.6-vicuna-7b-hf',
+        'requires_cuda': True
+    },
     'llava 1.5 - 13b': {
         'precision': '4-bit',
         'size': '13b',
@@ -529,7 +536,14 @@ VISION_MODELS = {
         'repo_id': 'THUDM/cogvlm-chat-hf',
         'cache_dir': 'THUDM--cogvlm-chat-hf',
         'requires_cuda': True
-    }
+    },
+    'Llava 1.6 Vicuna - 13b': {
+        'precision': '4-bit',
+        'size': '13b',
+        'repo_id': 'llava-hf/llava-v1.6-vicuna-13b-hf',
+        'cache_dir': 'llava-hf--llava-v1.6-vicuna-13b-hf',
+        'requires_cuda': True
+    },
 }
 
 
