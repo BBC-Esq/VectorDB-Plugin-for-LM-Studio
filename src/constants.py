@@ -123,15 +123,15 @@ VECTOR_MODELS = {
             'cache_dir': 'sentence-transformers--sentence-t5-xl',
             'type': 'vector'
         },
-        {
-            'name': 'sentence-t5-xxl',
-            'dimensions': 768,
-            'max_sequence': 256,
-            'size_mb': 9230,
-            'repo_id': 'sentence-transformers/sentence-t5-xxl',
-            'cache_dir': 'sentence-transformers--sentence-t5-xxl',
-            'type': 'vector'
-        },
+        # {
+            # 'name': 'sentence-t5-xxl',
+            # 'dimensions': 768,
+            # 'max_sequence': 256,
+            # 'size_mb': 9230,
+            # 'repo_id': 'sentence-transformers/sentence-t5-xxl',
+            # 'cache_dir': 'sentence-transformers--sentence-t5-xxl',
+            # 'type': 'vector'
+        # },
     ],
     'thenlper': [
         {

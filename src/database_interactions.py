@@ -58,7 +58,10 @@ class CreateVectorDB:
             encode_kwargs['batch_size'] = 2
         else:
             batch_size_mapping = {
+                't5-xl': 1,
+                't5-large': 2,
                 'instructor-xl': 2,
+                't5-base': 4,
                 'bge-large': 4,
                 'instructor-large': 4,
                 'e5-large': 4,

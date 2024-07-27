@@ -26,7 +26,7 @@ class VectorModelsTab(QWidget):
         self.stretch_factors = {
             'BAAI': 4,
             'hkunlp': 4,
-            'sentence-transformers': 7,
+            'sentence-transformers': 6,
             'thenlper': 4,
             'intfloat': 4
         }
