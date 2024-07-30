@@ -5,6 +5,9 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
+import time
+
+start_time = time.time()
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
     root = tk.Tk()
@@ -63,9 +66,9 @@ if not manual_installation_confirmation():
 
 def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
     upgrade_commands = [
-        [sys.executable, "-m", "pip", "install", "--upgrade", "pip", "--no-cache-dir"],
-        [sys.executable, "-m", "pip", "install", "--upgrade", "setuptools", "--no-cache-dir"],
-        [sys.executable, "-m", "pip", "install", "--upgrade", "wheel", "--no-cache-dir"]
+        [sys.executable, "-m", "uv", "pip", "install", "--upgrade", "pip", "--no-cache-dir"],
+        [sys.executable, "-m", "uv", "pip", "install", "--upgrade", "setuptools", "--no-cache-dir"],
+        [sys.executable, "-m", "uv", "pip", "install", "--upgrade", "wheel", "--no-cache-dir"]
     ]
     
     for command in upgrade_commands:
@@ -93,28 +96,33 @@ def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
 
 def pip_install_with_retry(library, max_retries=5, delay=3):
     if library.startswith("torch=="):
-        pip_args = ["pip", "install", "torch==2.2.2", "torchvision==0.17.2", "torchaudio==2.2.2", 
-                    "--index-url", "https://download.pytorch.org/whl/cu121", "--no-deps"]
+        pip_args_list = [
+            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl#sha256=efbcfdd4399197d06b32f7c0e1711c615188cdd65427b933648c7478fb880b3f"],
+            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp311-cp311-win_amd64.whl#sha256=10ad542aab6b47dbe73c441381986d50a7ed5021cbe01d593a14477ec1f067a0"],
+            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl#sha256=c7dee68cd3d2b889bab71d4a0c345bdc3ea2fe79a62b921a6b49292c605b6071"]
+        ]
     elif "@" in library or "git+" in library:
-        pip_args = ["pip", "install", library, "--no-deps"]
+        pip_args_list = [["uv", "pip", "install", library, "--no-deps"]]
     else:
-        pip_args = ["pip", "install", library, "--no-deps"]
-
-    for attempt in range(max_retries):
-        try:
-            print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {library}")
-            print(f"Running command: {' '.join(pip_args)}")
-            result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=180)
-            print(f"Successfully installed {library}")
-            return attempt + 1
-        except subprocess.CalledProcessError as e:
-            print(f"Attempt {attempt + 1} failed. Error: {e.stderr.strip()}")
-            if attempt < max_retries - 1:
-                print(f"Retrying in {delay} seconds...")
-                time.sleep(delay)
-            else:
-                print(f"Failed to install {library} after {max_retries} attempts.")
-                return 0
+        pip_args_list = [["uv", "pip", "install", library, "--no-deps"]]
+    
+    for pip_args in pip_args_list:
+        for attempt in range(max_retries):
+            try:
+                print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {pip_args[3]}")
+                print(f"Running command: {' '.join(pip_args)}")
+                result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=180)
+                print(f"Successfully installed {pip_args[3]}")
+                break
+            except subprocess.CalledProcessError as e:
+                print(f"Attempt {attempt + 1} failed. Error: {e.stderr.strip()}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                else:
+                    print(f"Failed to install {pip_args[3]} after {max_retries} attempts.")
+                    return 0
+    return 1
 
 def install_libraries(libraries):
     failed_installations = []
@@ -191,7 +199,6 @@ other_libraries = [
     "huggingface-hub==0.24.1",
     "humanfriendly==10.0",
     "HyperPyYAML==1.2.2",
-    "iso-639==0.4.5",
     "idna==3.7",
     "importlib_metadata==8.1.0",
     "InstructorEmbedding==1.0.1",
@@ -251,15 +258,9 @@ other_libraries = [
     "pydantic==2.7.4",
     "pydantic_core==2.18.4",
     "Pygments==2.18.0",
-    # "PyMuPDF==1.24.9",
-    # "PyMuPDFb==1.24.1",
     "pypandoc==1.13",
     "pypdf==4.3.1",
-    "python-magic==0.4.27",
     "pyreadline3==3.4.1",
-    # "PySide6==6.7.2",
-    # "PySide6_Addons==6.7.2",
-    # "PySide6_Essentials==6.7.2",
     "python-dateutil==2.9.0.post0",
     "python-docx==1.1.0",
     "python-iso639==2024.4.27",
@@ -286,7 +287,7 @@ other_libraries = [
     "soupsieve==2.5",
     "speechbrain==0.5.16",
     "SQLAlchemy==2.0.31",
-    "sympy==1.13.1",
+    "sympy==1.12.1", # anything above is not compatible with llava-next-vicuna vision models
     "tabulate==0.9.0",
     "tblib==1.7.0",
     "tenacity==8.5.0",
@@ -318,13 +319,13 @@ other_libraries = [
 ]
 
 full_install_libraries = [
-    "pyside6",
-    "pymupdf",
-    "unstructured"
+    "pyside6==6.7.2",
+    "pymupdf==1.24.9",
+    "unstructured==0.13.4"
 ]
 
 def pip_install_with_deps(library, max_retries=5, delay=3):
-    pip_args = ["pip", "install", library]
+    pip_args = ["uv", "pip", "install", library]
 
     for attempt in range(max_retries):
         try:
@@ -394,3 +395,10 @@ if all_failed:
 replace_pdf_file()
 replace_instructor_file()
 replace_sentence_transformer_file()
+
+end_time = time.time()
+total_time = end_time - start_time
+hours, rem = divmod(total_time, 3600)
+minutes, seconds = divmod(rem, 60)
+
+print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{seconds:05.2f}\033[0m")
