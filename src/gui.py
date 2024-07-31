@@ -1,3 +1,8 @@
+import multiprocessing
+# Set the start method at the very beginning
+if __name__ == '__main__':
+    multiprocessing.set_start_method('spawn', force=True)
+
 import sys
 import os
 from pathlib import Path
@@ -7,15 +12,18 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget,
     QStyleFactory, QMenuBar
 )
-import multiprocessing
 from initialize import main as initialize_system
 from metrics_bar import MetricsBar
 from gui_tabs import create_tabs
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
 
-# Set up logging
+script_dir = Path(__file__).parent.resolve()
+
+log_file_path = script_dir / 'gui_log.txt'
+
 logging.basicConfig(filename='gui_log.txt', level=logging.DEBUG, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
+print(f"Log file should be created at: {log_file_path}")
 
 def set_cuda_paths():
     try:
@@ -37,7 +45,7 @@ class DocQA_GUI(QWidget):
         try:
             initialize_system()
             self.metrics_bar = MetricsBar()
-            self.tab_widget = create_tabs()  # Store the tab widget
+            self.tab_widget = create_tabs()
             self.init_ui()
             self.init_menu()
             logging.info("GUI initialized successfully")
@@ -53,7 +61,7 @@ class DocQA_GUI(QWidget):
             self.setMinimumSize(350, 410)
             
             main_layout = QVBoxLayout(self)
-            main_layout.addWidget(self.tab_widget)  # Use the stored tab widget
+            main_layout.addWidget(self.tab_widget)
             main_layout.addWidget(self.metrics_bar)
             logging.info("UI initialized successfully")
         except Exception as e:
@@ -88,7 +96,7 @@ class DocQA_GUI(QWidget):
                     item.unlink()
             self.metrics_bar.stop_metrics_collector()
             
-            # Add this line to call cleanup on all tabs
+            # call each tab's cleanup function
             self.cleanup_tabs()
             
             logging.info("Application closed successfully")
@@ -100,7 +108,6 @@ class DocQA_GUI(QWidget):
 def main():
     try:
         logging.info("Starting application")
-        multiprocessing.set_start_method('spawn')
         app = QApplication(sys.argv)
         app.setStyleSheet(load_stylesheet('custom_stylesheet_steel_ocean.css'))
         ex = DocQA_GUI()

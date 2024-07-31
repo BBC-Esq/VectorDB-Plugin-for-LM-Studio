@@ -125,9 +125,12 @@ class MetricsBar(QWidget):
 
     def update_progress_bar(self, bar, buffer, label):
         if buffer:
-            avg_value = int(sum(buffer) / len(buffer))
-            bar.setValue(avg_value)
-            label.setText(f"{avg_value}%")
+            avg_value = sum(buffer) / len(buffer)
+            # Clamp the displayed value to 100 for the progress bar
+            bar_value = min(100, int(avg_value))
+            bar.setValue(bar_value)
+            # Display the actual value in the label, even if it's over 100
+            label.setText(f"{avg_value:.1f}%")
 
     # Sets number to collet in calculating the average
     def setup_metrics_buffers(self):

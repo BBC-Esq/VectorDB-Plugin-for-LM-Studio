@@ -1,15 +1,13 @@
 import threading
-from functools import partial
 from pathlib import Path
-
 import yaml
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFileDialog, QLabel, QComboBox, QSlider
 )
-
 from module_transcribe import WhisperTranscriber
 from utilities import my_cprint
+from constants import WHISPER_MODELS
 
 class TranscriberToolSettingsTab(QWidget):
     CONFIG_FILE = 'config.yaml'
@@ -17,7 +15,6 @@ class TranscriberToolSettingsTab(QWidget):
     def __init__(self):
         super().__init__()
         self.selected_audio_file = None
-
         self.create_layout()
 
     def read_config(self):
@@ -26,40 +23,36 @@ class TranscriberToolSettingsTab(QWidget):
 
     def create_layout(self):
         main_layout = QVBoxLayout()
-
         model_selection_hbox = QHBoxLayout()
-        model_selection_hbox.addWidget(QLabel("Whisper Model"))
+        model_selection_hbox.addWidget(QLabel("Model"))
         self.model_combo = QComboBox()
-
-        self.model_name_mapping = {f"{size} - {precision}": f"ctranslate2-4you/whisper-{size}-ct2-{precision}"
-                                   for size in ["large-v2", "medium.en", "small.en", "base.en", "tiny.en"]
-                                   for precision in ["float32", "float16"]}
-
-        self.model_combo.addItems(list(self.model_name_mapping.keys()))
-
+        
+        # Use the WHISPER_MODELS dictionary to populate the combo box
+        self.model_combo.addItems(WHISPER_MODELS.keys())
+        
         model_selection_hbox.addWidget(self.model_combo)
-
-        model_selection_hbox.addWidget(QLabel("Speed:"))
-
+        model_selection_hbox.addWidget(QLabel("Batch:"))
         self.slider_label = QLabel("8")
         self.number_slider = QSlider(Qt.Horizontal)
         self.number_slider.setMinimum(1)
         self.number_slider.setMaximum(150)
         self.number_slider.setValue(8)
         self.number_slider.valueChanged.connect(self.update_slider_label)
-
         model_selection_hbox.addWidget(self.number_slider)
         model_selection_hbox.addWidget(self.slider_label)
-
+        
+        model_selection_hbox.setStretchFactor(self.model_combo, 2)
+        model_selection_hbox.setStretchFactor(self.number_slider, 2)
+        
         main_layout.addLayout(model_selection_hbox)
 
         hbox = QHBoxLayout()
         self.select_file_button = QPushButton("Select Audio File")
-        self.select_file_button.clicked.connect(lambda: self.select_audio_file())
+        self.select_file_button.clicked.connect(self.select_audio_file)
         hbox.addWidget(self.select_file_button)
 
         self.transcribe_button = QPushButton("Transcribe")
-        self.transcribe_button.clicked.connect(lambda: self.start_transcription())
+        self.transcribe_button.clicked.connect(self.start_transcription)
         hbox.addWidget(self.transcribe_button)
 
         main_layout.addLayout(hbox)
@@ -89,17 +82,16 @@ class TranscriberToolSettingsTab(QWidget):
         if not self.selected_audio_file:
             print("Please select an audio file.")
             return
-
-        selected_model = self.model_combo.currentText()
-        selected_model_identifier = self.model_name_mapping.get(selected_model, selected_model)
         
-        selected_compute_type = selected_model.rsplit(' - ', 1)[-1]
-        
+        selected_model_key = self.model_combo.currentText()
         selected_batch_size = int(self.slider_label.text())
-
+        
         def transcription_thread():
-            transcriber = WhisperTranscriber(model_identifier=selected_model_identifier, batch_size=selected_batch_size, compute_type=selected_compute_type)
+            transcriber = WhisperTranscriber(
+                model_key=selected_model_key, 
+                batch_size=selected_batch_size
+            )
             transcriber.start_transcription_process(self.selected_audio_file)
             my_cprint("Transcription created and ready to be input into vector database.", 'green')
-
+        
         threading.Thread(target=transcription_thread, daemon=True).start()

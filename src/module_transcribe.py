@@ -10,15 +10,28 @@ import av
 from langchain_community.docstore.document import Document
 
 import whisper_s2t
+from whisper_s2t.backends.ctranslate2.hf_utils import download_model
 from extract_metadata import extract_audio_metadata
+from constants import WHISPER_MODELS
 
 warnings.filterwarnings("ignore")
 
+current_directory = Path(__file__).parent
+CACHE_DIR = current_directory / "Models" / "whisper"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
 class WhisperTranscriber:
-    def __init__(self, model_identifier="ctranslate2-4you/whisper-mediuim.en-ct2-int8", batch_size=16, compute_type='int8'):
-        self.model_identifier = model_identifier
+    def __init__(self, model_key, batch_size):
+        model_info = WHISPER_MODELS[model_key]
+        self.model_identifier = model_info['repo_id']
+        self.compute_type = model_info['precision']
         self.batch_size = batch_size
-        self.compute_type = compute_type
+        self.cache_dir = str(CACHE_DIR)
+
+        script_dir = Path(__file__).parent
+        self.model_dir = script_dir / "Models" / "whisper"
+        self.model_dir.mkdir(parents=True, exist_ok=True)
+        
         self.model_kwargs = {
             'compute_type': self.compute_type,
             'asr_options': {
@@ -42,9 +55,12 @@ class WhisperTranscriber:
                 "return_no_speech_prob": True,
                 "word_aligner_model": 'tiny',
             },
-            'model_identifier': model_identifier,
+            'model_identifier': self.model_identifier,
             'backend': 'CTranslate2',
         }
+
+        if 'large-v3' in self.model_identifier:
+            self.model_kwargs['n_mels'] = 128
 
     def start_transcription_process(self, audio_file):
         self.audio_file = audio_file
@@ -52,14 +68,45 @@ class WhisperTranscriber:
         process.start()
         process.join()
 
+
     @torch.inference_mode()
     def transcribe_and_create_document(self):
         audio_file_str = str(self.audio_file)
         converted_audio_file = self.convert_to_wav(audio_file_str)
-        self.model_kwargs['model_identifier'] = self.model_identifier
-        model = whisper_s2t.load_model(**self.model_kwargs)
+        
+        try:
+            downloaded_path = download_model(
+                size_or_id=self.model_identifier,
+                cache_dir=str(CACHE_DIR)
+            )
+            
+            model_kwargs = self.model_kwargs.copy()
+            model_kwargs.pop('model_identifier', None)
+            model_kwargs.pop('cache_dir', None)
+            
+            model = whisper_s2t.load_model(
+                model_identifier=downloaded_path,
+                **model_kwargs
+            )
+            
+        except Exception as e:
+            print(f"Error loading model {self.model_identifier}: {e}")
+            raise
+
         transcription = self.transcribe(model, [str(converted_audio_file)])
         self.create_document_object(transcription, audio_file_str)
+
+        script_dir = Path(__file__).parent
+        converted_audio_file_name = f"{Path(audio_file_str).stem}_converted.wav"
+        converted_audio_file_full_path = script_dir / converted_audio_file_name
+
+        if converted_audio_file_full_path.exists():
+            try:
+                converted_audio_file_full_path.unlink()
+            except Exception as e:
+                print(f"Error deleting file {converted_audio_file_full_path}: {e}")
+        else:
+            print(f"File does not exist: {converted_audio_file_full_path}")
 
     def convert_to_wav(self, audio_file):
         output_file = f"{Path(audio_file).stem}_converted.wav"
