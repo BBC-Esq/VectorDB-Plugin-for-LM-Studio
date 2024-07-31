@@ -23,7 +23,7 @@ log_file_path = script_dir / 'gui_log.txt'
 
 logging.basicConfig(filename='gui_log.txt', level=logging.DEBUG, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
-print(f"Log file should be created at: {log_file_path}")
+# print(f"Log file should be created at: {log_file_path}")
 
 def set_cuda_paths():
     try:
