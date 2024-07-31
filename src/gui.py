@@ -29,7 +29,7 @@ def set_cuda_paths():
     try:
         venv_base = Path(sys.executable).parent
         nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
-        for env_var in ['CUDA_PATH', 'CUDA_PATH_V12_1']:
+        for env_var in ['CUDA_PATH', 'CUDA_PATH_V12_1', 'PATH']:
             current_path = os.environ.get(env_var, '')
             os.environ[env_var] = os.pathsep.join(filter(None, [str(nvidia_base_path), current_path]))
         logging.info("CUDA paths set successfully")
