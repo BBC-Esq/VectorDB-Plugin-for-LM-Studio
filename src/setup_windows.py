@@ -5,6 +5,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
+import time
 
 start_time = time.time()
 
@@ -63,10 +64,8 @@ if not tkinter_message_box("GPU Detection", message, type="yesno", yes_no=True):
 if not manual_installation_confirmation():
     sys.exit(1)
 
-start_time = time.time()
-
-subprocess.run([sys.executable, "-m", "pip", "install", "uv==0.2.32"], check=True)
-print("\033[92mInstalled uv package manager.\033[0m")
+print("\033[92mInstalling uv:\033[0m")
+subprocess.run(["pip", "install", "uv"], check=True)
 
 def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
     upgrade_commands = [
