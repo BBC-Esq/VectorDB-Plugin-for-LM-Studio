@@ -57,7 +57,7 @@ def update_config_file(**system_info):
         yaml.safe_dump(config_data, stream)
 
 def check_for_necessary_folders():
-    for folder in ["Docs_for_DB", "Vector_DB_Backup", "Vector_DB", "Models"]:
+    for folder in ["Docs_for_DB", "Vector_DB_Backup", "Vector_DB", "Models", "Models/vector", "Models/chat", "Models/tts", "Models/vision", "Models/whisper"]:
         Path(folder).mkdir(exist_ok=True)
 
 def restore_vector_db_backup():
