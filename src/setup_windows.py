@@ -63,6 +63,10 @@ if not tkinter_message_box("GPU Detection", message, type="yesno", yes_no=True):
 if not manual_installation_confirmation():
     sys.exit(1)
 
+print("\nInstalling uv package manager...")
+subprocess.run([sys.executable, "-m", "pip", "install", "uv"], check=True)
+print("uv installation complete.")
+
 def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
     upgrade_commands = [
         [sys.executable, "-m", "uv", "pip", "install", "--upgrade", "pip", "--no-cache-dir"],
