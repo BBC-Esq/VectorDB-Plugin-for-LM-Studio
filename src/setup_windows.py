@@ -5,7 +5,6 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
-import time
 
 start_time = time.time()
 
