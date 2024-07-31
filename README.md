@@ -47,16 +47,11 @@ Activate the virtual environment:
 .\Scripts\activate
 ```
 ### Step 4
-Install fast RUST library for 2x installation speed.
-```
-pip install uv
-```
-### Step 5
 Run setup:
 ```
 python setup_windows.py
 ```
-### Optional Step 6
+### Optional Step 5
 Run this command if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
 ```
 python check_gpu.py
