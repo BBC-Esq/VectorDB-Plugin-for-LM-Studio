@@ -178,8 +178,8 @@ class ChatTTSAudio:
 
         self.chat = ChatTTS.Chat()
         self.chat.load_models(
-            source="local",  # local or huggingface
-            local_path=r"D:\Scripts\benchmark_tts\ChatTTS",
+            source="huggingface",  # local or huggingface
+            # local_path=r"[PATH ONLY IF USING PATH]",
             device="cuda",
             compile=False
         )
