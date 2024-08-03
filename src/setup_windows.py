@@ -64,6 +64,7 @@ if not tkinter_message_box("GPU Detection", message, type="yesno", yes_no=True):
 if not manual_installation_confirmation():
     sys.exit(1)
 
+# 1. install uv
 print("\033[92mInstalling uv:\033[0m")
 subprocess.run(["pip", "install", "uv"], check=True)
 
@@ -306,7 +307,7 @@ other_libraries = [
     "transformers==4.43.1",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
-    "unstructured==0.13.4",
+    # "unstructured==0.13.4",
     "unstructured-client==0.24.1",
     "tzdata==2024.1",
     "urllib3==2.2.2",
@@ -360,19 +361,23 @@ def install_libraries_with_deps(libraries):
 
     return failed_installations, multiple_attempts
 
+# 2. upgrade pip, setuptools, wheel
 print("\033[92mUpgrading pip, setuptools, and wheel:\033[0m")
 upgrade_pip_setuptools_wheel()
 
+# 3. install priority_libraries
 print("\033[92m\nInstalling priority libraries:\033[0m")
 priority_failed, priority_multiple = install_libraries(priority_libraries)
 
+# 4. install install other_libraries
 print("\033[92m\nInstalling other libraries:\033[0m")
 other_failed, other_multiple = install_libraries(other_libraries)
 
+# 5. install full_install_libraries
 print("\033[92m\nInstalling libraries with dependencies:\033[0m")
 full_install_failed, full_install_multiple = install_libraries_with_deps(full_install_libraries)
 
-print("\n--- Installation Summary ---")
+print("\n----- Installation Summary -----")
 
 all_failed = priority_failed + other_failed + full_install_failed
 all_multiple = priority_multiple + other_multiple + full_install_multiple

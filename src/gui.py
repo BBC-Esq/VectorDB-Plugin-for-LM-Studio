@@ -21,7 +21,7 @@ script_dir = Path(__file__).parent.resolve()
 
 log_file_path = script_dir / 'gui_log.txt'
 
-logging.basicConfig(filename='gui_log.txt', level=logging.DEBUG, 
+logging.basicConfig(filename='gui_log.txt', level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
 # print(f"Log file should be created at: {log_file_path}")
 

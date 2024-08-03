@@ -3,6 +3,7 @@ import os
 import tempfile
 from pathlib import Path
 
+import psutil
 import sounddevice as sd
 import numpy as np
 import soundfile as sf
@@ -11,6 +12,11 @@ from PySide6.QtCore import QThread, Signal
 
 import whisper_s2t
 from utilities import my_cprint
+
+# def get_physical_core_count():
+    # return psutil.cpu_count(logical=False)
+
+# CPU_THREADS = max(4, get_physical_core_count() - 2)
 
 class TranscriptionThread(QThread):
     transcription_complete = Signal(str)
@@ -30,6 +36,7 @@ class TranscriptionThread(QThread):
             
         model_identifier = f"ctranslate2-4you/whisper-small.en-ct2-{compute_type}"
         cpu_threads = max(4, os.cpu_count() - 4) if device == "cpu" else 4
+        # cpu_threads = CPU_THREADS if device == "cpu" else 4,
 
         model_kwargs = {
             'compute_type': compute_type,

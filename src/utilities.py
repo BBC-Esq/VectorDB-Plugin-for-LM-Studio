@@ -1,5 +1,9 @@
 import gc
+import importlib
+import importlib.metadata
+import importlib.util
 import os
+import logging
 import platform
 import shutil
 import sys
@@ -7,8 +11,57 @@ from pathlib import Path
 
 import torch
 import yaml
-from PySide6.QtWidgets import QMessageBox, QApplication
+from packaging import version
+from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
+from transformers import BitsAndBytesConfig
+
+bnb_bfloat16_settings = {
+    'tokenizer_settings': {
+        'torch_dtype': torch.bfloat16,
+        'trust_remote_code': True,
+    },
+    'model_settings': {
+        'torch_dtype': torch.bfloat16,
+        'quantization_config': BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+        ),
+        'low_cpu_mem_usage': True,
+        'trust_remote_code': True,
+    }
+}
+
+bnb_float16_settings = {
+    'tokenizer_settings': {
+        'torch_dtype': torch.float16,
+        'trust_remote_code': True,
+    },
+    'model_settings': {
+        'torch_dtype': torch.float16,
+        'quantization_config': BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+        ),
+        'low_cpu_mem_usage': True,
+        'trust_remote_code': True,
+    }
+}
+
+generate_settings_4096 = {
+    'max_length': 4096,
+    'max_new_tokens': None,
+    'do_sample': False,
+    'num_beams': 1,
+    'use_cache': True,
+    'temperature': None,
+    'top_p': None,
+}
+
+
+def get_physical_core_count():
+    return psutil.cpu_count(logical=False)
+
 
 def load_config(config_file):
     with open(config_file, 'r') as file:
@@ -232,6 +285,63 @@ def get_device_and_precision():
     return device, precision
 
 
+class FlashAttentionUtils:
+    @staticmethod
+    def check_package_availability():
+        # Check if flash_attn is installed
+        return importlib.util.find_spec("flash_attn") is not None
+
+    @staticmethod
+    def check_version_compatibility():
+        # Check flash_attn version
+        if not FlashAttentionUtils.check_package_availability():
+            return False
+        flash_attention_version = version.parse(importlib.metadata.version("flash_attn"))
+        if torch.version.cuda:
+            return flash_attention_version >= version.parse("2.1.0")
+        elif torch.version.hip:
+            return flash_attention_version >= version.parse("2.0.4")
+        return False
+
+    @staticmethod
+    def check_dtype_compatibility(dtype):
+        # Check if dtype is compatible
+        return dtype in [torch.float16, torch.bfloat16]
+
+    @staticmethod
+    def check_gpu_initialization():
+        # Check if CUDA is available and default device is CUDA
+        return torch.cuda.is_available() and torch.cuda.current_device() >= 0
+
+    @staticmethod
+    def check_device_map(device_map):
+        # Check if device_map is compatible
+        if device_map is None:
+            return True
+        if isinstance(device_map, dict):
+            return "cpu" not in device_map.values() and "disk" not in device_map.values()
+        return True
+
+    @classmethod
+    def is_flash_attention_compatible(cls, dtype=None, device_map=None):
+        # Run all checks
+        checks = [
+            cls.check_package_availability(),
+            cls.check_version_compatibility(),
+            cls.check_dtype_compatibility(dtype) if dtype else True,
+            cls.check_gpu_initialization(),
+            cls.check_device_map(device_map)
+        ]
+        return all(checks)
+
+    @staticmethod
+    def enable_flash_attention(config):
+        # Enable Flash Attention in the config
+        config._attn_implementation = "flash_attention_2"
+        return config
+
+
+
 '''
 open a text file on multiple platforms
     try:
@@ -246,3 +356,55 @@ open a text file on multiple platforms
     except Exception as e:
         print(f"Error opening file: {e}")
 '''
+
+def set_logging_level():
+    """
+    CRITICAL displays only CRITICAL.
+    ERROR displays ERROR and CRITICAL.
+    WARNING displays WARNING, ERROR, and CRITICAL.
+    INFO displays INFO, WARNING, ERROR, and CRITICAL.
+    DEBUG displays DEBUG, INFO, WARNING, ERROR, and CRITICAL.
+    """
+    library_levels = {
+        "accelerate": logging.WARNING,
+        "bitsandbytes": logging.WARNING,
+        "ctranslate2": logging.WARNING,
+        "datasets": logging.WARNING,
+        "einops": logging.WARNING,
+        "einx": logging.WARNING,
+        "flash_attn": logging.WARNING,
+        "huggingface-hub": logging.WARNING,
+        "langchain": logging.WARNING,
+        "langchain-community": logging.WARNING,
+        "langchain-core": logging.WARNING,
+        "langchain-huggingface": logging.WARNING,
+        "langchain-text-splitters": logging.WARNING,
+        "numpy": logging.WARNING,
+        "openai": logging.WARNING,
+        "openai-whisper": logging.WARNING,
+        "optimum": logging.WARNING,
+        "pillow": logging.WARNING,
+        "requests": logging.WARNING,
+        "sentence-transformers": logging.WARNING,
+        "sounddevice": logging.WARNING,
+        "speechbrain": logging.WARNING,
+        "sympy": logging.WARNING,
+        "tiledb": logging.WARNING,
+        "tiledb-cloud": logging.WARNING,
+        "tiledb-vector-search": logging.WARNING,
+        "timm": logging.WARNING,
+        "tokenizers": logging.WARNING,
+        "torch": logging.WARNING,
+        "torchaudio": logging.WARNING,
+        "torchvision": logging.WARNING,
+        "transformers": logging.WARNING,
+        "unstructured": logging.WARNING,
+        "unstructured-client": logging.WARNING,
+        "vector-quantize-pytorch": logging.WARNING,
+        "vocos": logging.WARNING,
+        "xformers": logging.WARNING
+    }
+
+    for lib, level in library_levels.items():
+        logging.getLogger(lib).setLevel(level)
+

@@ -21,24 +21,24 @@ from transformers import (
 from langchain_community.docstore.document import Document
 
 from extract_metadata import extract_image_metadata
-from utilities import my_cprint
+from utilities import my_cprint, set_logging_level
 from constants import VISION_MODELS
 
-datasets_logger = logging.getLogger('datasets')
-datasets_logger.setLevel(logging.WARNING)
+set_logging_level()
 
-logging.getLogger("transformers").setLevel(logging.ERROR)
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-logging.getLogger().setLevel(logging.WARNING)
-
+# warnings.filterwarnings("ignore", category=FutureWarning)
+# warnings.filterwarnings("ignore", category=UserWarning)
+# warnings.filterwarnings("ignore", category=DeprecationWarning)
 # warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
-# # logging.getLogger("transformers").setLevel(logging.CRITICAL)
+
+# datasets_logger = logging.getLogger('datasets')
+# datasets_logger.setLevel(logging.WARNING)
+# logging.getLogger("transformers").setLevel(logging.CRITICAL)
 # logging.getLogger("transformers").setLevel(logging.ERROR)
 # logging.getLogger("transformers").setLevel(logging.WARNING)
 # logging.getLogger("transformers").setLevel(logging.INFO)
 # logging.getLogger("transformers").setLevel(logging.DEBUG)
+# logging.getLogger().setLevel(logging.WARNING)
 
 ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
 
@@ -76,15 +76,17 @@ def choose_image_loader():
     
     chosen_model = config["vision"]["chosen_model"]
 
-    if chosen_model in ['llava 1.5 - 7b', 'bakllava 1.5 - 7b', 'llava 1.5 - 13b', ]:
+    if chosen_model in ['Llava 1.5 - 7b', 'Bakllava 1.5 - 7b', 'Llava 1.5 - 13b', ]:
         loader_func = loader_llava(config).process_images
     elif chosen_model == 'Cogvlm':
         loader_func = loader_cogvlm(config).process_images
     elif chosen_model == 'Moondream2':
         loader_func = loader_moondream(config).process_images
+    elif chosen_model == 'falcon-vlm - 11b':
+        loader_func = loader_falcon(config).process_images
     elif chosen_model in ["Florence-2-large", "Florence-2-base"]:
         loader_func = loader_florence2(config).process_images
-    elif chosen_model == 'Phi-3-vision-128k-instruct':
+    elif chosen_model == 'Phi-3-vision':
         loader_func = loader_phi3vision(config).process_images
     elif chosen_model == 'MiniCPM-Llama3-V-2_5-int4':
         loader_func = loader_minicpm_llama3v(config).process_images
@@ -282,6 +284,52 @@ class loader_llava_next(BaseLoader):
         model_response = response.split("ASSISTANT:")[-1].strip()
         
         return model_response
+
+
+class loader_falcon(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        
+        model_info = VISION_MODELS[chosen_model]
+        model_id = model_info['repo_id']
+        precision = model_info['precision']
+        save_dir = model_info["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.bfloat16,
+        )
+        
+        model = LlavaNextForConditionalGeneration.from_pretrained(
+            model_id,
+            quantization_config=quantization_config,
+            torch_dtype=torch.bfloat16,
+            low_cpu_mem_usage=True,
+            cache_dir=cache_dir
+        )
+        
+        my_cprint(f"{chosen_model} vision model loaded into memory...", "green")
+        
+        processor = LlavaNextProcessor.from_pretrained(model_id, cache_dir=cache_dir)
+        
+        return model, None, processor
+
+    @ torch.inference_mode()
+    def process_single_image(self, raw_image):
+        user_prompt = "Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself."
+        prompt = f"User:<image>\n{user_prompt} Falcon:"
+        inputs = self.processor(text=prompt, images=raw_image, return_tensors="pt").to(self.device)
+        
+        output = self.model.generate(**inputs, max_new_tokens=512, do_sample=False)
+        
+        response = self.processor.decode(output[0], skip_special_tokens=True) # possibly adjust to "full_response = self.processor.decode(output[0][2:], skip_special_tokens=True)" or something similar if output is preceded by special tokens inexplicatly
+        model_response = response.split("Falcon:")[-1].strip()
+        
+        return model_response
+
 
 
 class loader_moondream(BaseLoader):

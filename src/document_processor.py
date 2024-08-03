@@ -33,11 +33,11 @@ import traceback
 
 datasets_logger = logging.getLogger('datasets')
 datasets_logger.setLevel(logging.WARNING)
-
+logging.getLogger().setLevel(logging.WARNING)
 logging.getLogger("transformers").setLevel(logging.ERROR)
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
-logging.getLogger().setLevel(logging.WARNING)
 
 logging.basicConfig(
     level=logging.INFO,

@@ -139,11 +139,3 @@ def is_lm_studio_available():
     # This function should check if LM Studio is available and running
     # For now, we'll just return True as a placeholder
     return True
-
-# Usage example:
-# chat_thread = LMStudioChatThread(query, chunks_only, selected_database)
-# chat_thread.lm_studio_chat.signals.response_signal.connect(update_ui_with_response)
-# chat_thread.lm_studio_chat.signals.error_signal.connect(show_error_message)
-# chat_thread.lm_studio_chat.signals.finished_signal.connect(on_chat_finished)
-# chat_thread.lm_studio_chat.signals.citation_signal.connect(update_ui_with_citations)
-# chat_thread.start()

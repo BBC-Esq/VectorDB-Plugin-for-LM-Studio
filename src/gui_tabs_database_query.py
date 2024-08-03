@@ -65,14 +65,14 @@ class DatabaseQueryTab(QWidget):
 
         self.model_source_combo = QComboBox()
         self.model_source_combo.addItems(["LM Studio", "Local Model"])
-        self.model_source_combo.setCurrentText("LM Studio")  # Set default
+        self.model_source_combo.setCurrentText("LM Studio")
         self.model_source_combo.currentTextChanged.connect(self.on_model_source_changed)
         hbox1_layout.addWidget(self.model_source_combo)
 
         self.model_combo_box = QComboBox()
         self.model_combo_box.addItems(model_info['model'] for model_info in CHAT_MODELS.values())
-        self.model_combo_box.setCurrentText("Zephyr - 1.6b")  # default model
-        self.model_combo_box.setEnabled(False)  # Initially disabled as LM Studio is default
+        self.model_combo_box.setCurrentText("Zephyr - 1.6b")
+        self.model_combo_box.setEnabled(False)
         hbox1_layout.addWidget(self.model_combo_box)
 
         self.eject_button = QPushButton("Eject Local Model")
@@ -123,12 +123,18 @@ class DatabaseQueryTab(QWidget):
         self.voice_recorder = VoiceRecorder(self)
 
     def setup_signals(self):
+        # connects signal #7 in chat_model_local to update_response_local_model method
         self.local_model_chat.signals.response_signal.connect(self.update_response_local_model)
+        # connects signal #8 in chat_model_local to display_citations_in_widget method
         self.local_model_chat.signals.citations_signal.connect(self.display_citations_in_widget)
+        # connects signal #9 in chat_model_local to show_error_message method
         self.local_model_chat.signals.error_signal.connect(self.show_error_message)
+        # connects signal #10 in chat_model_local to on_submission_finished method
         self.local_model_chat.signals.finished_signal.connect(self.on_submission_finished)
+        # connects signal #3 in chat_model_local to on_model_loaded method
         self.local_model_chat.signals.model_loaded_signal.connect(self.on_model_loaded)
-        self.local_model_chat.signals.model_unloaded_signal.connect(self.on_model_unloaded)  # New line
+        # connects signal #11 in chat_model_local to on_model_unloaded method
+        self.local_model_chat.signals.model_unloaded_signal.connect(self.on_model_unloaded)
 
     def on_model_source_changed(self, text):
         if text == "Local Model":
@@ -152,6 +158,8 @@ class DatabaseQueryTab(QWidget):
             QMessageBox.warning(self, "Error", error_message)
             return
 
+        self.read_only_text.clear()
+        
         self.cumulative_response = ""
         self.submit_button.setDisabled(True)
         user_question = self.text_input.toPlainText()
@@ -166,13 +174,14 @@ class DatabaseQueryTab(QWidget):
             self.lm_studio_chat_thread.lm_studio_chat.signals.finished_signal.connect(self.on_submission_finished)
             self.lm_studio_chat_thread.lm_studio_chat.signals.citation_signal.connect(self.display_citations_in_widget)
             self.lm_studio_chat_thread.start()
-        else:  # Local Model
+        else:  # Used by Local Model.  Add additoinal "elif" statements if more backends are added
             selected_model = self.model_combo_box.currentText()
             try:
                 if selected_model != self.local_model_chat.current_model:
                     if self.local_model_chat.is_model_loaded():
                         self.local_model_chat.terminate_current_process()
                     self.local_model_chat.start_model_process(selected_model)
+                # starts the "localModelChat" class from "chat_local_model.py"
                 self.local_model_chat.start_chat(user_question, chunks_only, selected_model, selected_database)
             except Exception as e:
                 logging.exception(f"Error starting or using local model: {e}")
@@ -200,7 +209,7 @@ class DatabaseQueryTab(QWidget):
     
     def display_citations_in_widget(self, citations):
         if citations:
-            self.read_only_text.append("\n\nCitations:\n" + citations)
+            self.read_only_text.append("\nCitations:\n" + citations)
         else:
             self.read_only_text.append("\n\nNo citations found.")
     
@@ -252,7 +261,11 @@ class DatabaseQueryTab(QWidget):
         self.read_only_text.setPlainText(self.cumulative_response)
 
     def update_response_local_model(self, response):
-        self.read_only_text.setPlainText(response)
+        current_text = self.read_only_text.toPlainText()
+        self.read_only_text.setPlainText(current_text + response)
+        self.read_only_text.verticalScrollBar().setValue(
+            self.read_only_text.verticalScrollBar().maximum()
+        )
         if not self.chunks_only_checkbox.isChecked():
             self.eject_button.setEnabled(True)
 

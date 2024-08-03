@@ -17,17 +17,17 @@ logging.basicConfig(level=logging.DEBUG,
                     filename='local_model_chat.log')
 
 class LocalModelSignals(QObject):
-    response_signal = Signal(str)
-    citations_signal = Signal(str)
-    error_signal = Signal(str)
-    finished_signal = Signal()
-    model_loaded_signal = Signal()
-    model_unloaded_signal = Signal()  # New signal
+    response_signal = Signal(str)  # 7. signal for sending response
+    citations_signal = Signal(str)  # 8. signal for sending citations
+    error_signal = Signal(str)  # 9. signal for sending error messages
+    finished_signal = Signal()  # 10. signal for indicating process completion
+    model_loaded_signal = Signal()  # 3. signal for indicating model loaded
+    model_unloaded_signal = Signal()  # 11. signal for indicating model unloaded
 
 class LocalModelChat:
     def __init__(self):
         self.model_process = None
-        self.model_pipe = None
+        self.model_pipe = None  # creates a blank pipe
         self.current_model = None
         self.signals = LocalModelSignals()
 
@@ -37,12 +37,16 @@ class LocalModelChat:
             if self.is_model_loaded():
                 self.terminate_current_process()
             
+            # turns the blank pipe int oa bidirectional pipe with parent process and child process ends
             parent_conn, child_conn = Pipe()
+            # establishes the parent process end of the pipe
             self.model_pipe = parent_conn
+            # assigns the child process end of the pipe to the _local_model_process method
             self.model_process = Process(target=self._local_model_process, args=(child_conn, model_name))
             self.model_process.start()
             self.current_model = model_name
             self._start_listening_thread()
+            # 3. Signal-model is loaded
             self.signals.model_loaded_signal.emit()
             logging.info(f"Model process started for {model_name}")
         else:
@@ -61,14 +65,10 @@ class LocalModelChat:
                         self.model_pipe.close()
                         self.model_pipe = None
                 
-                # Store the process in a local variable
                 process = self.model_process
-                # Immediately set self.model_process to None
                 self.model_process = None
                 
-                # Now use the local variable for further operations
                 if process.is_alive():
-                #if process is not None and process.is_alive():
                     process.join(timeout=10)
                     if process.is_alive():
                         logging.warning("Process did not terminate, forcing termination")
@@ -79,7 +79,6 @@ class LocalModelChat:
         else:
             logging.info("No process to terminate")
 
-        # Ensure all resources are cleared
         self.model_pipe = None
         self.model_process = None
         self.current_model = None
@@ -93,6 +92,7 @@ class LocalModelChat:
             self.signals.error_signal.emit("Model not loaded. Please start a model first.")
             return
 
+        # Sends the information selected by a user in gui_tabs_database_query.py to the new child process
         self.model_pipe.send(("question", (user_question, chunks_only, selected_model, selected_database)))
 
     def is_model_loaded(self):
@@ -108,6 +108,11 @@ class LocalModelChat:
         threading.Thread(target=self._listen_for_response, daemon=True).start()
 
     def _listen_for_response(self):
+        """
+        This method continuously listens for messages coming through the pipe. When a message is received,
+        it's processed based on its type, and then the appropriate signal is emitted. These signals are what
+        connect the data received from the pipe to the GUI elements in the DatabaseQueryTab class.
+        """
         logging.info("Starting response listener")
         while True:
             if not self.model_pipe or not isinstance(self.model_pipe, PipeConnection):
@@ -115,15 +120,21 @@ class LocalModelChat:
                 break
             
             try:
+                # Checks for incoming messages via pipe every 1 second from _local_model_process method
                 if self.model_pipe.poll(timeout=1):
+                    # 6. process data from pip depending on "message_type"
                     message_type, message = self.model_pipe.recv()
-                    if message_type == "response":
+                    if message_type in ["response", "partial_response"]:
+                        # 7. Signal-triggers update_response_local_model in database_query_tab
                         self.signals.response_signal.emit(message)
                     elif message_type == "citations":
+                        # 8. Signal-triggers display_citations_in_widget in database_query_tab
                         self.signals.citations_signal.emit(message)
                     elif message_type == "error":
+                        # 9. Signal-triggers on_submission_finished in database_query_tab
                         self.signals.error_signal.emit(message)
                     elif message_type == "finished":
+                        # 10. Signal-triggers on_submission_finished in database_query_tab
                         self.signals.finished_signal.emit()
                         if message == "exit":
                             logging.info("Received exit signal, terminating listener")
@@ -145,11 +156,12 @@ class LocalModelChat:
         self.model_pipe = None
         self.model_process = None
         self.current_model = None
-        self.signals.model_unloaded_signal.emit()  # Emit the new signal
+        # 11. Signal-triggers on_model_unloaded in database_query_tab
+        self.signals.model_unloaded_signal.emit()
         logging.info("Listener resource cleanup completed")
 
     @staticmethod
-    def _local_model_process(conn, model_name):
+    def _local_model_process(conn, model_name): # run within the child process
         model_instance = module_chat.choose_model(model_name)
         query_vector_db = None
         current_database = None
@@ -157,7 +169,8 @@ class LocalModelChat:
             while True:
                 try:
                     message_type, message = conn.recv()
-                    if message_type == "question":
+                    # receives message from the main process and handles it based on its "message_type"
+                    if message_type == "question": # generate streamed response
                         user_question, chunks_only, _, selected_database = message
                         if query_vector_db is None or current_database != selected_database:
                             query_vector_db = QueryVectorDB(selected_database)
@@ -174,12 +187,20 @@ class LocalModelChat:
                             continue
                         prepend_string = "Here are the contexts to base your answer on, but I need to reiterate only base your response on these contexts and do not use outside knowledge that you may have been trained with."
                         augmented_query = f"{prepend_string}\n\n---\n\n" + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + user_question
-                        response = module_chat.generate_response(model_instance, augmented_query)
-                        conn.send(("response", response))
+                        # print(augmented_query)
+                        # old code that receives an entire response
+                        # response = module_chat.generate_response(model_instance, augmented_query)
+                        full_response = ""
+                        # gets "partial_response" and pipes it to "_listen_for_response" in the parent process
+                        for partial_response in module_chat.generate_response(model_instance, augmented_query):
+                            full_response += partial_response
+                            conn.send(("partial_response", partial_response))
                         with open('chat_history.txt', 'w', encoding='utf-8') as f:
-                            f.write(response)
+                            f.write(full_response)
                         citations = LocalModelChat._format_metadata_as_citations(metadata_list)
+                        # pipes "citations" to "_listen_for_response" in parent process
                         conn.send(("citations", citations))
+                        # pipes None to "_listen_for_response" in parent process
                         conn.send(("finished", None))
                     elif message_type == "exit":
                         break
