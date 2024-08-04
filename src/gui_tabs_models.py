@@ -28,7 +28,8 @@ class VectorModelsTab(QWidget):
             'hkunlp': 4,
             'sentence-transformers': 6,
             'thenlper': 4,
-            'intfloat': 4
+            'intfloat': 4,
+            'dunzhang': 3
         }
 
         models_dir = Path('Models')
@@ -40,7 +41,7 @@ class VectorModelsTab(QWidget):
         existing_vector_directories = {d.name for d in vector_models_dir.iterdir() if d.is_dir()}
 
         headers = ["Select", "Model Name", "Dimensions", "Max Sequence", "Size (MB)", "Downloaded", "Link"]
-        column_stretch_factors = [1, 3, 2, 2, 2, 2, 3]
+        column_stretch_factors = [1, 3, 2, 2, 2, 2, 2]
 
         def add_centered_widget(grid, widget, row, col):
             grid.addWidget(widget, row, col, alignment=Qt.AlignCenter)

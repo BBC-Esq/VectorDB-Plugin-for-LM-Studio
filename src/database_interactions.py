@@ -31,10 +31,6 @@ warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 logging.getLogger().setLevel(logging.WARNING)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s:%(filename)s:%(lineno)d - %(message)s'
-)
             
 class CreateVectorDB:
     def __init__(self, database_name):
@@ -66,6 +62,7 @@ class CreateVectorDB:
                 'instructor-large': 4,
                 'e5-large': 4,
                 'gte-large': 4,
+                'stella': 2,
                 'instructor-base': 8,
                 'mpnet': 8,
                 'e5-base': 8,
@@ -106,7 +103,6 @@ class CreateVectorDB:
                 query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs
             )
-        
         else:
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
@@ -336,10 +332,17 @@ class QueryVectorDB:
                 query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs
             )
+        elif "stella" in model_path:
+            encode_kwargs["prompt_name"] = "s2p_query"
+            return HuggingFaceEmbeddings(
+                model_name=model_path,
+                model_kwargs={"device": compute_device},
+                encode_kwargs=encode_kwargs
+            )
         else:
             return HuggingFaceEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                model_kwargs={"device": compute_device},
                 encode_kwargs=encode_kwargs
             )
 

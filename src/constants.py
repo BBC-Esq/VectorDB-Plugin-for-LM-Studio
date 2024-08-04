@@ -199,6 +199,18 @@ VECTOR_MODELS = {
             'type': 'vector'
         },
     ],
+    'dunzhang': [
+        {
+            'name': 'stella_en_1.5B_v5',
+            'dimensions': 1024,
+            'max_sequence': 512,
+            'size_mb': 547,
+            'repo_id': 'dunzhang/stella_en_1.5B_v5',
+            'cache_dir': 'dunzhang--stella_en_1.5B_v5',
+            'type': 'vector'
+        },
+    ],
+
 }
 
 
