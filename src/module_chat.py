@@ -43,7 +43,7 @@ class BaseModel(ABC):
         pass
 
     def create_inputs(self, prompt):
-        print(prompt)
+        # print(prompt)
         return self.tokenizer(prompt, return_tensors="pt", return_attention_mask=True).to("cuda")
 
     def generate_response(self, inputs):
