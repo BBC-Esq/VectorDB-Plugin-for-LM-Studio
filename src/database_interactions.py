@@ -321,14 +321,14 @@ class QueryVectorDB:
         if "instructor" in model_path:
             return HuggingFaceInstructEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device},
+                model_kwargs={"device": compute_device, "trust_remote_code": True},
                 encode_kwargs=encode_kwargs,
             )
         elif "bge" in model_path:
             query_instruction = self.config['embedding-models']['bge']['query_instruction']
             return HuggingFaceBgeEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device},
+                model_kwargs={"device": compute_device, "trust_remote_code": True},
                 query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs
             )
@@ -336,13 +336,13 @@ class QueryVectorDB:
             encode_kwargs["prompt_name"] = "s2p_query"
             return HuggingFaceEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device},
+                model_kwargs={"device": compute_device, "trust_remote_code": True},
                 encode_kwargs=encode_kwargs
             )
         else:
             return HuggingFaceEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device},
+                model_kwargs={"device": compute_device, "trust_remote_code": True},
                 encode_kwargs=encode_kwargs
             )
 
