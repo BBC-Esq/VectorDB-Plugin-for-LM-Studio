@@ -10,13 +10,13 @@
 
 <div align="center"> <h2><u>REQUIREMENTS</h2></div>
   
-1) 🐍[Python 3.11](https://www.python.org/downloads/release/python-3119/) (Pytorch is not compatible with Python 3.12 yet)
+1) 🐍[Python 3.11](https://www.python.org/downloads/release/python-3119/)
 2) 📁[Git](https://git-scm.com/downloads)
 3) 📁[Git Large File Storage](https://git-lfs.com/).
 4) 🌐[Pandoc](https://github.com/jgm/pandoc/releases).
 5) CUDA is technically "required" but the installation script installs it automatically.
-6) Build Tools.
-   > Certain dependencies don't have pre-compiled "wheels" so you must build them with something like [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  I recommend Visual Studio, but make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing "SDK."
+6) Compiler.
+   > Certain dependencies don't have a pre-compiled "wheel" so you must build them with something like [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you choose Visual Studio, for example, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing the "SDK."
 
    <details>
      <summary>EXAMPLE ERROR ON WINDOWS</summary>
@@ -34,10 +34,10 @@
   <summary>🪟WINDOWS INSTRUCTIONS</summary>
   
 ### Step 1
-Download the ZIP file for the latest "release," extract its contents, navigate to the "src" folder to run the commands below.
+Download the latest "release," extract its contents, and navigate to the "src" folder to run the following commands:
   * NOTE: If you clone this repository you WILL NOT get the latest release.  Instead, you will development versions of this program which may or may not be stable.
 ### Step 2
-Navigate to the ```src``` folder, open a command prompt, and create a virtual environment:
+Within the ```src``` folder, open a command prompt and create a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/):
 ```
 python -m venv .
 ```
@@ -47,7 +47,8 @@ Activate the virtual environment:
 .\Scripts\activate
 ```
 ### Step 4
-Run setup:
+Run the setup script:
+   > Only for ```Windows``` for now.
 ```
 python setup_windows.py
 ```
@@ -77,35 +78,61 @@ MacOS users must use Release v3.5.2 until I can update the codebase due to recen
   <summary>🖥️INSTRUCTIONS🖥</summary>
 
 ## Activate Virtual Environment
-* Once you install the program you've already created a virtual environment, so you just need to activate it each time you want to restart it.  Remember to run the appropriate command to do so (based on your platform) within the ```src``` folder.
+* Every time you want to use the program you must activate the virtual environment first from within the ```src``` folder.
 ## Start the Program
+To start the program run this command:
 ```
 python gui.py
 ```
-> Only systems with an Nvidia GPU will display gpu power, usage, and VRAM metrics.
 
-# 🔥Important🔥
-* Read the User Guide.
+## 🔥Important🔥
+* Read the User Guide located within the graphical user interface itself.
 
 ## Download Vector Model
-* In the ```Models Tab``` tab, choose the embedding model you want to download.  The ```User Guide``` tab contains more details about the models.
+* Select and download a vector/embedding model from the ```Models Tab```.
 
 ## Create a Vector Database
-* In the ```Create Database``` tab, click ```Choose Files``` and select one or more files to add.  This can be repeated as many times as you wish.
-  * Supported documents are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
-* If you selected any image files, I highly recommend that you adjust the vision model settings within the ```Settings``` tab and test a particular vision model in the ```Tools``` tab.
-  * Supported images are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
-* 🔥 To add audio files you must first transcribe them from the ```Tools Tab```.  The transcriptions will be saved and added when you create the vector database.
-  * Supported audio extensions include, but are not limited to: ```.mp3```, ```.wav```, ```.m4a```, ```.ogg```, ```.wma```
-* Select a vector model from the pulldown menu.
-* Enter a name for the database you want to create.
-* In the ```Settings``` tab, set the chunk size, chunk overlap, and the device you want to use.  More information is in the User Guide.
-* Click the ```Create Vector Database``` button.
-  * 🔥 MAKE SURE to wait until the command prompt states that the database has been successfully created before proceeding.
+This program extracts the text from a variety of file types and puts them into the vector database.  It also allows you to create summarizes of images and transcriptions of audio files to be put into the database.
 
-## Delete a Database
-* In the ```Manage Databases``` tab, select a database from the pulldown menu and click ```Delete Database.```
-  > The ability to delete one or more specific files is coming soon.
+### Entering General File Types
+
+In the ```Create Database``` tab, select files you want to add to the database.  You can click the ```Choose Files``` button as many times as you want.
+   > The supported file extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
+
+### Entering Images
+This program uses "vision" models to create summaries of images, which can then be entered into the database and searched.  Before inputting images, I highly recommend that you test the various vision models for the one you like the most.
+
+To test a vision model:
+1) From the ```Create Database``` tab, select one or more images.
+2) From the ```Settings``` tab, select the vision model you want to test.
+3) From the ```Tools``` tab, process the images.
+
+After determining which vision model you like, add images to the database by selecting them from the ```Create Database``` tab like any other file.  When you eventually create the database they will be automatically processed.
+   > Supported file types are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
+
+### Entering Audio Files
+Audio files can be transcribed and put into the database to be searched.  Before transcribing a long audio file, I highly recommend testing the various ```Whisper``` models on a shorter audio file as well as experimenting with different ```batch``` settings.  Your goal should be to use as large of a ```Whisper``` model as your GPU supports and then adjust the batch size to keep the VRAM usage within your available VRAM> to ensure that the settings don't exceed your available VRAM.
+   > Supported audio extensions include, but are not limited to: ```.mp3```, ```.wav```, ```.m4a```, ```.ogg```, ```.wma```
+
+To test optimal settings:
+1) Within the ```Tools``` tab, select a short audio file.
+2) Select a ```Whisper``` model.  Read more about the size and quantization levels in the ```User Guide```.
+3) Process the audio file.
+4) Within the ```Create Database``` tab, doubleclick the transcription that was just created.
+5) Skim the ```page content``` field to get a sense of whether the transcription is accurate enough for your use-case or if you need to selecta more accurate ```Whisper``` model.
+   > To avoid getting a shoddy transcription, it is always better IMHO to choose as large a model as possible, reducing the ```batch``` setting if need be to keep the VRAM requirements within you're available VRAM.
+
+Once you've obtained the optimal settings for your system, it's time to transcribe an audio file into the database:
+1) Within the ```Create Database``` tab, delete any transcriptions you don't want entered into the database.
+2) Create new transctiptions you want entered (repeate for multiple files).
+   > Batch processing is not yet available.
+
+### Actually Creating The Database
+* Download a vector model from the ```Models``` tab.
+* Within the ```Create Database``` tab, create the database.
+
+### Manging the Database
+* The ```Manage Database``` tab allows you to view the contents of all databases that you've created and delete them if you want.
 
 ## Query a Database (No LM Studio)
 * In the ```Query Database``` tab, select the database you want to use from the pulldown menu.
