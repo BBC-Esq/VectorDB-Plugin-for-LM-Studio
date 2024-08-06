@@ -64,15 +64,11 @@ if not tkinter_message_box("GPU Detection", message, type="yesno", yes_no=True):
 if not manual_installation_confirmation():
     sys.exit(1)
 
-# 1. install uv
-print("\033[92mInstalling uv:\033[0m")
-subprocess.run(["pip", "install", "uv"], check=True)
-
 def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
     upgrade_commands = [
-        [sys.executable, "-m", "uv", "pip", "install", "--upgrade", "pip", "--no-cache-dir"],
-        [sys.executable, "-m", "uv", "pip", "install", "--upgrade", "setuptools", "--no-cache-dir"],
-        [sys.executable, "-m", "uv", "pip", "install", "--upgrade", "wheel", "--no-cache-dir"]
+        [sys.executable, "-m", "pip", "install", "--upgrade", "pip", "--no-cache-dir"],
+        [sys.executable, "-m", "pip", "install", "--upgrade", "setuptools", "--no-cache-dir"],
+        [sys.executable, "-m", "pip", "install", "--upgrade", "wheel", "--no-cache-dir"]
     ]
     
     for command in upgrade_commands:
@@ -361,9 +357,13 @@ def install_libraries_with_deps(libraries):
 
     return failed_installations, multiple_attempts
 
-# 2. upgrade pip, setuptools, wheel
+# 1. upgrade pip, setuptools, wheel
 print("\033[92mUpgrading pip, setuptools, and wheel:\033[0m")
 upgrade_pip_setuptools_wheel()
+
+# 2. install uv
+print("\033[92mInstalling uv:\033[0m")
+subprocess.run(["pip", "install", "uv"], check=True)
 
 # 3. install priority_libraries
 print("\033[92m\nInstalling priority libraries:\033[0m")
