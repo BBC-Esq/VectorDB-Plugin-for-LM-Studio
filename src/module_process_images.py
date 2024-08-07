@@ -336,7 +336,7 @@ class loader_florence2(BaseLoader):
         cache_dir = CACHE_DIR / save_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
         
-        model = AutoModelForCausalLM.from_pretrained(repo_id, trust_remote_code=True, low_cpu_mem_usage=True,, cache_dir=cache_dir)
+        model = AutoModelForCausalLM.from_pretrained(repo_id, trust_remote_code=True, low_cpu_mem_usage=True, cache_dir=cache_dir)
         processor = AutoProcessor.from_pretrained(repo_id, trust_remote_code=True, cache_dir=cache_dir)
 
         device_type, precision_type = self.get_device_and_precision()
