@@ -78,8 +78,6 @@ def choose_image_loader():
 
     if chosen_model in ['Llava 1.5 - 7b', 'Bakllava 1.5 - 7b', 'Llava 1.5 - 13b', ]:
         loader_func = loader_llava(config).process_images
-    # elif chosen_model == 'Cogvlm':
-        # loader_func = loader_cogvlm(config).process_images
     elif chosen_model == 'Moondream2 - 1.9b':
         loader_func = loader_moondream(config).process_images
     elif chosen_model == 'falcon-vlm - 11b':
@@ -88,8 +86,6 @@ def choose_image_loader():
         loader_func = loader_florence2(config).process_images
     elif chosen_model == 'Phi-3-vision - 4.2b':
         loader_func = loader_phi3vision(config).process_images
-    # elif chosen_model == 'MiniCPM-Llama3-V-2_5-int4':
-        # loader_func = loader_minicpm_llama3v(config).process_images
     elif chosen_model == 'MiniCPM-V-2_6 - 8b':
         loader_func = loader_minicpm_V_2_6(config).process_images        
     elif chosen_model in ['Llava 1.6 Vicuna - 7b', 'Llava 1.6 Vicuna - 13b']:
@@ -167,42 +163,6 @@ class BaseLoader:
 
     def process_single_image(self, raw_image):
         raise NotImplementedError("Subclasses must implement process_single_image method")
-
-# class loader_cogvlm(BaseLoader):
-    # def initialize_model_and_tokenizer(self):
-        # model_name = 'THUDM/cogvlm-chat-hf'
-        # TORCH_TYPE = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8 else torch.float16
-        # quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=TORCH_TYPE)
-
-        # tokenizer = LlamaTokenizer.from_pretrained('lmsys/vicuna-7b-v1.5')
-        # model = AutoModelForCausalLM.from_pretrained(
-            # model_name,
-            # quantization_config=quantization_config,
-            # torch_dtype=TORCH_TYPE,
-            # low_cpu_mem_usage=True,
-            # trust_remote_code=True
-        # )
-
-        # my_cprint(f"Cogvlm vision model loaded into memory...", "green")
-        # return model, tokenizer, None
-
-    # @torch.inference_mode()
-    # def process_single_image(self, raw_image):
-        # TORCH_TYPE = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8 else torch.float16
-        # prompt = "Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself."
-        # inputs = self.model.build_conversation_input_ids(self.tokenizer, query=prompt, history=[], images=[raw_image])
-        # inputs = {
-            # 'input_ids': inputs['input_ids'].unsqueeze(0).to(self.device),
-            # 'token_type_ids': inputs['token_type_ids'].unsqueeze(0).to(self.device),
-            # 'attention_mask': inputs['attention_mask'].unsqueeze(0).to(self.device),
-            # 'images': [[inputs['images'][0].to('cuda').to(TORCH_TYPE)]],
-        # }
-
-        # gen_kwargs = {"max_length": 2048, "do_sample": False}
-        # output = self.model.generate(**inputs, **gen_kwargs)
-        # output = output[:, inputs['input_ids'].shape[1]:]
-        # model_response = self.tokenizer.decode(output[0], skip_special_tokens=True).split("ASSISTANT: ")[-1]
-        # return model_response
 
 class loader_llava(BaseLoader):
     def initialize_model_and_tokenizer(self):
@@ -376,7 +336,7 @@ class loader_florence2(BaseLoader):
         cache_dir = CACHE_DIR / save_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
         
-        model = AutoModelForCausalLM.from_pretrained(repo_id, trust_remote_code=True, cache_dir=cache_dir)
+        model = AutoModelForCausalLM.from_pretrained(repo_id, trust_remote_code=True, low_cpu_mem_usage=True,, cache_dir=cache_dir)
         processor = AutoProcessor.from_pretrained(repo_id, trust_remote_code=True, cache_dir=cache_dir)
 
         device_type, precision_type = self.get_device_and_precision()
@@ -443,6 +403,7 @@ class loader_phi3vision(BaseLoader):
             device_map="cuda",
             trust_remote_code=True,
             torch_dtype="auto",
+            low_cpu_mem_usage=True,
             attn_implementation='flash_attention_2',
             quantization_config=quantization_config,
             cache_dir=cache_dir
@@ -485,56 +446,6 @@ Describe this image in as much detail as possible while still trying to be succi
         return response
 
 
-# class loader_minicpm_llama3v(BaseLoader):
-    # def initialize_model_and_tokenizer(self):
-        # chosen_model = self.config['vision']['chosen_model']
-        # repo_id = VISION_MODELS[chosen_model]["repo_id"]
-        # save_dir = VISION_MODELS[chosen_model]["cache_dir"]
-        # cache_dir = CACHE_DIR / save_dir
-        # cache_dir.mkdir(parents=True, exist_ok=True)
-        
-        # warnings.filterwarnings("ignore", category=UserWarning)
-        
-        # # openbmb/MiniCPM-Llama3-V-2_5-int4
-        # model = AutoModel.from_pretrained(
-            # repo_id,
-            # trust_remote_code=True,
-            # low_cpu_mem_usage=True,
-            # cache_dir=cache_dir
-        # )
-        # tokenizer = AutoTokenizer.from_pretrained(
-            # repo_id,
-            # trust_remote_code=True,
-            # cache_dir=cache_dir
-        # )
-        # model.eval()
-        
-        # my_cprint(f"MiniCPM-Llama3-V vision model loaded into memory...", "green")
-        
-        # return model, tokenizer, None
-
-    # @torch.inference_mode()
-    # def process_single_image(self, raw_image):
-        # question = 'Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself.'
-        # msgs = [{'role': 'user', 'content': question}]
-        
-        # response = self.model.chat(
-            # image=raw_image,
-            # msgs=msgs,
-            # context=None,
-            # tokenizer=self.tokenizer,
-            # sampling=False,
-            # temperature=None
-        # )
-        
-        # if isinstance(response, tuple) and len(response) == 3:
-            # res, context, _ = response
-        # else:
-            # res = response
-        
-        # return res
-
-
 class loader_minicpm_V_2_6(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']
@@ -545,11 +456,10 @@ class loader_minicpm_V_2_6(BaseLoader):
         
         warnings.filterwarnings("ignore", category=UserWarning)
         
-        # openbmb/MiniCPM-Llama3-V-2_5-int4
         model = AutoModel.from_pretrained(
             repo_id,
             trust_remote_code=True,
-            low_cpu_mem_usage=True,
+            # low_cpu_mem_usage=True,
             cache_dir=cache_dir
         )
         tokenizer = AutoTokenizer.from_pretrained(
@@ -559,7 +469,7 @@ class loader_minicpm_V_2_6(BaseLoader):
         )
         model.eval()
         
-        my_cprint(f"MiniCPM-Llama3-V vision model loaded into memory...", "green")
+        my_cprint(f"MiniCPM_V_2_6 vision model loaded into memory...", "green")
         
         return model, tokenizer, None
 
