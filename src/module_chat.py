@@ -68,6 +68,7 @@ class BaseModel(ABC):
         generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
         generation_thread.start()
 
+        # only necessary for dolpohin-mistral-nemo for some reason
         for partial_response in streamer:
             if partial_response.startswith("begin_of_answer|>"):
                 partial_response = partial_response[len("begin_of_answer|>"):].lstrip()
@@ -100,7 +101,15 @@ class Dolphin_Llama3_8B(BaseModel):
         super().__init__(model_info, bnb_bfloat16_settings)
 
     def create_prompt(self, augmented_query):
-        # return f"system\n{system_message}\nuser\n{augmented_query}\nassistant\n"
+        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
+
+
+class Dolphin_Llama3_1_8B(BaseModel):
+    def __init__(self):
+        model_info = CHAT_MODELS['Dolphin-Llama 3.1 - 8b']
+        super().__init__(model_info, bnb_bfloat16_settings)
+
+    def create_prompt(self, augmented_query):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 
@@ -114,7 +123,6 @@ class Stablelm_2_12b(BaseModel):
 
 
 class Dolphin_Mistral_Nemo(BaseModel):
-    # prints "begin_of_text|> " at the beginning of the response
     def __init__(self):
         model_info = CHAT_MODELS['Dolphin-Mistral-Nemo - 12b']
         super().__init__(model_info, bnb_bfloat16_settings)
@@ -123,7 +131,6 @@ class Dolphin_Mistral_Nemo(BaseModel):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 
-# set pad token id to zero
 class Dolphin_Phi3_Medium(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Dolphin-Phi 3 - Medium']
@@ -133,7 +140,6 @@ class Dolphin_Phi3_Medium(BaseModel):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 
-# set pad token id to zero
 class Dolphin_Qwen2_7b(BaseModel):
     # Setting `pad_token_id` to `eos_token_id`:151645 for open-end generation.
     def __init__(self):
@@ -168,7 +174,6 @@ class Dolphin_Qwen2_1_5b(BaseModel):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 
-# set pad token id to zero
 class Dolphin_Yi_1_5_9b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Dolphin-Yi 1.5 - 9b']
@@ -178,7 +183,6 @@ class Dolphin_Yi_1_5_9b(BaseModel):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 
-# also uses an different common parameter
 class InternLM2_20b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Internlm2 - 20b']
@@ -253,16 +257,6 @@ class Llama2_13b(BaseModel):
         return f"<s>[INST] <<SYS>>\n{system_message}\n<</SYS>>\n\n{augmented_query}[/INST]"
 
 
-class Llama3_8B(BaseModel):
-    # Assistant: Setting `pad_token_id` to `eos_token_id`:128009 for open-end generation.
-    def __init__(self):
-        model_info = CHAT_MODELS['Llama 3 - 8b']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|start_header_id|>system\n{system_message}<|eot_id|><|start_header_id|>user\n{augmented_query}<|eot_id|><|start_header_id|>assistant\n"
-
-
 class Neural_Chat_7b(BaseModel):
     # Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
     def __init__(self):
@@ -282,6 +276,16 @@ class Orca2_7b(BaseModel):
         return f"<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant"
 
 
+class H2O_Danube3_4B(BaseModel):
+    # 'context_length': 8192,
+    def __init__(self):
+        model_info = CHAT_MODELS['H2O Danube3 4B']
+        super().__init__(model_info, bnb_bfloat16_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"<|prompt|>{augmented_query}</s><|answer|>"
+
+
 class Orca2_13b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Orca 2 - 13b']
@@ -289,15 +293,6 @@ class Orca2_13b(BaseModel):
 
     def create_prompt(self, augmented_query):
         return f"<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant"
-
-
-class Qwen1_5_0_5(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Qwen 1.5 - 0.5b']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{augmented_query}\n<|im_end|>\n\n<|im_start|>assistant\n"
 
 
 class Qwen1_5_1_8b(BaseModel):
@@ -312,33 +307,6 @@ class Qwen1_5_1_8b(BaseModel):
 class Qwen1_5_4b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Qwen 1.5 - 4B']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{augmented_query}\n<|im_end|>\n\n<|im_start|>assistant\n"
-
-
-class Qwen2_0_5b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Qwen 2 - 0.5b']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{augmented_query}\n<|im_end|>\n\n<|im_start|>assistant\n"
-
-
-class Qwen2_1_5b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Qwen 2 - 1.5B']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{augmented_query}\n<|im_end|>\n\n<|im_start|>assistant\n"
-
-
-class Qwen2_7b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Qwen 2 - 7B']
         super().__init__(model_info, bnb_bfloat16_settings)
 
     def create_prompt(self, augmented_query):
@@ -372,35 +340,6 @@ class Zephyr_3B(BaseModel):
 
     def create_prompt(self, augmented_query):
         return f"<|system|>\n{system_message}<|endoftext|>\n<|user|>\n{augmented_query}<|endoftext|>\n<|assistant|>"
-
-
-class Stablelm_2_12b(BaseModel):
-    # unexplained error the first time I tried to load, ran fine the second time.
-    def __init__(self):
-        model_info = CHAT_MODELS['Stablelm 2 - 12b']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
-
-class H2O_Danube3_4B(BaseModel):
-    # 'context_length': 8192,
-    def __init__(self):
-        model_info = CHAT_MODELS['H2O Danube3 4B']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|prompt|>{augmented_query}</s><|answer|>"
-
-
-class Yi_6B(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Yi 1.5 - 6B']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{augmented_query}\n<|im_end|>\n\n<|im_start|>assistant\n"
 
 
 @torch.inference_mode()

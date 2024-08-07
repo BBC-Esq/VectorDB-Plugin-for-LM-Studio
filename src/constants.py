@@ -215,24 +215,6 @@ VECTOR_MODELS = {
 
 
 CHAT_MODELS = {
-    'Qwen 2 - 0.5b': {
-        'model': 'Qwen 2 - 0.5b',
-        'repo_id': 'Qwen/Qwen2-0.5B-Instruct',
-        'cache_dir': 'Qwen--Qwen2-0.5B-Instruct',
-        'tokens_per_second': 66.64,
-        'context_length': 4096,
-        'avg_vram_usage': '1.9 GB',
-        'function': 'Qwen2_0_5b'
-    },
-    'Qwen 1.5 - 0.5b': {
-        'model': 'Qwen 1.5 - 0.5b',
-        'repo_id': 'Qwen/Qwen1.5-0.5B-Chat',
-        'cache_dir': 'Qwen--Qwen1.5-0.5B-Chat',
-        'tokens_per_second': 60,
-        'context_length': 32768,
-        'avg_vram_usage': '1.9 GB',
-        'function': 'Qwen1_5_0_5'
-    },
     'Dolphin-Qwen 2 - .5b': {
         'model': 'Dolphin-Qwen 2 - .5b',
         'repo_id': 'cognitivecomputations/dolphin-2.9.3-qwen2-0.5b',
@@ -269,15 +251,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '2.9 GB',
         'function': 'Zephyr_3B'
     },
-    'Qwen 2 - 1.5B': {
-        'model': 'Qwen 2 - 1.5B',
-        'repo_id': 'Qwen/Qwen2-1.5B-Instruct',
-        'cache_dir': 'Qwen--Qwen2-1.5B-Instruct',
-        'tokens_per_second': 53.62,
-        'context_length': 32768,
-        'avg_vram_usage': '3.0 GB',
-        'function': 'Qwen2_1_5b'
-    },
     'Qwen 1.5 - 1.8B': {
         'model': 'Qwen 1.5 - 1.8B',
         'repo_id': 'Qwen/Qwen1.5-1.8B-Chat',
@@ -287,16 +260,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '3.7 GB',
         'function': 'Qwen1_5_1_8b'
     },
-    # NOT WORKING
-    # 'Phi-3 Mini 4k - 3.8B': {
-        # 'model': 'Phi-3 Mini 4k - 3.8B',
-        # 'repo_id': 'microsoft/Phi-3-mini-4k-instruct',
-        # 'cache_dir': 'microsoft--Phi-3-mini-4k-instruct',
-        # 'tokens_per_second': 50,
-        # 'context_length': 4096,
-        # 'avg_vram_usage': '4.0 GB',
-        # 'function': 'Phi3_mini_4k'
-    # },
     'Dolphin-Qwen 2 - 1.5b': {
         'model': 'Dolphin-Qwen 2 - 1.5b',
         'repo_id': 'cognitivecomputations/dolphin-2.9.3-qwen2-1.5b',
@@ -305,15 +268,6 @@ CHAT_MODELS = {
         'context_length': 16384,
         'avg_vram_usage': '4.2 GB',
         'function': 'Dolphin_Qwen2_1_5b'
-    },
-    'Yi 1.5 - 6B': {
-        'model': 'Yi 1.5 - 6B',
-        'repo_id': '01-ai/Yi-1.5-6B-Chat',
-        'cache_dir': '01-ai--Yi-1.5-6B-Chat',
-        'tokens_per_second': 45.10,
-        'context_length': 4096,
-        'avg_vram_usage': '5.2 GB',
-        'function': 'Yi_6B'
     },
     'Qwen 1.5 - 4B': {
         'model': 'Qwen 1.5 - 4B',
@@ -351,7 +305,7 @@ CHAT_MODELS = {
         'avg_vram_usage': None,
         'function': 'H2O_Danube3_4B'
     },
-    # RESTRICTED
+    # GATED
     # 'Mistral 0.3 - 7b': {
         # 'model': 'Mistral 0.3 - 7b',
         # 'repo_id': 'mistralai/Mistral-7B-Instruct-v0.3',
@@ -388,33 +342,23 @@ CHAT_MODELS = {
         'avg_vram_usage': '6.8 GB',
         'function': 'InternLM2_5_7b'
     },
-    'Llama 3 - 8b': {
-        'model': 'Llama 3 - 8b',
-        'repo_id': 'meta-llama/Meta-Llama-3-8B-Instruct',
-        'cache_dir': 'meta-llama--Meta-Llama-3-8B-Instruct',
-        'tokens_per_second': 44.48,
-        'context_length': 8192,
-        'avg_vram_usage': '7.1 GB',
-        'function': 'Llama3_8B'
-    },
-    # RESTRICTED
-    # 'Llama 3.1 8B': {
-        # 'model': 'Meta Llama 3.1 8B',
-        # 'repo_id': 'meta-llama/Meta-Llama-3.1-8B-Instruct',
-        # 'cache_dir': 'meta-llama--Meta-Llama-3.1-8B-Instruct',
-        # 'tokens_per_second': None,
-        # 'context_length': 8192,
-        # 'avg_vram_usage': None,
-        # 'function': 'Llama_3_1_8B'
-    # },
     'Dolphin-Llama 3 - 8b': {
         'model': 'Dolphin-Llama 3 - 8b',
         'repo_id': 'cognitivecomputations/dolphin-2.9-llama3-8b',
         'cache_dir': 'cognitivecomputations--dolphin-2.9-llama3-8b',
-        'tokens_per_second': 41,
-        'context_length': 4096,
+        'tokens_per_second': 49.77,
+        'context_length': 8192,
         'avg_vram_usage': '7.1 GB',
         'function': 'Dolphin_Llama3_8B'
+    },
+    'Dolphin-Llama 3.1 - 8b': {
+        'model': 'Dolphin-Llama 3.1 - 8b',
+        'repo_id': 'cognitivecomputations/dolphin-2.9.4-llama3.1-8b',
+        'cache_dir': 'cognitivecomputations--dolphin-2.9.4-llama3.1-8b',
+        'tokens_per_second': 50.33,
+        'context_length': 8192,
+        'avg_vram_usage': '7.1 GB',
+        'function': 'Dolphin_Llama3_1_8B'
     },
     'Dolphin-Yi 1.5 - 9b': {
         'model': 'Dolphin-Yi 1.5 - 9b',
@@ -425,25 +369,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '7.2 GB',
         'function': 'Dolphin_Yi_1_5_9b'
     },
-    'Qwen 2 - 7B': {
-        'model': 'Qwen 2 - 7B',
-        'repo_id': 'Qwen/Qwen2-7B-Instruct',
-        'cache_dir': 'Qwen--Qwen2-7B-Instruct',
-        'tokens_per_second': 54.10,
-        'context_length': 32768,
-        'avg_vram_usage': '8.0 GB',
-        'function': 'Qwen2_7b'
-    },
-    # NOT WORKING
-    # 'Nous-Llama 2 - 13b': {
-        # 'model': 'Nous-Llama 2 - 13b',
-        # 'repo_id': 'NousResearch/Nous-Hermes-Llama2-13b',
-        # 'cache_dir': 'NousResearch--Nous-Hermes-Llama2-13b',
-        # 'tokens_per_second': 38.29,
-        # 'context_length': 4096,
-        # 'avg_vram_usage': '9.9 GB',
-        # 'function': 'Nous_Llama2_13b'
-    # },
     'Orca 2 - 13b': {
         'model': 'Orca 2 - 13b',
         'repo_id': 'microsoft/Orca-2-13b',
@@ -480,7 +405,7 @@ CHAT_MODELS = {
         'avg_vram_usage': '9.3 GB',
         'function': 'SOLAR_10_7B'
     },
-    # RESTRICTED
+    # GATED
     # 'Gemma 2 9B': {
         # 'model': 'Gemma 2 9B',
         # 'repo_id': 'google/gemma-2b-it',
@@ -507,15 +432,6 @@ CHAT_MODELS = {
         'context_length': 8192,
         'avg_vram_usage': '10.0 GB',
         'function': 'Dolphin_Mistral_Nemo'
-    },
-    'Stablelm 2 - 12b': {
-        'model': 'Stablelm 2 - 12b',
-        'repo_id': 'stabilityai/stablelm-2-12b-chat',
-        'cache_dir': 'stabilityai--stablelm-2-12b-chat',
-        'tokens_per_second': 28,
-        'context_length': 4096,
-        'avg_vram_usage': '11.3 GB',
-        'function': 'Stablelm_2_12b'
     },
     'Internlm2 - 20b': {
         'model': 'Internlm2 - 20b',
@@ -602,15 +518,6 @@ VISION_MODELS = {
         'avg_vram_usage': '9.1 GB',
         'tokens_per_second': 16.40
     },
-    # 'MiniCPM-Llama3-V-2_5-int4': {
-        # 'precision': '4-bit',
-        # 'size': '8.4b',
-        # 'repo_id': 'openbmb/MiniCPM-Llama3-V-2_5-int4',
-        # 'cache_dir': 'openbmb--MiniCPM-Llama3-V-2_5-int4',
-        # 'requires_cuda': True,
-        # 'avg_vram_usage': '9.2 GB',
-        # 'tokens_per_second': 16.40
-    # },
     'Llava 1.5 - 13b': {
         'precision': '4-bit',
         'size': '13b',
@@ -629,15 +536,6 @@ VISION_MODELS = {
         'avg_vram_usage': '12.8 GB',
         'tokens_per_second': 18.36
     },
-    # 'Cogvlm': {
-        # 'precision': '4-bit',
-        # 'size': '17.6b',
-        # 'repo_id': 'THUDM/cogvlm-chat-hf',
-        # 'cache_dir': 'THUDM--cogvlm-chat-hf',
-        # 'requires_cuda': True,
-        # 'avg_vram_usage': '12.9 GB',
-        # 'tokens_per_second': 10.36
-    # },
     'Llava 1.6 Vicuna - 13b': {
         'precision': '4-bit',
         'size': '13b',
