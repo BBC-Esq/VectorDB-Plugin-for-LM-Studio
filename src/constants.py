@@ -535,86 +535,120 @@ VISION_MODELS = {
         'size': '232m',
         'repo_id': 'microsoft/Florence-2-base',
         'cache_dir': 'microsoft--Florence-2-base',
-        'requires_cuda': False
+        'requires_cuda': False,
+        'avg_vram_usage': '2.6 GB',
+        'tokens_per_second': 163.06
+    },
+    'Moondream2 - 1.9b': {
+        'precision': 'float16',
+        'size': '2b',
+        'repo_id': 'vikhyatk/moondream2',
+        'cache_dir': 'vikhyatk--moondream2',
+        'requires_cuda': True,
+        'avg_vram_usage': '4.6 GB',
+        'tokens_per_second': 82.28
     },
     'Florence-2-large': {
         'precision': 'autoselect',
         'size': '770m',
         'repo_id': 'microsoft/Florence-2-large',
         'cache_dir': 'microsoft--Florence-2-large',
-        'requires_cuda': False
+        'requires_cuda': False,
+        'avg_vram_usage': '5.3 GB',
+        'tokens_per_second': 113.32
     },
-    'Moondream2': {
-        'precision': 'float16',
-        'size': '2b',
-        'repo_id': 'vikhyatk/moondream2',
-        'cache_dir': 'vikhyatk--moondream2',
-        'requires_cuda': True
-    },
-    'Phi-3-vision': {
+    'Phi-3-vision - 4.2b': {
         'precision': '4-bit',
         'size': '4.2b',
         'repo_id': 'microsoft/Phi-3-vision-128k-instruct',
         'cache_dir': 'microsoft--Phi-3-vision-128k-instruct',
-        'requires_cuda': True
+        'requires_cuda': True,
+        'avg_vram_usage': '5.4 GB',
+        'tokens_per_second': 30.72
     },
     'Llava 1.5 - 7b': {
         'precision': '4-bit',
         'size': '7b',
         'repo_id': 'llava-hf/llava-1.5-7b-hf',
         'cache_dir': 'llava-hf--llava-1.5-7b-hf',
-        'requires_cuda': True
+        'requires_cuda': True,
+        'avg_vram_usage': '5.8 GB',
+        'tokens_per_second': 48.30
     },
     'Bakllava 1.5 - 7b': {
         'precision': '4-bit',
         'size': '7b',
         'repo_id': 'llava-hf/bakLlava-v1-hf',
         'cache_dir': 'llava-hf--bakLlava-v1-hf',
-        'requires_cuda': True
+        'requires_cuda': True,
+        'avg_vram_usage': '5.9 GB',
+        'tokens_per_second': 48.30
     },
     'Llava 1.6 Vicuna - 7b': {
         'precision': '4-bit',
         'size': '7b',
         'repo_id': 'llava-hf/llava-v1.6-vicuna-7b-hf',
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-7b-hf',
-        'requires_cuda': True
+        'requires_cuda': True,
+        'avg_vram_usage': '7.9 GB',
+        'tokens_per_second': 56.33
     },
+    'MiniCPM-V-2_6 - 8b': {
+        'precision': '4-bit',
+        'size': '8b',
+        'repo_id': 'openbmb/MiniCPM-V-2_6-int4',
+        'cache_dir': 'openbmb--MiniCPM-V-2_6-int4',
+        'requires_cuda': True,
+        'avg_vram_usage': '9.1 GB',
+        'tokens_per_second': 16.40
+    },
+    # 'MiniCPM-Llama3-V-2_5-int4': {
+        # 'precision': '4-bit',
+        # 'size': '8.4b',
+        # 'repo_id': 'openbmb/MiniCPM-Llama3-V-2_5-int4',
+        # 'cache_dir': 'openbmb--MiniCPM-Llama3-V-2_5-int4',
+        # 'requires_cuda': True,
+        # 'avg_vram_usage': '9.2 GB',
+        # 'tokens_per_second': 16.40
+    # },
     'Llava 1.5 - 13b': {
         'precision': '4-bit',
         'size': '13b',
         'repo_id': 'llava-hf/llava-1.5-13b-hf',
         'cache_dir': 'llava-hf--llava-1.5-13b-hf',
-        'requires_cuda': True
-    },
-    'MiniCPM-Llama3-V-2_5-int4': {
-        'precision': '4-bit',
-        'size': '8.4b',
-        'repo_id': 'openbmb/MiniCPM-Llama3-V-2_5-int4',
-        'cache_dir': 'openbmb--MiniCPM-Llama3-V-2_5-int4',
-        'requires_cuda': True
-    },
-    'Cogvlm': {
-        'precision': '4-bit',
-        'size': '17.6b',
-        'repo_id': 'THUDM/cogvlm-chat-hf',
-        'cache_dir': 'THUDM--cogvlm-chat-hf',
-        'requires_cuda': True
+        'requires_cuda': True,
+        'avg_vram_usage': '9.8 GB',
+        'tokens_per_second': 38.03
     },
     'falcon-vlm - 11b': {
         'precision': '4-bit',
         'size': '13b',
         'repo_id': 'tiiuae/falcon-11B-vlm',
         'cache_dir': 'tiiuae--falcon-11B-vlm',
-        'requires_cuda': True
+        'requires_cuda': True,
+        'avg_vram_usage': '12.8 GB',
+        'tokens_per_second': 18.36
     },
+    # 'Cogvlm': {
+        # 'precision': '4-bit',
+        # 'size': '17.6b',
+        # 'repo_id': 'THUDM/cogvlm-chat-hf',
+        # 'cache_dir': 'THUDM--cogvlm-chat-hf',
+        # 'requires_cuda': True,
+        # 'avg_vram_usage': '12.9 GB',
+        # 'tokens_per_second': 10.36
+    # },
     'Llava 1.6 Vicuna - 13b': {
         'precision': '4-bit',
         'size': '13b',
         'repo_id': 'llava-hf/llava-v1.6-vicuna-13b-hf',
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-13b-hf',
-        'requires_cuda': True
-    },
+        'requires_cuda': True,
+        'avg_vram_usage': '14.1 GB',
+        'tokens_per_second': 41.43
+    }
 }
+
 
 
 WHISPER_MODELS = {
