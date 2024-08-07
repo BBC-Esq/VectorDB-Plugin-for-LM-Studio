@@ -124,7 +124,7 @@ class DatabasesTab(QWidget):
 
     def populate_model_combobox(self):
         self.model_combobox.clear()
-        self.model_combobox.addItem("Select a model", None)  # Add a blank item
+        self.model_combobox.addItem("Select a model", None)
 
         script_dir = Path(__file__).resolve().parent
         vector_dir = script_dir / "Models" / "vector"
@@ -159,10 +159,8 @@ class DatabasesTab(QWidget):
                     print(f"Warning: Model {current_model} from config not found in combo box")
                     self.model_combobox.setCurrentIndex(0)
             else:
-                print("No model specified in config, defaulting to 'Select a model'")
                 self.model_combobox.setCurrentIndex(0)
         else:
-            print("Config file not found, defaulting to 'Select a model'")
             self.model_combobox.setCurrentIndex(0)
 
     def on_model_selected(self, index):
@@ -257,7 +255,6 @@ class DatabasesTab(QWidget):
             QMessageBox.warning(self, "No Model Selected", "Please select a model before creating a database.")
             return
 
-        # disable widgets
         self.create_db_button.setDisabled(True)
         self.choose_docs_button.setDisabled(True)
         self.model_combobox.setDisabled(True)
@@ -266,10 +263,8 @@ class DatabasesTab(QWidget):
         database_name = self.database_name_input.text().strip()
         script_dir = Path(__file__).resolve().parent
         
-        # check conditions
         checks_passed, message = check_preconditions_for_db_creation(script_dir, database_name)
         
-        # re-enable widgets if any condition fails
         if not checks_passed:
             self.create_db_button.setDisabled(False)
             self.choose_docs_button.setDisabled(False)
@@ -280,7 +275,6 @@ class DatabasesTab(QWidget):
 
         print(f"Database will be named: '{database_name}'")
         
-        # start create database thread
         self.create_database_thread = CreateDatabaseThread(database_name=database_name, parent=self)
         self.create_database_thread.creationComplete.connect(self.reenable_create_db_button)
         self.create_database_thread.start()

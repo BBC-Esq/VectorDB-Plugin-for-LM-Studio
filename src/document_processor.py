@@ -26,7 +26,6 @@ from langchain_community.document_loaders import (
 )
 
 from constants import DOCUMENT_LOADERS
-from module_process_images import loader_cogvlm, loader_llava
 from extract_metadata import extract_document_metadata
 from utilities import my_cprint
 import traceback

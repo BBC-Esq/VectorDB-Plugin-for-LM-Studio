@@ -10,11 +10,7 @@ from PySide6.QtCore import QObject, Signal
 
 import module_chat
 from database_interactions import QueryVectorDB
-from utilities import my_cprint
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    filename='local_model_chat.log')
 
 class LocalModelSignals(QObject):
     response_signal = Signal(str)  # 7. signal for sending response
