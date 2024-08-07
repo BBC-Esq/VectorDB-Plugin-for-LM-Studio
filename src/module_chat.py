@@ -68,11 +68,10 @@ class BaseModel(ABC):
         generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
         generation_thread.start()
 
-        # print(end="", flush=True)
         for partial_response in streamer:
-            # print(partial_response, end="", flush=True)
+            if partial_response.startswith("begin_of_answer|>"):
+                partial_response = partial_response[len("begin_of_answer|>"):].lstrip()
             yield partial_response
-            # print("New chunk yielded")
 
         generation_thread.join()
 
