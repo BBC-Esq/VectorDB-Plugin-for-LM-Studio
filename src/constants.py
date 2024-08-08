@@ -7,26 +7,26 @@ SPEAK_RESPONSE_TOOLTIP = "Only click this after the LLM's entire response is rec
 DOWNLOAD_EMBEDDING_MODEL_TOOLTIP = "Remember, wait until downloading is complete!"
 
 VECTOR_MODELS = {
-    # 'Alibaba-NLP': [
-        # {
-            # 'name': 'gte-base-en-v1.5',
-            # 'dimensions': 768,
-            # 'max_sequence': 8192,
-            # 'size_mb': 547,
-            # 'repo_id': 'Alibaba-NLP/gte-base-en-v1.5',
-            # 'cache_dir': 'Alibaba-NLP--gte-base-en-v1.5',
-            # 'type': 'vector'
-        # },
-        # {
-            # 'name': 'gte-large-en-v1.5',
-            # 'dimensions': 1024,
-            # 'max_sequence': 8192,
-            # 'size_mb': 1740,
-            # 'repo_id': 'Alibaba-NLP/gte-large-en-v1.5',
-            # 'cache_dir': 'Alibaba-NLP--gte-large-en-v1.5',
-            # 'type': 'vector'
-        # },
-    # ],
+    'Alibaba-NLP': [
+        {
+            'name': 'gte-base-en-v1.5',
+            'dimensions': 768,
+            'max_sequence': 8192,
+            'size_mb': 547,
+            'repo_id': 'Alibaba-NLP/gte-base-en-v1.5',
+            'cache_dir': 'Alibaba-NLP--gte-base-en-v1.5',
+            'type': 'vector'
+        },
+        {
+            'name': 'gte-large-en-v1.5',
+            'dimensions': 1024,
+            'max_sequence': 8192,
+            'size_mb': 1740,
+            'repo_id': 'Alibaba-NLP/gte-large-en-v1.5',
+            'cache_dir': 'Alibaba-NLP--gte-large-en-v1.5',
+            'type': 'vector'
+        },
+    ],
     'BAAI': [
         {
             'name': 'bge-small-en-v1.5',
@@ -215,15 +215,15 @@ VECTOR_MODELS = {
 
 
 CHAT_MODELS = {
-    'Dolphin-Qwen 2 - .5b': {
-        'model': 'Dolphin-Qwen 2 - .5b',
-        'repo_id': 'cognitivecomputations/dolphin-2.9.3-qwen2-0.5b',
-        'cache_dir': 'cognitivecomputations--dolphin-2.9.3-qwen2-0.5b',
-        'tokens_per_second': 67.66,
-        'context_length': 16384,
-        'avg_vram_usage': '2.4 GB',
-        'function': 'Dolphin_Qwen2_0_5b'
-    },
+    # 'Dolphin-Qwen 2 - .5b': {
+        # 'model': 'Dolphin-Qwen 2 - .5b',
+        # 'repo_id': 'cognitivecomputations/dolphin-2.9.3-qwen2-0.5b',
+        # 'cache_dir': 'cognitivecomputations--dolphin-2.9.3-qwen2-0.5b',
+        # 'tokens_per_second': 67.66,
+        # 'context_length': 16384,
+        # 'avg_vram_usage': '2.4 GB',
+        # 'function': 'Dolphin_Qwen2_0_5b'
+    # },
     'Zephyr - 1.6b': {
         'model': 'Zephyr - 1.6b',
         'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
@@ -233,15 +233,15 @@ CHAT_MODELS = {
         'avg_vram_usage': '2.5 GB',
         'function': 'Zephyr_1_6B'
     },
-    'Internlm2 - 1.8b': {
-        'model': 'Internlm2 - 1.8b',
-        'repo_id': 'internlm/internlm2-chat-1_8b',
-        'cache_dir': 'internlm--internlm2-chat-1_8b',
-        'tokens_per_second': 55.51,
-        'context_length': 32768,
-        'avg_vram_usage': '2.8 GB',
-        'function': 'InternLM2_1_8b'
-    },
+    # 'Internlm2 - 1.8b': {
+        # 'model': 'Internlm2 - 1.8b',
+        # 'repo_id': 'internlm/internlm2-chat-1_8b',
+        # 'cache_dir': 'internlm--internlm2-chat-1_8b',
+        # 'tokens_per_second': 55.51,
+        # 'context_length': 32768,
+        # 'avg_vram_usage': '2.8 GB',
+        # 'function': 'InternLM2_1_8b'
+    # },
     'Zephyr - 3b': {
         'model': 'Zephyr - 3b',
         'repo_id': 'stabilityai/stablelm-zephyr-3b',

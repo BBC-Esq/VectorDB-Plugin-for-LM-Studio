@@ -150,18 +150,6 @@ class Dolphin_Qwen2_7b(BaseModel):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 
-class Dolphin_Qwen2_0_5b(BaseModel):
-    """
-    Assistant: Setting `pad_token_id` to `eos_token_id`:151645 for open-end generation.
-    """
-    def __init__(self):
-        model_info = CHAT_MODELS['Dolphin-Qwen 2 - .5b']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
-
 class Dolphin_Qwen2_1_5b(BaseModel):
     """
     Assistant: Setting `pad_token_id` to `eos_token_id`:151645 for open-end generation.
@@ -224,20 +212,6 @@ class InternLM2_5_7b(BaseModel):
     def create_prompt(self, augmented_query):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
-
-class InternLM2_1_8b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Internlm2 - 1.8b']
-        tokenizer_kwargs = {'trust_remote_code': True}
-        model_kwargs = {'trust_remote_code': True}
-        super().__init__(model_info, bnb_bfloat16_settings, 
-                         tokenizer_kwargs=tokenizer_kwargs, 
-                         model_kwargs=model_kwargs,
-                         eos_token="<|im_end|>")
-
-    def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-        
 
 class Llama2_7b(BaseModel):
     def __init__(self):
