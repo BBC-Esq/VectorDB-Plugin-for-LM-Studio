@@ -40,6 +40,19 @@ class GuiSignals(QObject):
     finished_signal = Signal()
 
 class CustomTextBrowser(QTextBrowser):
+    '''
+    Inherits from QTextBrowser but overrides the doSetSource method to ensure that "http," "https," and "file" schemes are opened
+    with the system's default program while other types are still opened within pyside6 as set forth in the QTextBrowser widget.
+    
+    This allows for additional handling and/or make the opening internal or external based on the type of link.
+    
+    Examples:
+    
+    1. Handle mailto links within the application to provide a custom email interface
+    2. Blocking or handling all other schemes internally
+    3. Log every http and https link click to a file or database before opening it in the default browser.
+    4. Display a warning message or confirmation dialog for ftp links before proceeding
+    '''
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setOpenExternalLinks(False)
