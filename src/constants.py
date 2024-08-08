@@ -215,15 +215,6 @@ VECTOR_MODELS = {
 
 
 CHAT_MODELS = {
-    # 'Dolphin-Qwen 2 - .5b': {
-        # 'model': 'Dolphin-Qwen 2 - .5b',
-        # 'repo_id': 'cognitivecomputations/dolphin-2.9.3-qwen2-0.5b',
-        # 'cache_dir': 'cognitivecomputations--dolphin-2.9.3-qwen2-0.5b',
-        # 'tokens_per_second': 67.66,
-        # 'context_length': 16384,
-        # 'avg_vram_usage': '2.4 GB',
-        # 'function': 'Dolphin_Qwen2_0_5b'
-    # },
     'Zephyr - 1.6b': {
         'model': 'Zephyr - 1.6b',
         'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
@@ -233,15 +224,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '2.5 GB',
         'function': 'Zephyr_1_6B'
     },
-    # 'Internlm2 - 1.8b': {
-        # 'model': 'Internlm2 - 1.8b',
-        # 'repo_id': 'internlm/internlm2-chat-1_8b',
-        # 'cache_dir': 'internlm--internlm2-chat-1_8b',
-        # 'tokens_per_second': 55.51,
-        # 'context_length': 32768,
-        # 'avg_vram_usage': '2.8 GB',
-        # 'function': 'InternLM2_1_8b'
-    # },
     'Zephyr - 3b': {
         'model': 'Zephyr - 3b',
         'repo_id': 'stabilityai/stablelm-zephyr-3b',
@@ -269,24 +251,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '4.2 GB',
         'function': 'Dolphin_Qwen2_1_5b'
     },
-    'Qwen 1.5 - 4B': {
-        'model': 'Qwen 1.5 - 4B',
-        'repo_id': 'Qwen/Qwen1.5-4B-Chat',
-        'cache_dir': 'Qwen--Qwen1.5-4B-Chat',
-        'tokens_per_second': 41.57,
-        'context_length': 4096,
-        'avg_vram_usage': '5.4 GB',
-        'function': 'Qwen1_5_4b'
-    },
-    'Llama 2 - 7b': {
-        'model': 'Llama 2 - 7b',
-        'repo_id': 'meta-llama/Llama-2-7b-chat-hf',
-        'cache_dir': 'meta-llama--Llama-2-7b-chat-hf',
-        'tokens_per_second': 45,
-        'context_length': 4096,
-        'avg_vram_usage': '5.8 GB',
-        'function': 'Llama2_7b'
-    },
     'Orca 2 - 7b': {
         'model': 'Orca 2 - 7b',
         'repo_id': 'microsoft/Orca-2-7b',
@@ -295,15 +259,6 @@ CHAT_MODELS = {
         'context_length': 4096,
         'avg_vram_usage': '5.9 GB',
         'function': 'Orca2_7b'
-    },
-    'H2O Danube3 4B': {
-        'model': 'H2O Danube3 4B',
-        'repo_id': 'h2oai/h2o-danube3-4b-chat',
-        'cache_dir': 'h2oai--h2o-danube3-4b-chat',
-        'tokens_per_second': None,
-        'context_length': 8192,
-        'avg_vram_usage': None,
-        'function': 'H2O_Danube3_4B'
     },
     # GATED
     # 'Mistral 0.3 - 7b': {

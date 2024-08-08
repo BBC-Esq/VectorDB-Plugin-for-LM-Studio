@@ -68,10 +68,12 @@ class BaseModel(ABC):
         generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
         generation_thread.start()
 
-        # only necessary for dolpohin-mistral-nemo for some reason
+        # only necessary for dolphin-mistral-nemo for some reason
         for partial_response in streamer:
             if partial_response.startswith("begin_of_answer|>"):
                 partial_response = partial_response[len("begin_of_answer|>"):].lstrip()
+            elif partial_response.startswith("beginning_of_answer|>"):
+                partial_response = partial_response[len("beginning_of_answer|>"):].lstrip()
             yield partial_response
 
         generation_thread.join()
@@ -213,15 +215,6 @@ class InternLM2_5_7b(BaseModel):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 
-class Llama2_7b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Llama 2 - 7b']
-        super().__init__(model_info, bnb_float16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<s>[INST] <<SYS>>\n{system_message}\n<</SYS>>\n\n{augmented_query}[/INST]"
-
-
 class Llama2_13b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Llama 2 - 13b']
@@ -250,16 +243,6 @@ class Orca2_7b(BaseModel):
         return f"<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant"
 
 
-class H2O_Danube3_4B(BaseModel):
-    # 'context_length': 8192,
-    def __init__(self):
-        model_info = CHAT_MODELS['H2O Danube3 4B']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|prompt|>{augmented_query}</s><|answer|>"
-
-
 class Orca2_13b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Orca 2 - 13b']
@@ -272,15 +255,6 @@ class Orca2_13b(BaseModel):
 class Qwen1_5_1_8b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Qwen 1.5 - 1.8B']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{augmented_query}\n<|im_end|>\n\n<|im_start|>assistant\n"
-
-
-class Qwen1_5_4b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Qwen 1.5 - 4B']
         super().__init__(model_info, bnb_bfloat16_settings)
 
     def create_prompt(self, augmented_query):
