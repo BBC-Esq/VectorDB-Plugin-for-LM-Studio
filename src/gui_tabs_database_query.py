@@ -8,7 +8,7 @@ import torch
 import yaml
 from PySide6.QtCore import QThread, Signal, QObject, Qt
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QTextEdit, QPushButton, QCheckBox, QHBoxLayout, QMessageBox,
-                               QApplication, QComboBox, QLabel)
+                               QApplication, QComboBox, QLabel, QTextBrowser)
 
 from chat_lm_studio import LMStudioChatThread
 from chat_local_model import LocalModelChat
@@ -53,8 +53,7 @@ class DatabaseQueryTab(QWidget):
     def initWidgets(self):
         layout = QVBoxLayout(self)
 
-        self.read_only_text = QTextEdit()
-        self.read_only_text.setReadOnly(True)
+        self.read_only_text = QTextBrowser()
         layout.addWidget(self.read_only_text, 5)
 
         hbox1_layout = QHBoxLayout()
