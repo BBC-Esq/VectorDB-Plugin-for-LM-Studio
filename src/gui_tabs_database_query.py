@@ -39,6 +39,17 @@ class GuiSignals(QObject):
     error_signal = Signal(str)
     finished_signal = Signal()
 
+class CustomTextBrowser(QTextBrowser):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setOpenExternalLinks(False)
+
+    def doSetSource(self, name, type):
+        if name.scheme() in ['http', 'https', 'file']:
+            QDesktopServices.openUrl(name)
+        else:
+            super().doSetSource(name, type)
+
 class DatabaseQueryTab(QWidget):
     def __init__(self):
         super(DatabaseQueryTab, self).__init__()
@@ -53,7 +64,7 @@ class DatabaseQueryTab(QWidget):
     def initWidgets(self):
         layout = QVBoxLayout(self)
 
-        self.read_only_text = QTextBrowser()
+        self.read_only_text = CustomTextBrowser()
         layout.addWidget(self.read_only_text, 5)
 
         hbox1_layout = QHBoxLayout()
