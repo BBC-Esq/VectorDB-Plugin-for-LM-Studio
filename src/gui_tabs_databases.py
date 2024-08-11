@@ -14,15 +14,16 @@ from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, Q
 
 import database_interactions
 from choose_documents_and_vector_model import select_embedding_model_directory, choose_documents_directory
-from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database
+from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database, get_pkl_file_path
+from download_model import model_downloaded_signal
 
-datasets_logger = logging.getLogger('datasets')
-datasets_logger.setLevel(logging.WARNING)
+# datasets_logger = logging.getLogger('datasets')
+# datasets_logger.setLevel(logging.WARNING)
 
-logging.getLogger("transformers").setLevel(logging.ERROR)
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
-logging.getLogger().setLevel(logging.WARNING)
+# logging.getLogger("transformers").setLevel(logging.ERROR)
+# warnings.filterwarnings("ignore", category=FutureWarning)
+# warnings.filterwarnings("ignore", category=UserWarning)
+# logging.getLogger().setLevel(logging.WARNING)
 
 class CreateDatabaseThread(QThread):
     creationComplete = Signal()
@@ -33,7 +34,7 @@ class CreateDatabaseThread(QThread):
 
     def run(self):
         create_vector_db = database_interactions.CreateVectorDB(database_name=self.database_name)
-        create_vector_db.run() # initiates database creation
+        create_vector_db.run() # INITIATES DB CREATION
         self.update_config_with_database_name()
         backup_database()
         
@@ -69,6 +70,7 @@ class CustomFileSystemModel(QFileSystemModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and index.column() == 0:
             file_path = super().filePath(index)
+            # opens the .pkl file and gets the file name from metadata
             if file_path.endswith('.pkl'):
                 try:
                     with open(file_path, 'rb') as file:
@@ -82,6 +84,7 @@ class CustomFileSystemModel(QFileSystemModel):
 class DatabasesTab(QWidget):
     def __init__(self):
         super().__init__()
+        model_downloaded_signal.downloaded.connect(self.update_model_combobox)
 
         self.layout = QVBoxLayout(self)
         self.documents_group_box = self.create_group_box("Files To Add to Database", "Docs_for_DB")
@@ -122,7 +125,13 @@ class DatabasesTab(QWidget):
 
         self.sync_combobox_with_config()
 
+    def update_model_combobox(self, model_name, model_type):
+        if model_type == "vector":
+            self.populate_model_combobox()
+            self.sync_combobox_with_config()
+
     def populate_model_combobox(self):
+        # 1. populates comobobox when script loads
         self.model_combobox.clear()
         self.model_combobox.addItem("Select a model", None)
 
@@ -145,6 +154,7 @@ class DatabasesTab(QWidget):
             print(f"Warning: No model directories found in {vector_dir}")
 
     def sync_combobox_with_config(self):
+        # 2. after the script loads, sets the model chosen to what is in the config
         config_path = Path(__file__).resolve().parent / "config.yaml"
         if config_path.exists():
             with open(config_path, 'r', encoding='utf-8') as file:
@@ -164,6 +174,7 @@ class DatabasesTab(QWidget):
             self.model_combobox.setCurrentIndex(0)
 
     def on_model_selected(self, index):
+        # 3. updates the config when a user selects a different model
         selected_path = self.model_combobox.itemData(index)
         config_path = Path(__file__).resolve().parent / "config.yaml"
         config_data = {}
@@ -221,15 +232,13 @@ class DatabasesTab(QWidget):
         
         if file_path.endswith('.pkl'):
             try:
-                with open(file_path, 'rb') as file:
-                    document = pickle.load(file)
-                internal_file_path = document.metadata.get('file_path')
-                if internal_file_path and Path(internal_file_path).exists():
+                internal_file_path = get_pkl_file_path(file_path)
+                if internal_file_path:
                     open_file(internal_file_path)
                 else:
-                    QMessageBox.warning(self, "File Not Found", f"The file {internal_file_path} does not exist.")
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Could not open the pickle file: {e}")
+                    QMessageBox.warning(self, "File Not Found", f"The file from {file_path} does not exist.")
+            except ValueError as e:
+                QMessageBox.critical(self, "Error", str(e))
         else:
             open_file(file_path)
 

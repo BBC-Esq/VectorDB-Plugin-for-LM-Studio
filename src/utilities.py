@@ -8,6 +8,7 @@ import platform
 import shutil
 import sys
 from pathlib import Path
+import pickle
 
 import torch
 import yaml
@@ -58,6 +59,42 @@ generate_settings_4096 = {
     'top_p': None,
 }
 
+generate_settings_8192 = {
+    'max_length': 8192,
+    'max_new_tokens': None,
+    'do_sample': False,
+    'num_beams': 1,
+    'use_cache': True,
+    'temperature': None,
+    'top_p': None,
+}
+
+def get_pkl_file_path(pkl_file_path):
+    # used in gui_tabs_databases.py when opening a file
+    try:
+        with open(pkl_file_path, 'rb') as file:
+            document = pickle.load(file)
+        internal_file_path = document.metadata.get('file_path')
+        if internal_file_path and Path(internal_file_path).exists():
+            return internal_file_path
+        else:
+            return None
+    except Exception as e:
+        raise ValueError(f"Could not process pickle file: {e}")
+
+def format_citations(metadata_list):
+    """
+    Format metadata into a list of unique citations.
+    
+    Args:
+    metadata_list (list): List of metadata dictionaries.
+    
+    Returns:
+    str: A string of unique citations, each on a new line.
+    """
+    citations = [Path(metadata['file_path']).name for metadata in metadata_list]
+    unique_citations = set(citations)
+    return "\n".join(sorted(unique_citations))
 
 def get_physical_core_count():
     return psutil.cpu_count(logical=False)
@@ -140,6 +177,7 @@ def backup_database():
 
 
 def open_file(file_path):
+    # open a file with the system's default program with a specified path
     try:
         if platform.system() == "Windows":
             os.startfile(file_path)
@@ -159,12 +197,12 @@ def delete_file(file_path):
 
 
 def check_preconditions_for_db_creation(script_dir, database_name):
-    # is name valid
+    # is db name valid
     if not database_name or len(database_name) < 3 or database_name.lower() in ["null", "none"]:
         QMessageBox.warning(None, "Invalid Name", "Name must be at least 3 characters long and not be 'null' or 'none.'")
         return False, "Invalid database name."
 
-    # is the database name already used
+    # is the db name already used
     database_folder_path = script_dir / "Docs_for_DB" / database_name
     if database_folder_path.exists():
         QMessageBox.warning(None, "Database Exists", "A database with this name already exists. Please choose a different database name.")
@@ -207,7 +245,7 @@ def check_preconditions_for_db_creation(script_dir, database_name):
         if reply == QMessageBox.Cancel:
             return False, "User cancelled operation based on device check."
 
-    # ask for final confirmation
+    # final confirmation
     confirmation_reply = QMessageBox.question(None, 'Confirmation', 
                                              "Creating a vector database can take a significant amount of time and cannot be cancelled. Click OK to proceed.",
                                              QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Cancel)

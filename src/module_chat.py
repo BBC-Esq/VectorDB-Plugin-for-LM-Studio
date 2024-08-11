@@ -10,8 +10,8 @@ from abc import ABC, abstractmethod
 from constants import CHAT_MODELS, system_message
 from utilities import my_cprint, bnb_bfloat16_settings, bnb_float16_settings, generate_settings_4096
 
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
+# warnings.filterwarnings("ignore", category=FutureWarning)
+# warnings.filterwarnings("ignore", category=UserWarning)
 
 class BaseModel(ABC):
     def __init__(self, model_info, settings, tokenizer_kwargs=None, model_kwargs=None, eos_token=None):
@@ -54,7 +54,7 @@ class BaseModel(ABC):
             inputs (dict): A dictionary of inputs prepared for the model.
 
         Returns:
-            str: The full generated response as a string.
+            str: Chunks of generated response as a string.
         """
         streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
         
@@ -96,6 +96,19 @@ def cleanup_resources(model, tokenizer):
     torch.cuda.empty_cache()
     gc.collect()
 
+
+class InternLM2_5_1_8b(BaseModel):
+    def __init__(self):
+        model_info = CHAT_MODELS['Internlm2_5 - 1.8b']
+        tokenizer_kwargs = {'trust_remote_code': True}
+        model_kwargs = {'trust_remote_code': True}
+        super().__init__(model_info, bnb_bfloat16_settings, 
+                         tokenizer_kwargs=tokenizer_kwargs, 
+                         model_kwargs=model_kwargs,
+                         eos_token="<|im_end|>")
+
+    def create_prompt(self, augmented_query):
+        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 class Dolphin_Llama3_8B(BaseModel):
     def __init__(self):
@@ -143,7 +156,6 @@ class Dolphin_Phi3_Medium(BaseModel):
 
 
 class Dolphin_Qwen2_7b(BaseModel):
-    # Setting `pad_token_id` to `eos_token_id`:151645 for open-end generation.
     def __init__(self):
         model_info = CHAT_MODELS['Dolphin-Qwen 2 - 7b']
         super().__init__(model_info, bnb_bfloat16_settings)
@@ -153,9 +165,6 @@ class Dolphin_Qwen2_7b(BaseModel):
 
 
 class Dolphin_Qwen2_1_5b(BaseModel):
-    """
-    Assistant: Setting `pad_token_id` to `eos_token_id`:151645 for open-end generation.
-    """
     def __init__(self):
         model_info = CHAT_MODELS['Dolphin-Qwen 2 - 1.5b']
         super().__init__(model_info, bnb_bfloat16_settings)
@@ -173,23 +182,9 @@ class Dolphin_Yi_1_5_9b(BaseModel):
         return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
 
 
-class InternLM2_20b(BaseModel):
+class InternLM2_5_20b(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Internlm2 - 20b']
-        tokenizer_kwargs = {'trust_remote_code': True}
-        model_kwargs = {'trust_remote_code': True}
-        super().__init__(model_info, bnb_bfloat16_settings, 
-                         tokenizer_kwargs=tokenizer_kwargs, 
-                         model_kwargs=model_kwargs,
-                         eos_token="<|im_end|>")
-
-    def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
-
-class InternLM2_7b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Internlm2 - 7b']
         tokenizer_kwargs = {'trust_remote_code': True}
         model_kwargs = {'trust_remote_code': True}
         super().__init__(model_info, bnb_bfloat16_settings, 
@@ -225,7 +220,6 @@ class Llama2_13b(BaseModel):
 
 
 class Neural_Chat_7b(BaseModel):
-    # Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
     def __init__(self):
         model_info = CHAT_MODELS['Neural-Chat - 7b']
         super().__init__(model_info, bnb_float16_settings)
@@ -271,7 +265,6 @@ class SOLAR_10_7B(BaseModel):
 
 
 class Zephyr_1_6B(BaseModel):
-    # Setting `pad_token_id` to `eos_token_id`:100257 for open-end generation.
     def __init__(self):
         model_info = CHAT_MODELS['Zephyr - 1.6b']
         super().__init__(model_info, bnb_float16_settings)
@@ -281,7 +274,6 @@ class Zephyr_1_6B(BaseModel):
 
 
 class Zephyr_3B(BaseModel):
-    # Setting `pad_token_id` to `eos_token_id`:0 for open-end generation.
     def __init__(self):
         model_info = CHAT_MODELS['Zephyr - 3b']
         super().__init__(model_info, bnb_bfloat16_settings)

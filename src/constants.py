@@ -7,26 +7,6 @@ SPEAK_RESPONSE_TOOLTIP = "Only click this after the LLM's entire response is rec
 DOWNLOAD_EMBEDDING_MODEL_TOOLTIP = "Remember, wait until downloading is complete!"
 
 VECTOR_MODELS = {
-    'Alibaba-NLP': [
-        {
-            'name': 'gte-base-en-v1.5',
-            'dimensions': 768,
-            'max_sequence': 8192,
-            'size_mb': 547,
-            'repo_id': 'Alibaba-NLP/gte-base-en-v1.5',
-            'cache_dir': 'Alibaba-NLP--gte-base-en-v1.5',
-            'type': 'vector'
-        },
-        {
-            'name': 'gte-large-en-v1.5',
-            'dimensions': 1024,
-            'max_sequence': 8192,
-            'size_mb': 1740,
-            'repo_id': 'Alibaba-NLP/gte-large-en-v1.5',
-            'cache_dir': 'Alibaba-NLP--gte-large-en-v1.5',
-            'type': 'vector'
-        },
-    ],
     'BAAI': [
         {
             'name': 'bge-small-en-v1.5',
@@ -131,15 +111,26 @@ VECTOR_MODELS = {
             'cache_dir': 'sentence-transformers--sentence-t5-xl',
             'type': 'vector'
         },
-        # {
-            # 'name': 'sentence-t5-xxl',
-            # 'dimensions': 768,
-            # 'max_sequence': 256,
-            # 'size_mb': 9230,
-            # 'repo_id': 'sentence-transformers/sentence-t5-xxl',
-            # 'cache_dir': 'sentence-transformers--sentence-t5-xxl',
-            # 'type': 'vector'
-        # },
+    ],
+    'Alibaba-NLP': [
+        {
+            'name': 'Alibaba-gte-base',
+            'dimensions': 768,
+            'max_sequence': 8192,
+            'size_mb': 547,
+            'repo_id': 'Alibaba-NLP/gte-base-en-v1.5',
+            'cache_dir': 'Alibaba-NLP--gte-base-en-v1.5',
+            'type': 'vector'
+        },
+        {
+            'name': 'Alibaba-gte-large',
+            'dimensions': 1024,
+            'max_sequence': 8192,
+            'size_mb': 1740,
+            'repo_id': 'Alibaba-NLP/gte-large-en-v1.5',
+            'cache_dir': 'Alibaba-NLP--gte-large-en-v1.5',
+            'type': 'vector'
+        },
     ],
     'thenlper': [
         {
@@ -199,18 +190,6 @@ VECTOR_MODELS = {
             'type': 'vector'
         },
     ],
-    'dunzhang': [
-        {
-            'name': 'stella_en_1.5B_v5',
-            'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 547,
-            'repo_id': 'dunzhang/stella_en_1.5B_v5',
-            'cache_dir': 'dunzhang--stella_en_1.5B_v5',
-            'type': 'vector'
-        },
-    ],
-
 }
 
 
@@ -223,6 +202,15 @@ CHAT_MODELS = {
         'context_length': 4096,
         'avg_vram_usage': '2.5 GB',
         'function': 'Zephyr_1_6B'
+    },
+    'Internlm2_5 - 1.8b': {
+        'model': 'Internlm2_5 - 1.8b',
+        'repo_id': 'internlm/internlm2_5-1_8b-chat',
+        'cache_dir': 'internlm--internlm2_5-1_8b-chat',
+        'tokens_per_second': 55.51,
+        'context_length': 32768,
+        'avg_vram_usage': '2.8 GB',
+        'function': 'InternLM2_5_1_8b'
     },
     'Zephyr - 3b': {
         'model': 'Zephyr - 3b',
@@ -278,15 +266,6 @@ CHAT_MODELS = {
         'context_length': 4096,
         'avg_vram_usage': '5.8 GB',
         'function': 'Neural_Chat_7b'
-    },
-    'Internlm2 - 7b': {
-        'model': 'Internlm2 - 7b',
-        'repo_id': 'internlm/internlm2-chat-7b',
-        'cache_dir': 'internlm--internlm2-chat-7b',
-        'tokens_per_second': 36.83,
-        'context_length': 32768,
-        'avg_vram_usage': '6.7 GB',
-        'function': 'InternLM2_7b'
     },
     'Internlm2_5 - 7b': {
         'model': 'Internlm2_5 - 7b',
@@ -390,12 +369,12 @@ CHAT_MODELS = {
     },
     'Internlm2 - 20b': {
         'model': 'Internlm2 - 20b',
-        'repo_id': 'internlm/internlm2-chat-20b',
-        'cache_dir': 'internlm--internlm2-chat-20b',
+        'repo_id': 'internlm/internlm2_5-chat-20b',
+        'cache_dir': 'internlm--internlm2_5-chat-20b',
         'tokens_per_second': 20.21,
         'context_length': 32768,
         'avg_vram_usage': '14.2 GB',
-        'function': 'InternLM2_20b'
+        'function': 'InternLM2_5_20b'
     },
 }
 

@@ -14,13 +14,16 @@ MODEL_DIRECTORIES = {
 }
 
 class ModelDownloader:
-    def __init__(self, model_name, model_type):
-        self.model_name = model_name
+    def __init__(self, model_info, model_type):
+        self.model_info = model_info
         self.model_type = model_type
         self._model_directory = None
 
     def get_model_directory_name(self):
-        return self.model_name.replace("/", "--")
+        if isinstance(self.model_info, dict):
+            return self.model_info['cache_dir']
+        else:
+            return self.model_info.replace("/", "--")
 
     def get_model_directory(self):
         if not self._model_directory:
@@ -29,12 +32,15 @@ class ModelDownloader:
         return self._model_directory
 
     def get_model_url(self):
-        return f"https://huggingface.co/{self.model_name}"
+        if isinstance(self.model_info, dict):
+            return f"https://huggingface.co/{self.model_info['repo_id']}"
+        else:
+            return f"https://huggingface.co/{self.model_info}"
 
     def download_model(self):
         model_url = self.get_model_url()
         target_directory = self.get_model_directory()
-        print(f"Downloading {self.model_name}...")
+        print(f"Downloading {self.get_model_directory_name()}...")
         
         env = os.environ.copy()
         env["GIT_CLONE_PROTECTION_ACTIVE"] = "false"
@@ -46,6 +52,7 @@ class ModelDownloader:
                 env=env
             )
             print("\033[92mModel downloaded and ready to use.\033[0m")
-            model_downloaded_signal.downloaded.emit(self.model_name, self.model_type)
+            print(f"Emitting signal: {self.get_model_directory_name()}, {self.model_type}")
+            model_downloaded_signal.downloaded.emit(self.get_model_directory_name(), self.model_type)
         except subprocess.CalledProcessError as e:
             print(f"Command 'git clone' returned non-zero exit status {e.returncode}.")
