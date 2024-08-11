@@ -76,7 +76,7 @@ def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
         for attempt in range(max_retries):
             try:
                 print(f"\nAttempt {attempt + 1} of {max_retries}: Upgrading {package}...")
-                process = subprocess.run(command, check=True, capture_output=True, text=True, timeout=180)
+                process = subprocess.run(command, check=True, capture_output=True, text=True, timeout=240)
                 print(f"Successfully upgraded {package}")
                 break
             except subprocess.CalledProcessError as e:
@@ -111,7 +111,7 @@ def pip_install_with_retry(library, max_retries=5, delay=3):
             try:
                 print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {pip_args[3]}")
                 print(f"Running command: {' '.join(pip_args)}")
-                result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=180)
+                result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=240)
                 print(f"Successfully installed {pip_args[3]}")
                 break
             except subprocess.CalledProcessError as e:
@@ -142,7 +142,7 @@ def install_libraries(libraries):
 priority_libraries = [
     "flash_attn @ https://github.com/bdashore3/flash-attention/releases/download/v2.5.9.post1/flash_attn-2.5.9.post1+cu122torch2.2.2cxx11abiFALSE-cp311-cp311-win_amd64.whl",
     "torch==2.2.2",
-    # "triton @ https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl#sha256=2c78f5f85cf88d46eb9664c23691052d6c153a6043656fc15c50a0d13bc5565c", # required by cogvlm
+    "triton @ https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl#sha256=2c78f5f85cf88d46eb9664c23691052d6c153a6043656fc15c50a0d13bc5565c", # required by alibaba vector models
     "whisper_s2t @ git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
     "WhisperSpeech @ git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8"
 ]
@@ -303,7 +303,6 @@ other_libraries = [
     "transformers==4.43.1",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
-    # "unstructured==0.13.4",
     "unstructured-client==0.24.1",
     "tzdata==2024.1",
     "urllib3==2.2.2",
