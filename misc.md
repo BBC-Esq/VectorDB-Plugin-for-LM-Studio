@@ -1,5 +1,6 @@
 ## Vector Models
 - Using chunks size/overlap of 800/400 on RTX 4090 processing a book.
+- Approximately 5,500 chunks.
 
 | Vector Model                                 | Compute Time (seconds) | Chunks/Second | Batch Size |
 |----------------------------------------------|------------------------|---------------|------------|
