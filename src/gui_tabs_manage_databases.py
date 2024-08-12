@@ -105,7 +105,7 @@ class ManageDatabasesTab(QWidget):
                         config = yaml.safe_load(file)
                         db_config = config.get('created_databases', {}).get(selected_database, {})
                         model_path = db_config.get('model', '')
-                        model_name = model_path.split('/')[-1]
+                        model_name = Path(model_path).name  # This extracts the last part of the path
                         chunk_size = db_config.get('chunk_size', '')
                         chunk_overlap = db_config.get('chunk_overlap', '')
                         info_text = f"{model_name}    |    Chunk Size:  {chunk_size}    |    Chunk Overlap:  {chunk_overlap}"
