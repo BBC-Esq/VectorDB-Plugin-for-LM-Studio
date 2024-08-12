@@ -105,18 +105,14 @@ def load_config(config_file):
         return yaml.safe_load(file)
 
 
-def is_nvidia_gpu_available(config):
-    gpu_brand = config.get("Compute_Device", {}).get("gpu_brand")
-    if isinstance(gpu_brand, str):
-        normalized_gpu_brand = gpu_brand.strip().lower()
-        return normalized_gpu_brand == "nvidia" and torch.cuda.is_available()
-    return False
+def is_nvidia_gpu_available():
+    return torch.cuda.is_available() and torch.version.cuda is not None
 
 config = load_config('config.yaml')
 
 
 # Import pynvml only if CUDA is available and an NVIDIA GPU is detected
-if is_nvidia_gpu_available(config):
+if is_nvidia_gpu_available():
     import pynvml
 
     def print_cuda_memory_usage():

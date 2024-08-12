@@ -14,9 +14,9 @@ def get_compute_device_info():
         available_devices.append('cuda')
         gpu_brand = "AMD" if torch.version.hip else "NVIDIA" if torch.version.cuda else None
 
-    if torch.backends.mps.is_available():
-        available_devices.append('mps')
-        gpu_brand = "Apple"
+    # if torch.backends.mps.is_available():
+        # available_devices.append('mps')
+        # gpu_brand = "Apple"
 
     return {'available': available_devices, 'gpu_brand': gpu_brand}
 
