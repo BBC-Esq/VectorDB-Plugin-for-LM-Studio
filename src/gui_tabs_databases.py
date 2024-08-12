@@ -146,7 +146,7 @@ class DatabasesTab(QWidget):
         for folder in vector_dir.iterdir():
             if folder.is_dir():
                 model_found = True
-                display_name = folder.name.split('--')[-1]
+                display_name = folder.name
                 full_path = str(folder)
                 self.model_combobox.addItem(display_name, full_path)
         

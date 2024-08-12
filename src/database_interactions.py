@@ -57,12 +57,11 @@ class CreateVectorDB:
                 't5-xl': 1,
                 't5-large': 2,
                 'instructor-xl': 2,
-                't5-base': 4,
-                'bge-large': 4,
-                'instructor-large': 4,
-                'e5-large': 4,
-                'gte-large': 4,
-                'stella': 2,
+                't5-base': 3,
+                'bge-large': 3,
+                'instructor-large': 3,
+                'e5-large': 3,
+                'gte-large': 3,
                 'instructor-base': 8,
                 'mpnet': 8,
                 'e5-base': 8,
@@ -103,6 +102,21 @@ class CreateVectorDB:
                 query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs
             )
+
+        elif "Alibaba" in embedding_model_name:
+            model_kwargs["tokenizer_kwargs"] = {
+                "max_length": 8192,
+                "padding": True,
+                "truncation": True
+            }
+            # encode_kwargs['show_progress_bar'] = True
+            model = HuggingFaceEmbeddings(
+                model_name=embedding_model_name,
+                show_progress=True,
+                model_kwargs=model_kwargs,
+                encode_kwargs=encode_kwargs
+            )
+
         else:
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
@@ -241,7 +255,7 @@ class CreateVectorDB:
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         
-        # create  a list to hold langchain "document objects"        
+        # create a list to hold langchain "document objects"        
         # langchain_core.documents.base.Document
         documents = []
         
@@ -268,7 +282,7 @@ class CreateVectorDB:
             if len(audio_documents) > 0:
                 print(f"Loaded {len(audio_documents)} audio transcription(s)...")
 
-        texts = [] # listed created to hold split documents
+        texts = [] # list created to hold split documents
         
         # split documents
         if isinstance(documents, list) and documents:
@@ -332,11 +346,19 @@ class QueryVectorDB:
                 query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs
             )
-        elif "stella" in model_path:
-            encode_kwargs["prompt_name"] = "s2p_query"
+        elif "Alibaba" in model_path:
             return HuggingFaceEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                model_kwargs={
+                    "device": compute_device,
+                    "trust_remote_code": True,
+                    "tokenizer_kwargs": {
+                        "max_length": 8192,
+                        "padding": True,
+                        "truncation": True
+                    }
+                },
+                # model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs
             )
         else:
