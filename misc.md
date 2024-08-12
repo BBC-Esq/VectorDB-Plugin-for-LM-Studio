@@ -1,24 +1,24 @@
 ## Vector Models
-- Using chunks size/overlap of 800/400 on RTX 4090.
+- Using chunks size/overlap of 800/400 on RTX 4090 processing a book.
 
-| Vector Model                                 | Chunks/Second | Batch Size |
-|----------------------------------------------|---------------|------------|
-| hkunlp--instructor-xl                        | 22.70         | 2          |
-| hkunlp--instructor-large                     | 67.19         | 3          |
-| Alibaba-NLP--gte-large-en-v1.5               | 140.48        | 3          |
-| thenlper--gte-large                          | 164.27        | 3          |
-| intfloat--e5-large-v2                        | 164.76        | 3          |
-| BAAI--bge-large-en-v1.5                      | 166.05        | 3          |
-| hkunlp--instructor-base                      | 204.48        | 8          |
-| Alibaba-NLP--gte-base-en-v1.5                | 373.55        | 8          |
-| sentence-transformers--all-mpnet-base-v2     | 382.87        | 8          |
-| BAAI--bge-base-en-v1.5                       | 459.70        | 8          |
-| intfloat--e5-base-v2                         | 460.85        | 8          |
-| thenlper--gte-base                           | 462.40        | 8          |
-| intfloat--e5-small-v2                        | 852.01        | 10         |
-| thenlper--gte-small                          | 868.08        | 10         |
-| BAAI--bge-small-en-v1.5                      | 875.59        | 10         |
-| sentence-transformers--all-MiniLM-L12-v2     | 1281.21       | 30         |
+| Vector Model                                 | Compute Time (seconds) | Chunks/Second | Batch Size |
+|----------------------------------------------|------------------------|---------------|------------|
+| hkunlp--instructor-xl                        | 243.23                 | 22.70         | 2          |
+| hkunlp--instructor-large                     | 82.17                  | 67.19         | 3          |
+| Alibaba-NLP--gte-large-en-v1.5               | 39.30                  | 140.48        | 3          |
+| thenlper--gte-large                          | 33.61                  | 164.27        | 3          |
+| intfloat--e5-large-v2                        | 33.51                  | 164.76        | 3          |
+| BAAI--bge-large-en-v1.5                      | 33.25                  | 166.05        | 3          |
+| hkunlp--instructor-base                      | 27.00                  | 204.48        | 8          |
+| Alibaba-NLP--gte-base-en-v1.5                | 14.78                  | 373.55        | 8          |
+| sentence-transformers--all-mpnet-base-v2     | 14.42                  | 382.87        | 8          |
+| BAAI--bge-base-en-v1.5                       | 12.01                  | 459.70        | 8          |
+| intfloat--e5-base-v2                         | 11.98                  | 460.85        | 8          |
+| thenlper--gte-base                           | 11.94                  | 462.40        | 8          |
+| intfloat--e5-small-v2                        | 6.48                   | 852.01        | 10         |
+| thenlper--gte-small                          | 6.36                   | 868.08        | 10         |
+| BAAI--bge-small-en-v1.5                      | 6.31                   | 875.59        | 10         |
+| sentence-transformers--all-MiniLM-L12-v2     | 4.31                   | 1281.21       | 30         |
 
 
 ## Chat
