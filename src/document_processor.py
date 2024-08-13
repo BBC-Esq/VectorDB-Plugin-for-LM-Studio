@@ -27,6 +27,7 @@ from langchain_community.document_loaders import (
 
 from constants import DOCUMENT_LOADERS
 from extract_metadata import extract_document_metadata
+import splitter_pdf
 from utilities import my_cprint
 import traceback
 
@@ -113,7 +114,7 @@ def load_documents(source_dir: Path) -> list:
     
     return docs
 
-def split_documents(documents):
+def split_documents(documents=None, text_documents_pdf=None):
     try:
         with open("config.yaml", "r", encoding='utf-8') as config_file:
             config = yaml.safe_load(config_file)
@@ -122,25 +123,37 @@ def split_documents(documents):
         
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
 
-        for i, doc in enumerate(documents):
-            if not isinstance(doc.page_content, str):
-                logging.warning(f"Document {i} content is not a string. Converting to string.")
-                documents[i].page_content = str(doc.page_content)
-        
-        try:
-            print(f"\nSplitting {len(documents)} documents.")
+        texts = []
+
+        # debugging
+        print(f"Documents list before splitting: {[doc.metadata.get('file_type') for doc in documents]}")
+        print(f"PDF Documents list before splitting: {[doc.metadata.get('file_type') for doc in text_documents_pdf]}")
+
+        # split non-PDF document objects
+        if documents:
+            print(f"\nSplitting {len(documents)} non-PDF documents.")
+            for i, doc in enumerate(documents):
+                if not isinstance(doc.page_content, str):
+                    logging.warning(f"Document {i} content is not a string. Converting to string.")
+                    documents[i].page_content = str(doc.page_content)
+
             texts = text_splitter.split_documents(documents)
-            print(f"Created {len(texts)} chunks.")
-        except Exception as e:
-            logging.error(f"Error during document splitting: {str(e)}")
-            logging.error(f"Error type: {type(e)}")
-            logging.error(f"Error traceback: {traceback.format_exc()}")
-            raise
-        
+            print(f"Created {len(texts)} chunks from non-PDF documents.")
+
+        # split PDF document objects
+        if text_documents_pdf:
+            print(f"Splitting {len(text_documents_pdf)} PDF documents.")
+            processed_pdf_docs = []
+            for doc in text_documents_pdf:
+                chunked_docs = splitter_pdf.chunk_and_annotate_document(doc)
+                processed_pdf_docs.extend(chunked_docs)
+            texts.extend(processed_pdf_docs)
+            print(f"Created {len(processed_pdf_docs)} chunks from PDF documents.")
+
         return texts
-    
+
     except Exception as e:
-        logging.error(f"Unexpected error in split_documents function: {str(e)}")
+        logging.error(f"Error during document splitting: {str(e)}")
         logging.error(f"Error type: {type(e)}")
         logging.error(f"Error traceback: {traceback.format_exc()}")
         raise

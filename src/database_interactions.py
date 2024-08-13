@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Dict, Optional, Union
 
 import torch
-# newer torch uses torch.amp
-from torch.cuda.amp import autocast # only necessary to specify the dtype for instructor
+# NOTE: newer torch uses torch.amp
+from torch.cuda.amp import autocast # necessary to dtype for instructor
 import yaml
 from InstructorEmbedding import INSTRUCTOR
 from PySide6.QtCore import QDir
@@ -19,8 +19,10 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.document import Document
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
 from langchain_community.vectorstores import TileDB
+from langchain_core.load import dumps
 
 from document_processor import load_documents, split_documents
+import splitter_pdf
 from module_process_images import choose_image_loader
 from utilities import my_cprint
 
@@ -33,6 +35,13 @@ warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 logging.getLogger().setLevel(logging.WARNING)
 
+# debugging
+# def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
+    # print("Saving to JSON...")
+    # json_string = dumps(documents, pretty=True)
+
+    # with open(file_name, "w") as json_file:
+        # json_file.write(json_string)
             
 class CreateVectorDB:
     def __init__(self, database_name):
@@ -116,7 +125,7 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs,
             )
 
-            # uses torch.amp. because instructor models don't internally allow a dtype as a "model_kwargs" parameter
+            # must use torch.amp. for instructor
             if torch_dtype is not None:
                 model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
 
@@ -158,10 +167,6 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs
             )
 
-            # to convert after instantiating
-            # if compute_device.lower() != 'cpu':
-                # model.client.to(dtype=torch.float16)
-
         model_name = Path(EMBEDDING_MODEL_NAME).name
         precision = "float32" if torch_dtype is None else str(torch_dtype).split('.')[-1]
     
@@ -182,7 +187,7 @@ class CreateVectorDB:
             logging.info(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            # Extract text and metadata from Document objects
+            # Extract text and metadata from document objects
             text_content = [doc.page_content for doc in texts]
             metadatas = [doc.metadata for doc in texts]
             
@@ -216,6 +221,9 @@ class CreateVectorDB:
         print(f"Creating the vector database took {elapsed_time:.2f} seconds.")
         
     def save_documents_to_json(self, json_docs_to_save):
+        """
+        Json of all documents successfully entered into the database for purposes of populating the database management tab.
+        """
         if not self.SAVE_JSON_DIRECTORY.exists():
             self.SAVE_JSON_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
@@ -262,14 +270,10 @@ class CreateVectorDB:
                 except Exception as e:
                     print(f"Failed to delete {item}: {e}")
 
-    def save_document_structures(self, documents):
-        with open(self.ROOT_DIRECTORY / "document_structures.txt", 'w', encoding='utf-8') as file:
-            for doc in documents:
-                file.write(str(doc))
-                file.write('\n\n')
-
-
     def save_documents_to_pickle(self, documents):
+        """
+        Pickle all document objects incase the database creation process terminates early.  Cleared each time the program closes.
+        """
         pickle_directory = self.ROOT_DIRECTORY / "pickle"
         
         if not pickle_directory.exists():
@@ -291,26 +295,35 @@ class CreateVectorDB:
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         
-        # create a list to hold langchain "document objects"        
-        # langchain_core.documents.base.Document
+        # list to hold langchain "document objects"        
         documents = []
         
-        # add text documents
+        # load text document objects
         print("Processing any text documents...")
         text_documents = load_documents(self.SOURCE_DIRECTORY)
         if isinstance(text_documents, list) and text_documents:
             documents.extend(text_documents)
+
+        # create separate lists for pdf and non-pdf document objects
+        text_documents_pdf = [doc for doc in documents if doc.metadata.get("file_type") == ".pdf"]
+        documents = [doc for doc in documents if doc.metadata.get("file_type") != ".pdf"]
+
+        # debugging
+        # print(f"Initial documents count: {len(documents) + len(text_documents_pdf)}")
+        # print(f"Non-PDF documents: {[doc.metadata.get('file_type') for doc in documents]}")
+        # print(f"PDF documents: {[doc.metadata.get('file_type') for doc in text_documents_pdf]}")
+
+        # debugging
+        # serialize_documents_to_json(text_documents_pdf)
         
-        # add image documents
+        # load image document objects
         print("Processing any images...")
         image_documents = choose_image_loader()
         if isinstance(image_documents, list) and image_documents:
             if len(image_documents) > 0:
                 documents.extend(image_documents)
         
-        json_docs_to_save = documents
-        
-        # add audio documents
+        # load audio document objects
         print("Processing any audio transcripts...")
         audio_documents = self.load_audio_documents()
         if isinstance(audio_documents, list) and audio_documents:
@@ -318,16 +331,23 @@ class CreateVectorDB:
             if len(audio_documents) > 0:
                 print(f"Loaded {len(audio_documents)} audio transcription(s)...")
 
-        texts = [] # list created to hold split documents
-        
-        # split documents
-        if isinstance(documents, list) and documents:
-            texts = split_documents(documents)
+        json_docs_to_save = []
+        json_docs_to_save.extend(documents)
+        json_docs_to_save.extend(text_documents_pdf)
 
-        # create database and cleanup
+        # list to hold all split document objects
+        texts = []
+
+        # split document objects if either "documents" or "text_documents_pdf" have document objects
+        if (isinstance(documents, list) and documents) or (isinstance(text_documents_pdf, list) and text_documents_pdf):
+            texts = split_documents(documents, text_documents_pdf)
+
+        # debugging
+        # serialize_documents_to_json(texts, file_name="split_document_objects.json")
+
+        # serialize all split document objects temporarily
         if isinstance(texts, list) and texts:
-            self.save_documents_to_pickle(texts) # serialize the split documents temporarily
-            self.save_document_structures(texts) # optional for troubleshooting
+            self.save_documents_to_pickle(texts)
 
             # initialize vector model
             embeddings, encode_kwargs = self.initialize_vector_model(EMBEDDING_MODEL_NAME, config_data)
