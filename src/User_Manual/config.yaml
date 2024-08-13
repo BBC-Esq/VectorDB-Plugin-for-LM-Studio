@@ -23,6 +23,7 @@ database:
   contexts: '5'
   database_to_search: ''
   document_types: ''
+  half: false
   search_term: ''
   similarity: 0.9
 embedding-models:

@@ -162,14 +162,11 @@
 
 	<h2>Choosing the Correct Model</h2>
 	
-	<p>Prior version of this program used a variety of different vector models, each with their own unique
-	characteristics.  However, most of the models nowadays are generalist and perform quite well on a variety
-	of text.  Generally, the size of a model determines its quality but you should experiment with with different
-	ones to your liking.</p>
+	<p>Early versions of this program used a wide variety of vector models.  However, most of the models are now
+	powerful enough to be good at a variety of tasks.  Therefore, this program now uses two kinds of models.</p>
 	
-	<p>With that being said, models beginning with <code>sentence-t5</code> are trained for a specific task, which
-	is to return sentences from the database similar to the one in your query.  These should only be used for that
-	specific task.</p>
+	<p>First, models beginning with <code>sentence-t5</code> are specifically trained to sentences that are as similar
+	the one in your query.  They should not be used for general information retrieval or question answering.</p>
 	
 	<p>For example, if your query is...</p>
 	
@@ -181,57 +178,33 @@
 	
 	<p>...you would receive multiple sentences that mimic your query.</p>
 	
-	<p>Overall, almost all of the generalist models selected for this program are good and you should only use the
-	<code>sentence-t5</code> models if you have a strong need for that specific task.</p>
+	<p>All other models fall within the second category, which can be characterized as "generalist" models.  They excel
+	at returning contexts that answer your question and should only be used for that purpose.</p>
 	
 	<h2 style="color: #f0f0f0;" align="center">Vector Model Characteristics</h2>
 	
-	<p>The Model card contains characteristics for all vector models as well as a hyperlink to the model's card.</p>
+	<p><code>Max sequence</code></p>
+	<p>Refers to the maximum number of tokens (not characters) that a given model can  process at a time.
+	This is different than the <code>Chunk Size</code> setting within the Settings tab, which is in characters.</p>
 	
-	<p><code>Max sequence</code> refers to the maximum number of tokens (not characters) that a given model can
-	process at a time.  This is different than the <code>Chunk Size</code> setting within the Settings tab, which
-	which refers to the number of characters you want the text split into.</p>
+	<p><code>"Dimensions"</code></p>
+	<p>Refers to how complex the number is that the vector model creates to represent the meaning of a chunk of text.
+	A higher number means more nuance, which improves search results, while a lower number means less processing time.</p>
 	
-	<p>A general rule of thumb is that a "token" is approximately four "characters."  Thus, a vector model with a
-	"max sequence" of 512 would be able to process approximately 2048 "characters" at a time.  This is the
-	equivalent of setting the <code>Chunk Size</code> setting to 2048 in the Settings tab.</p>
-	
-	<p>A chunksize of 500-700 is still sufficient for a vast majority of use-cases.  Newer vector models are
-	coming out everyday, however, that can process thousands of tokens at a time and those will probably be
-	incorporated into this program at some point.  For the time being, simply make sure that the chunk size you
-	select falls under the "max sequence" for a given model, otherwise, the model will truncate the text.
-	It won't notify you this happens but the search results will degrade.</p>
-	
-	<p><code>"Dimensions"</code> refers to how nuanced a meaning that the model can discern from text.
-	A higher number means that it can discerng more meaning, thus improving search results, and a lower
-	number means less processing requirements.</p>
-	
-	<p><code>Size</code> simply refers to the size on disk if that's a concern for you.</p>
-	
+	<p><code>Size</code></p>
+	<p>Refers to the size on disk.</p>
+
 	<h2 style="color: #f0f0f0;" align="center">Tips</h2>
 	
-	<p>Always use "cuda" when creating the database if your hardware allows.</p>
-	
-	<p>Different chunk sizes produce better results based on the type of text being vectorized.  Experiment
-	with different chunks sizes.  The same holds true for the "chunk overlap" setting.</p>
-	
-	<p>If time is of little concern, always use the highest quality vector model that your system specs allow.
-	Most of the models will fit comfortably within your amount of VRAM.  I have specifically overridden the
-	"batch size" parameter within the <code>sentence-transformers</code> library to ensure this.  I believe
-	that batch size is something like "32," which, as you can see from the below graphs will result in an
-	unreasonable increase in VRAM usage and, at a certain point, will ACTUALLY INCREASE the time processing
-	time compared to a lower batch size.</p>
+	<p>Always use the highest quality vector model that your system specs and time allow. Most of the models will fit
+	comfortably within your amount of VRAM because I have specifically overridden the default <code>batch_size</code> parameter
+	within the <code>sentence-transformers</code> library of 32.  It is now optimized for each particular vector model based on my
+	extensive testing.  As seen below, using a batch_size of 32 actually decreases performance and unnecessarily increases VRAM usage.</p>
 	
 	<img src="chart_vector_models.png" alt="Vector Model VRAM Trends"><br>
 	<img src="chart_vector_batch.png" alt="Vector Model Compute Time Trends">
 	
-	<p>I've manually set the batch sizes depending on which vector model is being used to make them work efficiently
-	on most GPUs.  However, if you are hardcore feel free to modify them within the <code>database_interactions.py</code> script.</p>
-	
-	<p>Regarding the <code>instructor-xl</code> model, it's batch size is 1 and therefore it should still fit on
-	most GPUs comfortably.  In the future, this program will be able to run the models using <code>float</code>
-	and/or <code>bfloat</code> precison for approximately twice the performance with little to no quality loss.</p>
-
+	<p>If you must modify them, they can be altered within the <code>database_interactions.py</code> script.</p>
 
 </main>
 

@@ -101,23 +101,19 @@
 		
 		<h2 style="color: #f0f0f0;" align="center">What are Vision Models?</h2>
 		
-		<p>For purposes of this program, vision models refer to large language models specifically trained to create summaries
-		of what an image depicts.  These summaries are then entered into the vector database and can be searched.</p>
+		<p>Vision models are large language models specifically trained to create summaries of what an image depicts.
+		For purposes of this program, these summaries are then entered into the vector database and can be searched.</p>
 		
 		<h2 style="color: #f0f0f0;" align="left">Types of Vision Models</h2>
 		
 		<p>The table below outlines the various vision models available to use in this program.  I highly encourage you to
 		test them out (instructions in the Settings portion of this User Guide) before spending the time to process
-		a large number of images only to find out you don't like the quality of the one you chose.</p>
+		a large number of images.</p>
 		
-		<p>Whichever vision model is selected when you create the vector database will be used.  There is no need to
-		click the "update settings" button to ensure this.</p>
-		
-		<p><code>Florence2</code> will automatically be selected if you do not have a GPU, but don't let it fool you.
-		It is extremely high quality for its size.  My favorite is <code>Moondream2</code> when weighing quality,
-		compute time, and resources.  When only considering quality, however, IMHO it's a toss-up between
-		<code>Moondream2</code>, <code>COGVLM</code>, and the recently-added <code>MiniCPM-Llama3-V-2_5-int4</code></p>.
-		Nowadays, the models have gotten so good it's difficult to distinguish.</p>
+		<p><code>Florence2</code> will automatically be selected if you do not have a GPU, but don't let it fool you,
+		it is extremely high quality for its size.  In my humble opinion, the highest quality lightweight model is
+		<code>Moondream2</code> while the higher quality overall is <code>MiniCPM-v-2.6 - 8b</code>, but feel free
+		to experiment because you may like the style of a particular one.</p>
 		
 		<section>
             <img src="chart_vision.png" alt="Vision Models">
@@ -125,18 +121,15 @@
 
 		<h2 style="color: #f0f0f0;" align="center">Tips</h2>
 		
-		- Test all vision models first, as outlined in the Settings portion of this User Guide.
-		
-		<p>The number of parameters DOES NOT always correlate with quality.  The vision models in this program came out at
-		different times (i.e. technical advancements) by different vendors and quality can vary accordingly.</p>
+		<p>The number of parameters does directly correlate with quality.  The vision models in this program came out at
+		different times (i.e. technical advancements) by different vendors and quality can vary accordingly.  For example,
+		you might prefer <code>Llava 1.6 - Vicuna 7b</code> over <code>Llava 1.5 13b</code>.</p>
 		
 		<p>Make sure your chunk size setting is at least as large as the longest summary that you expect the vision model
-		will create. You DO NOT want the summary of a single image to be split, which will lead to nonsensical search results.</p>
+		will create. You DO NOT want the summary of a single image to be split, which will lead to poor search results.
+		This is yet another reason to test the models first, to see the length of their summaries as well as their quality.</p>
 		
-		<p>I recommend that if you are putting images in your database choose a chunk size of at least 500-800, but test out
-		the average chunks size for image descriptions in the Tools Tab first.</p>
-		
-		<p>Unless you need a database with both images and documents, it's good practice to have an "images only" database.</p>
+		<p>Unless you absolutely need a database with both images and documents, I recommend an "images only" database.</p>
 
 	</main>
 

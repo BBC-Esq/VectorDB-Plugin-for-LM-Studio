@@ -97,96 +97,114 @@
 
   <main>
 	<h2><u>Server/LLM Settings</u></h2>
-    <p><code>Port</code>: Must match the port being used in LM Studio.</p>
+    <p><code>Port</code></p>
 	
-	<p><code>Max-tokens</code>: The maximum number of tokens that the LLM can use when providing a response. The default
-	of <code>-1</code> allows the LLM an unlimited number (up to the model's maximum context length specified within LM Studio).</p>
+	<p>Must match the port being used in LM Studio.</p>
+	
+	<p><code>Max-tokens</code></p>
+	
+	<p>The maximum number of tokens that the LLM can use when providing a response. The default of <code>-1</code> allows
+	the LLM an unlimited number (up to the model's maximum context length specified within LM Studio).</p>
 
-    <p><code>Temperature</code>: Determines the creativity of the LLM's response.  Can be between 0 and 1.  A higher number
-	means more creativity.</p>
+    <p><code>Temperature</code></p>
+	
+	<p> Determines the creativity of the LLM's response.  Can be between 0 and 1.  A higher number means more creativity.</p>
 
-    <h3>Prompt Format</h3>
-    <p>A <code>Prefix</code> and <code>Suffix</code> are sent to LM Studio along with your question and the results from the
-	vector database search.  Different LLM's are trained with different "prompt formats" and your results
-	will degrade if you don't use the correct one.</p>
+    <p><code>Prefix</code> and <code>Suffix</code></p>
+
+	<p>Sent to LM Studio along with your question and the results from the vector database search.  Different LLM's are
+	trained with different "prompt formats" and your results will degrade if you don't use the correct one.</p>
 
 	<p>I recommend using a model within LM Studio that matches a preset provided in this program since I've tested the models
 	specifically for RAG, but there's also space to enter a custom prefix/suffix if you want to try different models.  Make sure
 	to clear the prefix and suffix boxes as well as disable "automatic prompt formatting" within LM Studio as there
 	have been bug reports if you don't.</p>
 	
-	<p><code>Disable</code>: Disables prompt formatting so you can exclusively use the prompt formatting settings within LM Studio.</p>
+	<p><code>Disable</code></p>
+	
+	<p>Disables prompt formatting so you can exclusively use the prompt formatting settings within LM Studio.</p>
 	
 	<h2><u>Database Creation Settings</u></h2>
 	
-	<p><code>Create Device</code>:  Either "cpu" and/or "cuda" depending on your hardware.  Always use "cuda" if available.
+	<p><code>Create Device</code></p>
 	
-	<p>Before text is entered into the vector database it must be broken into chunks, which are then converted to vectors that are
-	ultimately what's entered into the database.</p>
+	<p>Either "cpu" and/or "cuda" depending on your hardware.  Always use "cuda" if available.</p>
 	
-	<p><code>Chunk Size</code>: The maximum length of a chunk/context in characters (NOT tokens).  The text splitter tries to
-	come as close to the maximum chunk size as possible while simultaneously trying to only chunk at paragraph/sentence/word breaks.
-	It does this to try and preserve related ideas in a single chunk.  The optimal chunk size heavily depends on the type of
-	document you are processing; for example, a book or a spreadshset.  It's recommended to review the documents before processing,
-	analyzing the number of characters that important ideas or concepts are usually communicated in, and then setting the
-	<code>Chunk Size</code> a little above that.</p>
+	<p><code>Chunk Size</code>: Before text is entered into the vector database it must be broken into chunks, which are then
+	converted to vectors that are ultimately what's entered into the database.</p>
+	
+	<p>This refers to the maximum chunk length that the text splitter is allowed to create.  The optimal chunk size depends on the
+	type of document you are processing.  For example, books typically do well with a chunk size of 1000-1200 while a webscrape
+	of "tweets," for example, might do better with a chunk size of 200-400.  It is recommended to review the documents you enter
+	into the database beforehand and group documents into the same database that benefit from the same chunk size.</p>
+	
+	<p>Make sure that the chunk size falls under the "max sequence" of the chosen vector model.  You will not get notice if it
+	exceeds the "max sequence," but rather the model will simply truncate the text and your search results will suffer.
+	Remember, each token is approximately 3-4 characters.</p>
 
-	<p><code>Chunk Overlap</code>: Specifies the maximum number of characters (again, NOT tokens) that each chunk will
-	include from the previous chunk.  For example, if <code>chunk overlap</code> is set to 250 then first 250 characters of
-	"Chunk #2" will consist of the last 250 characters of "Chunk #1."  The text splitter does this to preserve meaning in case
-	the text is split in the middle of an important concept or idea.  A good rule of thumb is to
-	set <code>chunk overlap</code> to 1/4 to 1/2 of the <code>chunk size</code>.  Remember, however, more "overlap" means more
-	chunks, which means more processing time.</p>
+	<p><code>Chunk Overlap</code>: Specifies the maximum number of characters (NOT tokens) that each chunk will include from the 
+	previous chunk.  The purpose of this is to prevent text from accidentally being split in the middle of an important concept.</p>
+	
+	<p> For example, if <code>chunk overlap</code> is set to 250 then first 250 characters of "Chunk #2" will consist of the
+	last 250 characters of "Chunk #1."  A good rule of thumb is to set it a 25-50% of the <code>Chunk Size</code> setting.</p>
+	
+	<p><code>Half-Precision</code>: Beginning with release 6.7.0, the program has a "Half-Precision" checkbox within the Settings tab.
+	This will use either <code>bfloat16</code> or <code>float16</code> when running the vector model.  However, this is only
+	available on GPU and will be disregarded if CPU is selected as the compute device.</p>
+	
+	<p>It is highly recommended to use <code>half-precision</code> because it results in a 2x speedup for only a 1% quality loss.</p>
 	
 	<h2><u>Database Query Setting</u></h2>
 	
-	<p><code>Create Device</code>: Either "cpu" or "cuda" based on your hardware.  I recommend "cpu."  The computation required
-	to vectorize a search is infinitely less than when creating the database (where you should always use "cuda").  Using
-	"cpu" will force your system to use RAM and conserve VRAM.</p>
+	<p><code>Create Device</code>: Either "cpu" or "cuda" based on your hardware.  I recommend "cpu," which will force the model
+	to be loaded in the RAM and conserve VRAM.</p>
 	
-	<p><code>Contexts</code>: The maximum number of chunks/contexts that can be returned.  This is subject to the
-	<code>Similarity</code> setting discussed below.</p>
+	<p><code>Contexts</code>: The maximum number of chunks/contexts that can be returned.</p>
 	
-	<p><code>Similarity</code>: A decimal number beween 0 and 1 that specifies how relevant a chunk/context must be.  A setting
-	closer to "1" will retrieve more documents.  CAUTION: Do not use "1".  The default is ".9".</p>
+	<p><code>Similarity</code>: A decimal number between 0 and 1 that specifies how relevant a chunk/context must be.  A setting
+	closer to "1" will retrieve more documents.  CAUTION: Do not use "1".  The default is ".99".</p>
 	
-	<p><code>Search Term Filter</code>: Removes chunks/contexts that do not contain the specified search term.  The filter is
-	NOT case sensitive but does require a verbatim match.  For example, if you used the term "child" it would NOT exclude
-	chunks/contexts that contain the word "Child," but it would exclude ones that only contain "children."</p>
+	<p>Feel free to adjust this setting, but it is more important to adjust the chunk size/overlap as well as ask good questions.</p>
 	
-	<p>The <code>Clear Filter</code> button clears the <code>Search Term Filter</code>.</p>
+	<p><code>Search Term Filter</code>: Searches the chunks that the database has already returned and removes the ones that
+	do not contain the specified search term.  The filter is NOT case sensitive but does require a verbatim match.  For example,
+	if you specify the term "child" it would NOT exclude "Child" but it would exclude "children."  Only use when you know a
+	chunk should have a key term.</p>
 	
-	<p><code>Document Type</code>: The chunks/contexts contain metadata indicating which document type they originated from.
-	the pulldown menu allows you to only search certain document types (or specify all types).</p>
+	<p><code>Clear Filter</code>: Clears the <code>Search Term Filter</code>.</p>
 	
-	<p><u>Here is a summary of how all of the settings/filters operate together</u>:</p>
+	<p><code>File Type</code>: Only returns chunks of text from the database that come from a particular document type.
+	Current options are images, audio, and documents.  The "documents" option refers to all files types (e.g. .pdf, .docx, etc.)
+	that this program accepts other than audio transcripts and images and "All Files" is self-explanatory.</p>
+	
+	<p><u>It is crucial to understand how all of the search settings interact:</u>:</p>
 	
 	<ol>
-		<li>A search is conducted and only chunks/contexts that originate from the specified file type will be searched.</li><br>
-		<li>Out of these, only chunks/contexts that meet the <code>Similarity</code> threshold can be returned.</li><br>
-		<li>Out of these "eligible" chunks/contexts, only the most relevant ones up to the <code>Contexts</code> limit
-		will actually be returned.</li><br>
-		<li>The <code>Search Term Filter</code> removes any chunks/contexts that do not contain the required term.</li><br>
-		<li>Any remaining chunks/contexts can be displayed (if "chunks only" is checked) or sent to the LLM for a response.</li>
+		<li>A user clicks the "Submit Question" button within the GUI.</li><br>
+		<li>Only chunks that originate from the specified File Type will be searched.</li><br>
+		<li>Out of these...only chunks that meet the <code>Similarity</code> threshold are eligible to be returned.</li><br>
+		<li>Out of these...the most relevant ones up to the <code>Contexts</code> limit will be returned.</li><br>
+		<li>The <code>Search Term Filter</code> subsequently removes any chunks that do not contain the required term.</li><br>
+		<li>Any remaining chunks will be sent to the LLM along with your question to get a response.</li>
 	</ol>
 	
 	<h2><u>Text to Speech Settings</u></h2>
 	
-	<p>The "TTS" button within the Query Database tab will convert the LLM's response to audio.  The "Bark" and "WhisperSpeech"
-	options require a GPU.  Feel free to experiment with the available options:</p>
+	<p>The "TTS" button within the Query Database tab will convert the LLM's response to audio.</p>
 	
-	<p>Currently, this program only implements customazation for the <code>Bark</code> backend.  You can the model size and/or
-	precisoin to suit your memory and compute requirements.</p>
+	<p>Currently, this program only implements customization for the <code>Bark</code> backend.  You can the model size and/or
+	precision to suit your memory and compute requirements.</p>
 	
 	<p><code>v2/en_speaker_6</code> is the highest quality voice IMHO.  The only female voice is <code>v2/en_speaker_9</code>.
+	
+	<p>Google TTS is the only one that doesn't not rely on GPU or CPU, but it requires an internet connection.</p>
 	
 	<h2><u>Vision Models Settings</u></h2>
 	
 	<p>Consult the "Vision" tab within the User Guide for more information regarding the various visions models themselves.</p>
 	
-	<p>It's recommended to test them before spending a large amount of time processing images only to find out that
-	your are not satisfied with the quality of a summary provided by a given model.  However, I've only included vision
-	models that I've vetted and are within the range of "reasonableness" considering their memory and compute requirements.</p>
+	<p>It is highly recommended to test them before spending a large amount of time processing images only to find out that
+	your are not satisfied with the quality of the summary that a particular model makes.</p>
 	
 	<ol>
 		<li>Within the Create Database tab, add one or more images that you would hypothetically want in the database.</li>
@@ -194,28 +212,24 @@
 		<li>Within the Tools tab, click "Process."</li>
 		<li>Summaries of the images that would would hypothetically be entered into the database will be displayed.</li>
 	</ol>
-	
-	<h2>Configuration Backup File</h2>
-	<p>This program relies on a config.yaml file.  If this file is corrupted or lost for any reason
-	simply copy the backup config.yaml from the User Guide folder to the main folder.</p>
-	
-	<p>PLEASE NOTE: When a database is created, the	config.yaml file is updated and likewise when a database is deleted.
-	Copying the config.yaml file from the User Guide folder will destroy the record of any databases that you've created.
-	However, the files constituting the database (and their backup) will still be in the Vector_DB and Vector_DB_Backup
-	folders, respectively.  It is extremely rare that a problem arises with the config.yaml file.  However, if you find
-	yourself facing a problem or want to take pre-emptive action, you have a couple options:</p>
-    
-	<ol>
-		<li>Manually copy the config.yaml file to a location of your chosing for custom backups of it.</li>
-		<li>Study the key structure on the config.yaml file and enter your database information
-		again, making sure to have the correct paths verbatim.</li>
-		<li>If you decide to abandon the databases that are no longer listed in the config.yaml file, make sure
-		and delete their respective folders wihtin the "Vector_DB" and "Vector_DB_Backup" folders.  This will
-		prevent a situation where you try to create a new database with the same name but the program doesn't know
-		that the files for the old database are still there.
-	</ol>
 
+	<h2>Restoring Database Backups</h2>
 	
+	<p>In the rare circumstances that you databases become corrupt or unable to load, the Tool tab contains a button to
+	restore all databases that have been backed up.  Use with caution.</p>
+
+	<h2>Restoring Configuration File</h2>
+	<p>This program relies on a <code>config.yaml</code> file to store settings as well as information about the databases that
+	you've created.  If you lose this file or it becomes corrupted, it is best to try and restore backups of any databases first.</p>
+	
+	<p>If that fails (e.g. the config.yaml file is completely gone), the User Guide folder contains an original config.yaml file
+	that you should copy to the main directory with all the other scripts.  Please be aware that this file no longer includes
+	any information about the databases you've created.</p>
+	
+	<p>If you are forced to do this, you must manually delete all files and folders within the "Vector_DB" and "Vector_DB_Backup".
+	If you do not do this, there may be old database files within those folders that create a conflict when you try to create
+	a database with the same name.</p>
+    
   </main>
 
   <footer>

@@ -99,214 +99,42 @@
     <main>
         <h2 style="color: #f0f0f0;" align="center">LM Studio</h2>
 
-        <p>The genesis of this program was to work with LM Studio and that functionality will remain.  The github
-        repository for this program contains instructions on how to work with LM Studio.</p>
+        <p>This program works with LM Studio andthe github repository contains detailed instructions.  These instructions pertain
+		to the "local models" functionality added in version 5.0.0.</p>
 
         <h2 style="color: #f0f0f0;" align="center">"Local Models"</h2>
 
-        <p>Release 5.0.0 introduced local models and release 6.0.0 greatly increased the number available.  I have personally
-        tested all of these models and handpicked them based on their RAG performance.  Experiment at your leisure.
-        Here are the approximate speed and resource requirements for all the models:</p>
+        <p>All of the models below can be used by selecting them within the database search tab when searching.</p>
 
         <img src="chart_chat.png" alt="Vision Models">
-        
-        <p>To use the new "local model" option you can simply select "local model" from the pulldown menu on the search tab.
-        Keep in mind that the first time you use a specific model it must be downloaded and you should see a progress bar
-        in the command prompt.</p>
-
-<table>
-    <tr>
-        <th>Model</th>
-        <th>VRAM Usage</th>
-        <th>Tok/s</th>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/Qwen/Qwen2-0.5B-Instruct">Qwen/Qwen2-0.5B-Instruct</a></td>
-        <td>1.9 GB</td>
-        <td>66</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/Qwen/Qwen1.5-0.5B-Chat">Qwen/Qwen1.5-0.5B-Chat</a></td>
-        <td>1.9 GB</td>
-        <td>60</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/cognitivecomputations/dolphin-2.9.3-qwen2-0.5b">cognitivecomputations/dolphin-2.9.3-qwen2-0.5b</a></td>
-        <td>2.4 GB</td>
-        <td>67</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/stabilityai/stablelm-2-zephyr-1_6b">stabilityai/stablelm-2-zephyr-1_6b</a></td>
-        <td>2.5 GB</td>
-        <td>74</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/internlm/internlm2-chat-1_8b">internlm/internlm2-chat-1_8b</a></td>
-        <td>2.8 GB</td>
-        <td>55</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/stabilityai/stablelm-zephyr-3b">stabilityai/stablelm-zephyr-3b</a></td>
-        <td>2.9 GB</td>
-        <td>57</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/Qwen/Qwen2-1.5B-Instruct">Qwen/Qwen2-1.5B-Instruct</a></td>
-        <td>3.0 GB</td>
-        <td>53</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/microsoft/Phi-3-mini-4k-instruct">microsoft/Phi-3-mini-4k-instruct</a></td>
-        <td>4.0 GB</td>
-        <td>50</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/cognitivecomputations/dolphin-2.9.3-qwen2-1.5b">cognitivecomputations/dolphin-2.9.3-qwen2-1.5b</a></td>
-        <td>4.2 GB</td>
-        <td>58</td>
-    </tr>
-<!--     <tr>
-        <td><a href="https://huggingface.co/01-ai/Yi-1.5-6B-Chat">01-ai/Yi-1.5-6B-Chat</a></td>
-        <td>5.2 GB</td>
-        <td>45</td>
-    </tr> -->
-    <tr>
-        <td><a href="https://huggingface.co/Qwen/Qwen1.5-4B-Chat">Qwen/Qwen1.5-4B-Chat</a></td>
-        <td>5.4 GB</td>
-        <td>41</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat">Qwen/Qwen1.5-1.8B-Chat</a></td>
-        <td>5.7 GB</td>
-        <td>65</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3">mistralai/Mistral-7B-Instruct-v0.3</a></td>
-        <td>5.7 GB</td>
-        <td>50</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/meta-llama/Llama-2-7b-chat-hf">meta-llama/Llama-2-7b-chat-hf</a></td>
-        <td>5.8 GB</td>
-        <td>45</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/Intel/neural-chat-7b-v3-3">Intel/neural-chat-7b-v3-3</a></td>
-        <td>5.8 GB</td>
-        <td>46</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/microsoft/Orca-2-7b">microsoft/Orca-2-7b</a></td>
-        <td>5.9 GB</td>
-        <td>47</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/internlm/internlm2-chat-7b">internlm/internlm2-chat-7b</a></td>
-        <td>6.7 GB</td>
-        <td>36</td>
-    </tr>
-<!--     <tr>
-        <td><a href="https://huggingface.co/01-ai/Yi-1.5-9B-Chat">01-ai/Yi-1.5-9B-Chat</a></td>
-        <td>7 GB</td>
-        <td>45</td>
-    </tr> -->
-    <tr>
-        <td><a href="https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct">meta-llama/Meta-Llama-3-8B-Instruct</a></td>
-        <td>7.1 GB</td>
-        <td>44</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/cognitivecomputations/dolphin-2.9-llama3-8b">cognitivecomputations/dolphin-2.9-llama3-8b</a></td>
-        <td>7.1 GB</td>
-        <td>41</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/cognitivecomputations/dolphin-2.9.1-yi-1.5-9b">cognitivecomputations/dolphin-2.9.1-yi-1.5-9b</a></td>
-        <td>7.2 GB</td>
-        <td>30</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/Qwen/Qwen2-7B-Instruct">Qwen/Qwen2-7B-Instruct</a></td>
-        <td>8.0 GB</td>
-        <td>54</td>
-    </tr>
-<!--     <tr>
-        <td><a href="https://huggingface.co/NousResearch/Nous-Hermes-Llama2-13b">NousResearch/Nous-Hermes-Llama2-13b</a></td>
-        <td>9.9 GB</td>
-        <td>38</td>
-    </tr> -->
-    <tr>
-        <td><a href="https://huggingface.co/microsoft/Orca-2-13b">microsoft/Orca-2-13b</a></td>
-        <td>9.9 GB</td>
-        <td>36</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/microsoft/Phi-3-medium-4k-instruct">microsoft/Phi-3-medium-4k-instruct</a></td>
-        <td>9.8 GB</td>
-        <td>34</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/cognitivecomputations/dolphin-2.9.2-qwen2-7b">cognitivecomputations/dolphin-2.9.2-qwen2-7b</a></td>
-        <td>9.2 GB</td>
-        <td>52</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/cognitivecomputations/dolphin-2.9.2-Phi-3-Medium">cognitivecomputations/dolphin-2.9.2-Phi-3-Medium</a></td>
-        <td>9.3 GB</td>
-        <td>40</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/upstage/SOLAR-10.7B-Instruct-v1.0">upstage/SOLAR-10.7B-Instruct-v1.0</a></td>
-        <td>9.3 GB</td>
-        <td>28</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/meta-llama/Llama-2-13b-chat-hf">meta-llama/Llama-2-13b-chat-hf</a></td>
-        <td>10.0 GB</td>
-        <td>36</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/stabilityai/stablelm-2-12b-chat">stabilityai/stablelm-2-12b-chat</a></td>
-        <td>11.3 GB</td>
-        <td>28</td>
-    </tr>
-    <tr>
-        <td><a href="https://huggingface.co/internlm/internlm2-chat-20b">internlm/internlm2-chat-20b</a></td>
-        <td>14.2 GB</td>
-        <td>20</td>
-    </tr>
-</table>
 
         <h2 style="color: #f0f0f0;" align="center">Tips</h2>
 
         <p>Regardless of whether you're using LM Studio or "local models," remember that chat models have a context limit just
-        like vector models.  Nowadays this is usually at least 4096 tokens, but this limit is for the grand total of what you
-        send the LLM and its response.  Thus, if you send it too much information it will not have sufficient context left
-        to provide a meaningful response.</p>
+        like vector models, usually 4096 tokens.  The following is an example of how this limit might be exceeded:
+		
+		<ol>
+			<li>A chunk size setting of 1000 characters is used.</li>
+			<li>13 chunks/contexts are returned.</li>
+			<li>Each token is approximatelky 3.5 characters on average; thus, approximately 3,700 tokens are used so far.</li>
+			<li>The user's query is 96 tokens.</li>
+			<li>This leaves the chat model only 300 tokens within which to respond.</li>
+		</ol>
         
-        <p>If using LM Studio, make sure to increase the context length to what's needed.  When using a "local model" it's
-        automatically set to the maximum context length of 4096.</p>
-        
-        <p>To ensure that you don't exceed the context length, create a rough estimate of the number of tokens that will be
-        sent to the LLM.  The <code>Chunk Size</code> setting within the Settings tab is in characters whereas a chat models
-        context limit is in "tokens."  Approximately four characters equal 1 token.  Therefore, if you send 20 chunks/contexts
-        to the LLM each with 200 tokens (equaling a <code>Chunk Size</code> setting of 800), it means you're sending
-        approximately 2000 tokens to the LLM...leaving only 96 tokens to provide its response.</p>
+        <p>If using LM Studio, make sure to increase the context length to what's needed.  When using the "local model" option,
+		it's automatically set to the maximum context length that a model was trained on (some are more than 4096).</p>
 
-        <p>In the future, this program will also include extremely large context lengths - both for vector models and chat models - but
-        currently 4096 tokens is more than sufficient for most RAG purposes.  If you properly phrase your query you should get highly
-        relevant results in no more than 6-9 chunks/contexts, which leaves plenty of room for the LLM to response.</p>
+        <p>The easiest way to ensure enough context is left for the chat model's response is to decrease the chunks size and/or number
+		of contexts returned.  For a simple question-answer use case, if you construct your thoughtfully and usE a good vector
+		model, you shouldn't need more than 3-6 chunks.</p>  For a typical book, for example, a good chunk setting is 1200 with
+		an overlap of 600, returning up to 6 contexts.  High-end models like <code>instructor-xl</code> will usually return
+		the relevant context in the first or second result.</p>
         
-        <p>Selecting the "chunks only" checkbox will only display the chunks.  However, if "local model" is also selected it will
-        still be loaded into memory.  This is a bug that will be fixed in upcoming releases.  Until then, simply click "eject"
-        and it'll be removed from memory; otherwise, the command prompt will not be returned to you because the process will still
-        be running in the background.</p>
+        <p>The "chunks only" checkbox within the search tab will display the chunks and not connect to LM Studio or the local model.
+		This way you can test whether your chunk size setting is appropriate to encompass the concepts and ideas within the text.</p>
         
-        <p>Likewise, if you load a local model you should eject it before closing the program otherwise the command prompt won't
-        be returned to you.  Automatic ejection will be added in a future release.</p>
-        
-        <p>Experiment with different chat models using the same query and contexts to compare the results.  Also, after getting an
-        LLM's response you can use "chunks only", submit your query again, and then doublecheck how accurate the LLM's response was.</p>
+        <p>Experiment with different chat models using the same query.  Simply select a different model and click "Submit Question"
+		again.  The same contexts and query will be sent to the new chat model so you can easily compare responses.</p>
     </main>
 
     <footer>
