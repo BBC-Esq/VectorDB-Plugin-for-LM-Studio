@@ -8,7 +8,7 @@ from openai import OpenAI
 from PySide6.QtCore import QThread, Signal, QObject
 
 from database_interactions import QueryVectorDB
-from utilities import my_cprint
+from utilities import my_cprint, format_citations
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
 
@@ -57,8 +57,7 @@ class LMStudioChat:
                 yield chunk.choices[0].delta.content
 
     def handle_response_and_cleanup(self, full_response, metadata_list):
-        citations = self.format_metadata_as_citations(metadata_list)
-        unique_citations = set(citations.split("\n"))
+        citations = format_citations(metadata_list)
         
         if self.query_vector_db and self.query_vector_db.embeddings:
             del self.query_vector_db.embeddings.client
@@ -67,16 +66,12 @@ class LMStudioChat:
         gc.collect()
         print("Embedding model removed from memory.")
         
-        return "\n".join(unique_citations)
+        return citations
 
     def save_metadata_to_file(self, metadata_list):
         with metadata_output_file_path.open('w', encoding='utf-8') as output_file:
             for metadata in metadata_list:
                 output_file.write(f"{metadata}\n")
-
-    def format_metadata_as_citations(self, metadata_list):
-        citations = [Path(metadata['file_path']).name for metadata in metadata_list]
-        return "\n".join(citations)
 
     def yield_formatted_contexts(self, contexts, metadata_list):
         for index, (context, metadata) in enumerate(zip(contexts, metadata_list), start=1):
@@ -115,7 +110,7 @@ class LMStudioChat:
         with open('chat_history.txt', 'w', encoding='utf-8') as f:
             f.write(full_response)
         
-        self.signals.response_signal.emit("\n\n")
+        self.signals.response_signal.emit("\n")
         
         citations = self.handle_response_and_cleanup(full_response, metadata_list)
         self.signals.citation_signal.emit(citations)

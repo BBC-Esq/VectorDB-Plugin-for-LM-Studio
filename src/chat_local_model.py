@@ -10,6 +10,7 @@ from PySide6.QtCore import QObject, Signal
 
 import module_chat
 from database_interactions import QueryVectorDB
+from utilities import format_citations
 
 
 class LocalModelSignals(QObject):
@@ -193,7 +194,7 @@ class LocalModelChat:
                             conn.send(("partial_response", partial_response))
                         with open('chat_history.txt', 'w', encoding='utf-8') as f:
                             f.write(full_response)
-                        citations = LocalModelChat._format_metadata_as_citations(metadata_list)
+                        citations = format_citations(metadata_list)
                         # pipes "citations" to "_listen_for_response" in parent process
                         conn.send(("citations", citations))
                         # pipes None to "_listen_for_response" in parent process
@@ -223,12 +224,6 @@ class LocalModelChat:
             )
             formatted_contexts.append(formatted_context)
         return "\n".join(formatted_contexts)
-
-    @staticmethod
-    def _format_metadata_as_citations(metadata_list):
-        citations = [Path(metadata['file_path']).name for metadata in metadata_list]
-        unique_citations = set(citations)
-        return "\n".join(unique_citations)
 
 def is_cuda_available():
     return torch.cuda.is_available()

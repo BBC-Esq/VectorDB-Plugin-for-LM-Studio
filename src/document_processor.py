@@ -121,57 +121,11 @@ def split_documents(documents):
             chunk_overlap = config["database"]["chunk_overlap"]
         
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-        # print(f"Text splitter type: {type(text_splitter)}, content: {text_splitter.__dict__}")
-        
-        # Summarize documents before conversion
-        # type_count = defaultdict(int)
-        # exceptions = []
-        # for i, doc in enumerate(documents):
-            # doc_type = type(doc).__name__
-            # content_type = type(doc.page_content).__name__
-            # type_key = f"{doc_type}, content type: {content_type}"
-            # type_count[type_key] += 1
-            
-            # if content_type != 'str':
-                # exceptions.append(f"Document {i} has unexpected content type: {content_type}")
-        
-        # print("Document summary before conversion:")
-        # print(f"Total documents: {len(documents)}")
-        # for type_key, count in type_count.items():
-            # print(f"{count} documents of type: {type_key}")
-        
-        # if exceptions:
-            # print("\nExceptions found:")
-            # for exception in exceptions:
-                # print(exception)
-        
-        # Convert "page content" within each document object to a string if it isn't already
+
         for i, doc in enumerate(documents):
             if not isinstance(doc.page_content, str):
                 logging.warning(f"Document {i} content is not a string. Converting to string.")
                 documents[i].page_content = str(doc.page_content)
-        
-        # Summarize documents after conversion
-        # type_count.clear()
-        # exceptions.clear()
-        # for i, doc in enumerate(documents):
-            # doc_type = type(doc).__name__
-            # content_type = type(doc.page_content).__name__
-            # type_key = f"{doc_type}, content type: {content_type}"
-            # type_count[type_key] += 1
-            
-            # if content_type != 'str':
-                # exceptions.append(f"Document {i} has unexpected content type: {content_type}")
-        
-        # print("\nDocument summary after conversion:")
-        # print(f"Total documents: {len(documents)}")
-        # for type_key, count in type_count.items():
-            # print(f"{count} documents of type: {type_key}")
-        
-        # if exceptions:
-            # print("\nExceptions found:")
-            # for exception in exceptions:
-                # print(exception)
         
         try:
             print(f"\nSplitting {len(documents)} documents.")
@@ -181,7 +135,7 @@ def split_documents(documents):
             logging.error(f"Error during document splitting: {str(e)}")
             logging.error(f"Error type: {type(e)}")
             logging.error(f"Error traceback: {traceback.format_exc()}")
-            raise  # Re-raise the exception after logging
+            raise
         
         return texts
     
@@ -189,4 +143,4 @@ def split_documents(documents):
         logging.error(f"Unexpected error in split_documents function: {str(e)}")
         logging.error(f"Error type: {type(e)}")
         logging.error(f"Error traceback: {traceback.format_exc()}")
-        raise  # Re-raise the exception after logging
+        raise

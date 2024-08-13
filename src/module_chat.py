@@ -97,19 +97,6 @@ def cleanup_resources(model, tokenizer):
     gc.collect()
 
 
-class InternLM2_5_1_8b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Internlm2_5 - 1.8b']
-        tokenizer_kwargs = {'trust_remote_code': True}
-        model_kwargs = {'trust_remote_code': True}
-        super().__init__(model_info, bnb_bfloat16_settings, 
-                         tokenizer_kwargs=tokenizer_kwargs, 
-                         model_kwargs=model_kwargs,
-                         eos_token="<|im_end|>")
-
-    def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
 class Dolphin_Llama3_8B(BaseModel):
     def __init__(self):
         model_info = CHAT_MODELS['Dolphin-Llama 3 - 8b']
@@ -184,7 +171,7 @@ class Dolphin_Yi_1_5_9b(BaseModel):
 
 class InternLM2_5_20b(BaseModel):
     def __init__(self):
-        model_info = CHAT_MODELS['Internlm2 - 20b']
+        model_info = CHAT_MODELS['Internlm2_5 - 20b']
         tokenizer_kwargs = {'trust_remote_code': True}
         model_kwargs = {'trust_remote_code': True}
         super().__init__(model_info, bnb_bfloat16_settings, 

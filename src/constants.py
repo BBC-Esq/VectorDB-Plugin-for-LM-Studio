@@ -203,15 +203,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '2.5 GB',
         'function': 'Zephyr_1_6B'
     },
-    'Internlm2_5 - 1.8b': {
-        'model': 'Internlm2_5 - 1.8b',
-        'repo_id': 'internlm/internlm2_5-1_8b-chat',
-        'cache_dir': 'internlm--internlm2_5-1_8b-chat',
-        'tokens_per_second': 55.51,
-        'context_length': 32768,
-        'avg_vram_usage': '2.8 GB',
-        'function': 'InternLM2_5_1_8b'
-    },
     'Zephyr - 3b': {
         'model': 'Zephyr - 3b',
         'repo_id': 'stabilityai/stablelm-zephyr-3b',
@@ -367,10 +358,10 @@ CHAT_MODELS = {
         'avg_vram_usage': '10.0 GB',
         'function': 'Dolphin_Mistral_Nemo'
     },
-    'Internlm2 - 20b': {
-        'model': 'Internlm2 - 20b',
-        'repo_id': 'internlm/internlm2_5-chat-20b',
-        'cache_dir': 'internlm--internlm2_5-chat-20b',
+    'Internlm2_5 - 20b': {
+        'model': 'Internlm2_5 - 20b',
+        'repo_id': 'internlm/internlm2_5-20b-chat',
+        'cache_dir': 'internlm--internlm2_5-20b-chat',
         'tokens_per_second': 20.21,
         'context_length': 32768,
         'avg_vram_usage': '14.2 GB',

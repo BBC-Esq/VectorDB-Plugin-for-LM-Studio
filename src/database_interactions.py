@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Dict, Optional, Union
 
 import torch
+# newer torch uses torch.amp
+from torch.cuda.amp import autocast # only necessary to specify the dtype for instructor
 import yaml
 from InstructorEmbedding import INSTRUCTOR
 from PySide6.QtCore import QDir
@@ -42,12 +44,34 @@ class CreateVectorDB:
     def load_config(self, root_directory):
         with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
             return yaml.safe_load(stream)
-    
+
+    def get_appropriate_dtype(self, compute_device, use_half):
+        if compute_device.lower() == 'cpu' or not use_half:
+            return None
+        
+        if torch.cuda.is_available() and torch.version.cuda: # checks for nvidia gpu+cuda+pytorch
+            cuda_capability = torch.cuda.get_device_capability()
+            if cuda_capability[0] >= 8 and cuda_capability[1] >= 6:
+                return torch.bfloat16
+            else:
+                return torch.float16
+        else:
+            return None
+
     @torch.inference_mode()
     def initialize_vector_model(self, embedding_model_name, config_data):
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
-        model_kwargs = {"device": compute_device, "trust_remote_code": True}
+        
+        use_half = config_data.get("database", {}).get("half", False)
+        
+        model_kwargs = {
+            "device": compute_device, 
+            "trust_remote_code": True
+        }
+        
+        torch_dtype = self.get_appropriate_dtype(compute_device, use_half)
+
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 8}
 
         if compute_device.lower() == 'cpu':
@@ -91,9 +115,15 @@ class CreateVectorDB:
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
             )
-            
+
+            # uses torch.amp. because instructor models don't internally allow a dtype as a "model_kwargs" parameter
+            if torch_dtype is not None:
+                model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
+
         elif "bge" in embedding_model_name:
             query_instruction = config_data['embedding-models']['bge'].get('query_instruction')
+            if torch_dtype is not None:
+                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
             encode_kwargs['show_progress_bar'] = True
 
             model = HuggingFaceBgeEmbeddings(
@@ -104,12 +134,13 @@ class CreateVectorDB:
             )
 
         elif "Alibaba" in embedding_model_name:
+            if torch_dtype is not None:
+                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
             model_kwargs["tokenizer_kwargs"] = {
                 "max_length": 8192,
                 "padding": True,
                 "truncation": True
             }
-            # encode_kwargs['show_progress_bar'] = True
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
                 show_progress=True,
@@ -118,16 +149,23 @@ class CreateVectorDB:
             )
 
         else:
+            if torch_dtype is not None:
+                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
                 show_progress=True,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs
             )
-            # model.client.to(dtype=torch.float16) # currently this works while adding the parameter within "model_kwargs" does not for reasons I have yet to figure out.  Moreover, it only worked with all-mpnet and sentence-xxl and not instructor-based models.  TO DO!!!
+
+            # to convert after instantiating
+            # if compute_device.lower() != 'cpu':
+                # model.client.to(dtype=torch.float16)
 
         model_name = Path(EMBEDDING_MODEL_NAME).name
-        my_cprint(f"{model_name} vector model loaded into memory.", "green")
+        precision = "float32" if torch_dtype is None else str(torch_dtype).split('.')[-1]
+    
+        my_cprint(f"{model_name} ({precision}) loaded into memory using batch size of {encode_kwargs['batch_size']}.", "green")
         
         return model, encode_kwargs
 
@@ -171,13 +209,11 @@ class CreateVectorDB:
             logging.error(f"Error creating database: {str(e)}")
             raise
 
-        print("Database created.")
-
         end_time = time.time()
         elapsed_time = end_time - start_time
 
-        print("Database saved to disk.")
-        logging.info(f"Creation of vectors and inserting into the database took {elapsed_time:.2f} seconds.")
+        print("Database created.")
+        print(f"Creating the vector database took {elapsed_time:.2f} seconds.")
         
     def save_documents_to_json(self, json_docs_to_save):
         if not self.SAVE_JSON_DIRECTORY.exists():

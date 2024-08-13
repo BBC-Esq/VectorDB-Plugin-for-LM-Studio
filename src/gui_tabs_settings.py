@@ -30,7 +30,7 @@ class GuiSettingsTab(QWidget):
         classes = {
             "LM Studio Server": (ServerSettingsTab, 5),
             "Database Query": (DatabaseSettingsTab, 3),
-            "Database Creation": (ChunkSettingsTab, 1),
+            "Database Creation": (ChunkSettingsTab, 2),
             "Text to Speech": (BarkModelSettingsTab, 4),
         }
 

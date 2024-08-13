@@ -24,12 +24,12 @@ class VectorModelsTab(QWidget):
         self.model_radiobuttons = QButtonGroup(self)
         self.model_radiobuttons.setExclusive(True)
         self.stretch_factors = {
-            'BAAI': 4,
-            'hkunlp': 4,
-            'sentence-transformers': 6,
-            'thenlper': 4,
-            'intfloat': 4,
-            'dunzhang': 3
+            'BAAI': 3,
+            'hkunlp': 3,
+            'sentence-transformers': 5,
+            'thenlper': 3,
+            'intfloat': 3,
+            'Alibaba-NLP': 3
         }
 
         models_dir = Path('Models')
@@ -65,7 +65,7 @@ class VectorModelsTab(QWidget):
                 group_layout.setColumnStretch(col, stretch_factor)
 
             for model in models:
-                model_name = f"{vendor}/{model['name']}"
+                model_info = model
                 grid = group_box.layout()
                 row = grid.rowCount()
 
@@ -78,13 +78,13 @@ class VectorModelsTab(QWidget):
                 add_centered_widget(grid, QLabel(str(model['max_sequence'])), row, 3)
                 add_centered_widget(grid, QLabel(str(model['size_mb'])), row, 4)
 
-                expected_dir_name = ModelDownloader(model_name, model['type']).get_model_directory_name()
+                expected_dir_name = ModelDownloader(model_info, model['type']).get_model_directory_name()
                 is_downloaded = expected_dir_name in existing_vector_directories
                 downloaded_label = QLabel('Yes' if is_downloaded else 'No')
                 add_centered_widget(grid, downloaded_label, row, 5)
                 radiobutton.setEnabled(not is_downloaded)
 
-                self.downloaded_labels[model_name] = (downloaded_label, model['type'])
+                self.downloaded_labels[f"{vendor}/{model['name']}"] = (downloaded_label, model_info)
 
                 link = QLabel()
                 link.setTextFormat(Qt.RichText)
@@ -108,24 +108,38 @@ class VectorModelsTab(QWidget):
     def initiate_model_download(self):
         selected_id = self.model_radiobuttons.checkedId()
         if selected_id != -1:
-            model_name, (_, model_type) = list(self.downloaded_labels.items())[selected_id - 1]
-            model_downloader = ModelDownloader(model_name, model_type)
+            _, (_, model_info) = list(self.downloaded_labels.items())[selected_id - 1]
+            model_downloader = ModelDownloader(model_info, model_info['type'])
 
             download_thread = threading.Thread(target=lambda: model_downloader.download_model())
             download_thread.start()
 
     def update_model_downloaded_status(self, model_name, model_type):
+        
         models_dir = Path('Models')
         vector_models_dir = models_dir / "Vector"
 
         existing_vector_directories = {d.name for d in vector_models_dir.iterdir() if d.is_dir()}
 
-        model_directory_name = ModelDownloader(model_name, model_type).get_model_directory_name()
+        for vendor, models in VECTOR_MODELS.items():
+            for model in models:
+                if model['cache_dir'] == model_name:
+                    downloaded_label, _ = self.downloaded_labels.get(f"{vendor}/{model['name']}", (None, None))
+                    if downloaded_label:
+                        downloaded_label.setText('Yes')
+                        for button in self.model_radiobuttons.buttons():
+                            if button.text() == model['name']:
+                                button.setEnabled(False)
+                                break
+                    self.refresh_gui()
+                    return
+        
+        print(f"Model {model_name} not found in VECTOR_MODELS")
 
-        if model_type == "vector" and model_directory_name in existing_vector_directories:
-            downloaded_label = self.downloaded_labels.get(model_name)[0]
-            if downloaded_label:
-                downloaded_label.setText('Yes')
+    def refresh_gui(self):
+        for group_box in self.group_boxes.values():
+            group_box.repaint()
+        self.repaint()
 
     def open_link(self, url):
         webbrowser.open(url)

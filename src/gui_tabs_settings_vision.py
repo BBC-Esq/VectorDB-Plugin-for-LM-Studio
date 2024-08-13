@@ -30,6 +30,7 @@ class VisionSettingsTab(QWidget):
 
         self.modelComboBox = QComboBox()
         self.populate_model_combobox()
+        self.modelComboBox.setMinimumWidth(175)
         gridLayout.addWidget(self.modelComboBox, 0, 2)
 
         self.sizeLabel = QLabel()

@@ -1,5 +1,5 @@
 import multiprocessing
-# Set the start method at the very beginning
+
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn', force=True)
 
@@ -56,7 +56,7 @@ class DocQA_GUI(QWidget):
 
     def init_ui(self):
         try:
-            self.setWindowTitle('LM Studio VectorDB Plugin - www.chintellalaw.com')
+            self.setWindowTitle('VectorDB Plugin (LM Studio Edition) - version 6.7.0')
             self.setGeometry(300, 300, 775, 1000)
             self.setMinimumSize(350, 410)
             
