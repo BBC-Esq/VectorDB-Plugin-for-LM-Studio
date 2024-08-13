@@ -169,7 +169,6 @@ Feel free to report bugs or request enhancements by creating an issue on github 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
 
 <div align="center">
-<img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example00.png" alt="Example Image">
 <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example0.png" alt="Example Image">
 <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" alt="Example Image">
 <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" alt="Example Image">
