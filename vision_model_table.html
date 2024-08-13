@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vision Model Table</title>
+    <style>
+        body {
+            background-color: #161b22;
+            color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto; /* Center table */
+        }
+        th, td {
+            border: 1px solid #f9f9f9; /* Text color for border */
+            text-align: center;
+            padding: 8px;
+        }
+        th {
+            background-color: #004D40;
+            color: black; /* For contrast against light background */
+        }
+        .main-header {
+            background-color: #004D40;
+        }
+		a {
+		  color: #00bf9e; /* Change this to your desired color */
+		}
+		a:visited {
+		  color: #00bf9e; /* Color for visited links */
+	
+	00bf9e	
+
+
+    </style>
+</head>
+<body>
+<table>
+    <tr>
+        <th rowspan="2">Model Name</th>
+        <th colspan="2" class="main-header">CPU Metrics</th>
+        <th colspan="2" class="main-header">GPU Metrics</th>
+    </tr>
+    <tr>
+        <th>Tokens/sec</th>
+        <th>Memory</th>
+        <th>Tokens/sec</th>
+        <th>Memory</th>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/microsoft/Florence-2-base">Microsoft-Florence2-Base - 223m</a></td>
+        <td>36.41</td>
+        <td>5.0 GB</td>
+        <td>163.06</td>
+        <td>2.6 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/vikhyatk/moondream2">Moondream2 - 2b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>82.28</td>
+        <td>4.6 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/microsoft/Florence-2-large">Microsoft-Florence2-Large - 772m</a></td>
+        <td>15.77</td>
+        <td>10.0 GB</td>
+        <td>113.32</td>
+        <td>5.3 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/microsoft/Phi-3-vision-128k-instruct">Microsoft-Phi3-Vision - 4.2b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>28.50</td>
+        <td>5.7 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/llava-hf/llava-1.5-7b-hf">Llava 1.5 - 7b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>56.78</td>
+        <td>5.7 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/llava-hf/bakLlava-v1-hf">Bakllava - 7b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>48.30</td>
+        <td>5.9 GB</td>
+    </tr>
+	<tr>
+        <td><a href="https://huggingface.co/llava-hf/llava-v1.6-vicuna-7b-hf">llava 1.6 vicuna - 7b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>65.36</td>
+        <td>7.9 GB</td>
+    </tr>
+	<tr>
+        <td><a href="https://huggingface.co/openbmb/MiniCPM-V-2_6-int4">MiniCPM-V-2_6 - 8.0b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>16.40</td>
+        <td>9.1 GB</td>
+    </tr>
+    <tr>
+        <td><a href="https://huggingface.co/llava-hf/llava-1.5-13b-hf">Llava 1.5 - 13b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>45.43</td>
+        <td>9.8 GB</td>
+    </tr>
+	<tr>
+        <td><a href="https://huggingface.co/tiiuae/falcon-11B-vlm">Falcon-vlm - 11b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>18.36</td>
+        <td>12.8 GB</td>
+    </tr>
+	<tr>
+        <td><a href="https://huggingface.co/llava-hf/llava-v1.6-vicuna-13b-hf">llava 1.6 vicuna - 13b</a></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>42.49</td>
+        <td>14.1 GB</td>
+    </tr>
+</table>
+</body>
+</html>
