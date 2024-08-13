@@ -1,6 +1,7 @@
 """Module contains common parsers for PDFs."""
 from __future__ import annotations
 
+import os
 import warnings
 from typing import (
     TYPE_CHECKING,
@@ -227,27 +228,42 @@ class PyMuPDFParser(BaseBlobParser):
 
         Args:
             text_kwargs: Keyword arguments to pass to ``fitz.Page.get_text()``.
+            extract_images: Flag to extract images (not used in this implementation).
         """
         self.text_kwargs = text_kwargs or {}
-        self.extract_images = extract_images
+        self.extract_images = extract_images  # We keep this, but won't use it
 
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """Lazily parse the blob."""
         import fitz
+        import json  # To convert the dictionary to a JSON string for saving
 
         with blob.as_bytes_io() as file_path:
             doc = fitz.open(file_path)  # open document
             text = ""
-            for page in doc:
-                text += page.get_text(**self.text_kwargs) + "\n"  # Concatenate text from all pages
 
+            for page in doc:
+                # Add page marker without a newline
+                text += f"[[page{page.number + 1}]]"
+                # Concatenate text from the current page without adding a newline
+                text += page.get_text(**self.text_kwargs)
+
+            # debugging
+            # with open("PyMuPDFParser.txt", "w", encoding="utf-8") as file:
+                # file.write(text)
+
+            # Prepare metadata
             metadata = {
                 "source": blob.source,
                 "file_path": blob.source,
                 "total_pages": len(doc),
             }
-            yield Document(page_content=text, metadata=metadata)
 
+            # debugging
+            # with open("PyMuPDFParser_dictionary.txt", "w", encoding="utf-8") as dict_file:
+                # dict_file.write(json.dumps(metadata, indent=4))
+
+            yield Document(page_content=text, metadata=metadata)
 
     def _extract_images_from_page(
         self, doc: fitz.fitz.Document, page: fitz.fitz.Page
