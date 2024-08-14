@@ -1,20 +1,30 @@
 <div align="center">
-  <h1>🚀 Supercharge your <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
-  <h2>Now with the ability to process images and audio files, Local chat models, and text to speech playback!<br><a href="https://www.youtube.com/watch?v=J1t95ecV11U">Introductory Video</a><br><a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h2>
+  <h2>🚀 Supercharge <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h2>
+  <h3>Search images, audio, and other general file types - Text to Speech Playback - Voice Recorder<br><a href="https://www.youtube.com/watch?v=J1t95ecV11U">Introductory Video</a><br><a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h3>
 </div>
 
+<div align="center">
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" alt="Example Image" width="200">
+    </a>
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" alt="Example Image" width="200">
+    </a>
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" alt="Example Image" width="200">
+    </a>
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" alt="Example Image" width="200">
+    </a>
+</div>
 
-
-* 🔥 Currently only supported on ```Windows``` systems with an ```Nvidia GPU```.  Feel free to contribute to support other setups!
-* 🔥 Due to time constraints, ```Release v3.5.2``` was the last one that attempted to support Linux/MacOS and ```Release v6.1.0``` was the last one that attempted to support CPU-only systems.
-
-<div align="center"> <h2><u>REQUIREMENTS</h2></div>
+<div align="center"> <h2><u>Requirements</h2></div>
   
-1) 🐍[Python 3.11](https://www.python.org/downloads/release/python-3119/)
-2) 📁[Git](https://git-scm.com/downloads)
-3) 📁[Git Large File Storage](https://git-lfs.com/).
-4) 🌐[Pandoc](https://github.com/jgm/pandoc/releases).
-5) CUDA is technically "required" but the installation script installs it automatically.
+1) 🔥 Windows systems - sorry only able to test on Window but feel free to contribute!
+2) 🐍[Python 3.11](https://www.python.org/downloads/release/python-3119/)
+3) 📁[Git](https://git-scm.com/downloads)
+4) 📁[Git Large File Storage](https://git-lfs.com/).
+5) 🌐[Pandoc](https://github.com/jgm/pandoc/releases).
 6) Compiler.
    > Certain dependencies don't have a pre-compiled "wheel" so you must build them with something like [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you choose Visual Studio, for example, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing the "SDK."
 
@@ -168,10 +178,4 @@ Feel free to report bugs or request enhancements by creating an issue on github 
 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
 
-<div align="center">
-<img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" alt="Example Image">
-<img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" alt="Example Image">
-<img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" alt="Example Image">
-<img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" alt="Example Image">
-<img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example5.png" alt="Example Image">
-</div>
+
