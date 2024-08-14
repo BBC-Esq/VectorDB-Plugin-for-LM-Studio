@@ -17,13 +17,6 @@ from choose_documents_and_vector_model import select_embedding_model_directory, 
 from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database, get_pkl_file_path
 from download_model import model_downloaded_signal
 
-# datasets_logger = logging.getLogger('datasets')
-# datasets_logger.setLevel(logging.WARNING)
-
-# logging.getLogger("transformers").setLevel(logging.ERROR)
-# warnings.filterwarnings("ignore", category=FutureWarning)
-# warnings.filterwarnings("ignore", category=UserWarning)
-# logging.getLogger().setLevel(logging.WARNING)
 
 class CreateDatabaseThread(QThread):
     creationComplete = Signal()

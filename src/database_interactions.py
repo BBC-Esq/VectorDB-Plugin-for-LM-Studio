@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Dict, Optional, Union
 
 import torch
-# NOTE: newer torch uses torch.amp
-from torch.cuda.amp import autocast # necessary to dtype for instructor
+# NOTE: newer torch uses new namespace - torch.amp
+from torch.cuda.amp import autocast # necessary to set dtype for instructor
 import yaml
 from InstructorEmbedding import INSTRUCTOR
 from PySide6.QtCore import QDir
@@ -19,7 +19,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.document import Document
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
 from langchain_community.vectorstores import TileDB
-from langchain_core.load import dumps
+from langchain_core.load import dumps # debugging
 
 from document_processor import load_documents, split_documents
 from module_process_images import choose_image_loader
@@ -35,12 +35,12 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 logging.getLogger().setLevel(logging.WARNING)
 
 # debugging
-def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
-    print("Saving to JSON...")
-    json_string = dumps(documents, pretty=True)
+# def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
+    # print("Saving to JSON...")
+    # json_string = dumps(documents, pretty=True)
 
-    with open(file_name, "w") as json_file:
-        json_file.write(json_string)
+    # with open(file_name, "w") as json_file:
+        # json_file.write(json_string)
             
 class CreateVectorDB:
     def __init__(self, database_name):
@@ -57,7 +57,8 @@ class CreateVectorDB:
         if compute_device.lower() == 'cpu' or not use_half:
             return None
         
-        if torch.cuda.is_available() and torch.version.cuda: # checks for nvidia gpu+cuda+pytorch
+        # checks for nvidia gpu+cuda+pytorch
+        if torch.cuda.is_available() and torch.version.cuda:
             cuda_capability = torch.cuda.get_device_capability()
             if cuda_capability[0] >= 8 and cuda_capability[1] >= 6:
                 return torch.bfloat16
@@ -94,7 +95,7 @@ class CreateVectorDB:
                 'instructor-large': 3,
                 'e5-large': 3,
                 'gte-large': 3,
-                'instructor-base': 8,
+                'instructor-base': 6,
                 'mpnet': 8,
                 'e5-base': 8,
                 'bge-base': 8,
@@ -186,7 +187,7 @@ class CreateVectorDB:
             logging.info(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            # Extract text and metadata from document objects
+            # separate page_content and metadata
             text_content = [doc.page_content for doc in texts]
             metadatas = [doc.metadata for doc in texts]
             
@@ -271,7 +272,7 @@ class CreateVectorDB:
 
     def save_documents_to_pickle(self, documents):
         """
-        Pickle all document objects incase the database creation process terminates early.  Cleared each time the program closes.
+        Pickle all document objects incase the database creation process terminates early.  Cleared each time the program starts.
         """
         pickle_directory = self.ROOT_DIRECTORY / "pickle"
         
@@ -294,16 +295,16 @@ class CreateVectorDB:
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         
-        # list to hold langchain "document objects"        
+        # list to hold "document objects"        
         documents = []
         
         # load text document objects
-        print("Processing any text documents...")
+        print("Loading any general files...")
         text_documents = load_documents(self.SOURCE_DIRECTORY)
         if isinstance(text_documents, list) and text_documents:
             documents.extend(text_documents)
 
-        # create separate lists for pdf and non-pdf document objects
+        # separate lists for pdf and non-pdf document objects
         text_documents_pdf = [doc for doc in documents if doc.metadata.get("file_type") == ".pdf"]
         documents = [doc for doc in documents if doc.metadata.get("file_type") != ".pdf"]
 
@@ -316,19 +317,17 @@ class CreateVectorDB:
         # serialize_documents_to_json(text_documents_pdf)
         
         # load image document objects
-        print("Processing any images...")
+        print("Loading any images...")
         image_documents = choose_image_loader()
         if isinstance(image_documents, list) and image_documents:
             if len(image_documents) > 0:
                 documents.extend(image_documents)
         
         # load audio document objects
-        print("Processing any audio transcripts...")
+        print("Loading any audio transcripts...")
         audio_documents = self.load_audio_documents()
         if isinstance(audio_documents, list) and audio_documents:
             documents.extend(audio_documents)
-            if len(audio_documents) > 0:
-                print(f"Loaded {len(audio_documents)} audio transcription(s)...")
 
         json_docs_to_save = []
         json_docs_to_save.extend(documents)
@@ -337,14 +336,14 @@ class CreateVectorDB:
         # list to hold all split document objects
         texts = []
 
-        # split document objects if either "documents" or "text_documents_pdf" have document objects
+        # split
         if (isinstance(documents, list) and documents) or (isinstance(text_documents_pdf, list) and text_documents_pdf):
             texts = split_documents(documents, text_documents_pdf)
 
         # debugging
-        serialize_documents_to_json(texts, file_name="split_document_objects.json")
+        # serialize_documents_to_json(texts, file_name="split_document_objects.json")
 
-        # serialize all split document objects temporarily
+        # pickle
         if isinstance(texts, list) and texts:
             self.save_documents_to_pickle(texts)
 
@@ -374,7 +373,6 @@ class QueryVectorDB:
         self.selected_database = selected_database
         self.embeddings = self.initialize_vector_model()
         self.db = self.initialize_database()
-        self.retriever = self.initialize_retriever()
 
     def load_configuration(self):
         config_file_path = Path(__file__).resolve().parent / "config.yaml"
@@ -428,36 +426,118 @@ class QueryVectorDB:
         
         return TileDB.load(index_uri=str(persist_directory), embedding=self.embeddings, allow_dangerous_deserialization=True)
 
-    def initialize_retriever(self):
+    def is_intfloat_model(self):
+        model_path = self.config['created_databases'][self.selected_database]['model']
+        return "intfloat" in model_path.lower()
+
+    def search(self, query):
+        # get latest settings
+        self.config = self.load_configuration()
         document_types = self.config['database'].get('document_types', '')
         search_filter = {'document_type': document_types} if document_types else {}
         score_threshold = float(self.config['database']['similarity'])
         k = int(self.config['database']['contexts'])
-        search_type = "similarity"
         
-        return self.db.as_retriever(
-            search_type=search_type,
-            search_kwargs={
-                'score_threshold': score_threshold,
-                'k': k,
-                'filter': search_filter
-            }
-        )
-
-    def is_intfloat_model(self):
-        model_path = self.config['created_databases'][self.selected_database]['model']
-        return "intfloat" in model_path.lower() # ensures searches of "intfloat" DBs has the correct prefix
-
-    def search(self, query):
         if self.is_intfloat_model():
             query = f"query: {query}"
         
-        relevant_contexts = self.retriever.invoke(input=query)
+        # search
+        relevant_contexts = self.db.similarity_search_with_score(
+            query,
+            k=k,
+            filter=search_filter,
+            score_threshold=score_threshold
+        )
         
         search_term = self.config['database'].get('search_term', '').lower()
-        filtered_contexts = [doc for doc in relevant_contexts if search_term in doc.page_content.lower()]
+        filtered_contexts = [(doc, score) for doc, score in relevant_contexts if search_term in doc.page_content.lower()]
         
-        contexts = [document.page_content for document in filtered_contexts]
-        metadata_list = [document.metadata for document in filtered_contexts]
+        contexts = [document.page_content for document, _ in filtered_contexts]
+        metadata_list = [document.metadata for document, _ in filtered_contexts]
+        scores = [score for _, score in filtered_contexts] # similarity scores
+        
+        # DEBUG
+        # print(scores)
         
         return contexts, metadata_list
+
+class DeleteDoc:
+    def __init__(self, selected_database):
+        self.selected_database = selected_database
+        self.config = self.load_configuration()
+        self.embeddings = self.initialize_vector_model()
+        self.vectorstore = self.initialize_database()
+
+    def load_configuration(self):
+        config_file_path = Path(__file__).resolve().parent / "config.yaml"
+        with open(config_file_path, 'r') as config_file:
+            return yaml.safe_load(config_file)
+
+    def initialize_vector_model(self):    
+        model_path = self.config['created_databases'][self.selected_database]['model']
+        
+        compute_device = self.config['Compute_Device']['database_query']
+        encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
+        
+        if "instructor" in model_path:
+            return HuggingFaceInstructEmbeddings(
+                model_name=model_path,
+                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                encode_kwargs=encode_kwargs,
+            )
+        elif "bge" in model_path:
+            query_instruction = self.config['embedding-models']['bge']['query_instruction']
+            return HuggingFaceBgeEmbeddings(
+                model_name=model_path,
+                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                query_instruction=query_instruction,
+                encode_kwargs=encode_kwargs
+            )
+        elif "Alibaba" in model_path:
+            return HuggingFaceEmbeddings(
+                model_name=model_path,
+                model_kwargs={
+                    "device": compute_device,
+                    "trust_remote_code": True,
+                    "tokenizer_kwargs": {
+                        "max_length": 8192,
+                        "padding": True,
+                        "truncation": True
+                    }
+                },
+                encode_kwargs=encode_kwargs
+            )
+        else:
+            return HuggingFaceEmbeddings(
+                model_name=model_path,
+                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                encode_kwargs=encode_kwargs
+            )
+
+    def initialize_database(self):
+        persist_directory = Path(__file__).resolve().parent / "Vector_DB" / self.selected_database
+        
+        return TileDB.load(index_uri=str(persist_directory), embedding=self.embeddings, allow_dangerous_deserialization=True)
+
+    def delete_entries_by_hash(self, hash_value: str, batch_size: int = 1000) -> int:
+        total_deleted = 0
+        while True:
+            results = self.vectorstore.similarity_search_with_score(
+                query="",
+                k=batch_size,
+                filter={"hash": hash_value}
+            )
+            
+            if not results:
+                break
+            
+            ids_to_delete = [str(doc.metadata.get("id")) for doc, _ in results if doc.metadata.get("hash") == hash_value]
+            
+            if ids_to_delete:
+                self.vectorstore.delete(ids=ids_to_delete)
+                total_deleted += len(ids_to_delete)
+            
+            if len(results) < batch_size:
+                break
+        
+        return total_deleted

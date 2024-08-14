@@ -151,7 +151,12 @@ class WhisperTranscriber:
 
     def create_document_object(self, transcription_text, audio_file_path):
         metadata = extract_audio_metadata(audio_file_path)
-        
+
+        # DEBUG 
+        # print("Metadata attributes/fields:")
+        # for key, value in metadata.items():
+            # print(f"{key}: {value}")
+
         doc = Document(page_content=transcription_text, metadata=metadata)
         
         script_dir = Path(__file__).parent

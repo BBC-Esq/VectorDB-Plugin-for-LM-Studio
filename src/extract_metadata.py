@@ -14,7 +14,7 @@ def compute_file_hash(file_path):
     return hash_sha256.hexdigest()
 
 def extract_common_metadata(file_path):
-    file_path = os.path.abspath(file_path)
+    file_path = os.path.realpath(file_path)
     file_name = os.path.basename(file_path)
     file_type = os.path.splitext(file_path)[1]
     file_size = os.path.getsize(file_path)
@@ -49,7 +49,7 @@ def extract_audio_metadata(file_path):
 
 def add_pymupdf_page_metadata(doc: Document, chunk_size: int = 1200, chunk_overlap: int = 600) -> List[Document]:
     """
-    Splits document objects originating from the custom pymupdfparser within langchain and adds page metadata.
+    Splits and adds page metadata to each chunk of a pdf document.  Relies on the custom implementation of pymupdfparser
     Called by document_processor.py.
     """
     def split_text(text: str, chunk_size: int, chunk_overlap: int) -> List[Tuple[str, int]]:

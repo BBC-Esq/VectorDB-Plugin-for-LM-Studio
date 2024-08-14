@@ -82,19 +82,29 @@ def get_pkl_file_path(pkl_file_path):
     except Exception as e:
         raise ValueError(f"Could not process pickle file: {e}")
 
+def print_first_citation_metadata(metadata_list):
+    """
+    DEBUG: Print the metadata attributes/fields for the first citation in the list.
+    """
+    if metadata_list:
+        print("Metadata attributes/fields for the first citation:")
+        for key, value in metadata_list[0].items():
+            print(f"{key}: {value}")
+
 def format_citations(metadata_list):
     """
-    Format metadata into a list of unique citations.
-    
-    Args:
-    metadata_list (list): List of metadata dictionaries.
-    
-    Returns:
-    str: A string of unique citations, each on a new line.
+    Format metadata into an HTML list after removing redundant ones.
     """
-    citations = [Path(metadata['file_path']).name for metadata in metadata_list]
-    unique_citations = set(citations)
-    return "\n".join(sorted(unique_citations))
+    unique_citations = set()
+    for metadata in metadata_list:
+        file_path = metadata['file_path']
+        file_name = Path(file_path).name
+        unique_citations.add(f'<a href="file:{file_path}" style="color:#DAA520;">{file_name}</a>')
+    
+    list_items = "".join(f"<li>{citation}</li>" for citation in sorted(unique_citations))
+    
+    return f"<ol>{list_items}</ol>"
+
 
 def get_physical_core_count():
     return psutil.cpu_count(logical=False)
@@ -173,7 +183,7 @@ def backup_database():
 
 
 def open_file(file_path):
-    # open a file with the system's default program with a specified path
+    # open a file with the system's default program
     try:
         if platform.system() == "Windows":
             os.startfile(file_path)

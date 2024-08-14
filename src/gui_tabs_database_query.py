@@ -6,7 +6,8 @@ from pathlib import Path
 
 import torch
 import yaml
-from PySide6.QtCore import QThread, Signal, QObject, Qt
+from PySide6.QtCore import QThread, Signal, QObject, Qt, QUrl
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QTextEdit, QPushButton, QCheckBox, QHBoxLayout, QMessageBox,
                                QApplication, QComboBox, QLabel, QTextBrowser)
 
@@ -42,12 +43,10 @@ class GuiSignals(QObject):
 class CustomTextBrowser(QTextBrowser):
     '''
     Inherits from QTextBrowser but overrides the doSetSource method to ensure that "http," "https," and "file" schemes are opened
-    with the system's default program while other types are still opened within pyside6 as set forth in the QTextBrowser widget.
+    with the system's default program while other types are still opened however the QTextBrowswer normall does.
     
-    This allows for additional handling and/or make the opening internal or external based on the type of link.
-    
-    Examples:
-    
+    The following examples allow for additional handling and/or make the opening internal or external based on the type of link.
+        
     1. Handle mailto links within the application to provide a custom email interface
     2. Blocking or handling all other schemes internally
     3. Log every http and https link click to a file or database before opening it in the default browser.
@@ -58,7 +57,9 @@ class CustomTextBrowser(QTextBrowser):
         self.setOpenExternalLinks(False)
 
     def doSetSource(self, name, type):
-        if name.scheme() in ['http', 'https', 'file']:
+        if name.scheme() == 'file':
+            QDesktopServices.openUrl(QUrl.fromLocalFile(name.toLocalFile()))
+        elif name.scheme() in ['http', 'https']:
             QDesktopServices.openUrl(name)
         else:
             super().doSetSource(name, type)
@@ -77,8 +78,9 @@ class DatabaseQueryTab(QWidget):
     def initWidgets(self):
         layout = QVBoxLayout(self)
 
-        self.read_only_text = CustomTextBrowser()
-        layout.addWidget(self.read_only_text, 5)
+        self.response_widget = CustomTextBrowser()
+        self.response_widget.setOpenExternalLinks(True)
+        layout.addWidget(self.response_widget, 5)
 
         hbox1_layout = QHBoxLayout()
 
@@ -181,7 +183,11 @@ class DatabaseQueryTab(QWidget):
             QMessageBox.warning(self, "Error", error_message)
             return
 
-        self.read_only_text.clear()
+        self.response_widget.clear()
+        
+        # crucial to prevent the LLM's responses from being hyperlinked
+        self.response_widget.setPlainText("")
+        self.response_widget.setHtml("")
         
         self.cumulative_response = ""
         self.submit_button.setDisabled(True)
@@ -197,7 +203,7 @@ class DatabaseQueryTab(QWidget):
             self.lm_studio_chat_thread.lm_studio_chat.signals.finished_signal.connect(self.on_submission_finished)
             self.lm_studio_chat_thread.lm_studio_chat.signals.citation_signal.connect(self.display_citations_in_widget)
             self.lm_studio_chat_thread.start()
-        else:  # Used by Local Model.  Add additoinal "elif" statements if more backends are added
+        else:  # Used by Local Model.  Add additional "elif" statements if more backends are added
             selected_model = self.model_combo_box.currentText()
             try:
                 if selected_model != self.local_model_chat.current_model:
@@ -229,16 +235,16 @@ class DatabaseQueryTab(QWidget):
 
     def on_model_loaded(self):
         self.eject_button.setEnabled(True)
-    
+
     def display_citations_in_widget(self, citations):
         if citations:
-            self.read_only_text.append("\nCitations:\n" + citations)
+            self.response_widget.append(f"<br>Citation Links:{citations}")
         else:
-            self.read_only_text.append("\n\nNo citations found.")
-    
+            self.response_widget.append("\n\nNo citations found.")
+
     def on_copy_response_clicked(self):
         clipboard = QApplication.clipboard()
-        response_text = self.read_only_text.toPlainText()
+        response_text = self.response_widget.toPlainText()
         if response_text:
             clipboard.setText(response_text)
             QMessageBox.information(self, "Information", "Response copied to clipboard.")
@@ -281,13 +287,13 @@ class DatabaseQueryTab(QWidget):
 
     def update_response_lm_studio(self, response_chunk):
         self.cumulative_response += response_chunk
-        self.read_only_text.setPlainText(self.cumulative_response)
+        self.response_widget.setPlainText(self.cumulative_response)
 
     def update_response_local_model(self, response):
-        current_text = self.read_only_text.toPlainText()
-        self.read_only_text.setPlainText(current_text + response)
-        self.read_only_text.verticalScrollBar().setValue(
-            self.read_only_text.verticalScrollBar().maximum()
+        current_text = self.response_widget.toPlainText()
+        self.response_widget.setPlainText(current_text + response)
+        self.response_widget.verticalScrollBar().setValue(
+            self.response_widget.verticalScrollBar().maximum()
         )
         if not self.chunks_only_checkbox.isChecked():
             self.eject_button.setEnabled(True)
