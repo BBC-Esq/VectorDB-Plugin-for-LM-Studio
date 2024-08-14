@@ -4,20 +4,17 @@
 </div>
 
 <div align="center">
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png">
-        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" alt="Example Image" width="150">
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" alt="Example Image" width="400">
     </a>
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png">
-        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" alt="Example Image" width="150">
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" alt="Example Image" width="400">
     </a>
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png">
-        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" alt="Example Image" width="150">
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" alt="Example Image" width="400">
     </a>
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png">
-        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" alt="Example Image" width="150">
-    </a>
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example5.png">
-        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example5.png" alt="Example Image" width="150">
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" alt="Example Image" width="400">
     </a>
 </div>
 
