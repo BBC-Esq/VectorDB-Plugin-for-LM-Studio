@@ -22,7 +22,6 @@ from langchain_community.vectorstores import TileDB
 from langchain_core.load import dumps
 
 from document_processor import load_documents, split_documents
-import splitter_pdf
 from module_process_images import choose_image_loader
 from utilities import my_cprint
 
@@ -36,12 +35,12 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 logging.getLogger().setLevel(logging.WARNING)
 
 # debugging
-# def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
-    # print("Saving to JSON...")
-    # json_string = dumps(documents, pretty=True)
+def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
+    print("Saving to JSON...")
+    json_string = dumps(documents, pretty=True)
 
-    # with open(file_name, "w") as json_file:
-        # json_file.write(json_string)
+    with open(file_name, "w") as json_file:
+        json_file.write(json_string)
             
 class CreateVectorDB:
     def __init__(self, database_name):
@@ -343,7 +342,7 @@ class CreateVectorDB:
             texts = split_documents(documents, text_documents_pdf)
 
         # debugging
-        # serialize_documents_to_json(texts, file_name="split_document_objects.json")
+        serialize_documents_to_json(texts, file_name="split_document_objects.json")
 
         # serialize all split document objects temporarily
         if isinstance(texts, list) and texts:

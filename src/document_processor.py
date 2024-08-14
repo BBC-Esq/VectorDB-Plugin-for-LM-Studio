@@ -26,8 +26,7 @@ from langchain_community.document_loaders import (
 )
 
 from constants import DOCUMENT_LOADERS
-from extract_metadata import extract_document_metadata
-import splitter_pdf
+from extract_metadata import extract_document_metadata, add_pymupdf_page_metadata
 from utilities import my_cprint
 import traceback
 
@@ -126,8 +125,8 @@ def split_documents(documents=None, text_documents_pdf=None):
         texts = []
 
         # debugging
-        print(f"Documents list before splitting: {[doc.metadata.get('file_type') for doc in documents]}")
-        print(f"PDF Documents list before splitting: {[doc.metadata.get('file_type') for doc in text_documents_pdf]}")
+        # print(f"Documents list before splitting: {[doc.metadata.get('file_type') for doc in documents]}")
+        # print(f"PDF Documents list before splitting: {[doc.metadata.get('file_type') for doc in text_documents_pdf]}")
 
         # split non-PDF document objects
         if documents:
@@ -145,7 +144,7 @@ def split_documents(documents=None, text_documents_pdf=None):
             print(f"Splitting {len(text_documents_pdf)} PDF documents.")
             processed_pdf_docs = []
             for doc in text_documents_pdf:
-                chunked_docs = splitter_pdf.chunk_and_annotate_document(doc)
+                chunked_docs = add_pymupdf_page_metadata(doc, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 processed_pdf_docs.extend(chunked_docs)
             texts.extend(processed_pdf_docs)
             print(f"Created {len(processed_pdf_docs)} chunks from PDF documents.")
