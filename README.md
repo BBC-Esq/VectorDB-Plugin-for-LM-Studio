@@ -3,6 +3,13 @@
   <h3>Search images, audio, and other general file types - Text to Speech Playback - Voice Recorder<br><a href="https://www.youtube.com/watch?v=J1t95ecV11U">Introductory Video</a><br><a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h3>
 </div>
 
+## Table of Contents
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Using the Program](#using-the-program)
+- [Request a Feature or Report a Bug](#request-a-feature-or-report-a-bug)
+- [Contact](#contact)
+
 <div align="center">
     <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" target="_blank">
         <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" alt="Example Image" width="400">
@@ -18,7 +25,7 @@
     </a>
 </div>
 
-
+<a name="requirements"></a>
 <div align="center"> <h2><u>Requirements</h2></div>
   
 1) 🔥 Windows systems - sorry only able to test on Window but feel free to contribute!
@@ -39,6 +46,9 @@
      <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/build_tools.png">
    </details>
 
+[Back to Top](#top)
+
+<a name="installation"></a>
 <div align="center"> <h2>INSTALLATION</h2></div>
 
 <details>
@@ -84,6 +94,9 @@ MacOS users must use Release v3.5.2 until I can update the codebase due to recen
 
 </details>
 
+[Back to Top](#top)
+
+<a name="using-the-program"></a>
 <div align="center"> <h2>USING THE PROGRAM</h2></div>
 <details>
   <summary>🖥️INSTRUCTIONS🖥</summary>
@@ -171,10 +184,14 @@ This program gets relevant chunks from the vector database and forwarding them -
 
 </details>
 
+[Back to Top](#top)
+
+<a name="request-a-feature-or-report-a-bug"></a>
 ## Request a Feature or Report a Bug
 
 Feel free to report bugs or request enhancements by creating an issue on github or contacting me on the LM Studio Discord server (see below link)!
 
+<a name="contact"></a>
 <div align="center"><h2>CONTACT</h2></div>
 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
