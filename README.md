@@ -1,6 +1,6 @@
 <div align="center">
   <h2>🚀 Supercharge <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h2>
-  <h3>Search images, audio, and other general file types + Text to Speech<br><a href="https://www.youtube.com/watch?v=J1t95ecV11U">Introductory Video</a><br><a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h3>
+  <h3>Search images, audio, and other general file types + Text to Speech<br><a href="https://www.youtube.com/watch?v=J1t95ecV11U">Introductory Video</a> - <a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h3>
 </div>
 
 ## Table of Contents
