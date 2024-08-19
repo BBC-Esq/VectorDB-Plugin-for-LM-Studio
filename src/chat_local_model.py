@@ -20,6 +20,7 @@ class LocalModelSignals(QObject):
     finished_signal = Signal()  # 10. signal for indicating process completion
     model_loaded_signal = Signal()  # 3. signal for indicating model loaded
     model_unloaded_signal = Signal()  # 11. signal for indicating model unloaded
+    token_count_signal = Signal(str)
 
 class LocalModelChat:
     def __init__(self):
@@ -34,7 +35,7 @@ class LocalModelChat:
             if self.is_model_loaded():
                 self.terminate_current_process()
             
-            # turns the blank pipe int oa bidirectional pipe with parent process and child process ends
+            # turns the blank pipe into a bidirectional pipe with parent process and child process ends
             parent_conn, child_conn = Pipe()
             # establishes the parent process end of the pipe
             self.model_pipe = parent_conn
@@ -136,6 +137,9 @@ class LocalModelChat:
                         if message == "exit":
                             logging.info("Received exit signal, terminating listener")
                             break
+                    # Signal
+                    elif message_type == "token_counts":
+                        self.signals.token_count_signal.emit(message)
                 else:
                     time.sleep(0.1)
             except (BrokenPipeError, EOFError, OSError) as e:
@@ -158,7 +162,7 @@ class LocalModelChat:
         logging.info("Listener resource cleanup completed")
 
     @staticmethod
-    def _local_model_process(conn, model_name): # run within the child process
+    def _local_model_process(conn, model_name): # runs generation within the child process
         model_instance = module_chat.choose_model(model_name)
         query_vector_db = None
         current_database = None
@@ -166,7 +170,6 @@ class LocalModelChat:
             while True:
                 try:
                     message_type, message = conn.recv()
-                    # receives message from the main process and handles it based on its "message_type"
                     if message_type == "question": # generate streamed response
                         user_question, chunks_only, _, selected_database = message
                         if query_vector_db is None or current_database != selected_database:
@@ -182,22 +185,45 @@ class LocalModelChat:
                             conn.send(("response", formatted_contexts))
                             conn.send(("finished", None))
                             continue
+                        
                         prepend_string = "Here are the contexts to base your answer on, but I need to reiterate only base your response on these contexts and do not use outside knowledge that you may have been trained with."
                         augmented_query = f"{prepend_string}\n\n---\n\n" + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + user_question
+                        # DEBUG
                         # print(augmented_query)
-                        # old code that receives an entire response
-                        # response = module_chat.generate_response(model_instance, augmented_query)
+
+                        # counts tokens using the chosen model's tokenizer
+                        prepend_token_count = len(model_instance.tokenizer.encode(prepend_string))
+                        context_token_count = len(model_instance.tokenizer.encode("\n\n---\n\n".join(contexts)))
+                        user_question_token_count = len(model_instance.tokenizer.encode(user_question))
+                        
                         full_response = ""
-                        # gets "partial_response" and pipes it to "_listen_for_response" in the parent process
+                        # pipe - "_listen_for_response" in the parent process
                         for partial_response in module_chat.generate_response(model_instance, augmented_query):
                             full_response += partial_response
                             conn.send(("partial_response", partial_response))
+
+                        response_token_count = len(model_instance.tokenizer.encode(full_response))
+                        # calculate available tokens
+                        remaining_tokens = model_instance.max_length - (prepend_token_count + user_question_token_count + context_token_count + response_token_count)
+                        
+                        # construct string
+                        total_tokens = prepend_token_count + context_token_count + user_question_token_count + response_token_count
+                        token_count_string = (
+                            f"<span style='color:#2ECC40;'>available tokens ({model_instance.max_length})</span>"
+                            f"<span style='color:#FF4136;'> - rag instruction ({prepend_token_count}) - query ({user_question_token_count})"
+                            f" - contexts ({context_token_count}) - response ({response_token_count})</span>"
+                            f"<span style='color:white;'> = {remaining_tokens} remaining tokens.</span>"
+                        )
+
+                        # pipe - "_listen_for_response" in parent process
+                        conn.send(("token_counts", token_count_string))
+
                         with open('chat_history.txt', 'w', encoding='utf-8') as f:
                             f.write(full_response)
                         citations = format_citations(metadata_list)
-                        # pipes "citations" to "_listen_for_response" in parent process
+                        # pipe - "_listen_for_response" in parent process
                         conn.send(("citations", citations))
-                        # pipes None to "_listen_for_response" in parent process
+                        # pipe - "_listen_for_response" in parent process
                         conn.send(("finished", None))
                     elif message_type == "exit":
                         break

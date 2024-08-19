@@ -22,7 +22,7 @@ from langchain_community.document_loaders import (
     UnstructuredRTFLoader,
     UnstructuredODTLoader,
     UnstructuredMarkdownLoader,
-    UnstructuredHTMLLoader
+    BSHTMLLoader
 )
 
 from constants import DOCUMENT_LOADERS
@@ -59,8 +59,41 @@ def load_single_document(file_path: Path) -> Document:
 
     loader_options = {}
 
-    if file_extension in [".epub", ".rtf", ".odt", ".md", ".html"]:
+    if file_extension in [".epub", ".rtf", ".odt", ".md"]:
         loader_options.update({"mode": "single", "strategy": "fast"})
+    # elif file_extension == ".html":
+        # loader_options.update({
+            # "mode": "single", 
+            # "strategy": "fast",
+            # "unstructured_kwargs": {
+                # "encoding": "utf-8",
+                # # "include_metadata": True,  # Include additional metadata in the output
+                # # "detect_language_per_element": True,  # Detect language for each element instead of the whole document
+                # # "languages": ["en", "es"],  # Specify expected languages (English and Spanish in this example)
+                # # "metadata_last_modified": "2023-08-15T14:30:00",  # Specify a known last modified date
+                # # "skip_headers_and_footers": True,  # Ignore content within <header> or <footer> tags
+                # # "paragraph_grouper": some_grouping_function,  # Custom function to group paragraphs
+                # # "url": "https://example.com/source",  # Original URL if known
+                # # "headers": {"User-Agent": "MyBot/1.0"},  # Custom headers if fetching from URL
+                # # "ssl_verify": False,  # Disable SSL verification if needed (use with caution)
+            # }
+        # })
+        
+    elif file_extension == ".html":
+        loader_options.update({
+            "open_encoding": "utf-8",
+            "bs_kwargs": {
+                "features": "lxml",  # Specify the parser to use (lxml is generally fast and lenient)
+                # "parse_only": SoupStrainer("body"),  # Optionally parse only the body tag
+                # "from_encoding": "iso-8859-1",  # Specify a different input encoding if needed
+            },
+            "get_text_separator": "\n",  # Use newline as separator when extracting text
+            # Additional parameters and comments:
+            # "file_path": "path/to/file.html",  # Usually set automatically by the loader
+            # "open_encoding": None,  # Set to None to let BeautifulSoup detect encoding
+            # "get_text_separator": " ",  # Use space instead of newline if preferred
+        })
+        
     elif file_extension in [".xlsx", ".xlsd"]:
         loader_options.update({"mode": "single"})
     elif file_extension in [".csv", ".txt"]:

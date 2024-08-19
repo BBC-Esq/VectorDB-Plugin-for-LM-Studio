@@ -1,10 +1,15 @@
 system_message = """You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. Here are one or more contexts to solely base your answer off of. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."""
 
-CHUNKS_ONLY_TOOLTIP = "Only return relevant chunks without connecting to the LLM. Extremely useful to test the chunk size/overlap settings."
-
-SPEAK_RESPONSE_TOOLTIP = "Only click this after the LLM's entire response is received otherwise your computer might explode."
-
-DOWNLOAD_EMBEDDING_MODEL_TOOLTIP = "Remember, wait until downloading is complete!"
+MODEL_MAX_TOKENS = {
+    'Danube 3 - 4b': 8192,
+    'Dolphin-Qwen 2 - 1.5b': 8192,
+    'Internlm2_5 - 7b': 8192,
+    'Dolphin-Llama 3.1 - 8b': 8192,
+    'Hermes-3-Llama-3.1 - 8b': 8192,
+    'Dolphin-Qwen 2 - 7b': 8192,
+    'Dolphin-Mistral-Nemo - 12b': 8192,
+    'Internlm2_5 - 20b': 8192,
+}
 
 VECTOR_MODELS = {
     'BAAI': [
@@ -192,7 +197,6 @@ VECTOR_MODELS = {
     ],
 }
 
-
 CHAT_MODELS = {
     'Zephyr - 1.6b': {
         'model': 'Zephyr - 1.6b',
@@ -212,14 +216,14 @@ CHAT_MODELS = {
         'avg_vram_usage': '2.9 GB',
         'function': 'Zephyr_3B'
     },
-    'Qwen 1.5 - 1.8B': {
-        'model': 'Qwen 1.5 - 1.8B',
-        'repo_id': 'Qwen/Qwen1.5-1.8B-Chat',
-        'cache_dir': 'Qwen--Qwen1.5-1.8B-Chat',
+    'Danube 3 - 4b': {
+        'model': 'Danube 3 - 4b',
+        'repo_id': 'h2oai/h2o-danube3-4b-chat',
+        'cache_dir': 'h2oai/h2o-danube3-4b-chat',
         'tokens_per_second': 65,
-        'context_length': 32768,
-        'avg_vram_usage': '3.7 GB',
-        'function': 'Qwen1_5_1_8b'
+        'context_length': 8192,
+        'avg_vram_usage': '3.3 GB',
+        'function': 'Danube_3_4b'
     },
     'Dolphin-Qwen 2 - 1.5b': {
         'model': 'Dolphin-Qwen 2 - 1.5b',
@@ -239,16 +243,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '5.9 GB',
         'function': 'Orca2_7b'
     },
-    # GATED
-    # 'Mistral 0.3 - 7b': {
-        # 'model': 'Mistral 0.3 - 7b',
-        # 'repo_id': 'mistralai/Mistral-7B-Instruct-v0.3',
-        # 'cache_dir': 'mistralai--Mistral-7B-Instruct-v0.3',
-        # 'tokens_per_second': 50.40,
-        # 'context_length': 4096,
-        # 'avg_vram_usage': '5.7 GB',
-        # 'function': 'Mistral7B'
-    # },
     'Neural-Chat - 7b': {
         'model': 'Neural-Chat - 7b',
         'repo_id': 'Intel/neural-chat-7b-v3-3',
@@ -267,15 +261,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '6.8 GB',
         'function': 'InternLM2_5_7b'
     },
-    'Dolphin-Llama 3 - 8b': {
-        'model': 'Dolphin-Llama 3 - 8b',
-        'repo_id': 'cognitivecomputations/dolphin-2.9-llama3-8b',
-        'cache_dir': 'cognitivecomputations--dolphin-2.9-llama3-8b',
-        'tokens_per_second': 49.77,
-        'context_length': 8192,
-        'avg_vram_usage': '7.1 GB',
-        'function': 'Dolphin_Llama3_8B'
-    },
     'Dolphin-Llama 3.1 - 8b': {
         'model': 'Dolphin-Llama 3.1 - 8b',
         'repo_id': 'cognitivecomputations/dolphin-2.9.4-llama3.1-8b',
@@ -284,6 +269,15 @@ CHAT_MODELS = {
         'context_length': 8192,
         'avg_vram_usage': '7.1 GB',
         'function': 'Dolphin_Llama3_1_8B'
+    },
+    'Hermes-3-Llama-3.1 - 8b': {
+        'model': 'Hermes-3-Llama-3.1 - 8b',
+        'repo_id': 'NousResearch/Hermes-3-Llama-3.1-8B',
+        'cache_dir': 'NousResearch--Hermes-3-Llama-3.1-8B',
+        'tokens_per_second': 46.70,
+        'context_length': 8192,
+        'avg_vram_usage': '7.1 GB',
+        'function': 'Hermes_3_Llama_3_1'
     },
     'Dolphin-Yi 1.5 - 9b': {
         'model': 'Dolphin-Yi 1.5 - 9b',
@@ -330,16 +324,6 @@ CHAT_MODELS = {
         'avg_vram_usage': '9.3 GB',
         'function': 'SOLAR_10_7B'
     },
-    # GATED
-    # 'Gemma 2 9B': {
-        # 'model': 'Gemma 2 9B',
-        # 'repo_id': 'google/gemma-2b-it',
-        # 'cache_dir': 'google--gemma-2b-it',
-        # 'tokens_per_second': None,
-        # 'context_length': 8192,
-        # 'avg_vram_usage': None,
-        # 'function': 'Gemma_2_9B'
-    # },
     'Llama 2 - 13b': {
         'model': 'Llama 2 - 13b',
         'repo_id': 'meta-llama/Llama-2-13b-chat-hf',
@@ -368,7 +352,6 @@ CHAT_MODELS = {
         'function': 'InternLM2_5_20b'
     },
 }
-
 
 VISION_MODELS = {
     'Florence-2-base': {
@@ -471,8 +454,6 @@ VISION_MODELS = {
         'tokens_per_second': 41.43
     }
 }
-
-
 
 WHISPER_MODELS = {
     # LARGE-V3
@@ -674,7 +655,6 @@ WHISPER_MODELS = {
     },
 }
 
-
 DOCUMENT_LOADERS = {
     ".pdf": "PyMuPDFLoader",
     ".docx": "Docx2txtLoader",
@@ -690,7 +670,7 @@ DOCUMENT_LOADERS = {
     ".rtf": "UnstructuredRTFLoader",
     ".odt": "UnstructuredODTLoader",
     ".md": "UnstructuredMarkdownLoader",
-    ".html": "UnstructuredHTMLLoader",
+    ".html": "BSHTMLLoader",
 }
 
 PROMPT_FORMATS = {
@@ -716,185 +696,426 @@ PROMPT_FORMATS = {
     }
 }
 
+TOOLTIPS = {
+    "PORT": "Must match the port used in LM Studio.",
+    "MAX_TOKENS": "Maximum tokens for LLM response. -1 for unlimited.",
+    "TEMPERATURE": "Controls LLM creativity. 0-1, higher is more creative.",
+    "PREFIX_SUFFIX": "Prompt format for LLM. Use preset or custom for different models.",
+    "DISABLE_PROMPT_FORMATTING": "Disables built-in prompt formatting. Use LM Studio settings instead.",
+    "CREATE_DEVICE_DB": "Choose 'cpu' or 'cuda' based on hardware. Prefer 'cuda' if available.",
+    "CHUNK_SIZE": "Text chunk max characters. Make sure it falls within the Max Sequence of the vector model.  3-4 characters = 1 token.",
+    "CHUNK_OVERLAP": "Characters shared between chunks. Set to 25-50% of chunk size.",
+    "HALF_PRECISION": "Uses bfloat16/float16 for 2x speedup. GPU only.",
+    "CREATE_DEVICE_QUERY": "Choose 'cpu' or 'cuda'. 'cpu' recommended to conserve VRAM.",
+    "CONTEXTS": "Maximum number of chunks/contexts to return.",
+    "SIMILARITY": "Relevance threshold for chunks. 0-1, higher returns more. Don't use 1.",
+    "SEARCH_TERM_FILTER": "Removes chunks without exact term. Case-insensitive.",
+    "FILE_TYPE_FILTER": "Filters chunks by document type (images, audio, documents, all).",
+    "TTS_MODEL": "Choose TTS model. Bark offers customization, Google requires internet.",
+    "VISION_MODEL": "Select vision model for image processing. Test before bulk processing.",
+    "RESTORE_DATABASE": "Restores backed-up databases. Use with caution.",
+    "RESTORE_CONFIG": "Restores original config.yaml. May require manual database cleanup.",
+    "VECTOR_MODEL_SELECT": "Choose a vector model to download.",
+    "VECTOR_MODEL_NAME": "The name of the vector model.",
+    "VECTOR_MODEL_DIMENSIONS": "Higher dimensions captures more nuance but requires more processing time.",
+    "VECTOR_MODEL_MAX_SEQUENCE": "Number of tokens the model can process at once. Different from the Chunk Size setting, which is in characters.",
+    "VECTOR_MODEL_SIZE": "Size on disk.",
+    "VECTOR_MODEL_DOWNLOADED": "Whether the model has been downloaded.",
+    "VECTOR_MODEL_LINK": "Huggingface link.",
+    "DOWNLOAD_MODEL": "Download the selected vector model.",
+    "WHISPER_MODEL_SELECT": "Distil models use ~ 70% VRAM of their non-Distil equivalents with little quality loss.",
+    "WHISPER_BATCH_SIZE": "Batch size for transcription. See the User Guid for optimal values.",
+    "AUDIO_FILE_SELECT": "Select an audio file. Supports various audio formats.",
+    "TRANSCRIBE_BUTTON": "Start transcription.",
+    "CHOOSE_FILES": "Select documents to add to the database. Remember to transcribe audio files in the Tools tab first.",
+    "SELECT_VECTOR_MODEL": "Choose the vector model for text embedding.",
+    "DATABASE_NAME_INPUT": "Enter a unique database name. Use only lowercase letters, numbers, underscores, and hyphens.",
+    "CREATE_VECTOR_DB": "Create a new vector database.",
+    "DATABASE_SELECT": "Select the vector database to query for relevant information.",
+    "MODEL_BACKEND_SELECT": "Choose the backend for the large language model response.",
+    "LOCAL_MODEL_SELECT": "Select a local model for generating responses.",
+    "EJECT_LOCAL_MODEL": "Unload the current local model from memory.",
+    "QUESTION_INPUT": "Type your question here or use the voice recorder.",
+    "VOICE_RECORDER": "Click to start recording, speak your question, then click again to stop recording.",
+    "SPEAK_RESPONSE": "Speak the response from the large language model using text-to-speech.",
+    "COPY_RESPONSE": "Copy the model's response to the clipboard.",
+    "CHUNKS_ONLY": "Only return relevant chunks without connecting to the LLM. Extremely useful to test the chunk size/overlap settings."
+}
+
 graphics_cards = {
+    # "GeForce GTX 1630": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 512
+    # },
+    # "GeForce GTX 1630": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 512
+    # },
+    # "GeForce GTX 1650 (Apr 2019)": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 896
+    # },
+    # "GeForce GTX 1650 (Apr 2020)": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 896
+    # },
+    # "GeForce GTX 1650 (Jun 2020)": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 896
+    # },
+    # "GeForce GTX 1650 (Laptop)": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 1024
+    # },
+    # "GeForce GTX 1650 Max-Q": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 1024
+    # },
+    # "GeForce GTX 1650 Ti Max-Q": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 1024
+    # },
+    # "GeForce GTX 1650 Ti": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 1024
+    # },
+    # "GeForce GTX 1650 Super": {
+        # "Size (GB)": 4,
+        # "CUDA Cores": 1280
+    # },
+    # "GeForce GTX 1660": {
+        # "Size (GB)": 6,
+        # "CUDA Cores": 1408
+    # },
+    # "GeForce GTX 1660 (Laptop)": {
+        # "Size (GB)": 6,
+        # "CUDA Cores": 1408
+    # },
+    # "GeForce GTX 1660 Super": {
+        # "Size (GB)": 6,
+        # "CUDA Cores": 1408
+    # },
+    # "GeForce GTX 1660 Ti Max-Q": {
+        # "Size (GB)": 6,
+        # "CUDA Cores": 1536
+    # },
+    # "GeForce GTX 1660 Ti (Laptop)": {
+        # "Size (GB)": 6,
+        # "CUDA Cores": 1536
+    # },
+    # "GeForce GTX 1660 Ti": {
+        # "Size (GB)": 6,
+        # "CUDA Cores": 1536
+    # },
+    "GeForce RTX 2060": {
+        "Size (GB)": 6,
+        "CUDA Cores": 1920
+    },
+    "GeForce RTX 2060 Max-Q": {
+        "Size (GB)": 6,
+        "CUDA Cores": 1920
+    },
+    "GeForce RTX 2060 (Jan 2019)": {
+        "Size (GB)": 6,
+        "CUDA Cores": 1920
+    },
+    "GeForce RTX 2060 (Jan 2020)": {
+        "Size (GB)": 6,
+        "CUDA Cores": 1920
+    },
+    "GeForce RTX 3050": {
+        "Size (GB)": 4,
+        "CUDA Cores": 2048
+    },
     "GeForce RTX 3050 Mobile/Laptop": {
         "Size (GB)": 4,
-        "CUDA Cores": 2048,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 2048
+    },
+    "GeForce RTX 2060 (Dec 2021)": {
+        "Size (GB)": 12,
+        "CUDA Cores": 2176
+    },
+    "GeForce RTX 2060 Super": {
+        "Size (GB)": 8,
+        "CUDA Cores": 2176
+    },
+    "GeForce RTX 2070": {
+        "Size (GB)": 8,
+        "CUDA Cores": 2304
+    },
+    "GeForce RTX 2070 Max-Q": {
+        "Size (GB)": 8,
+        "CUDA Cores": 2304
+    },
+    "GeForce RTX 2070": {
+        "Size (GB)": 8,
+        "CUDA Cores": 2304
     },
     "GeForce RTX 3050": {
         "Size (GB)": 8,
-        "CUDA Cores": 2304,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 2304
     },
     "GeForce RTX 4050 Mobile/Laptop": {
         "Size (GB)": 6,
-        "CUDA Cores": 2560,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 2560
     },
     "GeForce RTX 3050 Ti Mobile/Laptop": {
         "Size (GB)": 4,
-        "CUDA Cores": 2560,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 2560
+    },
+    "GeForce RTX 2070 Super": {
+        "Size (GB)": 8,
+        "CUDA Cores": 2560
+    },
+    "GeForce RTX 2070 Super Max-Q": {
+        "Size (GB)": 8,
+        "CUDA Cores": 2560
+    },
+    "GeForce RTX 2070 Super": {
+        "Size (GB)": 8,
+        "CUDA Cores": 2560
     },
     "GeForce RTX 4060": {
         "Size (GB)": 8,
-        "CUDA Cores": 3072,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 3072
+    },
+    "GeForce RTX 2080 Super": {
+        "Size (GB)": 8,
+        "CUDA Cores": 3072
+    },
+    "GeForce RTX 2080 Super Max-Q": {
+        "Size (GB)": 8,
+        "CUDA Cores": 3072
+    },
+    "GeForce RTX 2080 Super": {
+        "Size (GB)": 8,
+        "CUDA Cores": 3072
     },
     "GeForce RTX 3060": {
         "Size (GB)": 12,
-        "CUDA Cores": 3584,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 3584
     },
     "GeForce RTX 3060 Mobile/Laptop": {
         "Size (GB)": 6,
-        "CUDA Cores": 3840,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 3840
     },
     "GeForce RTX 4060 Ti": {
         "Size (GB)": 16,
-        "CUDA Cores": 4352,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 4352
+    },
+    "GeForce RTX 2080 Ti": {
+        "Size (GB)": 11,
+        "CUDA Cores": 4352
     },
     "GeForce RTX 4070 Mobile/Laptop": {
         "Size (GB)": 8,
-        "CUDA Cores": 4608,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 4608
+    },
+    "Nvidia TITAN RTX": {
+        "Size (GB)": 24,
+        "CUDA Cores": 4608
     },
     "GeForce RTX 3060 Ti": {
         "Size (GB)": 8,
-        "CUDA Cores": 4864,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 4864
     },
     "GeForce RTX 3070 Mobile/Laptop": {
         "Size (GB)": 8,
-        "CUDA Cores": 5120,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 5120
     },
     "GeForce RTX 3070": {
         "Size (GB)": 8,
-        "CUDA Cores": 5888,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 5888
     },
     "GeForce RTX 4070": {
         "Size (GB)": 12,
-        "CUDA Cores": 5888,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 5888
     },
     "GeForce RTX 3070 Ti": {
         "Size (GB)": 8,
-        "CUDA Cores": 6144,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 6144
     },
     "GeForce RTX 3070 Ti Mobile/Laptop": {
         "Size (GB)": "8-16",
-        "CUDA Cores": 6144,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 6144
     },
     "GeForce RTX 4070 Super": {
         "Size (GB)": 12,
-        "CUDA Cores": 7168,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 7168
     },
     "GeForce RTX 4080 Mobile/Laptop": {
         "Size (GB)": 12,
-        "CUDA Cores": 7424,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 7424
     },
     "GeForce RTX 3080 Ti Mobile/Laptop": {
         "Size (GB)": 16,
-        "CUDA Cores": 7424,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 7424
     },
     "GeForce RTX 4070 Ti": {
         "Size (GB)": 12,
-        "CUDA Cores": 7680,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 7680
     },
     "GeForce RTX 4080": {
         "Size (GB)": 12,
-        "CUDA Cores": 7680,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
-    },
-    "GeForce RTX 3080": {
-        "Size (GB)": 10,
-        "CUDA Cores": 8704,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 7680
     },
     "GeForce RTX 4070 Ti Super": {
         "Size (GB)": 16,
-        "CUDA Cores": 8448,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 8448
+    },
+    "GeForce RTX 3080": {
+        "Size (GB)": 10,
+        "CUDA Cores": 8704
     },
     "GeForce RTX 3080 Ti": {
         "Size (GB)": 12,
-        "CUDA Cores": 8960,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 8960
     },
     "GeForce RTX 4080": {
         "Size (GB)": 16,
-        "CUDA Cores": 9728,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 9728
     },
     "GeForce RTX 4090 Mobile/Laptop": {
         "Size (GB)": 16,
-        "CUDA Cores": 9728,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 9728
     },
     "GeForce RTX 4080 Super": {
         "Size (GB)": 16,
-        "CUDA Cores": 10240,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 10240
     },
     "GeForce RTX 3090": {
         "Size (GB)": 24,
-        "CUDA Cores": 10496,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 10496
     },
     "GeForce RTX 3090 Ti": {
         "Size (GB)": 24,
-        "CUDA Cores": 10752,
-        "Architecture": "Ampere",
-        "CUDA Compute": 8.6
+        "CUDA Cores": 10752
     },
     "GeForce RTX 4090 D": {
         "Size (GB)": 24,
-        "CUDA Cores": 14592,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 14592
     },
     "GeForce RTX 4090": {
         "Size (GB)": 24,
-        "CUDA Cores": 16384,
-        "Architecture": "Ada Lovelace",
-        "CUDA Compute": 8.9
+        "CUDA Cores": 16384
+    }
+}
+
+amd_gpu_info = {
+    "Radeon RX 7600": {
+        "Size (GB)": 8,
+        "Shaders": 2048
+    },
+    "Radeon RX 7600 XT": {
+        "Size (GB)": 16,
+        "Shaders": 2048
+    },
+    "Radeon RX 7700 XT": {
+        "Size (GB)": 12,
+        "Shaders": 3456
+    },
+    "Radeon RX 7800 XT": {
+        "Size (GB)": 16,
+        "Shaders": 3840
+    },
+    "Radeon RX 7900 GRE": {
+        "Size (GB)": 16,
+        "Shaders": 5120
+    },
+    "Radeon RX 7900 XT": {
+        "Size (GB)": 20,
+        "Shaders": 5376
+    },
+    "Radeon RX 7900 XTX": {
+        "Size (GB)": 24,
+        "Shaders": 6144
+    },
+    "Radeon RX 6300": {
+        "Size (GB)": 2,
+        "Shaders": 768
+    },
+    "Radeon RX 6400": {
+        "Size (GB)": 4,
+        "Shaders": 1024
+    },
+    "Radeon RX 6500 XT": {
+        "Size (GB)": 8,
+        "Shaders": 1024
+    },
+    "Radeon RX 6600": {
+        "Size (GB)": 8,
+        "Shaders": 1792
+    },
+    "Radeon RX 6600 XT": {
+        "Size (GB)": 8,
+        "Shaders": 2048
+    },
+    "Radeon RX 6650 XT": {
+        "Size (GB)": 8,
+        "Shaders": 2048
+    },
+    "Radeon RX 6700": {
+        "Size (GB)": 10,
+        "Shaders": 2304
+    },
+    "Radeon RX 6750 GRE 10GB": {
+        "Size (GB)": 10,
+        "Shaders": 2560
+    },
+    "Radeon RX 6750 XT": {
+        "Size (GB)": 12,
+        "Shaders": 2560
+    },
+    "Radeon RX 6800": {
+        "Size (GB)": 16,
+        "Shaders": 3840
+    },
+    "Radeon RX 6800 XT": {
+        "Size (GB)": 16,
+        "Shaders": 4608
+    },
+    "Radeon RX 6900 XT": {
+        "Size (GB)": 16,
+        "Shaders": 5120
+    },
+    "Radeon RX 6950 XT": {
+        "Size (GB)": 16,
+        "Shaders": 5120
+    },
+    "Radeon RX 5300": {
+        "Size (GB)": 3,
+        "Shaders": 1408
+    },
+    "Radeon RX 5300 XT": {
+        "Size (GB)": 4,
+        "Shaders": 1408
+    },
+    "Radeon RX 5500": {
+        "Size (GB)": 4,
+        "Shaders": 1408
+    },
+    "Radeon RX 5500 XT": {
+        "Size (GB)": 4,
+        "Shaders": 1408
+    },
+    "Radeon RX 5600": {
+        "Size (GB)": 6,
+        "Shaders": 2048
+    },
+    "Radeon RX 5600 XT": {
+        "Size (GB)": 6,
+        "Shaders": 2304
+    },
+    "Radeon RX 5700": {
+        "Size (GB)": 8,
+        "Shaders": 2304
+    },
+    "Radeon RX 5700 XT": {
+        "Size (GB)": 8,
+        "Shaders": 2560
+    },
+    "Radeon RX 5700 XT 50th Anniversary Edition": {
+        "Size (GB)": 8,
+        "Shaders": 2560
     }
 }

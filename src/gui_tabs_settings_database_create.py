@@ -3,6 +3,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QIntValidator
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePolicy, QComboBox, QCheckBox
 
+from constants import TOOLTIPS
+
 class ChunkSettingsTab(QWidget):
     def __init__(self):
         super(ChunkSettingsTab, self).__init__()
@@ -15,43 +17,54 @@ class ChunkSettingsTab(QWidget):
         
         # Device selection and current setting
         self.device_label = QLabel("Device:")
+        self.device_label.setToolTip(TOOLTIPS["CREATE_DEVICE_DB"])
         grid_layout.addWidget(self.device_label, 0, 0)
         self.device_combo = QComboBox()
         self.device_combo.addItems(self.compute_device_options)
+        self.device_combo.setToolTip(TOOLTIPS["CREATE_DEVICE_DB"])
         if self.database_creation_device in self.compute_device_options:
             self.device_combo.setCurrentIndex(self.compute_device_options.index(self.database_creation_device))
         self.device_combo.setMinimumWidth(100)
         grid_layout.addWidget(self.device_combo, 0, 2)
         self.current_device_label = QLabel(f"{self.database_creation_device}")
+        self.current_device_label.setToolTip(TOOLTIPS["CREATE_DEVICE_DB"])
         grid_layout.addWidget(self.current_device_label, 0, 1)
         
         # Chunk size and current setting (moved to the left)
         self.chunk_size_label = QLabel("Chunk Size (# characters):")
+        self.chunk_size_label.setToolTip(TOOLTIPS["CHUNK_SIZE"])
         grid_layout.addWidget(self.chunk_size_label, 0, 3)
         self.chunk_size_edit = QLineEdit()
         self.chunk_size_edit.setPlaceholderText("Enter new chunk_size...")
         self.chunk_size_edit.setValidator(QIntValidator())
+        self.chunk_size_edit.setToolTip(TOOLTIPS["CHUNK_SIZE"])
         grid_layout.addWidget(self.chunk_size_edit, 0, 5)
         current_size = self.database_config.get('chunk_size', '')
         self.current_size_label = QLabel(f"{current_size}")
+        self.current_size_label.setToolTip(TOOLTIPS["CHUNK_SIZE"])
         grid_layout.addWidget(self.current_size_label, 0, 4)
         
         # Chunk overlap and current setting (moved to the right)
         self.chunk_overlap_label = QLabel("Overlap (# characters):")
+        self.chunk_overlap_label.setToolTip(TOOLTIPS["CHUNK_OVERLAP"])
         grid_layout.addWidget(self.chunk_overlap_label, 0, 6)
         self.chunk_overlap_edit = QLineEdit()
         self.chunk_overlap_edit.setPlaceholderText("Enter new chunk_overlap...")
         self.chunk_overlap_edit.setValidator(QIntValidator())
+        self.chunk_overlap_edit.setToolTip(TOOLTIPS["CHUNK_OVERLAP"])
         grid_layout.addWidget(self.chunk_overlap_edit, 0, 8)
         current_overlap = self.database_config.get('chunk_overlap', '')
         self.current_overlap_label = QLabel(f"{current_overlap}")
+        self.current_overlap_label.setToolTip(TOOLTIPS["CHUNK_OVERLAP"])
         grid_layout.addWidget(self.current_overlap_label, 0, 7)
         
         # "Half-Precision" checkbox
         self.half_precision_label = QLabel("Half-Precision (2x speedup - GPU only):")
+        self.half_precision_label.setToolTip(TOOLTIPS["HALF_PRECISION"])
         grid_layout.addWidget(self.half_precision_label, 1, 0, 1, 3)
         self.half_precision_checkbox = QCheckBox()
         self.half_precision_checkbox.setChecked(self.database_config.get('half', False))
+        self.half_precision_checkbox.setToolTip(TOOLTIPS["HALF_PRECISION"])
         grid_layout.addWidget(self.half_precision_checkbox, 1, 3)
         
         self.setLayout(grid_layout)

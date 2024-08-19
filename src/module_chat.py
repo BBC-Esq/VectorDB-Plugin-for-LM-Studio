@@ -7,32 +7,60 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStream
 import threading
 from abc import ABC, abstractmethod
 
-from constants import CHAT_MODELS, system_message
-from utilities import my_cprint, bnb_bfloat16_settings, bnb_float16_settings, generate_settings_4096
+from constants import CHAT_MODELS, system_message, MODEL_MAX_TOKENS
+from utilities import my_cprint, bnb_bfloat16_settings, bnb_float16_settings
 
-# warnings.filterwarnings("ignore", category=FutureWarning)
-# warnings.filterwarnings("ignore", category=UserWarning)
+
+def get_max_length(model_name):
+    return MODEL_MAX_TOKENS.get(model_name, 4096)
+
+def get_generation_settings(max_length):
+    return {
+        'max_length': max_length,
+        'max_new_tokens': None,
+        'do_sample': False,
+        'num_beams': 1,
+        'use_cache': True,
+        'temperature': None,
+        'top_p': None,
+        # 'renormalize_logits': True
+    }
 
 class BaseModel(ABC):
-    def __init__(self, model_info, settings, tokenizer_kwargs=None, model_kwargs=None, eos_token=None):
+    def __init__(self, model_info, settings, generation_settings, tokenizer_kwargs=None, model_kwargs=None):
         self.model_info = model_info
         self.settings = settings
         self.model_name = model_info['model']
+        self.generation_settings = generation_settings
+        self.max_length = generation_settings['max_length']
 
         script_dir = Path(__file__).resolve().parent
         cache_dir = script_dir / "Models" / "chat" / model_info['cache_dir']
 
-        tokenizer_settings = {**settings['tokenizer_settings'], 'cache_dir': str(cache_dir)}
+        # include trust_remote_code=True in tokenizer settings
+        tokenizer_settings = {
+            **settings['tokenizer_settings'], 
+            'cache_dir': str(cache_dir)
+        }
         if tokenizer_kwargs:
             tokenizer_settings.update(tokenizer_kwargs)
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_info['repo_id'], **tokenizer_settings)
         
-        model_settings = {**settings['model_settings'], 'cache_dir': str(cache_dir)}
+        # Set eos_token on tokenizer if provided in tokenizer_kwargs
+        if tokenizer_kwargs and 'eos_token' in tokenizer_kwargs:
+            self.tokenizer.eos_token = tokenizer_kwargs['eos_token']
+        
+        # include trust_remote_code=True in model settings
+        model_settings = {
+            **settings['model_settings'], 
+            'cache_dir': str(cache_dir)
+        }
+        if model_kwargs:
+            model_settings.update(model_kwargs)
+
         self.model = AutoModelForCausalLM.from_pretrained(model_info['repo_id'], **model_settings)
         
-        self.eos_token = eos_token
-
         my_cprint(f"Loaded {model_info['model']}", "green")
 
     def get_model_name(self):
@@ -43,37 +71,23 @@ class BaseModel(ABC):
         pass
 
     def create_inputs(self, prompt):
-        # print(prompt)
         return self.tokenizer(prompt, return_tensors="pt", return_attention_mask=True).to("cuda")
 
     def generate_response(self, inputs):
         """
-        Creates a TextIteratorStreamer to handle the streaming of generated text.
-
-        Args:
-            inputs (dict): A dictionary of inputs prepared for the model.
-
-        Returns:
-            str: Chunks of generated response as a string.
+        Creates a TextIteratorStreamer to stream partial responses.
         """
         streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
         
-        if self.eos_token:
-            eos_token_id = self.tokenizer.convert_tokens_to_ids(self.eos_token)
-        else:
-            eos_token_id = self.tokenizer.eos_token_id if self.tokenizer.eos_token_id else self.tokenizer.convert_tokens_to_ids("")
+        eos_token_id = self.tokenizer.eos_token_id
         
-        all_settings = {**inputs, **generate_settings_4096, 'streamer': streamer, 'eos_token_id': eos_token_id}
+        all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
 
+        # generation + streamer require two threads to work
         generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
         generation_thread.start()
 
-        # only necessary for dolphin-mistral-nemo for some reason
         for partial_response in streamer:
-            if partial_response.startswith("begin_of_answer|>"):
-                partial_response = partial_response[len("begin_of_answer|>"):].lstrip()
-            elif partial_response.startswith("beginning_of_answer|>"):
-                partial_response = partial_response[len("beginning_of_answer|>"):].lstrip()
             yield partial_response
 
         generation_thread.join()
@@ -96,178 +110,221 @@ def cleanup_resources(model, tokenizer):
     torch.cuda.empty_cache()
     gc.collect()
 
-
-class Dolphin_Llama3_8B(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Dolphin-Llama 3 - 8b']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
-
 class Dolphin_Llama3_1_8B(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Dolphin-Llama 3.1 - 8b']
-        super().__init__(model_info, bnb_bfloat16_settings)
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
-
-class Stablelm_2_12b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Stablelm 2 - 12b']
-        super().__init__(model_info, bnb_bfloat16_settings)
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
+class Danube_3_4b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Danube 3 - 4b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"system\n{system_message}\nuser\n{augmented_query}\nassistant\n"
+        return f"""<|prompt|>{augmented_query}</s><|answer|>"""
 
+class Hermes_3_Llama_3_1(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Hermes-3-Llama-3.1 - 8b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
 class Dolphin_Mistral_Nemo(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Dolphin-Mistral-Nemo - 12b']
-        super().__init__(model_info, bnb_bfloat16_settings)
+        # tokenizer_kwargs = {'eos_token': "<|im_end|>"}
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
+        return f"""<s><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
 class Dolphin_Phi3_Medium(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Dolphin-Phi 3 - Medium']
-        super().__init__(model_info, bnb_bfloat16_settings, tokenizer_kwargs={'legacy': False})
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs={'legacy': False})
 
     def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
+        return f"""<s><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
 class Dolphin_Qwen2_7b(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Dolphin-Qwen 2 - 7b']
-        super().__init__(model_info, bnb_bfloat16_settings)
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
 class Dolphin_Qwen2_1_5b(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Dolphin-Qwen 2 - 1.5b']
-        super().__init__(model_info, bnb_bfloat16_settings)
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
 class Dolphin_Yi_1_5_9b(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Dolphin-Yi 1.5 - 9b']
-        super().__init__(model_info, bnb_bfloat16_settings)
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
-
-class InternLM2_5_20b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Internlm2_5 - 20b']
-        tokenizer_kwargs = {'trust_remote_code': True}
-        model_kwargs = {'trust_remote_code': True}
-        super().__init__(model_info, bnb_bfloat16_settings, 
-                         tokenizer_kwargs=tokenizer_kwargs, 
-                         model_kwargs=model_kwargs,
-                         eos_token="<|im_end|>")
-
-    def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
-
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
 class InternLM2_5_7b(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Internlm2_5 - 7b']
-        tokenizer_kwargs = {'trust_remote_code': True}
-        model_kwargs = {'trust_remote_code': True}
-        super().__init__(model_info, bnb_bfloat16_settings, 
-                         tokenizer_kwargs=tokenizer_kwargs, 
-                         model_kwargs=model_kwargs,
-                         eos_token="<|im_end|>")
+        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
 
     def create_prompt(self, augmented_query):
-        return f"<|begin_of_text|><|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant\n"
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
+class InternLM2_5_20b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Internlm2_5 - 20b']
+        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
 class Llama2_13b(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Llama 2 - 13b']
-        super().__init__(model_info, bnb_float16_settings)
+        super().__init__(model_info, bnb_float16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<s>[INST] <<SYS>>\n{system_message}\n<</SYS>>\n\n{augmented_query}[/INST]"
+        return f"""<s>[INST]<<SYS>>
+        {system_message}
+        <</SYS>>
 
+        {augmented_query}[/INST]"""
 
 class Neural_Chat_7b(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Neural-Chat - 7b']
-        super().__init__(model_info, bnb_float16_settings)
+        super().__init__(model_info, bnb_float16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"### System:\n{system_message}\n### User:\n{augmented_query}\n### Assistant: "
-
+        return f"""### System:
+        {system_message}
+        ### User:
+        {augmented_query}
+        ### Assistant:
+        """
 
 class Orca2_7b(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Orca 2 - 7b']
-        super().__init__(model_info, bnb_float16_settings)
+        super().__init__(model_info, bnb_float16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant"
+        return f"""<|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant"""
 
 
 class Orca2_13b(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Orca 2 - 13b']
-        super().__init__(model_info, bnb_float16_settings)
+        super().__init__(model_info, bnb_float16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{augmented_query}<|im_end|>\n<|im_start|>assistant"
-
-
-class Qwen1_5_1_8b(BaseModel):
-    def __init__(self):
-        model_info = CHAT_MODELS['Qwen 1.5 - 1.8B']
-        super().__init__(model_info, bnb_bfloat16_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"<|im_start|>system\n{system_message}\n<|im_end|>\n\n<|im_start|>user\n{augmented_query}\n<|im_end|>\n\n<|im_start|>assistant\n"
-
+        return f"""<|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant"""
 
 class SOLAR_10_7B(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['SOLAR - 10.7b']
-        super().__init__(model_info, bnb_float16_settings)
+        super().__init__(model_info, bnb_float16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<s>###System:\n{system_message}\n\n### User:\n\n{augmented_query}\n\n### Assistant:\n"
+        return f"""<s>### System:
+        {system_message}
 
+        ### User:
+        {augmented_query}
+
+        ### Assistant:
+        """
 
 class Zephyr_1_6B(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Zephyr - 1.6b']
-        super().__init__(model_info, bnb_float16_settings)
+        super().__init__(model_info, bnb_float16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|system|>\n{system_message}<|endoftext|>\n<|user|>\n{augmented_query}<|endoftext|>\n<|assistant|>"
-
+        return f"""<|system|>
+        {system_message}<|endoftext|>
+        <|user|>
+        {augmented_query}<|endoftext|>
+        <|assistant|>"""
 
 class Zephyr_3B(BaseModel):
-    def __init__(self):
+    def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Zephyr - 3b']
-        super().__init__(model_info, bnb_bfloat16_settings)
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<|system|>\n{system_message}<|endoftext|>\n<|user|>\n{augmented_query}<|endoftext|>\n<|assistant|>"
-
+        return f"""<|system|>
+        {system_message}<|endoftext|>
+        <|user|>
+        {augmented_query}<|endoftext|>
+        <|assistant|>"""
 
 @torch.inference_mode()
 def generate_response(model_instance, augmented_query):
@@ -276,11 +333,18 @@ def generate_response(model_instance, augmented_query):
     for partial_response in model_instance.generate_response(inputs):
         yield partial_response
 
-
 def choose_model(model_name):
     if model_name in CHAT_MODELS:
         model_class_name = CHAT_MODELS[model_name]['function']
         model_class = globals()[model_class_name]
-        return model_class()
+        
+        # Get the max_length for this model
+        max_length = get_max_length(model_name)
+        
+        # Generate the settings based on the max_length
+        generation_settings = get_generation_settings(max_length)
+        
+        # Pass the generation settings to the model constructor
+        return model_class(generation_settings)
     else:
         raise ValueError(f"Unknown model: {model_name}")

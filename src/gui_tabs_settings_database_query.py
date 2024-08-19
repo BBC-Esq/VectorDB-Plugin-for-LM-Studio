@@ -2,6 +2,8 @@ import yaml
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePolicy, QComboBox, QPushButton
 
+from constants import TOOLTIPS
+
 class DatabaseSettingsTab(QWidget):
     def __init__(self):
         super(DatabaseSettingsTab, self).__init__()
@@ -22,6 +24,7 @@ class DatabaseSettingsTab(QWidget):
         self.query_device_label = QLabel(f"Device: {self.database_query_device}")
         self.query_device_combo = QComboBox()
         self.query_device_combo.addItems(self.compute_device_options)
+        self.query_device_combo.setToolTip(TOOLTIPS["CREATE_DEVICE_QUERY"])
         if self.database_query_device in self.compute_device_options:
             self.query_device_combo.setCurrentIndex(self.compute_device_options.index(self.database_query_device))
         grid_layout.addWidget(self.query_device_label, 0, 0)
@@ -33,8 +36,10 @@ class DatabaseSettingsTab(QWidget):
         self.similarity_edit.setPlaceholderText("Enter new similarity...")
         self.similarity_edit.setValidator(QDoubleValidator())
         self.similarity_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.similarity_edit.setToolTip(TOOLTIPS["SIMILARITY"])
         self.similarity_label = QLabel(f"Similarity: {similarity_value}")
         self.similarity_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.similarity_label.setToolTip(TOOLTIPS["SIMILARITY"])
         grid_layout.addWidget(self.similarity_label, 1, 0)
         grid_layout.addWidget(self.similarity_edit, 1, 1)
         self.field_data['similarity'] = self.similarity_edit
@@ -46,8 +51,10 @@ class DatabaseSettingsTab(QWidget):
         self.contexts_edit.setPlaceholderText("Enter new contexts...")
         self.contexts_edit.setValidator(QIntValidator())
         self.contexts_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.contexts_edit.setToolTip(TOOLTIPS["CONTEXTS"])
         self.contexts_label = QLabel(f"Contexts: {contexts_value}")
         self.contexts_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.contexts_label.setToolTip(TOOLTIPS["CONTEXTS"])
         grid_layout.addWidget(self.contexts_label, 1, 3)
         grid_layout.addWidget(self.contexts_edit, 1, 4)
         self.field_data['contexts'] = self.contexts_edit
@@ -56,7 +63,9 @@ class DatabaseSettingsTab(QWidget):
         self.search_term_edit = QLineEdit()
         self.search_term_edit.setPlaceholderText("Enter new search term...")
         self.search_term_edit.setText(self.search_term)
+        self.search_term_edit.setToolTip(TOOLTIPS["SEARCH_TERM_FILTER"])
         self.search_term_label = QLabel(f"Search Term Filter: {self.search_term}")
+        self.search_term_label.setToolTip(TOOLTIPS["SEARCH_TERM_FILTER"])
         self.filter_button = QPushButton("Clear Filter")
         self.filter_button.clicked.connect(self.reset_search_term)
         grid_layout.addWidget(self.search_term_label, 2, 0)
@@ -66,6 +75,7 @@ class DatabaseSettingsTab(QWidget):
         self.file_type_combo = QComboBox()
         file_type_items = ["All Files", "Images Only", "Documents Only", "Audio Only"]
         self.file_type_combo.addItems(file_type_items)
+        self.file_type_combo.setToolTip(TOOLTIPS["FILE_TYPE_FILTER"])
 
         if self.document_type == 'image':
             default_index = file_type_items.index("Images Only")
@@ -77,7 +87,9 @@ class DatabaseSettingsTab(QWidget):
             default_index = file_type_items.index("All Files")
         self.file_type_combo.setCurrentIndex(default_index)
 
-        grid_layout.addWidget(QLabel("File Type:"), 2, 3)
+        file_type_label = QLabel("File Type:")
+        file_type_label.setToolTip(TOOLTIPS["FILE_TYPE_FILTER"])
+        grid_layout.addWidget(file_type_label, 2, 3)
         grid_layout.addWidget(self.file_type_combo, 2, 4)
 
         self.setLayout(grid_layout)

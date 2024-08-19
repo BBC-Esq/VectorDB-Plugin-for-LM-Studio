@@ -25,15 +25,6 @@ from document_processor import load_documents, split_documents
 from module_process_images import choose_image_loader
 from utilities import my_cprint
 
-datasets_logger = logging.getLogger('datasets')
-datasets_logger.setLevel(logging.WARNING)
-
-logging.getLogger("transformers").setLevel(logging.ERROR)
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-logging.getLogger().setLevel(logging.WARNING)
-
 # debugging
 # def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
     # print("Saving to JSON...")
@@ -41,7 +32,11 @@ logging.getLogger().setLevel(logging.WARNING)
 
     # with open(file_name, "w") as json_file:
         # json_file.write(json_string)
-            
+          
+def create_vector_db_in_process(database_name):
+    create_vector_db = CreateVectorDB(database_name=database_name)
+    create_vector_db.run()
+    
 class CreateVectorDB:
     def __init__(self, database_name):
         self.ROOT_DIRECTORY = Path(__file__).resolve().parent
@@ -187,7 +182,7 @@ class CreateVectorDB:
             logging.info(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            # separate page_content and metadata
+            # break out page_content and metadata
             text_content = [doc.page_content for doc in texts]
             metadatas = [doc.metadata for doc in texts]
             
@@ -200,7 +195,6 @@ class CreateVectorDB:
             if "intfloat" in embedding_model_name.lower():
                 text_content = [f"passage: {content}" for content in text_content]
 
-            logging.info("Calling TileDB.from_texts()")
             db = TileDB.from_texts(
                 texts=text_content,
                 embedding=embeddings,
@@ -222,7 +216,7 @@ class CreateVectorDB:
         
     def save_documents_to_json(self, json_docs_to_save):
         """
-        Json of all documents successfully entered into the database for purposes of populating the database management tab.
+        Json of all documents in a database to populate the database management tab. Uses "json_docs_to_save".
         """
         if not self.SAVE_JSON_DIRECTORY.exists():
             self.SAVE_JSON_DIRECTORY.mkdir(parents=True, exist_ok=True)
@@ -272,7 +266,7 @@ class CreateVectorDB:
 
     def save_documents_to_pickle(self, documents):
         """
-        Pickle all document objects incase the database creation process terminates early.  Cleared each time the program starts.
+        Pickle all document objects in case the database creation process terminates early; cleared when program starts.
         """
         pickle_directory = self.ROOT_DIRECTORY / "pickle"
         
@@ -307,11 +301,6 @@ class CreateVectorDB:
         # separate lists for pdf and non-pdf document objects
         text_documents_pdf = [doc for doc in documents if doc.metadata.get("file_type") == ".pdf"]
         documents = [doc for doc in documents if doc.metadata.get("file_type") != ".pdf"]
-
-        # debugging
-        # print(f"Initial documents count: {len(documents) + len(text_documents_pdf)}")
-        # print(f"Non-PDF documents: {[doc.metadata.get('file_type') for doc in documents]}")
-        # print(f"PDF documents: {[doc.metadata.get('file_type') for doc in text_documents_pdf]}")
 
         # debugging
         # serialize_documents_to_json(text_documents_pdf)
@@ -355,15 +344,7 @@ class CreateVectorDB:
                 print("Creating vector database...")
                 self.create_database(texts, embeddings)
             
-            self.save_documents_to_json(json_docs_to_save)
-            
-            # cleanup
-            del embeddings.client
-            del embeddings
-            torch.cuda.empty_cache()
-            gc.collect()
-            my_cprint("Vector model removed from memory.", "red")
-            
+            self.save_documents_to_json(json_docs_to_save)            
             self.clear_docs_for_db_folder()
 
 
@@ -411,7 +392,6 @@ class QueryVectorDB:
                         "truncation": True
                     }
                 },
-                # model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs
             )
         else:

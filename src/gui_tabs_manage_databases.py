@@ -88,6 +88,8 @@ class ManageDatabasesTab(QWidget):
         self.tree_view.hideColumn(2)
         self.tree_view.hideColumn(3)
         self.tree_view.doubleClicked.connect(self.on_double_click)
+        self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
         layout.addWidget(self.tree_view)
         group_box.setLayout(layout)
         return group_box
@@ -108,7 +110,7 @@ class ManageDatabasesTab(QWidget):
                         model_name = Path(model_path).name  # This extracts the last part of the path
                         chunk_size = db_config.get('chunk_size', '')
                         chunk_overlap = db_config.get('chunk_overlap', '')
-                        info_text = f"{model_name}    |    Chunk Size:  {chunk_size}    |    Chunk Overlap:  {chunk_overlap}"
+                        info_text = f"DB name:  \"{selected_database}\"   |   Created with \"{model_name}\"   |   Chunk  size/overlap = {chunk_size} / {chunk_overlap}."
                         self.database_info_label.setText(info_text)
                 else:
                     self.database_info_label.setText("Configuration missing.")
@@ -196,3 +198,16 @@ class ManageDatabasesTab(QWidget):
         self.pull_down_menu.addItems(self.created_databases)
         if not self.created_databases:
             self.display_no_databases_message()
+
+    def show_context_menu(self, position):
+        context_menu = QMenu(self)
+        delete_action = QAction("Delete File", self)
+        delete_action.triggered.connect(self.delete_selected_file)
+        context_menu.addAction(delete_action)
+        
+        context_menu.exec_(self.tree_view.viewport().mapToGlobal(position))
+
+    def delete_selected_file(self):
+        # Placeholder function for delete functionality
+        print("Delete file functionality will be implemented here.")
+        # TODO: Implement actual file deletion logic

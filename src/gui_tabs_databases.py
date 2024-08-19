@@ -1,3 +1,4 @@
+import gc
 import os
 import logging
 import warnings
@@ -5,6 +6,7 @@ import platform
 import pickle
 import shutil
 from pathlib import Path
+import multiprocessing
 
 import yaml
 from PySide6.QtCore import QDir, Qt, QTimer, QThread, Signal, QRegularExpression
@@ -13,10 +15,29 @@ from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, Q
                                QMenu, QGroupBox, QLineEdit, QGridLayout, QSizePolicy, QComboBox)
 
 import database_interactions
+from database_interactions import create_vector_db_in_process
 from choose_documents_and_vector_model import select_embedding_model_directory, choose_documents_directory
-from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database, get_pkl_file_path
+from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database, get_pkl_file_path, my_cprint
 from download_model import model_downloaded_signal
+from constants import TOOLTIPS
 
+class CreateDatabaseProcess:
+    def __init__(self, database_name, parent=None):
+        self.database_name = database_name
+        self.process = None
+
+    def start(self):
+        self.process = multiprocessing.Process(target=create_vector_db_in_process, args=(self.database_name,))
+        self.process.start()
+
+    def wait(self):
+        if self.process:
+            self.process.join()
+
+    def is_alive(self):
+        if self.process:
+            return self.process.is_alive()
+        return False
 
 class CreateDatabaseThread(QThread):
     creationComplete = Signal()
@@ -24,13 +45,19 @@ class CreateDatabaseThread(QThread):
     def __init__(self, database_name, parent=None):
         super().__init__(parent)
         self.database_name = database_name
+        self.process = None
 
     def run(self):
-        create_vector_db = database_interactions.CreateVectorDB(database_name=self.database_name)
-        create_vector_db.run() # INITIATES DB CREATION
+        # Run the vector database creation in a separate process
+        self.process = multiprocessing.Process(target=create_vector_db_in_process, args=(self.database_name,))
+        self.process.start()
+        self.process.join()
+
+        # After the database creation is complete, perform the remaining tasks
         self.update_config_with_database_name()
         backup_database()
         
+        my_cprint("Vector model removed from memory.", "red")
         self.creationComplete.emit()
 
     def update_config_with_database_name(self):
@@ -63,7 +90,9 @@ class CustomFileSystemModel(QFileSystemModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and index.column() == 0:
             file_path = super().filePath(index)
-            # opens the .pkl file and gets the file name from metadata
+            """
+            Opens the .pkl file and gets the file name from metadata to temporarily show the files that will be put in the database.
+            """
             if file_path.endswith('.pkl'):
                 try:
                     with open(file_path, 'rb') as file:
@@ -86,13 +115,16 @@ class DatabasesTab(QWidget):
         grid_layout_top_buttons = QGridLayout()
 
         self.choose_docs_button = QPushButton("Choose Files")
+        self.choose_docs_button.setToolTip(TOOLTIPS["CHOOSE_FILES"])
         self.choose_docs_button.clicked.connect(choose_documents_directory)
 
         self.model_combobox = QComboBox()
+        self.model_combobox.setToolTip(TOOLTIPS["SELECT_VECTOR_MODEL"])
         self.populate_model_combobox()
         self.model_combobox.currentIndexChanged.connect(self.on_model_selected)
 
         self.create_db_button = QPushButton("Create Vector Database")
+        self.create_db_button.setToolTip(TOOLTIPS["CREATE_VECTOR_DB"])
         self.create_db_button.clicked.connect(self.on_create_db_clicked)
         self.create_db_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
@@ -106,6 +138,7 @@ class DatabasesTab(QWidget):
 
         hbox2 = QHBoxLayout()
         self.database_name_input = QLineEdit()
+        self.database_name_input.setToolTip(TOOLTIPS["DATABASE_NAME_INPUT"])
         self.database_name_input.setPlaceholderText("Enter database name")
         self.database_name_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         regex = QRegularExpression("^[a-z0-9_-]*$")
@@ -286,6 +319,8 @@ class DatabasesTab(QWidget):
         self.choose_docs_button.setDisabled(False)
         self.model_combobox.setDisabled(False)
         self.database_name_input.setDisabled(False)
+        self.create_database_thread = None
+        gc.collect()
 
     def toggle_group_box(self, group_box, checked):
         self.groups[group_box] = 1 if checked else 0

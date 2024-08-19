@@ -13,10 +13,11 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QTextEdit, QPushButton, QCh
 
 from chat_lm_studio import LMStudioChatThread
 from chat_local_model import LocalModelChat
-from constants import CHUNKS_ONLY_TOOLTIP, SPEAK_RESPONSE_TOOLTIP, CHAT_MODELS
+from constants import CHAT_MODELS
 from module_tts import run_tts
 from module_voice_recorder import VoiceRecorder
 from utilities import check_preconditions_for_submit_question, my_cprint
+from constants import TOOLTIPS
 
 logging.basicConfig(level=logging.DEBUG, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -82,25 +83,32 @@ class DatabaseQueryTab(QWidget):
         self.response_widget.setOpenExternalLinks(True)
         layout.addWidget(self.response_widget, 5)
 
+        self.token_count_label = QLabel("")
+        layout.addWidget(self.token_count_label)
+
         hbox1_layout = QHBoxLayout()
 
         self.database_pulldown = RefreshingComboBox(self)
+        self.database_pulldown.setToolTip(TOOLTIPS["DATABASE_SELECT"])
         self.database_pulldown.addItems(self.load_created_databases())
         hbox1_layout.addWidget(self.database_pulldown)
 
         self.model_source_combo = QComboBox()
+        self.model_source_combo.setToolTip(TOOLTIPS["MODEL_BACKEND_SELECT"])
         self.model_source_combo.addItems(["LM Studio", "Local Model"])
         self.model_source_combo.setCurrentText("LM Studio")
         self.model_source_combo.currentTextChanged.connect(self.on_model_source_changed)
         hbox1_layout.addWidget(self.model_source_combo)
 
         self.model_combo_box = QComboBox()
+        self.model_combo_box.setToolTip(TOOLTIPS["LOCAL_MODEL_SELECT"])
         self.model_combo_box.addItems(model_info['model'] for model_info in CHAT_MODELS.values())
         self.model_combo_box.setCurrentText("Zephyr - 1.6b")
         self.model_combo_box.setEnabled(False)
         hbox1_layout.addWidget(self.model_combo_box)
 
         self.eject_button = QPushButton("Eject Local Model")
+        self.eject_button.setToolTip(TOOLTIPS["EJECT_LOCAL_MODEL"])
         self.eject_button.clicked.connect(self.eject_model)
         self.eject_button.setEnabled(False)
         hbox1_layout.addWidget(self.eject_button)
@@ -117,24 +125,27 @@ class DatabaseQueryTab(QWidget):
         layout.addLayout(hbox1_layout)
 
         self.text_input = QTextEdit()
+        self.text_input.setToolTip(TOOLTIPS["QUESTION_INPUT"])
         layout.addWidget(self.text_input, 1)
 
         hbox2_layout = QHBoxLayout()
 
         self.copy_response_button = QPushButton("Copy Response")
+        self.copy_response_button.setToolTip(TOOLTIPS["COPY_RESPONSE"])
         self.copy_response_button.clicked.connect(self.on_copy_response_clicked)
         hbox2_layout.addWidget(self.copy_response_button)
 
         self.bark_button = QPushButton("Speak Response")
+        self.bark_button.setToolTip(TOOLTIPS["SPEAK_RESPONSE"])
         self.bark_button.clicked.connect(self.on_bark_button_clicked)
-        self.bark_button.setToolTip(SPEAK_RESPONSE_TOOLTIP)
         hbox2_layout.addWidget(self.bark_button)
         
         self.chunks_only_checkbox = QCheckBox("Chunks Only")
-        self.chunks_only_checkbox.setToolTip(CHUNKS_ONLY_TOOLTIP)
+        self.chunks_only_checkbox.setToolTip(TOOLTIPS["CHUNKS_ONLY"])
         hbox2_layout.addWidget(self.chunks_only_checkbox)
 
         self.record_button = QPushButton("Voice Recorder")
+        self.record_button.setToolTip(TOOLTIPS["VOICE_RECORDER"])
         self.record_button.clicked.connect(self.toggle_recording)
         hbox2_layout.addWidget(self.record_button)
         
@@ -160,6 +171,11 @@ class DatabaseQueryTab(QWidget):
         self.local_model_chat.signals.model_loaded_signal.connect(self.on_model_loaded)
         # connects signal #11 in chat_model_local to on_model_unloaded method
         self.local_model_chat.signals.model_unloaded_signal.connect(self.on_model_unloaded)
+        # connects signal in chat_model_local to update_token_count_label
+        self.local_model_chat.signals.token_count_signal.connect(self.update_token_count_label)
+
+    def update_token_count_label(self, token_count_string):
+        self.token_count_label.setText(token_count_string)
 
     def on_model_source_changed(self, text):
         if text == "Local Model":
@@ -184,10 +200,16 @@ class DatabaseQueryTab(QWidget):
             return
 
         self.response_widget.clear()
+        self.token_count_label.clear()
         
-        # crucial to prevent the LLM's responses from being hyperlinked
-        self.response_widget.setPlainText("")
-        self.response_widget.setHtml("")
+        # prevents the LLM's responses from being hyperlinked
+        self.response_widget.clear()
+        self.response_widget.setPlainText("")  # Clear text content
+        self.response_widget.setHtml("")  # Clear any HTML formatting
+        self.response_widget.document().clear()  # Clear all document content
+        cursor = self.response_widget.textCursor()  # Get current text cursor
+        cursor.clearSelection()  # Remove any text selection
+        self.response_widget.setTextCursor(cursor)  # Reset cursor to start
         
         self.cumulative_response = ""
         self.submit_button.setDisabled(True)
@@ -210,7 +232,7 @@ class DatabaseQueryTab(QWidget):
                     if self.local_model_chat.is_model_loaded():
                         self.local_model_chat.terminate_current_process()
                     self.local_model_chat.start_model_process(selected_model)
-                # starts the "localModelChat" class from "chat_local_model.py"
+                # starts the "localModelChat" class in "chat_local_model.py"
                 self.local_model_chat.start_chat(user_question, chunks_only, selected_model, selected_database)
             except Exception as e:
                 logging.exception(f"Error starting or using local model: {e}")

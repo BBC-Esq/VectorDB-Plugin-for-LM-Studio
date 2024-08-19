@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QWidget, QLabel, QGridLayout, QVBoxLayout, QGroupBox, QPushButton, QRadioButton, QButtonGroup
 )
 
-from constants import VECTOR_MODELS
+from constants import VECTOR_MODELS, TOOLTIPS
 from download_model import ModelDownloader, model_downloaded_signal
 import webbrowser
 
@@ -59,6 +59,7 @@ class VectorModelsTab(QWidget):
                 header_label = QLabel(header)
                 header_label.setAlignment(Qt.AlignCenter)
                 header_label.setStyleSheet("text-decoration: underline;")
+                header_label.setToolTip(TOOLTIPS.get(f"VECTOR_MODEL_{header.upper().replace(' ', '_')}", ""))
                 group_layout.addWidget(header_label, 0, col)
 
             for col, stretch_factor in enumerate(column_stretch_factors):
@@ -70,17 +71,30 @@ class VectorModelsTab(QWidget):
                 row = grid.rowCount()
 
                 radiobutton = QRadioButton()
+                radiobutton.setToolTip(TOOLTIPS["VECTOR_MODEL_SELECT"])
                 self.model_radiobuttons.addButton(radiobutton, row_counter)
                 add_centered_widget(grid, radiobutton, row, 0)
 
-                add_centered_widget(grid, QLabel(model['name']), row, 1)
-                add_centered_widget(grid, QLabel(str(model['dimensions'])), row, 2)
-                add_centered_widget(grid, QLabel(str(model['max_sequence'])), row, 3)
-                add_centered_widget(grid, QLabel(str(model['size_mb'])), row, 4)
+                model_name_label = QLabel(model['name'])
+                model_name_label.setToolTip(TOOLTIPS["VECTOR_MODEL_NAME"])
+                add_centered_widget(grid, model_name_label, row, 1)
+
+                dimensions_label = QLabel(str(model['dimensions']))
+                dimensions_label.setToolTip(TOOLTIPS["VECTOR_MODEL_DIMENSIONS"])
+                add_centered_widget(grid, dimensions_label, row, 2)
+
+                max_sequence_label = QLabel(str(model['max_sequence']))
+                max_sequence_label.setToolTip(TOOLTIPS["VECTOR_MODEL_MAX_SEQUENCE"])
+                add_centered_widget(grid, max_sequence_label, row, 3)
+
+                size_label = QLabel(str(model['size_mb']))
+                size_label.setToolTip(TOOLTIPS["VECTOR_MODEL_SIZE"])
+                add_centered_widget(grid, size_label, row, 4)
 
                 expected_dir_name = ModelDownloader(model_info, model['type']).get_model_directory_name()
                 is_downloaded = expected_dir_name in existing_vector_directories
                 downloaded_label = QLabel('Yes' if is_downloaded else 'No')
+                downloaded_label.setToolTip(TOOLTIPS["VECTOR_MODEL_DOWNLOADED"])
                 add_centered_widget(grid, downloaded_label, row, 5)
                 radiobutton.setEnabled(not is_downloaded)
 
@@ -91,6 +105,7 @@ class VectorModelsTab(QWidget):
                 link.setText(f'<a href="https://huggingface.co/{model["repo_id"]}">Link</a>')
                 link.setOpenExternalLinks(False)
                 link.linkActivated.connect(self.open_link)
+                link.setToolTip(TOOLTIPS["VECTOR_MODEL_LINK"])
                 add_centered_widget(grid, link, row, 6)
 
                 row_counter += 1
@@ -100,6 +115,7 @@ class VectorModelsTab(QWidget):
             self.main_layout.addWidget(group_box, stretch_factor)
 
         self.download_button = QPushButton('Download Selected Model')
+        self.download_button.setToolTip(TOOLTIPS["DOWNLOAD_MODEL"])
         self.download_button.clicked.connect(self.initiate_model_download)
         self.main_layout.addWidget(self.download_button)
 

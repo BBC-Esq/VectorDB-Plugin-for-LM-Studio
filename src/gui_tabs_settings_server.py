@@ -4,7 +4,7 @@ from pathlib import Path
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (QWidget, QLabel, QLineEdit, QGridLayout, QMessageBox, QSizePolicy, QCheckBox, QComboBox)
 
-from constants import PROMPT_FORMATS
+from constants import PROMPT_FORMATS, TOOLTIPS
 
 class ServerSettingsTab(QWidget):
     def __init__(self):
@@ -31,32 +31,66 @@ class ServerSettingsTab(QWidget):
         self.widgets = {}
         layout = QGridLayout()
 
-        layout.addWidget(self.create_label('port', settings_dict), 0, 0)
-        layout.addWidget(self.create_edit('port', settings_dict), 0, 1)
-        layout.addWidget(self.create_label('max_tokens', settings_dict), 1, 0)
-        layout.addWidget(self.create_edit('max_tokens', settings_dict), 1, 1)
-        layout.addWidget(self.create_label('temperature', settings_dict), 1, 2)
-        layout.addWidget(self.create_edit('temperature', settings_dict), 1, 3)
+        # Port
+        port_label = self.create_label('port', settings_dict)
+        port_label.setToolTip(TOOLTIPS["PORT"])
+        layout.addWidget(port_label, 0, 0)
+        port_edit = self.create_edit('port', settings_dict)
+        port_edit.setToolTip(TOOLTIPS["PORT"])
+        layout.addWidget(port_edit, 0, 1)
 
+        # Max Tokens
+        max_tokens_label = self.create_label('max_tokens', settings_dict)
+        max_tokens_label.setToolTip(TOOLTIPS["MAX_TOKENS"])
+        layout.addWidget(max_tokens_label, 1, 0)
+        max_tokens_edit = self.create_edit('max_tokens', settings_dict)
+        max_tokens_edit.setToolTip(TOOLTIPS["MAX_TOKENS"])
+        layout.addWidget(max_tokens_edit, 1, 1)
+
+        # Temperature
+        temp_label = self.create_label('temperature', settings_dict)
+        temp_label.setToolTip(TOOLTIPS["TEMPERATURE"])
+        layout.addWidget(temp_label, 1, 2)
+        temp_edit = self.create_edit('temperature', settings_dict)
+        temp_edit.setToolTip(TOOLTIPS["TEMPERATURE"])
+        layout.addWidget(temp_edit, 1, 3)
+
+        # Prompt Format
         prompt_format_label = QLabel("Prompt Format:")
+        prompt_format_label.setToolTip(TOOLTIPS["PREFIX_SUFFIX"])
         layout.addWidget(prompt_format_label, 2, 0)
         
         self.prompt_format_combobox = QComboBox()
         self.prompt_format_combobox.addItems(["", "ChatML", "Llama2/Mistral", "Neural Chat/SOLAR", "Orca2", "StableLM-Zephyr"])
+        self.prompt_format_combobox.setToolTip(TOOLTIPS["PREFIX_SUFFIX"])
         layout.addWidget(self.prompt_format_combobox, 2, 1)
         self.prompt_format_combobox.currentIndexChanged.connect(self.update_prefix_suffix)
 
+        # Disable
         disable_label = QLabel("Disable:")
+        disable_label.setToolTip(TOOLTIPS["DISABLE_PROMPT_FORMATTING"])
         layout.addWidget(disable_label, 2, 2)
 
         self.disable_checkbox = QCheckBox()
         self.disable_checkbox.setChecked(self.prompt_format_disabled)
+        self.disable_checkbox.setToolTip(TOOLTIPS["DISABLE_PROMPT_FORMATTING"])
         layout.addWidget(self.disable_checkbox, 2, 3)
 
-        layout.addWidget(self.create_label('prefix', settings_dict), 3, 0)
-        layout.addWidget(self.create_edit('prefix', settings_dict), 3, 1)
-        layout.addWidget(self.create_label('suffix', settings_dict), 4, 0)
-        layout.addWidget(self.create_edit('suffix', settings_dict), 4, 1)
+        # Prefix
+        prefix_label = self.create_label('prefix', settings_dict)
+        prefix_label.setToolTip(TOOLTIPS["PREFIX_SUFFIX"])
+        layout.addWidget(prefix_label, 3, 0)
+        prefix_edit = self.create_edit('prefix', settings_dict)
+        prefix_edit.setToolTip(TOOLTIPS["PREFIX_SUFFIX"])
+        layout.addWidget(prefix_edit, 3, 1)
+
+        # Suffix
+        suffix_label = self.create_label('suffix', settings_dict)
+        suffix_label.setToolTip(TOOLTIPS["PREFIX_SUFFIX"])
+        layout.addWidget(suffix_label, 4, 0)
+        suffix_edit = self.create_edit('suffix', settings_dict)
+        suffix_edit.setToolTip(TOOLTIPS["PREFIX_SUFFIX"])
+        layout.addWidget(suffix_edit, 4, 1)
 
         self.setLayout(layout)
 

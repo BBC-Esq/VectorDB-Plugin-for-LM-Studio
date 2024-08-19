@@ -9,6 +9,7 @@ import shutil
 import sys
 from pathlib import Path
 import pickle
+import re
 
 import torch
 import yaml
@@ -16,6 +17,7 @@ from packaging import version
 from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
 from transformers import BitsAndBytesConfig
+
 
 bnb_bfloat16_settings = {
     'tokenizer_settings': {
@@ -27,9 +29,12 @@ bnb_bfloat16_settings = {
         'quantization_config': BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         'trust_remote_code': True,
+        'attn_implementation': "flash_attention_2"
     }
 }
 
@@ -43,31 +48,15 @@ bnb_float16_settings = {
         'quantization_config': BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         'trust_remote_code': True,
+        'attn_implementation': "flash_attention_2"
     }
 }
 
-generate_settings_4096 = {
-    'max_length': 4096,
-    'max_new_tokens': None,
-    'do_sample': False,
-    'num_beams': 1,
-    'use_cache': True,
-    'temperature': None,
-    'top_p': None,
-}
-
-generate_settings_8192 = {
-    'max_length': 8192,
-    'max_new_tokens': None,
-    'do_sample': False,
-    'num_beams': 1,
-    'use_cache': True,
-    'temperature': None,
-    'top_p': None,
-}
 
 def get_pkl_file_path(pkl_file_path):
     # used in gui_tabs_databases.py when opening a file
