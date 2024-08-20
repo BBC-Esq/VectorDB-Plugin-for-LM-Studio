@@ -16,10 +16,6 @@ import sounddevice as sd
 import torch
 import torchaudio
 
-# torch._dynamo.config.cache_size_limit = 64
-# torch._dynamo.config.suppress_errors = True
-# torch.set_float32_matmul_precision('high')
-
 import yaml
 from tqdm import tqdm
 import ChatTTS
@@ -31,10 +27,6 @@ from gtts.tokenizer import pre_processors, tokenizer_cases, Tokenizer
 
 from utilities import my_cprint
 
-logging.getLogger("transformers").setLevel(logging.ERROR)
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
-logging.getLogger().setLevel(logging.WARNING)
 
 current_directory = Path(__file__).parent
 CACHE_DIR = current_directory / "models" / "tts"
@@ -54,13 +46,8 @@ class BaseAudio:
 
     def initialize_device(self):
         self.device = next((d for d in ['cuda:0', 'mps', 'cpu'] if d == 'cpu' or getattr(torch, d.split(':')[0]).is_available()), 'cpu')
-        my_cprint(f"Selected compute device: {self.device}", "white")
-
-    def release_resources(self):
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        gc.collect()
-        my_cprint("Models removed from memory.", "red")
+        # DEBUG
+        # print(f"Selected compute device: {self.device}")
 
     def play_audio_from_queue(self):
         while not self.stop_event.is_set():
@@ -81,7 +68,6 @@ class BaseAudio:
             except queue.Empty:
                 if not self.processing_thread.is_alive():
                     break
-        self.release_resources()
 
     def run(self, input_text_file):
         try:
@@ -103,8 +89,6 @@ class BaseAudio:
 
         self.processing_thread.join()
         playback_thread.join()
-        
-        self.release_resources()
 
     def stop(self):
         self.stop_event.set()
@@ -120,10 +104,19 @@ class BarkAudio(BaseAudio):
     def initialize_model_and_processor(self):
         repository_id = "suno/bark" if self.config['size'] == 'normal' else f"suno/bark-{self.config['size']}"
         
+        # instantiate processor
         self.processor = AutoProcessor.from_pretrained(repository_id, cache_dir=CACHE_DIR)
         
         precision = torch.float16 if self.config['model_precision'] == 'float16' else torch.float32
-        self.model = BarkModel.from_pretrained(repository_id, torch_dtype=precision, cache_dir=CACHE_DIR).to(self.device)
+        
+        # instantiate model
+        self.model = BarkModel.from_pretrained(
+            repository_id,
+            torch_dtype=precision,
+            cache_dir=CACHE_DIR,
+            attn_implementation="flash_attention_2"
+        ).to(self.device)
+        
         my_cprint("Bark model loaded.", "green")
         
         self.model = self.model.to_bettertransformer()
@@ -134,14 +127,24 @@ class BarkAudio(BaseAudio):
             if sentence.strip():
                 inputs = self.processor(text=sentence, voice_preset=self.config['speaker'], return_tensors="pt")
                 try:
-                    speech_output = self.model.generate(**inputs.to(self.device), semantic_use_cache=True, coarse_use_cache=True, fine_use_cache=True, pad_token_id=0, do_sample=True)
+
+                    speech_output = self.model.generate(
+                        **inputs.to(self.device),
+                        use_cache=True,
+                        do_sample=True,
+                        # temperature=0.2,
+                        # top_k=50,
+                        # top_p=0.95,
+                        pad_token_id=0,
+                        # min_eos_p=0.2,
+                    )
+
                     audio_array = speech_output[0].cpu().numpy()
                     audio_array = np.int16(audio_array / np.max(np.abs(audio_array)) * 32767)
                     self.audio_queue.put((audio_array, self.model.generation_config.sample_rate))
                 except Exception:
                     continue
         self.audio_queue.put(None)
-
 
 class WhisperSpeechAudio(BaseAudio):
     def __init__(self):

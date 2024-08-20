@@ -3,6 +3,7 @@ import logging
 import signal
 import threading
 from pathlib import Path
+import multiprocessing
 
 import torch
 import yaml
@@ -14,17 +15,18 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QTextEdit, QPushButton, QCh
 from chat_lm_studio import LMStudioChatThread
 from chat_local_model import LocalModelChat
 from constants import CHAT_MODELS
-from module_tts import run_tts
 from module_voice_recorder import VoiceRecorder
 from utilities import check_preconditions_for_submit_question, my_cprint
 from constants import TOOLTIPS
 
-logging.basicConfig(level=logging.DEBUG, 
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    filename='app.log')
-
 current_dir = Path(__file__).resolve().parent
 input_text_file = str(current_dir / 'chat_history.txt')
+
+
+def run_tts_in_process(config_path, input_text_file):
+    from module_tts import run_tts  # Import here to avoid potential circular imports
+    run_tts(config_path, input_text_file)
+
 
 class RefreshingComboBox(QComboBox):
     def __init__(self, parent=None):
@@ -296,7 +298,9 @@ class DatabaseQueryTab(QWidget):
         tts_thread.start()
 
     def run_tts_module(self):
-        run_tts(self.config_path, input_text_file)
+        process = multiprocessing.Process(target=run_tts_in_process, args=(str(self.config_path), input_text_file))
+        process.start()
+        process.join()  # wait for the process to finish
 
     def toggle_recording(self):
         if self.is_recording:
@@ -321,7 +325,17 @@ class DatabaseQueryTab(QWidget):
             self.eject_button.setEnabled(True)
 
     def show_error_message(self, error_message):
-        QMessageBox.warning(self, "Error", error_message)
+        # error message for if the contexts exceed the chat model's limit
+        if "exceed the chat model's context limit" in error_message:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setText(error_message)
+            msg_box.setWindowTitle("Context Limit Exceeded")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec()
+        # all other error messages
+        else:
+            QMessageBox.warning(self, "Error", error_message)
         self.submit_button.setDisabled(False)
 
     def on_submission_finished(self):
