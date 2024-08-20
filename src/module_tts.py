@@ -5,8 +5,6 @@ import queue
 import re
 import threading
 import time
-import logging
-import warnings
 from functools import lru_cache
 from pathlib import Path
 
@@ -15,7 +13,6 @@ import numpy as np
 import sounddevice as sd
 import torch
 import torchaudio
-
 import yaml
 from tqdm import tqdm
 import ChatTTS
@@ -26,12 +23,11 @@ from gtts import gTTS
 from gtts.tokenizer import pre_processors, tokenizer_cases, Tokenizer
 
 from utilities import my_cprint
-
+from constants import WHISPER_SPEECH_MODELS
 
 current_directory = Path(__file__).parent
 CACHE_DIR = current_directory / "models" / "tts"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
 
 class BaseAudio:
     def __init__(self):
@@ -45,9 +41,10 @@ class BaseAudio:
         self.config = yaml.safe_load(open(config_file, encoding='utf-8'))[section]
 
     def initialize_device(self):
-        self.device = next((d for d in ['cuda:0', 'mps', 'cpu'] if d == 'cpu' or getattr(torch, d.split(':')[0]).is_available()), 'cpu')
-        # DEBUG
-        # print(f"Selected compute device: {self.device}")
+        if torch.cuda.is_available():
+            self.device = 'cuda'
+        else:
+            raise RuntimeError("CUDA is not available, but it's required for this program.")
 
     def play_audio_from_queue(self):
         while not self.stop_event.is_set():
@@ -104,20 +101,20 @@ class BarkAudio(BaseAudio):
     def initialize_model_and_processor(self):
         repository_id = "suno/bark" if self.config['size'] == 'normal' else f"suno/bark-{self.config['size']}"
         
-        # instantiate processor
+        # processor
         self.processor = AutoProcessor.from_pretrained(repository_id, cache_dir=CACHE_DIR)
         
-        precision = torch.float16 if self.config['model_precision'] == 'float16' else torch.float32
+        precision = torch.float16
         
-        # instantiate model
+        # model
         self.model = BarkModel.from_pretrained(
             repository_id,
-            torch_dtype=precision,
+            torch_dtype=torch.float16,
             cache_dir=CACHE_DIR,
             attn_implementation="flash_attention_2"
         ).to(self.device)
         
-        my_cprint("Bark model loaded.", "green")
+        my_cprint(f"Bark model loaded (float16)", "green")
         
         self.model = self.model.to_bettertransformer()
 
@@ -127,7 +124,6 @@ class BarkAudio(BaseAudio):
             if sentence.strip():
                 inputs = self.processor(text=sentence, voice_preset=self.config['speaker'], return_tensors="pt")
                 try:
-
                     speech_output = self.model.generate(
                         **inputs.to(self.device),
                         use_cache=True,
@@ -136,9 +132,7 @@ class BarkAudio(BaseAudio):
                         # top_k=50,
                         # top_p=0.95,
                         pad_token_id=0,
-                        # min_eos_p=0.2,
                     )
-
                     audio_array = speech_output[0].cpu().numpy()
                     audio_array = np.int16(audio_array / np.max(np.abs(audio_array)) * 32767)
                     self.audio_queue.put((audio_array, self.model.generation_config.sample_rate))
@@ -149,20 +143,45 @@ class BarkAudio(BaseAudio):
 class WhisperSpeechAudio(BaseAudio):
     def __init__(self):
         super().__init__()
+        self.config = self.load_config('config.yaml', 'tts')
+        self.pipe = None
         self.initialize_model()
 
+    def load_config(self, config_file, section):
+        try:
+            with open(config_file, 'r') as f:
+                return yaml.safe_load(f)[section]
+        except Exception as e:
+            my_cprint(f"Error loading config: {str(e)}", "red")
+            return {}
+
+    def get_whisper_speech_models(self):
+        s2a_model = self.config.get('s2a', 's2a-q4-hq-fast-en+pl.model')
+        s2a = f"collabora/whisperspeech:{s2a_model}"
+        
+        t2s_model = self.config.get('t2s', 't2s-base-en+pl.model')
+        t2s = f"collabora/whisperspeech:{t2s_model}"
+        
+        return s2a, t2s
+
     def initialize_model(self):
-        self.pipe = Pipeline(
-            s2a_ref='collabora/whisperspeech:s2a-q4-base-en+pl.model',
-            t2s_ref='collabora/whisperspeech:t2s-base-en+pl.model',
-            cache_dir=CACHE_DIR
-        )
-        my_cprint("WhisperSpeech pipeline initialized.", "green")
+        s2a, t2s = self.get_whisper_speech_models()
+        
+        try:
+            self.pipe = Pipeline(
+                s2a_ref=s2a,
+                t2s_ref=t2s,
+                cache_dir=CACHE_DIR
+            )
+            my_cprint(f"{s2a.split(':')[-1]} loaded\n{t2s.split(':')[-1]} loaded.", "green")
+        except Exception as e:
+            my_cprint(f"Error initializing WhisperSpeech models: {str(e)}", "red")
+            self.pipe = None
 
     @torch.inference_mode()
     def process_text_to_audio(self, sentences):
         for sentence in tqdm(sentences, desc="Processing Sentences"):
-            if sentence:
+            if sentence and not self.stop_event.is_set():
                 try:
                     audio_tensor = self.pipe.generate(sentence)
                     audio_np = (audio_tensor.cpu().numpy() * 32767).astype(np.int16)
@@ -172,18 +191,24 @@ class WhisperSpeechAudio(BaseAudio):
                         audio_np = audio_np.T
                     self.audio_queue.put((audio_np, 24000))
                 except Exception as e:
-                    print(f"Error processing sentence: {sentence}")
+                    my_cprint(f"Error processing sentence: {str(e)}", "red")
         self.audio_queue.put(None)
+
+    def run(self, input_text_file):
+        self.initialize_device()
+        super().run(input_text_file)
 
 
 class ChatTTSAudio:
     def __init__(self):
 
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
         self.chat = ChatTTS.Chat()
         self.chat.load_models(
             source="huggingface",  # local or huggingface
             # local_path=r"[PATH ONLY IF USING PATH]",
-            device="cuda",
+            device=device,
             compile=False
         )
 

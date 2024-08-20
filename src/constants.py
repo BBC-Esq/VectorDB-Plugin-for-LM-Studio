@@ -11,6 +11,25 @@ MODEL_MAX_TOKENS = {
     'Internlm2_5 - 20b': 8192,
 }
 
+WHISPER_SPEECH_MODELS = {
+    "s2a": {
+        "s2a-q4-tiny": ("s2a-q4-tiny-en+pl.model", 74),
+        "s2a-q4-base": ("s2a-q4-base-en+pl.model", 203),
+        "s2a-q4-hq-fast": ("s2a-q4-hq-fast-en+pl.model", 380),
+        # "s2a-v1.1-small": ("s2a-v1.1-small-en+pl-noyt.model", 437),
+        # "s2a-q4-small": ("s2a-q4-small-en+pl.model", 874),
+    },
+    "t2s": {
+        "t2s-tiny": ("t2s-tiny-en+pl.model", 74),
+        "t2s-base": ("t2s-base-en+pl.model", 193),
+        "t2s-hq-fast": ("t2s-hq-fast-en+pl.model", 743),
+        # "t2s-fast-small": ("t2s-fast-small-en+pl.model", 743),
+        # "t2s-small": ("t2s-small-en+pl.model", 0),
+        # "t2s-v1.1-small": ("t2s-v1.1-small-en+pl.model", 0),
+        # "t2s-fast-medium": ("t2s-fast-medium-en+pl+yt.model", 0)
+    }
+}
+
 VECTOR_MODELS = {
     'BAAI': [
         {
