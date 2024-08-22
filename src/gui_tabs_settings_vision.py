@@ -8,6 +8,11 @@ from constants import VISION_MODELS
 def is_cuda_available():
     return torch.cuda.is_available()
 
+def get_cuda_capability():
+    if is_cuda_available():
+        return torch.cuda.get_device_capability(0)  # Get capability of the first CUDA device
+    return (0, 0)
+
 class VisionSettingsTab(QWidget):
     def __init__(self):
         super().__init__()
@@ -24,8 +29,16 @@ class VisionSettingsTab(QWidget):
         gridLayout.addWidget(label_size, 0, 3)
         gridLayout.setAlignment(label_size, Qt.AlignCenter)
 
+        label_precision = QLabel("Precision")
+        gridLayout.addWidget(label_precision, 0, 5)
+        gridLayout.setAlignment(label_precision, Qt.AlignCenter)
+
+        label_vram = QLabel("VRAM")
+        gridLayout.addWidget(label_vram, 0, 7)
+        gridLayout.setAlignment(label_vram, Qt.AlignCenter)
+
         label_quant = QLabel("Quant")
-        gridLayout.addWidget(label_quant, 0, 5)
+        gridLayout.addWidget(label_quant, 0, 9)
         gridLayout.setAlignment(label_quant, Qt.AlignCenter)
 
         self.modelComboBox = QComboBox()
@@ -36,8 +49,14 @@ class VisionSettingsTab(QWidget):
         self.sizeLabel = QLabel()
         gridLayout.addWidget(self.sizeLabel, 0, 4)
 
+        self.precisionLabel = QLabel()
+        gridLayout.addWidget(self.precisionLabel, 0, 6)
+
+        self.vramLabel = QLabel()
+        gridLayout.addWidget(self.vramLabel, 0, 8)
+
         self.quantLabel = QLabel()
-        gridLayout.addWidget(self.quantLabel, 0, 6)
+        gridLayout.addWidget(self.quantLabel, 0, 10)
 
         self.modelComboBox.currentIndexChanged.connect(self.updateModelInfo)
 
@@ -45,11 +64,23 @@ class VisionSettingsTab(QWidget):
 
     def populate_model_combobox(self):
         cuda_available = is_cuda_available()
+        cuda_capability = get_cuda_capability()
         available_models = []
         
         for model, info in VISION_MODELS.items():
-            if cuda_available or not info.get('requires_cuda', True):
-                available_models.append(model)
+            requires_cuda = info.get('requires_cuda', True)
+            precision = info.get('precision')
+            
+            if cuda_available:
+                if requires_cuda:
+                    if precision == 'bfloat16':
+                        if cuda_capability >= (8, 6):
+                            available_models.append(model)
+                    else:
+                        available_models.append(model)
+            else:
+                if not requires_cuda:
+                    available_models.append(model)
         
         self.modelComboBox.addItems(available_models)
 
@@ -71,7 +102,9 @@ class VisionSettingsTab(QWidget):
         
         model_info = VISION_MODELS[chosen_model]
         self.sizeLabel.setText(model_info['size'])
-        self.quantLabel.setText(model_info['precision'])
+        self.precisionLabel.setText(model_info['precision'])
+        self.vramLabel.setText(model_info['avg_vram_usage'])
+        self.quantLabel.setText(model_info['quant'])
 
     def read_config(self):
         config_file_path = Path('config.yaml')

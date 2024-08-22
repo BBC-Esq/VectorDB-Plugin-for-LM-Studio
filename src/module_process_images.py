@@ -259,16 +259,26 @@ class loader_falcon(BaseLoader):
         cache_dir = CACHE_DIR / save_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
 
+        # Check GPU capability
+        if torch.cuda.is_available():
+            capability = torch.cuda.get_device_capability()
+            use_bfloat16 = capability >= (8, 6)
+        else:
+            use_bfloat16 = False
+
+        # Set the appropriate dtype
+        compute_dtype = torch.bfloat16 if use_bfloat16 else torch.float16
+
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_compute_dtype=compute_dtype,
         )
         
         model = LlavaNextForConditionalGeneration.from_pretrained(
             model_id,
             quantization_config=quantization_config,
-            torch_dtype=torch.bfloat16,
+            torch_dtype=compute_dtype,
             low_cpu_mem_usage=True,
             cache_dir=cache_dir
         )
@@ -390,10 +400,20 @@ class loader_phi3vision(BaseLoader):
         save_dir = VISION_MODELS[chosen_model]["cache_dir"]
         cache_dir = CACHE_DIR / save_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Check GPU capability
+        if torch.cuda.is_available():
+            capability = torch.cuda.get_device_capability()
+            use_bfloat16 = capability >= (8, 6)
+        else:
+            use_bfloat16 = False
+
+        # Set the appropriate dtype
+        compute_dtype = torch.bfloat16 if use_bfloat16 else torch.float16
         
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True, 
-            bnb_4bit_compute_dtype=torch.bfloat16, 
+            bnb_4bit_compute_dtype=compute_dtype, 
             bnb_4bit_quant_type="nf4"
         )
         
@@ -402,7 +422,7 @@ class loader_phi3vision(BaseLoader):
             repo_id,
             device_map="cuda",
             trust_remote_code=True,
-            torch_dtype="auto",
+            torch_dtype=compute_dtype,
             low_cpu_mem_usage=True,
             attn_implementation='flash_attention_2',
             quantization_config=quantization_config,

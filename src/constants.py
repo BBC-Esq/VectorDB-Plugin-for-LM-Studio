@@ -3,10 +3,23 @@ system_message = """You are a helpful person who clearly and directly answers qu
 MODEL_MAX_TOKENS = {
     'Danube 3 - 4b': 8192,
     'Dolphin-Qwen 2 - 1.5b': 8192,
+    'Phi 3.5 Mini - 4b': 8192,
     'Internlm2_5 - 7b': 8192,
     'Dolphin-Llama 3.1 - 8b': 8192,
     'Hermes-3-Llama-3.1 - 8b': 8192,
     'Dolphin-Qwen 2 - 7b': 8192,
+    'Dolphin-Mistral-Nemo - 12b': 8192,
+    'Internlm2_5 - 20b': 8192,
+}
+
+MODEL_MAX_NEW_TOKENS = {
+    'Danube 3 - 4b': 1024,
+    'Dolphin-Qwen 2 - 1.5b': 8192,
+    'Phi 3.5 Mini - 4b': 2048,
+    'Internlm2_5 - 7b': 8192,
+    'Dolphin-Llama 3.1 - 8b': 1024,
+    'Hermes-3-Llama-3.1 - 8b': 8192,
+    'Dolphin-Qwen 2 - 7b': 1024,
     'Dolphin-Mistral-Nemo - 12b': 8192,
     'Internlm2_5 - 20b': 8192,
 }
@@ -24,9 +37,9 @@ WHISPER_SPEECH_MODELS = {
         "t2s-base": ("t2s-base-en+pl.model", 193),
         "t2s-hq-fast": ("t2s-hq-fast-en+pl.model", 743),
         # "t2s-fast-small": ("t2s-fast-small-en+pl.model", 743),
-        # "t2s-small": ("t2s-small-en+pl.model", 0),
-        # "t2s-v1.1-small": ("t2s-v1.1-small-en+pl.model", 0),
-        # "t2s-fast-medium": ("t2s-fast-medium-en+pl+yt.model", 0)
+        # "t2s-small": ("t2s-small-en+pl.model", 856),
+        # "t2s-v1.1-small": ("t2s-v1.1-small-en+pl.model", 429),
+        # "t2s-fast-medium": ("t2s-fast-medium-en+pl+yt.model", 1310)
     }
 }
 
@@ -224,7 +237,8 @@ CHAT_MODELS = {
         'tokens_per_second': 74,
         'context_length': 4096,
         'avg_vram_usage': '2.5 GB',
-        'function': 'Zephyr_1_6B'
+        'function': 'Zephyr_1_6B',
+        'precision': 'float16'
     },
     'Zephyr - 3b': {
         'model': 'Zephyr - 3b',
@@ -233,7 +247,8 @@ CHAT_MODELS = {
         'tokens_per_second': 57,
         'context_length': 4096,
         'avg_vram_usage': '2.9 GB',
-        'function': 'Zephyr_3B'
+        'function': 'Zephyr_3B',
+        'precision': 'bfloat16'
     },
     'Danube 3 - 4b': {
         'model': 'Danube 3 - 4b',
@@ -242,7 +257,18 @@ CHAT_MODELS = {
         'tokens_per_second': 65,
         'context_length': 8192,
         'avg_vram_usage': '3.3 GB',
-        'function': 'Danube_3_4b'
+        'function': 'Danube_3_4b',
+        'precision': 'bfloat16'
+    },
+    'Phi 3.5 Mini - 4b': {
+        'model': 'Phi 3.5 Mini - 4b',
+        'repo_id': 'microsoft/Phi-3.5-mini-instruct',
+        'cache_dir': 'microsoft--Phi-3.5-mini-instruct',
+        'tokens_per_second': 40,
+        'context_length': 8192,
+        'avg_vram_usage': '3.8 GB',
+        'function': 'Phi3_5_mini_4b',
+        'precision': 'bfloat16'
     },
     'Dolphin-Qwen 2 - 1.5b': {
         'model': 'Dolphin-Qwen 2 - 1.5b',
@@ -251,7 +277,8 @@ CHAT_MODELS = {
         'tokens_per_second': 58.07,
         'context_length': 16384,
         'avg_vram_usage': '4.2 GB',
-        'function': 'Dolphin_Qwen2_1_5b'
+        'function': 'Dolphin_Qwen2_1_5b',
+        'precision': 'bfloat16'
     },
     'Orca 2 - 7b': {
         'model': 'Orca 2 - 7b',
@@ -260,7 +287,8 @@ CHAT_MODELS = {
         'tokens_per_second': 47.10,
         'context_length': 4096,
         'avg_vram_usage': '5.9 GB',
-        'function': 'Orca2_7b'
+        'function': 'Orca2_7b',
+        'precision': 'float16'
     },
     'Neural-Chat - 7b': {
         'model': 'Neural-Chat - 7b',
@@ -269,7 +297,8 @@ CHAT_MODELS = {
         'tokens_per_second': 46,
         'context_length': 4096,
         'avg_vram_usage': '5.8 GB',
-        'function': 'Neural_Chat_7b'
+        'function': 'Neural_Chat_7b',
+        'precision': 'float16'
     },
     'Internlm2_5 - 7b': {
         'model': 'Internlm2_5 - 7b',
@@ -278,7 +307,8 @@ CHAT_MODELS = {
         'tokens_per_second': 35.12,
         'context_length': 32768,
         'avg_vram_usage': '6.8 GB',
-        'function': 'InternLM2_5_7b'
+        'function': 'InternLM2_5_7b',
+        'precision': 'bfloat16'
     },
     'Dolphin-Llama 3.1 - 8b': {
         'model': 'Dolphin-Llama 3.1 - 8b',
@@ -287,7 +317,8 @@ CHAT_MODELS = {
         'tokens_per_second': 50.33,
         'context_length': 8192,
         'avg_vram_usage': '7.1 GB',
-        'function': 'Dolphin_Llama3_1_8B'
+        'function': 'Dolphin_Llama3_1_8B',
+        'precision': 'bfloat16'
     },
     'Hermes-3-Llama-3.1 - 8b': {
         'model': 'Hermes-3-Llama-3.1 - 8b',
@@ -296,7 +327,8 @@ CHAT_MODELS = {
         'tokens_per_second': 46.70,
         'context_length': 8192,
         'avg_vram_usage': '7.1 GB',
-        'function': 'Hermes_3_Llama_3_1'
+        'function': 'Hermes_3_Llama_3_1',
+        'precision': 'bfloat16'
     },
     'Dolphin-Yi 1.5 - 9b': {
         'model': 'Dolphin-Yi 1.5 - 9b',
@@ -305,7 +337,8 @@ CHAT_MODELS = {
         'tokens_per_second': 30.85,
         'context_length': 4096,
         'avg_vram_usage': '7.2 GB',
-        'function': 'Dolphin_Yi_1_5_9b'
+        'function': 'Dolphin_Yi_1_5_9b',
+        'precision': 'bfloat16'
     },
     'Orca 2 - 13b': {
         'model': 'Orca 2 - 13b',
@@ -314,7 +347,8 @@ CHAT_MODELS = {
         'tokens_per_second': 36.11,
         'context_length': 4096,
         'avg_vram_usage': '9.9 GB',
-        'function': 'Orca2_13b'
+        'function': 'Orca2_13b',
+        'precision': 'float16'
     },
     'Dolphin-Qwen 2 - 7b': {
         'model': 'Dolphin-Qwen 2 - 7b',
@@ -323,7 +357,8 @@ CHAT_MODELS = {
         'tokens_per_second': 52,
         'context_length': 16384,
         'avg_vram_usage': '9.2 GB',
-        'function': 'Dolphin_Qwen2_7b'
+        'function': 'Dolphin_Qwen2_7b',
+        'precision': 'bfloat16'
     },
     'Dolphin-Phi 3 - Medium': {
         'model': 'Dolphin-Phi 3 - Medium',
@@ -332,7 +367,8 @@ CHAT_MODELS = {
         'tokens_per_second': 40,
         'context_length': 4096,
         'avg_vram_usage': '9.3 GB',
-        'function': 'Dolphin_Phi3_Medium'
+        'function': 'Dolphin_Phi3_Medium',
+        'precision': 'bfloat16'
     },
     'SOLAR - 10.7b': {
         'model': 'SOLAR - 10.7b',
@@ -341,7 +377,8 @@ CHAT_MODELS = {
         'tokens_per_second': 28,
         'context_length': 4096,
         'avg_vram_usage': '9.3 GB',
-        'function': 'SOLAR_10_7B'
+        'function': 'SOLAR_10_7B',
+        'precision': 'float16'
     },
     'Llama 2 - 13b': {
         'model': 'Llama 2 - 13b',
@@ -350,7 +387,8 @@ CHAT_MODELS = {
         'tokens_per_second': 36.80,
         'context_length': 4096,
         'avg_vram_usage': '10.0 GB',
-        'function': 'Llama2_13b'
+        'function': 'Llama2_13b',
+        'precision': 'float16'
     },
     'Dolphin-Mistral-Nemo - 12b': {
         'model': 'Dolphin-Mistral-Nemo - 12b',
@@ -359,7 +397,8 @@ CHAT_MODELS = {
         'tokens_per_second': 35.86,
         'context_length': 8192,
         'avg_vram_usage': '10.0 GB',
-        'function': 'Dolphin_Mistral_Nemo'
+        'function': 'Dolphin_Mistral_Nemo',
+        'precision': 'bfloat16'
     },
     'Internlm2_5 - 20b': {
         'model': 'Internlm2_5 - 20b',
@@ -368,13 +407,15 @@ CHAT_MODELS = {
         'tokens_per_second': 20.21,
         'context_length': 32768,
         'avg_vram_usage': '14.2 GB',
-        'function': 'InternLM2_5_20b'
+        'function': 'InternLM2_5_20b',
+        'precision': 'bfloat16'
     },
 }
 
 VISION_MODELS = {
     'Florence-2-base': {
         'precision': 'autoselect',
+        'quant': 'autoselect',
         'size': '232m',
         'repo_id': 'microsoft/Florence-2-base',
         'cache_dir': 'microsoft--Florence-2-base',
@@ -384,6 +425,7 @@ VISION_MODELS = {
     },
     'Moondream2 - 1.9b': {
         'precision': 'float16',
+        'quant': 'none',
         'size': '2b',
         'repo_id': 'vikhyatk/moondream2',
         'cache_dir': 'vikhyatk--moondream2',
@@ -393,6 +435,7 @@ VISION_MODELS = {
     },
     'Florence-2-large': {
         'precision': 'autoselect',
+        'quant': 'autoselect',
         'size': '770m',
         'repo_id': 'microsoft/Florence-2-large',
         'cache_dir': 'microsoft--Florence-2-large',
@@ -401,7 +444,8 @@ VISION_MODELS = {
         'tokens_per_second': 113.32
     },
     'Phi-3-vision - 4.2b': {
-        'precision': '4-bit',
+        'precision': 'bfloat16',
+        'quant': '4-bit',
         'size': '4.2b',
         'repo_id': 'microsoft/Phi-3-vision-128k-instruct',
         'cache_dir': 'microsoft--Phi-3-vision-128k-instruct',
@@ -410,7 +454,8 @@ VISION_MODELS = {
         'tokens_per_second': 30.72
     },
     'Llava 1.5 - 7b': {
-        'precision': '4-bit',
+        'precision': 'float16',
+        'quant': '4-bit',
         'size': '7b',
         'repo_id': 'llava-hf/llava-1.5-7b-hf',
         'cache_dir': 'llava-hf--llava-1.5-7b-hf',
@@ -419,7 +464,8 @@ VISION_MODELS = {
         'tokens_per_second': 48.30
     },
     'Bakllava 1.5 - 7b': {
-        'precision': '4-bit',
+        'precision': 'float16',
+        'quant': '4-bit',
         'size': '7b',
         'repo_id': 'llava-hf/bakLlava-v1-hf',
         'cache_dir': 'llava-hf--bakLlava-v1-hf',
@@ -428,7 +474,8 @@ VISION_MODELS = {
         'tokens_per_second': 48.30
     },
     'Llava 1.6 Vicuna - 7b': {
-        'precision': '4-bit',
+        'precision': 'float16',
+        'quant': '4-bit',
         'size': '7b',
         'repo_id': 'llava-hf/llava-v1.6-vicuna-7b-hf',
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-7b-hf',
@@ -437,7 +484,8 @@ VISION_MODELS = {
         'tokens_per_second': 56.33
     },
     'MiniCPM-V-2_6 - 8b': {
-        'precision': '4-bit',
+        'precision': 'bfloat16',
+        'quant': '4-bit',
         'size': '8b',
         'repo_id': 'openbmb/MiniCPM-V-2_6-int4',
         'cache_dir': 'openbmb--MiniCPM-V-2_6-int4',
@@ -446,7 +494,8 @@ VISION_MODELS = {
         'tokens_per_second': 16.40
     },
     'Llava 1.5 - 13b': {
-        'precision': '4-bit',
+        'precision': 'float16',
+        'quant': '4-bit',
         'size': '13b',
         'repo_id': 'llava-hf/llava-1.5-13b-hf',
         'cache_dir': 'llava-hf--llava-1.5-13b-hf',
@@ -455,7 +504,8 @@ VISION_MODELS = {
         'tokens_per_second': 38.03
     },
     'falcon-vlm - 11b': {
-        'precision': '4-bit',
+        'precision': 'bfloat16',
+        'quant': '4-bit',
         'size': '13b',
         'repo_id': 'tiiuae/falcon-11B-vlm',
         'cache_dir': 'tiiuae--falcon-11B-vlm',
@@ -464,7 +514,8 @@ VISION_MODELS = {
         'tokens_per_second': 18.36
     },
     'Llava 1.6 Vicuna - 13b': {
-        'precision': '4-bit',
+        'precision': 'float16',
+        'quant': '4-bit',
         'size': '13b',
         'repo_id': 'llava-hf/llava-v1.6-vicuna-13b-hf',
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-13b-hf',
@@ -761,380 +812,621 @@ TOOLTIPS = {
     "CHUNKS_ONLY": "Only return relevant chunks without connecting to the LLM. Extremely useful to test the chunk size/overlap settings."
 }
 
-graphics_cards = {
-    # "GeForce GTX 1630": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 512
-    # },
-    # "GeForce GTX 1630": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 512
-    # },
-    # "GeForce GTX 1650 (Apr 2019)": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 896
-    # },
-    # "GeForce GTX 1650 (Apr 2020)": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 896
-    # },
-    # "GeForce GTX 1650 (Jun 2020)": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 896
-    # },
-    # "GeForce GTX 1650 (Laptop)": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 1024
-    # },
-    # "GeForce GTX 1650 Max-Q": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 1024
-    # },
-    # "GeForce GTX 1650 Ti Max-Q": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 1024
-    # },
-    # "GeForce GTX 1650 Ti": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 1024
-    # },
-    # "GeForce GTX 1650 Super": {
-        # "Size (GB)": 4,
-        # "CUDA Cores": 1280
-    # },
-    # "GeForce GTX 1660": {
-        # "Size (GB)": 6,
-        # "CUDA Cores": 1408
-    # },
-    # "GeForce GTX 1660 (Laptop)": {
-        # "Size (GB)": 6,
-        # "CUDA Cores": 1408
-    # },
-    # "GeForce GTX 1660 Super": {
-        # "Size (GB)": 6,
-        # "CUDA Cores": 1408
-    # },
-    # "GeForce GTX 1660 Ti Max-Q": {
-        # "Size (GB)": 6,
-        # "CUDA Cores": 1536
-    # },
-    # "GeForce GTX 1660 Ti (Laptop)": {
-        # "Size (GB)": 6,
-        # "CUDA Cores": 1536
-    # },
-    # "GeForce GTX 1660 Ti": {
-        # "Size (GB)": 6,
-        # "CUDA Cores": 1536
-    # },
+GPUS_NVIDIA = {
+    "GeForce GTX 1630": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 512
+    },
+    "GeForce GTX 1650 (Apr 2019)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 896
+    },
+    "GeForce GTX 1650 (Apr 2020)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 896
+    },
+    "GeForce GTX 1650 (Jun 2020)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 896
+    },
+    "GeForce GTX 1650 (Laptop)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 1024
+    },
+    "GeForce GTX 1650 Max-Q": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 1024
+    },
+    "GeForce GTX 1650 Ti Max-Q": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 1024
+    },
+    "GeForce GTX 1650 Ti": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 1024
+    },
+    "GeForce GTX 1650 Super": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 4,
+        "CUDA Cores": 1280
+    },
+    "GeForce GTX 1660": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 6,
+        "CUDA Cores": 1408
+    },
+    "GeForce GTX 1660 (Laptop)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 6,
+        "CUDA Cores": 1408
+    },
+    "GeForce GTX 1660 Super": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 6,
+        "CUDA Cores": 1408
+    },
+    "GeForce GTX 1660 Ti Max-Q": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 6,
+        "CUDA Cores": 1536
+    },
+    "GeForce GTX 1660 Ti (Laptop)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 6,
+        "CUDA Cores": 1536
+    },
+    "GeForce GTX 1660 Ti": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 6,
+        "CUDA Cores": 1536
+    },
     "GeForce RTX 2060": {
+        "Brand": "NVIDIA",
         "Size (GB)": 6,
         "CUDA Cores": 1920
     },
     "GeForce RTX 2060 Max-Q": {
+        "Brand": "NVIDIA",
         "Size (GB)": 6,
         "CUDA Cores": 1920
     },
     "GeForce RTX 2060 (Jan 2019)": {
+        "Brand": "NVIDIA",
         "Size (GB)": 6,
         "CUDA Cores": 1920
     },
     "GeForce RTX 2060 (Jan 2020)": {
+        "Brand": "NVIDIA",
         "Size (GB)": 6,
         "CUDA Cores": 1920
     },
     "GeForce RTX 3050": {
+        "Brand": "NVIDIA",
         "Size (GB)": 4,
         "CUDA Cores": 2048
     },
     "GeForce RTX 3050 Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 4,
         "CUDA Cores": 2048
     },
     "GeForce RTX 2060 (Dec 2021)": {
+        "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 2176
     },
     "GeForce RTX 2060 Super": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 2176
     },
     "GeForce RTX 2070": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 2304
     },
     "GeForce RTX 2070 Max-Q": {
-        "Size (GB)": 8,
-        "CUDA Cores": 2304
-    },
-    "GeForce RTX 2070": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 2304
     },
     "GeForce RTX 3050": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 2304
     },
     "GeForce RTX 4050 Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 6,
         "CUDA Cores": 2560
     },
     "GeForce RTX 3050 Ti Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 4,
         "CUDA Cores": 2560
     },
     "GeForce RTX 2070 Super": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 2560
     },
     "GeForce RTX 2070 Super Max-Q": {
-        "Size (GB)": 8,
-        "CUDA Cores": 2560
-    },
-    "GeForce RTX 2070 Super": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 2560
     },
     "GeForce RTX 4060": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 3072
     },
     "GeForce RTX 2080 Super": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 3072
     },
     "GeForce RTX 2080 Super Max-Q": {
-        "Size (GB)": 8,
-        "CUDA Cores": 3072
-    },
-    "GeForce RTX 2080 Super": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 3072
     },
     "GeForce RTX 3060": {
+        "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 3584
     },
     "GeForce RTX 3060 Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 6,
         "CUDA Cores": 3840
     },
     "GeForce RTX 4060 Ti": {
+        "Brand": "NVIDIA",
         "Size (GB)": 16,
         "CUDA Cores": 4352
     },
     "GeForce RTX 2080 Ti": {
+        "Brand": "NVIDIA",
         "Size (GB)": 11,
         "CUDA Cores": 4352
     },
     "GeForce RTX 4070 Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 4608
     },
     "Nvidia TITAN RTX": {
+        "Brand": "NVIDIA",
         "Size (GB)": 24,
         "CUDA Cores": 4608
     },
     "GeForce RTX 3060 Ti": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 4864
     },
     "GeForce RTX 3070 Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 5120
     },
     "GeForce RTX 3070": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 5888
     },
     "GeForce RTX 4070": {
+        "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 5888
     },
     "GeForce RTX 3070 Ti": {
+        "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 6144
     },
     "GeForce RTX 3070 Ti Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": "8-16",
         "CUDA Cores": 6144
     },
     "GeForce RTX 4070 Super": {
+        "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 7168
     },
     "GeForce RTX 4080 Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 7424
     },
     "GeForce RTX 3080 Ti Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 16,
         "CUDA Cores": 7424
     },
     "GeForce RTX 4070 Ti": {
+        "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 7680
     },
     "GeForce RTX 4080": {
+        "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 7680
     },
     "GeForce RTX 4070 Ti Super": {
+        "Brand": "NVIDIA",
         "Size (GB)": 16,
         "CUDA Cores": 8448
     },
     "GeForce RTX 3080": {
+        "Brand": "NVIDIA",
         "Size (GB)": 10,
         "CUDA Cores": 8704
     },
     "GeForce RTX 3080 Ti": {
+        "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 8960
     },
     "GeForce RTX 4080": {
+        "Brand": "NVIDIA",
         "Size (GB)": 16,
         "CUDA Cores": 9728
     },
     "GeForce RTX 4090 Mobile/Laptop": {
+        "Brand": "NVIDIA",
         "Size (GB)": 16,
         "CUDA Cores": 9728
     },
     "GeForce RTX 4080 Super": {
+        "Brand": "NVIDIA",
         "Size (GB)": 16,
         "CUDA Cores": 10240
     },
     "GeForce RTX 3090": {
+        "Brand": "NVIDIA",
         "Size (GB)": 24,
         "CUDA Cores": 10496
     },
     "GeForce RTX 3090 Ti": {
+        "Brand": "NVIDIA",
         "Size (GB)": 24,
         "CUDA Cores": 10752
     },
     "GeForce RTX 4090 D": {
+        "Brand": "NVIDIA",
         "Size (GB)": 24,
         "CUDA Cores": 14592
     },
     "GeForce RTX 4090": {
+        "Brand": "NVIDIA",
         "Size (GB)": 24,
         "CUDA Cores": 16384
     }
 }
 
-amd_gpu_info = {
+GPUS_AMD = {
     "Radeon RX 7600": {
+        "Brand": "AMD",
         "Size (GB)": 8,
         "Shaders": 2048
     },
     "Radeon RX 7600 XT": {
+        "Brand": "AMD",
         "Size (GB)": 16,
         "Shaders": 2048
     },
     "Radeon RX 7700 XT": {
+        "Brand": "AMD",
         "Size (GB)": 12,
         "Shaders": 3456
     },
     "Radeon RX 7800 XT": {
+        "Brand": "AMD",
         "Size (GB)": 16,
         "Shaders": 3840
     },
     "Radeon RX 7900 GRE": {
+        "Brand": "AMD",
         "Size (GB)": 16,
         "Shaders": 5120
     },
     "Radeon RX 7900 XT": {
+        "Brand": "AMD",
         "Size (GB)": 20,
         "Shaders": 5376
     },
     "Radeon RX 7900 XTX": {
+        "Brand": "AMD",
         "Size (GB)": 24,
         "Shaders": 6144
     },
     "Radeon RX 6300": {
+        "Brand": "AMD",
         "Size (GB)": 2,
         "Shaders": 768
     },
     "Radeon RX 6400": {
+        "Brand": "AMD",
         "Size (GB)": 4,
         "Shaders": 1024
     },
     "Radeon RX 6500 XT": {
+        "Brand": "AMD",
         "Size (GB)": 8,
         "Shaders": 1024
     },
     "Radeon RX 6600": {
+        "Brand": "AMD",
         "Size (GB)": 8,
         "Shaders": 1792
     },
     "Radeon RX 6600 XT": {
+        "Brand": "AMD",
         "Size (GB)": 8,
         "Shaders": 2048
     },
     "Radeon RX 6650 XT": {
+        "Brand": "AMD",
         "Size (GB)": 8,
         "Shaders": 2048
     },
     "Radeon RX 6700": {
+        "Brand": "AMD",
         "Size (GB)": 10,
         "Shaders": 2304
     },
     "Radeon RX 6750 GRE 10GB": {
+        "Brand": "AMD",
         "Size (GB)": 10,
         "Shaders": 2560
     },
     "Radeon RX 6750 XT": {
+        "Brand": "AMD",
         "Size (GB)": 12,
         "Shaders": 2560
     },
     "Radeon RX 6800": {
+        "Brand": "AMD",
         "Size (GB)": 16,
         "Shaders": 3840
     },
     "Radeon RX 6800 XT": {
+        "Brand": "AMD",
         "Size (GB)": 16,
         "Shaders": 4608
     },
     "Radeon RX 6900 XT": {
+        "Brand": "AMD",
         "Size (GB)": 16,
         "Shaders": 5120
     },
     "Radeon RX 6950 XT": {
+        "Brand": "AMD",
         "Size (GB)": 16,
         "Shaders": 5120
     },
     "Radeon RX 5300": {
+        "Brand": "AMD",
         "Size (GB)": 3,
         "Shaders": 1408
     },
     "Radeon RX 5300 XT": {
+        "Brand": "AMD",
         "Size (GB)": 4,
         "Shaders": 1408
     },
     "Radeon RX 5500": {
+        "Brand": "AMD",
         "Size (GB)": 4,
         "Shaders": 1408
     },
     "Radeon RX 5500 XT": {
+        "Brand": "AMD",
         "Size (GB)": 4,
         "Shaders": 1408
     },
     "Radeon RX 5600": {
+        "Brand": "AMD",
         "Size (GB)": 6,
         "Shaders": 2048
     },
     "Radeon RX 5600 XT": {
+        "Brand": "AMD",
         "Size (GB)": 6,
         "Shaders": 2304
     },
     "Radeon RX 5700": {
+        "Brand": "AMD",
         "Size (GB)": 8,
         "Shaders": 2304
     },
     "Radeon RX 5700 XT": {
+        "Brand": "AMD",
         "Size (GB)": 8,
         "Shaders": 2560
     },
     "Radeon RX 5700 XT 50th Anniversary Edition": {
+        "Brand": "AMD",
         "Size (GB)": 8,
         "Shaders": 2560
+    },
+    "Radeon RX Vega 56": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 3584
+    },
+    "Radeon RX Vega 64": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 4096
+    },
+    "Radeon RX Vega 64 Liquid": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 4096
+    },
+    "Radeon VII": {
+        "Brand": "AMD",
+        "Size (GB)": 16,
+        "Shaders": 3840
+    },
+    "Radeon RX 7600S": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 1792
+    },
+    "Radeon RX 7600M": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 1792
+    },
+    "Radeon RX 7600M XT": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 2048
+    },
+    "Radeon RX 7700S": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 2048
+    },
+    "Radeon RX 7900M": {
+        "Brand": "AMD",
+        "Size (GB)": 16,
+        "Shaders": 4608
+    },
+    "Radeon RX 6300M": {
+        "Brand": "AMD",
+        "Size (GB)": 2,
+        "Shaders": 768
+    },
+    "Radeon RX 6450M": {
+        "Brand": "AMD",
+        "Size (GB)": 2,
+        "Shaders": 768
+    },
+    "Radeon RX 6550S": {
+        "Brand": "AMD",
+        "Size (GB)": 4,
+        "Shaders": 768
+    },
+    "Radeon RX 6500M": {
+        "Brand": "AMD",
+        "Size (GB)": 4,
+        "Shaders": 1024
+    },
+    "Radeon RX 6550M": {
+        "Brand": "AMD",
+        "Size (GB)": 4,
+        "Shaders": 1024
+    },
+    "Radeon RX 6600S": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 1792
+    },
+    "Radeon RX 6700S": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 1792
+    },
+    "Radeon RX 6600M": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 1792
+    },
+    "Radeon RX 6650M": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 1792
+    },
+    "Radeon RX 6800S": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 2048
+    },
+    "Radeon RX 6650M XT": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 2048
+    },
+    "Radeon RX 6700M": {
+        "Brand": "AMD",
+        "Size (GB)": 10,
+        "Shaders": 2304
+    },
+    "Radeon RX 6800M": {
+        "Brand": "AMD",
+        "Size (GB)": 12,
+        "Shaders": 2560
+    },
+    "Radeon RX 6850M XT": {
+        "Brand": "AMD",
+        "Size (GB)": 12,
+        "Shaders": 2560
+    },
+    "Radeon RX 5300M": {
+        "Brand": "AMD",
+        "Size (GB)": 3,
+        "Shaders": 1408
+    },
+    "Radeon RX 5500M": {
+        "Brand": "AMD",
+        "Size (GB)": 4,
+        "Shaders": 1408
+    },
+    "Radeon RX 5600M": {
+        "Brand": "AMD",
+        "Size (GB)": 6,
+        "Shaders": 2304
+    },
+    "Radeon RX 5700M": {
+        "Brand": "AMD",
+        "Size (GB)": 8,
+        "Shaders": 2304
+    }
+}
+
+GPUS_INTEL = {
+    "Intel Arc A310": {
+        "Brand": "Intel",
+        "Size (GB)": 4,
+        "Shading Cores": 768
+    },
+    "Intel Arc A380": {
+        "Brand": "Intel",
+        "Size (GB)": 6,
+        "Shading Cores": 1024
+    },
+    "Intel Arc A580": {
+        "Brand": "Intel",
+        "Size (GB)": 8,
+        "Shading Cores": 3072
+    },
+    "Intel Arc A750": {
+        "Brand": "Intel",
+        "Size (GB)": 8,
+        "Shading Cores": 3584
+    },
+    "Intel Arc A770 8GB": {
+        "Brand": "Intel",
+        "Size (GB)": 8,
+        "Shading Cores": 4096
+    },
+    "Intel Arc A770 16GB": {
+        "Brand": "Intel",
+        "Size (GB)": 16,
+        "Shading Cores": 4096
     }
 }

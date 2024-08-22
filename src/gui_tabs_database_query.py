@@ -26,6 +26,7 @@ input_text_file = str(current_dir / 'chat_history.txt')
 def run_tts_in_process(config_path, input_text_file):
     from module_tts import run_tts  # Import here to avoid potential circular imports
     run_tts(config_path, input_text_file)
+    my_cprint("TTS models removed from memory.", "red")
 
 
 class RefreshingComboBox(QComboBox):
@@ -104,6 +105,17 @@ class DatabaseQueryTab(QWidget):
 
         self.model_combo_box = QComboBox()
         self.model_combo_box.setToolTip(TOOLTIPS["LOCAL_MODEL_SELECT"])
+        
+        # add all local models to combobox if cuda exists, otherwise just Zephyr 1.6b
+        if torch.cuda.is_available():
+            self.model_combo_box.addItems([model_info['model'] for model_info in CHAT_MODELS.values()])
+        else:
+            self.model_combo_box.addItem(CHAT_MODELS['Zephyr - 1.6b']['model'])
+        
+        if self.model_combo_box.count() > 0:
+            self.model_combo_box.setCurrentIndex(0)
+        self.model_combo_box.setEnabled(torch.cuda.is_available())
+        
         self.model_combo_box.addItems(model_info['model'] for model_info in CHAT_MODELS.values())
         self.model_combo_box.setCurrentText("Zephyr - 1.6b")
         self.model_combo_box.setEnabled(False)

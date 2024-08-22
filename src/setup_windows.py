@@ -243,7 +243,7 @@ other_libraries = [
     "openai==1.23.6",
     "openai-whisper==20231117",
     "openpyxl==3.1.2",
-    "optimum==1.21.2",
+    "optimum==1.21.4",
     "ordered-set==4.1.0",
     "orjson==3.10.6",
     "packaging==24.1",
@@ -316,6 +316,11 @@ other_libraries = [
     "yarl==1.9.4",
     "zipp==3.19.2"
 ]
+
+# matplotlib==3.9.2
+# pyparsing==3.1.2
+# cycler==0.12.1
+# kiwisolver==1.4.5
 
 full_install_libraries = [
     "pyside6==6.7.2",

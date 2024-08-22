@@ -48,17 +48,17 @@ class CreateDatabaseThread(QThread):
         self.process = None
 
     def run(self):
-        # Run the vector database creation in a separate process
+        # create db in separate process
         self.process = multiprocessing.Process(target=create_vector_db_in_process, args=(self.database_name,))
         self.process.start()
         self.process.join()
 
-        # After the database creation is complete, perform the remaining tasks
-        self.update_config_with_database_name()
-        backup_database()
-        
         my_cprint("Vector model removed from memory.", "red")
         self.creationComplete.emit()
+
+        # after the db is created, backup db and update config
+        self.update_config_with_database_name()
+        backup_database()
 
     def update_config_with_database_name(self):
         config_path = Path(__file__).resolve().parent / "config.yaml"

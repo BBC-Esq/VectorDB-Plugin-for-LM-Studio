@@ -12,20 +12,20 @@ import module_chat
 from database_interactions import QueryVectorDB
 from utilities import format_citations
 
-
+# DECLARE SIGNALS
 class LocalModelSignals(QObject):
-    response_signal = Signal(str)  # 7. signal for sending response
-    citations_signal = Signal(str)  # 8. signal for sending citations
-    error_signal = Signal(str)  # 9. signal for sending error messages
-    finished_signal = Signal()  # 10. signal for indicating process completion
-    model_loaded_signal = Signal()  # 3. signal for indicating model loaded
-    model_unloaded_signal = Signal()  # 11. signal for indicating model unloaded
+    response_signal = Signal(str)  # 7.
+    citations_signal = Signal(str)  # 8.
+    error_signal = Signal(str)  # 9.
+    finished_signal = Signal()  # 10.
+    model_loaded_signal = Signal()  # 3.
+    model_unloaded_signal = Signal()  # 11.
     token_count_signal = Signal(str)
 
 class LocalModelChat:
     def __init__(self):
         self.model_process = None
-        self.model_pipe = None  # creates a blank pipe
+        self.model_pipe = None  # create a pipe for interprocess communication
         self.current_model = None
         self.signals = LocalModelSignals()
 
@@ -35,16 +35,16 @@ class LocalModelChat:
             if self.is_model_loaded():
                 self.terminate_current_process()
             
-            # turns the blank pipe into a bidirectional pipe with parent process and child process ends
+            # make the pipe bidirectional pipe with parent process and child process ends
             parent_conn, child_conn = Pipe()
-            # establishes the parent process end of the pipe
+            # assign the parent process end of the pipe
             self.model_pipe = parent_conn
-            # assigns the child process end of the pipe to the _local_model_process method
+            # assign the child process end to the "_local_model_process" method
             self.model_process = Process(target=self._local_model_process, args=(child_conn, model_name))
             self.model_process.start()
             self.current_model = model_name
             self._start_listening_thread()
-            # 3. Signal-model is loaded
+            # 3. signal that model is loaded
             self.signals.model_loaded_signal.emit()
             logging.info(f"Model process started for {model_name}")
         else:
@@ -107,9 +107,8 @@ class LocalModelChat:
 
     def _listen_for_response(self):
         """
-        This method continuously listens for messages coming through the pipe. When a message is received,
-        it's processed based on its type, and then the appropriate signal is emitted. These signals are what
-        connect the data received from the pipe to the GUI elements in the DatabaseQueryTab class.
+        Listens every second for messages coming through the pipe from the child process. When a message is received, the
+        "message type" determines which signal is emitted, displaying the streamed response, citations, etc.
         """
         logging.info("Starting response listener")
         while True:
@@ -118,26 +117,25 @@ class LocalModelChat:
                 break
             
             try:
-                # Checks for incoming messages via pipe every 1 second from _local_model_process method
+                # checks every second for messages from "_local_model_process" that's being run in the child process
                 if self.model_pipe.poll(timeout=1):
-                    # 6. process data from pip depending on "message_type"
                     message_type, message = self.model_pipe.recv()
                     if message_type in ["response", "partial_response"]:
-                        # 7. Signal-triggers update_response_local_model in database_query_tab
+                        # 7. signals "update_response_local_model"
                         self.signals.response_signal.emit(message)
                     elif message_type == "citations":
-                        # 8. Signal-triggers display_citations_in_widget in database_query_tab
+                        # 8. signals "display_citations_in_widget"
                         self.signals.citations_signal.emit(message)
                     elif message_type == "error":
-                        # 9. Signal-triggers on_submission_finished in database_query_tab
+                        # 9. signals "on_submission_finished"
                         self.signals.error_signal.emit(message)
                     elif message_type == "finished":
-                        # 10. Signal-triggers on_submission_finished in database_query_tab
+                        # 10. signals "on_submission_finished"
                         self.signals.finished_signal.emit()
                         if message == "exit":
                             logging.info("Received exit signal, terminating listener")
                             break
-                    # Signal
+                    # signals...
                     elif message_type == "token_counts":
                         self.signals.token_count_signal.emit(message)
                 else:
@@ -157,12 +155,12 @@ class LocalModelChat:
         self.model_pipe = None
         self.model_process = None
         self.current_model = None
-        # 11. Signal-triggers on_model_unloaded in database_query_tab
+        # 11. signals"on_model_unloaded"
         self.signals.model_unloaded_signal.emit()
         logging.info("Listener resource cleanup completed")
 
     @staticmethod
-    def _local_model_process(conn, model_name): # runs generation within the child process
+    def _local_model_process(conn, model_name): # child process for local model's generation
         model_instance = module_chat.choose_model(model_name)
         query_vector_db = None
         current_database = None
@@ -170,7 +168,7 @@ class LocalModelChat:
             while True:
                 try:
                     message_type, message = conn.recv()
-                    if message_type == "question": # generate streamed response
+                    if message_type == "question":
                         user_question, chunks_only, _, selected_database = message
                         if query_vector_db is None or current_database != selected_database:
                             query_vector_db = QueryVectorDB(selected_database)
@@ -180,13 +178,29 @@ class LocalModelChat:
                             conn.send(("error", "No relevant contexts found."))
                             conn.send(("finished", None))
                             continue
+                        # exit early with message if contexts length comes within 100 of model's max context limit
+                        max_context_tokens = model_instance.max_length - 100
+                        context_tokens = len(model_instance.tokenizer.encode("\n\n---\n\n".join(contexts)))
+
+                        if context_tokens > max_context_tokens:
+                            error_message = (
+                                "The contexts received from the vector database exceed the chat model's context limit.\n\n"
+                                "You can either:\n"
+                                "1) Adjust the chunk size setting when creating the database;\n"
+                                "2) Adjust the search settings (e.g. relevancy, number of contexts to return, etc.);\n"
+                                "3) Choose a chat model with a larger context."
+                            )
+                            conn.send(("error", error_message))
+                            conn.send(("finished", None))
+                            continue
+
                         if chunks_only:
                             formatted_contexts = LocalModelChat._format_contexts_and_metadata(contexts, metadata_list)
                             conn.send(("response", formatted_contexts))
                             conn.send(("finished", None))
                             continue
                         
-                        prepend_string = "Here are the contexts to base your answer on, but I need to reiterate only base your response on these contexts and do not use outside knowledge that you may have been trained with."
+                        prepend_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I want you to only base your response on these contexts and do not use outside knowledge that you may have been trained with."
                         augmented_query = f"{prepend_string}\n\n---\n\n" + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + user_question
                         # DEBUG
                         # print(augmented_query)
@@ -197,7 +211,7 @@ class LocalModelChat:
                         user_question_token_count = len(model_instance.tokenizer.encode(user_question))
                         
                         full_response = ""
-                        # pipe - "_listen_for_response" in the parent process
+                        # pipe to "_listen_for_response" in the parent process
                         for partial_response in module_chat.generate_response(model_instance, augmented_query):
                             full_response += partial_response
                             conn.send(("partial_response", partial_response))
@@ -206,7 +220,7 @@ class LocalModelChat:
                         # calculate available tokens
                         remaining_tokens = model_instance.max_length - (prepend_token_count + user_question_token_count + context_token_count + response_token_count)
                         
-                        # construct string
+                        # construct string for qlabel in gui
                         total_tokens = prepend_token_count + context_token_count + user_question_token_count + response_token_count
                         token_count_string = (
                             f"<span style='color:#2ECC40;'>available tokens ({model_instance.max_length})</span>"
@@ -215,15 +229,15 @@ class LocalModelChat:
                             f"<span style='color:white;'> = {remaining_tokens} remaining tokens.</span>"
                         )
 
-                        # pipe - "_listen_for_response" in parent process
+                        # pipe to "_listen_for_response" in parent process
                         conn.send(("token_counts", token_count_string))
 
                         with open('chat_history.txt', 'w', encoding='utf-8') as f:
                             f.write(full_response)
                         citations = format_citations(metadata_list)
-                        # pipe - "_listen_for_response" in parent process
+                        # pipe to "_listen_for_response" in parent process
                         conn.send(("citations", citations))
-                        # pipe - "_listen_for_response" in parent process
+                        # pipe to "_listen_for_response" in parent process
                         conn.send(("finished", None))
                     elif message_type == "exit":
                         break

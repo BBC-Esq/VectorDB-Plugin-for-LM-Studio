@@ -3,13 +3,12 @@ import logging
 import warnings
 from pathlib import Path
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer, BitsAndBytesConfig
 import threading
 from abc import ABC, abstractmethod
 
 from constants import CHAT_MODELS, system_message, MODEL_MAX_TOKENS
-from utilities import my_cprint, bnb_bfloat16_settings, bnb_float16_settings
-
+from utilities import my_cprint, has_bfloat16_support
 
 def get_max_length(model_name):
     return MODEL_MAX_TOKENS.get(model_name, 4096)
@@ -17,15 +16,51 @@ def get_max_length(model_name):
 def get_generation_settings(max_length):
     return {
         'max_length': max_length,
-        'max_new_tokens': None,
+        'max_new_tokens': 1024,
         'do_sample': False,
         'num_beams': 1,
         'use_cache': True,
         'temperature': None,
         'top_p': None,
-        # 'renormalize_logits': True
     }
 
+bnb_bfloat16_settings = {
+    'tokenizer_settings': {
+        'torch_dtype': torch.bfloat16,
+        'trust_remote_code': True,
+    },
+    'model_settings': {
+        'torch_dtype': torch.bfloat16,
+        'quantization_config': BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
+        ),
+        'low_cpu_mem_usage': True,
+        'trust_remote_code': True,
+        'attn_implementation': "flash_attention_2"
+    }
+}
+
+bnb_float16_settings = {
+    'tokenizer_settings': {
+        'torch_dtype': torch.float16,
+        'trust_remote_code': True,
+    },
+    'model_settings': {
+        'torch_dtype': torch.float16,
+        'quantization_config': BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
+        ),
+        'low_cpu_mem_usage': True,
+        'trust_remote_code': True,
+        'attn_implementation': "flash_attention_2"
+    }
+}
 class BaseModel(ABC):
     def __init__(self, model_info, settings, generation_settings, tokenizer_kwargs=None, model_kwargs=None):
         self.model_info = model_info
@@ -33,13 +68,22 @@ class BaseModel(ABC):
         self.model_name = model_info['model']
         self.generation_settings = generation_settings
         self.max_length = generation_settings['max_length']
+        
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         script_dir = Path(__file__).resolve().parent
         cache_dir = script_dir / "Models" / "chat" / model_info['cache_dir']
 
-        # include trust_remote_code=True in tokenizer settings
+        # rewrite bfloat dictionary to float16 if cuda compute 8.6 not supported
+        if self.device == "cuda" and not has_bfloat16_support():
+            if 'bnb_bfloat16_settings' in settings:
+                settings['bnb_float16_settings'] = settings.pop('bnb_bfloat16_settings')
+                settings['bnb_float16_settings']['tokenizer_settings']['torch_dtype'] = torch.float16
+                settings['bnb_float16_settings']['model_settings']['torch_dtype'] = torch.float16
+                settings['bnb_float16_settings']['model_settings']['quantization_config'].bnb_4bit_compute_dtype = torch.float16
+
         tokenizer_settings = {
-            **settings['tokenizer_settings'], 
+            **settings.get('tokenizer_settings', {}), 
             'cache_dir': str(cache_dir)
         }
         if tokenizer_kwargs:
@@ -47,21 +91,26 @@ class BaseModel(ABC):
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_info['repo_id'], **tokenizer_settings)
         
-        # Set eos_token on tokenizer if provided in tokenizer_kwargs
         if tokenizer_kwargs and 'eos_token' in tokenizer_kwargs:
             self.tokenizer.eos_token = tokenizer_kwargs['eos_token']
         
-        # include trust_remote_code=True in model settings
         model_settings = {
-            **settings['model_settings'], 
+            **settings.get('model_settings', {}), 
             'cache_dir': str(cache_dir)
         }
         if model_kwargs:
             model_settings.update(model_kwargs)
 
+        # if using CPU, remove CUDA-specific settings
+        # only applies to Zephyr 1.6b because all other models are not populated in combobox if cuda isn't available
+        if self.device == "cpu":
+            model_settings.pop('quantization_config', None)
+            model_settings.pop('attn_implementation', None)
+            model_settings['device_map'] = "cpu"
+
         self.model = AutoModelForCausalLM.from_pretrained(model_info['repo_id'], **model_settings)
         
-        my_cprint(f"Loaded {model_info['model']}", "green")
+        my_cprint(f"Loaded {model_info['model']} on {self.device}", "green")
 
     def get_model_name(self):
         return self.model_name
@@ -71,7 +120,10 @@ class BaseModel(ABC):
         pass
 
     def create_inputs(self, prompt):
-        return self.tokenizer(prompt, return_tensors="pt", return_attention_mask=True).to("cuda")
+        inputs = self.tokenizer(prompt, return_tensors="pt", return_attention_mask=True)
+        if self.device == "cpu":
+            inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        return inputs
 
     def generate_response(self, inputs):
         """
@@ -110,6 +162,21 @@ def cleanup_resources(model, tokenizer):
     torch.cuda.empty_cache()
     gc.collect()
 
+
+class Phi3_5_mini_4b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Phi 3.5 Mini - 4b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<s><|system|>
+        {system_message}<|end|>
+        <|user|>
+        {augmented_query}<|end|>
+        <|assistant|>
+        """
+
+
 class Dolphin_Llama3_1_8B(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Dolphin-Llama 3.1 - 8b']
@@ -122,6 +189,7 @@ class Dolphin_Llama3_1_8B(BaseModel):
         {augmented_query}<|im_end|>
         <|im_start|>assistant
         """
+
 class Danube_3_4b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Danube 3 - 4b']
@@ -305,7 +373,8 @@ class SOLAR_10_7B(BaseModel):
 class Zephyr_1_6B(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Zephyr - 1.6b']
-        super().__init__(model_info, bnb_float16_settings, generation_settings)
+        settings = bnb_float16_settings if torch.cuda.is_available() else {}
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""<|system|>

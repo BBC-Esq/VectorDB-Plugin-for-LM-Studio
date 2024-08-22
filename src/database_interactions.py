@@ -344,7 +344,7 @@ class CreateVectorDB:
                 print("Creating vector database...")
                 self.create_database(texts, embeddings)
             
-            self.save_documents_to_json(json_docs_to_save)            
+            self.save_documents_to_json(json_docs_to_save)
             self.clear_docs_for_db_folder()
 
 

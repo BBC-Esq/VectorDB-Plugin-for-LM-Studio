@@ -16,46 +16,34 @@ import yaml
 from packaging import version
 from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
-from transformers import BitsAndBytesConfig
 
+# IMPLEMENT THIS IF/WHEN A USER TRIES TO CREATE A DB WITH A CPU WITH AN INCOMPATIBLE VISION MODEL
+def cpu_db_creation_vision_model_compatibility(directory, image_extensions, config_path):
+    has_images = False
+    for root, _, files in os.walk(directory):
+        if any(file.lower().endswith(ext) for file in files for ext in image_extensions):
+            has_images = True
+            break
+    
+    if not has_images:
+        return False, None
 
-bnb_bfloat16_settings = {
-    'tokenizer_settings': {
-        'torch_dtype': torch.bfloat16,
-        'trust_remote_code': True,
-    },
-    'model_settings': {
-        'torch_dtype': torch.bfloat16,
-        'quantization_config': BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.bfloat16,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
-        ),
-        'low_cpu_mem_usage': True,
-        'trust_remote_code': True,
-        'attn_implementation': "flash_attention_2"
-    }
-}
+    # Load config
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    compute_device = config.get('Compute_Device', {}).get('database_creation', 'cpu')
+    
+    if compute_device.lower() == 'cpu':
+        return True, None
 
-bnb_float16_settings = {
-    'tokenizer_settings': {
-        'torch_dtype': torch.float16,
-        'trust_remote_code': True,
-    },
-    'model_settings': {
-        'torch_dtype': torch.float16,
-        'quantization_config': BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
-        ),
-        'low_cpu_mem_usage': True,
-        'trust_remote_code': True,
-        'attn_implementation': "flash_attention_2"
-    }
-}
+    embedding_model = config.get('EMBEDDING_MODEL_NAME', '').lower()
+    if not (embedding_model.endswith('florence-2-base') or embedding_model.endswith('florence-2-large')):
+        message = ("You've selected one or more images to process but have selected an incompatible vision model "
+                   "when creating the database with a CPU. Please select either 'Florence-2-base' or 'Florence-2-large'.")
+        return True, message
+
+    return True, None
 
 
 def get_pkl_file_path(pkl_file_path):
@@ -240,6 +228,18 @@ def check_preconditions_for_db_creation(script_dir, database_name):
         if reply == QMessageBox.Cancel:
             return False, "User cancelled operation based on device check."
 
+    # if no cuda and half selected, inform user and exit early
+    if not torch.cuda.is_available():
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+        
+        if config.get('database', {}).get('half', False):
+            message = ("CUDA is not available on your system, but half-precision (FP16) "
+                       "is selected for database creation. Half-precision requires CUDA. "
+                       "Please disable half-precision in the configuration or use a CUDA-enabled GPU.")
+            QMessageBox.warning(None, "CUDA Unavailable for Half-Precision", message)
+            return False, "CUDA unavailable for half-precision operation."
+
     # final confirmation
     confirmation_reply = QMessageBox.question(None, 'Confirmation', 
                                              "Creating a vector database can take a significant amount of time and cannot be cancelled. Click OK to proceed.",
@@ -302,6 +302,28 @@ def get_cuda_version():
     major, minor = map(int, torch.version.cuda.split("."))
 
     return f'{major}{minor}'
+
+
+# returns True if cuda exists and supports compute 8.6 of higher
+def has_bfloat16_support():
+    if not torch.cuda.is_available():
+        return False
+    
+    capability = torch.cuda.get_device_capability()
+    return capability >= (8, 6)
+
+
+def get_precision():
+    if not torch.cuda.is_available():
+        raise RuntimeError("CUDA is not available. This function requires a CUDA-enabled GPU.")
+
+    capability = torch.cuda.get_device_capability()
+    if capability >= (8, 6):
+        precision = torch.bfloat16
+    else:
+        precision = torch.float16
+    
+    return precision
 
 
 def get_device_and_precision():
