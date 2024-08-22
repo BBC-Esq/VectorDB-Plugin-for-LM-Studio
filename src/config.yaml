@@ -23,8 +23,9 @@ database:
   contexts: '5'
   database_to_search: ''
   document_types: ''
+  half: false
   search_term: ''
-  similarity: 0.9
+  similarity: 0.8
 embedding-models:
   bge:
     query_instruction: 'Represent this sentence for searching relevant passages:'
@@ -53,6 +54,8 @@ transcriber:
   quant: float32
 tts:
   model: whisperspeech
+  s2a:
+  t2s:
 vision:
   chosen_model: moondream2
   chosen_quant: float16
