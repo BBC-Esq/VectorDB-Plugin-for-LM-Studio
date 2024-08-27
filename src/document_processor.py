@@ -61,24 +61,6 @@ def load_single_document(file_path: Path) -> Document:
 
     if file_extension in [".epub", ".rtf", ".odt", ".md"]:
         loader_options.update({"mode": "single", "strategy": "fast"})
-    # elif file_extension == ".html":
-        # loader_options.update({
-            # "mode": "single", 
-            # "strategy": "fast",
-            # "unstructured_kwargs": {
-                # "encoding": "utf-8",
-                # # "include_metadata": True,  # Include additional metadata in the output
-                # # "detect_language_per_element": True,  # Detect language for each element instead of the whole document
-                # # "languages": ["en", "es"],  # Specify expected languages (English and Spanish in this example)
-                # # "metadata_last_modified": "2023-08-15T14:30:00",  # Specify a known last modified date
-                # # "skip_headers_and_footers": True,  # Ignore content within <header> or <footer> tags
-                # # "paragraph_grouper": some_grouping_function,  # Custom function to group paragraphs
-                # # "url": "https://example.com/source",  # Original URL if known
-                # # "headers": {"User-Agent": "MyBot/1.0"},  # Custom headers if fetching from URL
-                # # "ssl_verify": False,  # Disable SSL verification if needed (use with caution)
-            # }
-        # })
-        
     elif file_extension == ".html":
         loader_options.update({
             "open_encoding": "utf-8",
@@ -173,6 +155,19 @@ def split_documents(documents=None, text_documents_pdf=None):
             print(f"Created {len(texts)} chunks from non-PDF documents.")
 
         # split PDF document objects
+        
+        """
+        PDF files are split using the custom pymupdfparser, which includes custom page markers in the following format:
+        
+        [[page1]]This is the text content of the first page.
+        It might contain multiple lines, paragraphs, or sections.
+
+        [[page2]]This is the text content of the second page.
+        Again, it could be as long as necessary, depending on the content.
+
+        [[page3]]Finally, this is the text content of the third page.
+        """
+        
         if text_documents_pdf:
             print(f"Splitting {len(text_documents_pdf)} PDF documents.")
             processed_pdf_docs = []
