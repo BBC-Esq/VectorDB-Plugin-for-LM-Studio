@@ -13,10 +13,13 @@ from PySide6.QtCore import QThread, Signal
 import whisper_s2t
 from utilities import my_cprint
 
-# def get_physical_core_count():
-    # return psutil.cpu_count(logical=False)
+def get_logical_core_count():
+    return psutil.cpu_count(logical=False)
 
-# CPU_THREADS = max(4, get_physical_core_count() - 2)
+CPU_THREADS = max(4, get_logical_core_count() - 8)
+DEVICE = "cpu"
+COMPUTE_TYPE = "float32"
+MODEL_IDENTIFIER = f"ctranslate2-4you/distil-whisper-small.en-ct2-float32"
 
 class TranscriptionThread(QThread):
     transcription_complete = Signal(str)
@@ -26,24 +29,15 @@ class TranscriptionThread(QThread):
         self.audio_file = audio_file
         self.voice_recorder = voice_recorder
 
-    def run(self):
-        if torch.cuda.is_available():
-            device = "cuda"
-            compute_type = "float16"
-        else:
-            device = "cpu"
-            compute_type = "float32"
-            
-        model_identifier = f"ctranslate2-4you/whisper-small.en-ct2-{compute_type}"
-        cpu_threads = max(4, os.cpu_count() - 4) if device == "cpu" else 4
-        # cpu_threads = CPU_THREADS if device == "cpu" else 4,
+    def run(self):            
+        
 
         model_kwargs = {
-            'compute_type': compute_type,
-            'model_identifier': model_identifier,
+            'compute_type': COMPUTE_TYPE,
+            'model_identifier': MODEL_IDENTIFIER,
             'backend': 'CTranslate2',
-            "device": device,
-            "cpu_threads": cpu_threads,
+            "device": DEVICE,
+            "cpu_threads": CPU_THREADS,
         }
         self.model = whisper_s2t.load_model(**model_kwargs)
         my_cprint("Whisper model loaded.", 'green')
@@ -52,7 +46,7 @@ class TranscriptionThread(QThread):
                                              lang_codes=['en'],
                                              tasks=['transcribe'],
                                              initial_prompts=[None],
-                                             batch_size=16)
+                                             batch_size=4)
         
         transcription_text = " ".join(item['text'] for item in out[0]).strip()
         
