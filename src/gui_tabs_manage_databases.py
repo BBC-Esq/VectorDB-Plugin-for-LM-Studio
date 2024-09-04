@@ -1,34 +1,38 @@
-import json
 import shutil
+import sqlite3
 from pathlib import Path
 
 import yaml
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QTreeView, QFileSystemModel, QMenu,
-                               QGroupBox, QLabel, QComboBox, QMessageBox)
+from PySide6.QtCore import Qt, QAbstractTableModel
+from PySide6.QtGui import QAction, QColor
+from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QTableView, QMenu,
+                               QGroupBox, QLabel, QComboBox, QMessageBox, QHeaderView)
 
 from utilities import open_file
 
-class CustomFileSystemModel(QFileSystemModel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+class SQLiteTableModel(QAbstractTableModel):
+    def __init__(self, data=None):
+        super().__init__()
+        self._data = data or []
+        self._headers = ["File Name"]
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
-        if role == Qt.ItemDataRole.DisplayRole and index.column() == 0:
-            file_path = self.filePath(index)
-            if file_path.endswith('.json'):
-                try:
-                    with open(file_path, 'r', encoding='utf-8') as file:
-                        return json.load(file)['metadata'].get('file_name', 'Unknown')
-                except FileNotFoundError:
-                    return "File Missing"
-                except json.JSONDecodeError:
-                    return "Invalid JSON"
-                except Exception as e:
-                    print(f"Error loading JSON file {file_path}: {e}")
-                    return "Error"
-        return super().data(index, role)
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self._data[index.row()][0]
+        elif role == Qt.ForegroundRole:
+            return QColor('white')
+        return None
+
+    def rowCount(self, index):
+        return len(self._data)
+
+    def columnCount(self, index):
+        return 1
+
+    def headerData(self, section, orientation, role):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            return self._headers[section]
+        return None
 
 class RefreshingComboBox(QComboBox):
     def __init__(self, parent=None):
@@ -47,7 +51,7 @@ class ManageDatabasesTab(QWidget):
 
         self.layout = QVBoxLayout(self)
 
-        self.documents_group_box = self.create_group_box_with_directory_view("Files in Selected Database", "Docs_for_DB")
+        self.documents_group_box = self.create_group_box_with_table_view("Files in Selected Database")
         self.layout.addWidget(self.documents_group_box)
 
         self.database_info_layout = QHBoxLayout()
@@ -57,7 +61,7 @@ class ManageDatabasesTab(QWidget):
 
         self.buttons_layout = QHBoxLayout()
         self.pull_down_menu = RefreshingComboBox(self)
-        self.pull_down_menu.currentIndexChanged.connect(self.update_directory_view_and_info_label)
+        self.pull_down_menu.currentIndexChanged.connect(self.update_table_view_and_info_label)
         self.buttons_layout.addWidget(self.pull_down_menu)
         self.create_buttons()
         self.layout.addLayout(self.buttons_layout)
@@ -75,39 +79,46 @@ class ManageDatabasesTab(QWidget):
         self.documents_group_box.hide()
         self.database_info_label.setText("No database selected.")
 
-    def create_group_box_with_directory_view(self, title, directory_name):
+    def create_group_box_with_table_view(self, title):
         group_box = QGroupBox(title)
-        group_box.setCheckable(True)
-        group_box.setChecked(True)
         layout = QVBoxLayout()
-        self.tree_view = QTreeView()
-        self.model = CustomFileSystemModel()
-        self.tree_view.setModel(self.model)
-        self.tree_view.setSelectionMode(QTreeView.ExtendedSelection)
-        self.tree_view.hideColumn(1)
-        self.tree_view.hideColumn(2)
-        self.tree_view.hideColumn(3)
-        self.tree_view.doubleClicked.connect(self.on_double_click)
-        self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
-        layout.addWidget(self.tree_view)
+        self.table_view = QTableView()
+        self.model = SQLiteTableModel()
+        self.table_view.setModel(self.model)
+        self.table_view.setSelectionMode(QTableView.SingleSelection)
+        self.table_view.setSelectionBehavior(QTableView.SelectRows)
+        self.table_view.doubleClicked.connect(self.on_double_click)
+        self.table_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table_view.customContextMenuRequested.connect(self.show_context_menu)
+        
+        self.table_view.horizontalHeader().setStretchLastSection(True)
+        self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        
+        layout.addWidget(self.table_view)
         group_box.setLayout(layout)
         return group_box
 
-    def update_directory_view_and_info_label(self, index):
-        selected_database = self.pull_down_menu.currentText()
+    def update_table_view_and_info_label(self, index):
+        selected_database = self.pull_down_menu.currentText() if index != -1 else ""
         if selected_database:
             self.documents_group_box.show()
-            new_path = Path(__file__).resolve().parent / "Vector_DB" / selected_database / "json"
-            if new_path.exists():
-                self.model.setRootPath(str(new_path))
-                self.tree_view.setRootIndex(self.model.index(str(new_path)))
+            db_path = Path(__file__).resolve().parent / "Vector_DB" / selected_database / "metadata.db"
+            if db_path.exists():
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                cursor.execute("SELECT file_name, file_path FROM document_metadata")
+                data = cursor.fetchall()
+                conn.close()
+
+                self.model._data = [(row[0], row[1]) for row in data]
+                self.model.layoutChanged.emit()
+
                 if self.config_path.exists():
                     with open(self.config_path, 'r', encoding='utf-8') as file:
                         config = yaml.safe_load(file)
                         db_config = config.get('created_databases', {}).get(selected_database, {})
                         model_path = db_config.get('model', '')
-                        model_name = Path(model_path).name  # This extracts the last part of the path
+                        model_name = Path(model_path).name
                         chunk_size = db_config.get('chunk_size', '')
                         chunk_overlap = db_config.get('chunk_overlap', '')
                         info_text = f"DB name:  \"{selected_database}\"   |   Created with \"{model_name}\"   |   Chunk  size/overlap = {chunk_size} / {chunk_overlap}."
@@ -120,29 +131,15 @@ class ManageDatabasesTab(QWidget):
             self.display_no_databases_message()
 
     def on_double_click(self, index):
-        file_path = self.tree_view.model().filePath(index)
-        if file_path.endswith('.json'):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as json_file:
-                    document = json.load(json_file)
-                actual_file_path = document['metadata'].get('file_path')
-                if actual_file_path and Path(actual_file_path).exists():
-                    open_file(actual_file_path)
-                else:
-                    raise ValueError("File path is missing or invalid in the document metadata.")
-            except (json.JSONDecodeError, ValueError) as e:
-                QMessageBox.warning(self, "Error", f"Failed to open file: {e}")
+        selected_database = self.pull_down_menu.currentText()
+        if selected_database:
+            file_path = self.model._data[index.row()][1]
+            if Path(file_path).exists():
+                open_file(file_path)
+            else:
+                QMessageBox.warning(self, "Error", f"File not found at the specified path: {file_path}")
         else:
-            open_file(file_path)
-
-    def toggle_group_box(self, group_box, checked):
-        self.groups[group_box] = 1 if checked else 0
-        self.adjust_stretch()
-
-    def adjust_stretch(self):
-        total_stretch = sum(stretch for group, stretch in self.groups.items() if group.isChecked())
-        for group, stretch in self.groups.items():
-            self.layout.setStretchFactor(group, stretch if group.isChecked() else 0)
+            QMessageBox.warning(self, "Error", "No database selected.")
 
     def create_buttons(self):
         self.delete_database_button = QPushButton("Delete Database")
@@ -160,7 +157,9 @@ class ManageDatabasesTab(QWidget):
                                      QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Cancel)
 
         if reply == QMessageBox.Ok:
-            self.model.setRootPath('')
+            self.model.beginResetModel()
+            self.model._data = []
+            self.model.endResetModel()
 
             if self.config_path.exists():
                 with open(self.config_path, 'r', encoding='utf-8') as file:
@@ -176,7 +175,7 @@ class ManageDatabasesTab(QWidget):
 
                 base_dir = Path(__file__).resolve().parent
                 deletion_failed = False
-                for folder_name in ["Vector_DB", "Vector_DB_Backup", "Docs_for_DB"]:
+                for folder_name in ["Vector_DB", "Vector_DB_Backup"]:
                     dir_path = base_dir / folder_name / selected_database
                     if dir_path.exists():
                         shutil.rmtree(dir_path, ignore_errors=True)
@@ -188,7 +187,9 @@ class ManageDatabasesTab(QWidget):
                     QMessageBox.warning(self, "Delete Database", "Some files/folders could not be deleted. Please check manually.")
                 else:
                     QMessageBox.information(self, "Delete Database", f"Database '{selected_database}' and associated files have been deleted.")
+
                 self.refresh_pull_down_menu()
+                self.update_table_view_and_info_label(-1)
             else:
                 QMessageBox.warning(self, "Delete Database", "Configuration file missing or corrupted.")
 
@@ -205,7 +206,7 @@ class ManageDatabasesTab(QWidget):
         delete_action.triggered.connect(self.delete_selected_file)
         context_menu.addAction(delete_action)
         
-        context_menu.exec_(self.tree_view.viewport().mapToGlobal(position))
+        context_menu.exec_(self.table_view.viewport().mapToGlobal(position))
 
     def delete_selected_file(self):
         # Placeholder function for delete functionality
