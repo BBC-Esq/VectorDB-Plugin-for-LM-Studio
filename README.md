@@ -1,15 +1,22 @@
 <div align="center">
   <h2>🚀 Supercharge <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h2>
-  <h3>Search images, audio, and other general file types + Text to Speech<br><a href="https://www.youtube.com/watch?v=J1t95ecV11U">Introductory Video</a> - <a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h3>
+  <h4>Search images, audio, and other general file types + Text to Speech<br><a href="https://www.youtube.com/watch?v=J1t95ecV11U">Introductory Video</a> &nbsp;&bull;&nbsp <a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h4>
 </div>
 
-## Table of Contents
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Using the Program](#using-the-program)
-- [Request a Feature or Report a Bug](#request-a-feature-or-report-a-bug)
-- [Contact](#contact)
+<h3 align="center">Table of Contents</h3>
 
+<div align="center">
+  <a href="#requirements">Requirements</a>
+  &nbsp;&bull;&nbsp;
+  <a href="#installation">Installation</a>
+  &nbsp;&bull;&nbsp;
+  <a href="#using-the-program">Using the Program</a>
+  &nbsp;&bull;&nbsp;
+  <a href="#request-a-feature-or-report-a-bug">Request a Feature or Report a Bug</a>
+  &nbsp;&bull;&nbsp;
+  <a href="#contact">Contact</a>
+</div>
+<br>
 <div align="center">
     <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" target="_blank">
         <img src="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" alt="Example Image" width="400">
@@ -26,7 +33,7 @@
 </div>
 
 <a name="requirements"></a>
-<div align="center"> <h2><u>Requirements</h2></div>
+<div align="center"> <h3><u>Requirements</h3></div>
   
 1) 🔥 Windows systems - sorry only able to test on Window but feel free to contribute!
 2) 🐍[Python 3.11](https://www.python.org/downloads/release/python-3119/)
@@ -49,7 +56,7 @@
 [Back to Top](#top)
 
 <a name="installation"></a>
-<div align="center"> <h2>INSTALLATION</h2></div>
+<div align="center"> <h3>INSTALLATION</h3></div>
 
 <details>
   <summary>🪟WINDOWS INSTRUCTIONS</summary>
@@ -97,7 +104,7 @@ MacOS users must use Release v3.5.2 until I can update the codebase due to recen
 [Back to Top](#top)
 
 <a name="using-the-program"></a>
-<div align="center"> <h2>USING THE PROGRAM</h2></div>
+<div align="center"> <h3>USING THE PROGRAM</h3></div>
 <details>
   <summary>🖥️INSTRUCTIONS🖥</summary>
 
@@ -192,7 +199,7 @@ This program gets relevant chunks from the vector database and forwarding them -
 Feel free to report bugs or request enhancements by creating an issue on github or contacting me on the LM Studio Discord server (see below link)!
 
 <a name="contact"></a>
-<div align="center"><h2>CONTACT</h2></div>
+<div align="center"><h3>CONTACT</h3></div>
 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
 
