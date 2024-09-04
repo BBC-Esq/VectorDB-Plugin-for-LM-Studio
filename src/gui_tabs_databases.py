@@ -219,8 +219,6 @@ class DatabasesTab(QWidget):
 
     def create_group_box(self, title, directory_name):
         group_box = QGroupBox(title)
-        group_box.setCheckable(True)
-        group_box.setChecked(True)
         layout = QVBoxLayout()
         tree_view = self.setup_directory_view(directory_name)
         layout.addWidget(tree_view)

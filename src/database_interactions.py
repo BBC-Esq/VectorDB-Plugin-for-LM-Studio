@@ -1,3 +1,5 @@
+# DEPRECATED
+# import json
 import gc
 import logging
 import warnings
@@ -8,6 +10,7 @@ import time
 from pathlib import Path
 from typing import Dict, Optional, Union
 
+import sqlite3
 import torch
 # NOTE: newer torch uses new namespace - torch.amp
 from torch.cuda.amp import autocast # necessary to set dtype for instructor
@@ -27,6 +30,17 @@ from utilities import my_cprint
 
 # debugging
 # def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
+    # """
+    # "dumps" is a JSON string, which is a text-based representation that's good for saving to a file or sending over the
+    # network.  "dumpd" is a dictionary that Python can use immediately without any further parsing.  The distinction is
+    # most important when interacting with systems that expect a string versus working with Python objects directly.
+    
+    # Example string:
+    # "{\n  \"key\": \"value\",\n  \"serializable\": true\n}"    
+    
+    # Example dictionary:
+    # {'key': 'value', 'serializable': True}
+    # """
     # print("Saving to JSON...")
     # json_string = dumps(documents, pretty=True)
 
@@ -42,7 +56,6 @@ class CreateVectorDB:
         self.ROOT_DIRECTORY = Path(__file__).resolve().parent
         self.SOURCE_DIRECTORY = self.ROOT_DIRECTORY / "Docs_for_DB"
         self.PERSIST_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB" / database_name
-        self.SAVE_JSON_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB" / database_name / "json"
 
     def load_config(self, root_directory):
         with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
@@ -52,7 +65,7 @@ class CreateVectorDB:
         if compute_device.lower() == 'cpu' or not use_half:
             return None
         
-        # checks for nvidia gpu+cuda+pytorch
+        # checks for nvidia gpu + cuda + bfloat16 support
         if torch.cuda.is_available() and torch.version.cuda:
             cuda_capability = torch.cuda.get_device_capability()
             if cuda_capability[0] >= 8 and cuda_capability[1] >= 6:
@@ -120,7 +133,7 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs,
             )
 
-            # must use torch.amp. for instructor
+            # must use torch.amp. only for instructor
             if torch_dtype is not None:
                 model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
 
@@ -213,32 +226,70 @@ class CreateVectorDB:
 
         print("Database created.")
         print(f"Creating the vector database took {elapsed_time:.2f} seconds.")
-        
-    def save_documents_to_json(self, json_docs_to_save):
-        """
-        Json of all documents in a database to populate the database management tab. Uses "json_docs_to_save".
-        """
-        if not self.SAVE_JSON_DIRECTORY.exists():
-            self.SAVE_JSON_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
-        for document in json_docs_to_save:
-            document_hash = document.metadata.get('hash', None)
-            if document_hash:
-                json_filename = f"{document_hash}.json"
-                json_file_path = self.SAVE_JSON_DIRECTORY / json_filename
-                
-                actual_file_path = document.metadata.get('file_path')
-                if os.path.islink(actual_file_path):
-                    resolved_path = os.path.realpath(actual_file_path)
-                    document.metadata['file_path'] = resolved_path
+    # DEPRECATED
+    # def save_documents_to_json(self, json_docs_to_save):
+        # """
+        # Json of all documents in a database to populate the database management tab. Uses "json_docs_to_save".
+        # """
+        # if not self.SAVE_JSON_DIRECTORY.exists():
+            # self.SAVE_JSON_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
-                document_json = document.json(indent=4)
-                
-                with open(json_file_path, 'w', encoding='utf-8') as json_file:
-                    json_file.write(document_json)
-            else:
-                print("Warning: Document missing 'hash' in metadata. Skipping JSON creation.")
-    
+        # for document in json_docs_to_save:
+            # document_hash = document.metadata.get('hash', None)
+            # if document_hash:
+                # json_filename = f"{document_hash}.json"
+                # json_file_path = self.SAVE_JSON_DIRECTORY / json_filename
+
+                # actual_file_path = document.metadata.get('file_path')
+                # if os.path.islink(actual_file_path):
+                    # resolved_path = os.path.realpath(actual_file_path)
+                    # document.metadata['file_path'] = resolved_path
+
+                # document_json = document.json(indent=4)
+
+                # with open(json_file_path, 'w', encoding='utf-8') as json_file:
+                    # json_file.write(document_json)
+            # else:
+                # print("Warning: Document missing 'hash' in metadata. Skipping JSON creation.")
+
+    def create_metadata_db(self, documents):
+        if not self.PERSIST_DIRECTORY.exists():
+            self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
+
+        sqlite_db_path = self.PERSIST_DIRECTORY / "metadata.db"
+
+        # create sqlite3 database
+        conn = sqlite3.connect(sqlite_db_path)
+        cursor = conn.cursor()
+
+        # updated schema
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS document_metadata (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_name TEXT,
+                hash TEXT,
+                file_path TEXT,
+                page_content TEXT -- Added page content column
+            )
+        ''')
+
+        # insert metadata and page content
+        for document in documents:
+            metadata = document.metadata
+            file_name = metadata.get("file_name", "")
+            file_hash = metadata.get("hash", "")
+            file_path = metadata.get("file_path", "")
+            page_content = document.page_content  # Add page content
+
+            cursor.execute('''
+                INSERT INTO document_metadata (file_name, hash, file_path, page_content)
+                VALUES (?, ?, ?, ?)
+            ''', (file_name, file_hash, file_path, page_content))
+
+        conn.commit()
+        conn.close()
+
     def load_audio_documents(self, source_dir: Path = None) -> list:
         if source_dir is None:
             source_dir = self.SOURCE_DIRECTORY
@@ -344,9 +395,10 @@ class CreateVectorDB:
                 print("Creating vector database...")
                 self.create_database(texts, embeddings)
             
-            self.save_documents_to_json(json_docs_to_save)
+            # DEPRECATED
+            # self.save_documents_to_json(json_docs_to_save)
+            self.create_metadata_db(json_docs_to_save)
             self.clear_docs_for_db_folder()
-
 
 class QueryVectorDB:
     def __init__(self, selected_database):
