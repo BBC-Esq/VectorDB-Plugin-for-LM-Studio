@@ -1,3 +1,4 @@
+import time
 import gc
 import os
 import logging
@@ -17,7 +18,7 @@ from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, Q
 import database_interactions
 from database_interactions import create_vector_db_in_process
 from choose_documents_and_vector_model import select_embedding_model_directory, choose_documents_directory
-from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database, get_pkl_file_path, my_cprint
+from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database_incremental, get_pkl_file_path, my_cprint
 from download_model import model_downloaded_signal
 from constants import TOOLTIPS
 
@@ -57,8 +58,10 @@ class CreateDatabaseThread(QThread):
         self.creationComplete.emit()
 
         # after the db is created, backup db and update config
+        time.sleep(.5)
         self.update_config_with_database_name()
-        backup_database()
+
+        backup_database_incremental(self.database_name)
 
     def update_config_with_database_name(self):
         config_path = Path(__file__).resolve().parent / "config.yaml"

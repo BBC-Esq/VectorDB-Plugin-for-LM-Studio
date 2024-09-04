@@ -159,6 +159,32 @@ def backup_database():
     shutil.copytree(source_directory, backup_directory, dirs_exist_ok=True)
 
 
+def backup_database_incremental(new_database_name):
+    my_cprint("Creating backup of new database...", "yellow")
+    source_directory = Path('Vector_DB')
+    backup_directory = Path('Vector_DB_Backup')
+
+    backup_directory.mkdir(parents=True, exist_ok=True)
+
+    source_db_path = source_directory / new_database_name
+    backup_db_path = backup_directory / new_database_name
+
+    if backup_db_path.exists():
+        try:
+            shutil.rmtree(backup_db_path)
+        except Exception as e:
+            print(f"Warning: Could not remove existing backup of {new_database_name}: {e}")
+
+    try:
+        shutil.copytree(source_db_path, backup_db_path)
+        my_cprint(f"Successfully backed up {new_database_name}", "green")
+    except Exception as e:
+        print(f"Error backing up {new_database_name}: {e}")
+
+    # log of the latest backup info
+    # with open(backup_directory / "backup_manifest.txt", "a") as manifest:
+        # manifest.write(f"{new_database_name} backed up at {datetime.now()}\n")
+
 def open_file(file_path):
     # open a file with the system's default program
     try:
