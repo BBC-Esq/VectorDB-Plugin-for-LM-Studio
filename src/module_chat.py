@@ -16,7 +16,7 @@ def get_max_length(model_name):
 def get_generation_settings(max_length):
     return {
         'max_length': max_length,
-        'max_new_tokens': 1024,
+        'max_new_tokens': 2048,
         'do_sample': False,
         'num_beams': 1,
         'use_cache': True,
@@ -313,6 +313,19 @@ class Dolphin_Yi_1_5_9b(BaseModel):
         <|im_start|>assistant
         """
 
+class Yi_Coder_9b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Yi Coder - 9b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|endoftext|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
+
 class InternLM2_5_7b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Internlm2_5 - 7b']
@@ -352,6 +365,19 @@ class Llama2_13b(BaseModel):
         <</SYS>>
 
         {augmented_query}[/INST]"""
+
+
+class DeepSeek_Coder_v2_lite(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['DeepSeek Coder v2 - 16b']
+        super().__init__(model_info, bnb_float16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<｜begin▁of▁sentence｜>{system_message}
+        User: {augmented_query}
+        
+        Assistant:"""
+
 
 class Neural_Chat_7b(BaseModel):
     def __init__(self, generation_settings):

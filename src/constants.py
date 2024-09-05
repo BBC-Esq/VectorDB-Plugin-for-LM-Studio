@@ -9,7 +9,9 @@ MODEL_MAX_TOKENS = {
     'Dolphin-Llama 3.1 - 8b': 8192,
     'Hermes-3-Llama-3.1 - 8b': 8192,
     'Dolphin-Qwen 2 - 7b': 8192,
+    'Yi Coder - 9b': 8192,
     'Dolphin-Mistral-Nemo - 12b': 8192,
+    'DeepSeek Coder v2 - 16b': 8192,
     'Internlm2_5 - 20b': 8192,
 }
 
@@ -341,6 +343,18 @@ CHAT_MODELS = {
         'function': 'Dolphin_Yi_1_5_9b',
         'precision': 'bfloat16'
     },
+
+    'Yi Coder - 9b': {
+        'model': 'Yi Coder - 9b',
+        'repo_id': '01-ai/Yi-Coder-9B-Chat',
+        'cache_dir': '01-ai--Yi-Coder-9B-Chat',
+        'tokens_per_second': 30.85,
+        'context_length': 8192,
+        'avg_vram_usage': '7.2 GB',
+        'function': 'Yi_Coder_9b',
+        'precision': 'bfloat16'
+    },
+
     'Orca 2 - 13b': {
         'model': 'Orca 2 - 13b',
         'repo_id': 'microsoft/Orca-2-13b',
@@ -409,6 +423,16 @@ CHAT_MODELS = {
         'context_length': 8192,
         'avg_vram_usage': '10.0 GB',
         'function': 'Dolphin_Mistral_Nemo',
+        'precision': 'bfloat16'
+    },
+    'DeepSeek Coder v2 - 16b': {
+        'model': 'DeepSeek Coder v2 - 16b',
+        'repo_id': 'deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct',
+        'cache_dir': 'deepseek-ai--DeepSeek-Coder-V2-Lite-Instruct',
+        'tokens_per_second': 35.86,
+        'context_length': 8192,
+        'avg_vram_usage': '10.0 GB',
+        'function': 'DeepSeek_Coder_v2_lite',
         'precision': 'bfloat16'
     },
     'Internlm2_5 - 20b': {
