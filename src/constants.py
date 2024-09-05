@@ -5,6 +5,7 @@ MODEL_MAX_TOKENS = {
     'Dolphin-Qwen 2 - 1.5b': 8192,
     'Phi 3.5 Mini - 4b': 8192,
     'Internlm2_5 - 7b': 8192,
+    'CodeQwen 1.5 - 7b': 8192,
     'Dolphin-Llama 3.1 - 8b': 8192,
     'Hermes-3-Llama-3.1 - 8b': 8192,
     'Dolphin-Qwen 2 - 7b': 8192,
@@ -358,6 +359,16 @@ CHAT_MODELS = {
         'context_length': 16384,
         'avg_vram_usage': '9.2 GB',
         'function': 'Dolphin_Qwen2_7b',
+        'precision': 'bfloat16'
+    },
+    'CodeQwen 1.5 - 7b': {
+        'model': 'CodeQwen 1.5 - 7b',
+        'repo_id': 'Qwen/CodeQwen1.5-7B-Chat',
+        'cache_dir': 'Qwen--CodeQwen1.5-7B-Chat',
+        'tokens_per_second': 52,
+        'context_length': 16384,
+        'avg_vram_usage': '9.2 GB',
+        'function': 'CodeQwen1_5_7b_chat',
         'precision': 'bfloat16'
     },
     'Dolphin-Phi 3 - Medium': {

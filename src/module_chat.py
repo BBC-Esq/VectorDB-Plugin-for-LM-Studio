@@ -238,6 +238,42 @@ class Dolphin_Phi3_Medium(BaseModel):
         <|im_start|>assistant
         """
 
+class CodeQwen1_5_7b_chat(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['CodeQwen 1.5 - 7b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
+
+    def generate_response(self, inputs):
+        """
+        Overrides the BaseModel method to handle model-specific kwargs.
+        """
+        # Remove token_type_ids if it exists, as this model doesn't need it.
+        inputs.pop('token_type_ids', None)
+
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        eos_token_id = self.tokenizer.eos_token_id
+
+        # Combine inputs with generation settings
+        all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
+
+        # generation + streamer require two threads to work
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        for partial_response in streamer:
+            yield partial_response
+
+        generation_thread.join()
+
+
 class Dolphin_Qwen2_7b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Dolphin-Qwen 2 - 7b']
