@@ -79,7 +79,7 @@ class VisionSettingsTab(QWidget):
                     else:
                         available_models.append(model)
                 else:
-                    available_models.append(model)  # Add non-CUDA models even if CUDA is available
+                    available_models.append(model)
             else:
                 if not requires_cuda:
                     available_models.append(model)

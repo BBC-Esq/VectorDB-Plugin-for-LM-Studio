@@ -26,20 +26,6 @@ from constants import VISION_MODELS
 
 set_logging_level()
 
-# warnings.filterwarnings("ignore", category=FutureWarning)
-# warnings.filterwarnings("ignore", category=UserWarning)
-# warnings.filterwarnings("ignore", category=DeprecationWarning)
-# warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
-
-# datasets_logger = logging.getLogger('datasets')
-# datasets_logger.setLevel(logging.WARNING)
-# logging.getLogger("transformers").setLevel(logging.CRITICAL)
-# logging.getLogger("transformers").setLevel(logging.ERROR)
-# logging.getLogger("transformers").setLevel(logging.WARNING)
-# logging.getLogger("transformers").setLevel(logging.INFO)
-# logging.getLogger("transformers").setLevel(logging.DEBUG)
-# logging.getLogger().setLevel(logging.WARNING)
-
 ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
 
 current_directory = Path(__file__).parent
@@ -202,7 +188,6 @@ class loader_llava(BaseLoader):
         model_response = full_response.split("ASSISTANT: ")[-1]
         return model_response
 
-
 class loader_llava_next(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']
@@ -246,7 +231,6 @@ class loader_llava_next(BaseLoader):
         model_response = response.split("ASSISTANT:")[-1].strip()
         
         return model_response
-
 
 class loader_falcon(BaseLoader):
     def initialize_model_and_tokenizer(self):
@@ -302,8 +286,6 @@ class loader_falcon(BaseLoader):
         
         return model_response
 
-
-
 class loader_moondream(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']
@@ -328,7 +310,6 @@ class loader_moondream(BaseLoader):
         enc_image = self.model.encode_image(raw_image)
         summary = self.model.answer_question(enc_image, "Describe what this image depicts in as much detail as possible.", self.tokenizer)
         return summary
-
 
 class loader_florence2(BaseLoader):
     def __init__(self, config):
@@ -391,7 +372,6 @@ class loader_florence2(BaseLoader):
         parsed_answer = self.processor.post_process_generation(generated_text, task=prompt, image_size=(raw_image.width, raw_image.height))
         
         return parsed_answer['<MORE_DETAILED_CAPTION>']
-
 
 class loader_phi3vision(BaseLoader):
     def initialize_model_and_tokenizer(self):
@@ -464,7 +444,6 @@ Describe this image in as much detail as possible while still trying to be succi
         )[0]
         
         return response
-
 
 class loader_minicpm_V_2_6(BaseLoader):
     def initialize_model_and_tokenizer(self):

@@ -112,23 +112,22 @@ class WhisperTranscriber:
         output_file = f"{Path(audio_file).stem}_converted.wav"
         output_path = Path(__file__).parent / output_file
         
-        with av.open(audio_file) as container:
-            stream = next(s for s in container.streams if s.type == 'audio')
-            
-            resampler = av.AudioResampler(
-                format='s16',
-                layout='mono',
-                rate=16000,
-            )
+        with av.open(audio_file) as input_container:
+            input_stream = input_container.streams.audio[0]
             
             output_container = av.open(str(output_path), mode='w')
             output_stream = output_container.add_stream('pcm_s16le', rate=16000)
-            output_stream.layout = 'mono'
+            output_stream.channels = 1
             
-            for frame in container.decode(audio=0):
+            resampler = av.AudioResampler(format='s16', layout='mono', rate=16000)
+            
+            # Determine optimal chunk size (adjust as needed)
+            chunk_size = 1024 * 32  # 32KB chunks
+            
+            for frame in input_container.decode(audio=0):
                 frame.pts = None
                 resampled_frames = resampler.resample(frame)
-                if resampled_frames is not None:
+                if resampled_frames:
                     for resampled_frame in resampled_frames:
                         for packet in output_stream.encode(resampled_frame):
                             output_container.mux(packet)

@@ -49,9 +49,19 @@ def extract_audio_metadata(file_path):
 
 def add_pymupdf_page_metadata(doc: Document, chunk_size: int = 1200, chunk_overlap: int = 600) -> List[Document]:
     """
-    Splits and adds page metadata to each chunk of a pdf document.  Relies on the custom implementation of pymupdfparser
-    Called by document_processor.py.
-    """
+    Called by document_processor.py.  Chunks the body of text returned by the custom pymupdfparser script.
+    Uses a helper method named `split_text` to assign the appropriate page metadata to each chunk.
+
+        Detailed Process:
+        1. The method first identifies the positions of the custom page markers within the text using a regular expression.
+           These markers denote the start of a new page (e.g., `[[page1]]`).
+        2. The text is then cleaned by removing the page markers, resulting in a continuous block of text.
+        3. The cleaned text is split into chunks based on the specified `chunk_size`. If the chunk size exceeds the
+           remaining length of the text, the last chunk is adjusted to include the remaining text.
+        4. For each chunk, the method determines the appropriate page number by finding the nearest preceding page
+           marker position.
+        5. The method returns a list of tuples where each tuple contains a chunk of text and the page number associated with that chunk.
+        """
     def split_text(text: str, chunk_size: int, chunk_overlap: int) -> List[Tuple[str, int]]:
         page_markers = [(m.start(), int(m.group(1))) for m in re.finditer(r'\[\[page(\d+)\]\]', text)]
         clean_text = re.sub(r'\[\[page\d+\]\]', '', text)
