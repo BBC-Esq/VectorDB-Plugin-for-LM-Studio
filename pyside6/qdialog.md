@@ -40,3 +40,22 @@ app = QApplication([])
 dialog = MyDialog()
 result = dialog.exec()
 print("Dialog accepted" if result == QDialog.Accepted else "Dialog rejected")
+```
+
+## Key Differences
+
+1. **Purpose**: 
+   - `QDialog`: General-purpose dialog for various interactions
+   - `QProgressDialog`: Specifically for showing progress of long operations
+
+2. **User Interaction**:
+   - `QDialog`: Can contain any widgets and complex layouts
+   - `QProgressDialog`: Primarily shows a progress bar and cancel button
+
+3. **Duration**:
+   - `QDialog`: Typically stays open until user closes it
+   - `QProgressDialog`: Automatically closes when progress reaches maximum
+
+4. **Flexibility**:
+   - `QDialog`: Highly customizable
+   - `QProgressDialog`: More specialized, with built-in progress functionality
