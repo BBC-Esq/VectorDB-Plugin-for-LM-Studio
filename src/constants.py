@@ -13,7 +13,7 @@ MODEL_MAX_TOKENS = {
     'Dolphin-Mistral-Nemo - 12b': 8192,
     'DeepSeek Coder v2 - 16b': 8192,
     'Internlm2_5 - 20b': 8192,
-    'LongWriter Llama 3.1 - 8b': 32768,
+    'LongWriter Llama 3.1 - 8b': 24576,
 }
 
 MODEL_MAX_NEW_TOKENS = {
@@ -29,7 +29,7 @@ MODEL_MAX_NEW_TOKENS = {
     'Dolphin-Mistral-Nemo - 12b': 4096,
     'DeepSeek Coder v2 - 16b': 4096,
     'Internlm2_5 - 20b': 4096,
-    'LongWriter Llama 3.1 - 8b': 16384,
+    'LongWriter Llama 3.1 - 8b': 12288,
 }
 
 WHISPER_SPEECH_MODELS = {
