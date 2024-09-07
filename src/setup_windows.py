@@ -253,6 +253,7 @@ other_libraries = [
     "protobuf==5.27.2",
     "psutil==6.0.0",
     "pyarrow==17.0.0",
+    "pyarrow-hotfix==0.6",
     "pycparser==2.22",
     "pydantic==2.7.4",
     "pydantic_core==2.18.4",
