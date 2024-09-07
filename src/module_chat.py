@@ -7,16 +7,19 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStream
 import threading
 from abc import ABC, abstractmethod
 
-from constants import CHAT_MODELS, system_message, MODEL_MAX_TOKENS
+from constants import CHAT_MODELS, system_message, MODEL_MAX_TOKENS, MODEL_MAX_NEW_TOKENS
 from utilities import my_cprint, has_bfloat16_support
 
 def get_max_length(model_name):
     return MODEL_MAX_TOKENS.get(model_name, 4096)
 
-def get_generation_settings(max_length):
+def get_max_new_tokens(model_name):
+    return MODEL_MAX_NEW_TOKENS.get(model_name, 2048)
+
+def get_generation_settings(max_length, max_new_tokens):
     return {
         'max_length': max_length,
-        'max_new_tokens': 2048,
+        'max_new_tokens': max_new_tokens,
         'do_sample': False,
         'num_beams': 1,
         'use_cache': True,
@@ -190,6 +193,14 @@ class Dolphin_Llama3_1_8B(BaseModel):
         <|im_start|>assistant
         """
 
+class LongWriter_Llama_3_1(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['LongWriter Llama 3.1 - 8b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"<<SYS>>\n{system_message}\n<</SYS>>\n\n[INST]{augmented_query}[/INST]"
+
 class Danube_3_4b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Danube 3 - 4b']
@@ -255,16 +266,14 @@ class CodeQwen1_5_7b_chat(BaseModel):
         """
         Overrides the BaseModel method to handle model-specific kwargs.
         """
-        # Remove token_type_ids if it exists, as this model doesn't need it.
+        # Remove token_type_ids if it exists
         inputs.pop('token_type_ids', None)
 
         streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
         eos_token_id = self.tokenizer.eos_token_id
 
-        # Combine inputs with generation settings
         all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
 
-        # generation + streamer require two threads to work
         generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
         generation_thread.start()
 
@@ -471,9 +480,12 @@ def choose_model(model_name):
         
         # Get the max_length for this model
         max_length = get_max_length(model_name)
-        
-        # Generate the settings based on the max_length
-        generation_settings = get_generation_settings(max_length)
+
+        # Get the max_new_tokens for this model
+        max_new_tokens = get_max_new_tokens(model_name)
+
+        # Generate the settings based on both max_length and max_new_tokens
+        generation_settings = get_generation_settings(max_length, max_new_tokens)
         
         # Pass the generation settings to the model constructor
         return model_class(generation_settings)

@@ -13,18 +13,23 @@ MODEL_MAX_TOKENS = {
     'Dolphin-Mistral-Nemo - 12b': 8192,
     'DeepSeek Coder v2 - 16b': 8192,
     'Internlm2_5 - 20b': 8192,
+    'LongWriter Llama 3.1 - 8b': 32768,
 }
 
 MODEL_MAX_NEW_TOKENS = {
     'Danube 3 - 4b': 1024,
-    'Dolphin-Qwen 2 - 1.5b': 8192,
-    'Phi 3.5 Mini - 4b': 2048,
-    'Internlm2_5 - 7b': 8192,
-    'Dolphin-Llama 3.1 - 8b': 1024,
-    'Hermes-3-Llama-3.1 - 8b': 8192,
-    'Dolphin-Qwen 2 - 7b': 1024,
-    'Dolphin-Mistral-Nemo - 12b': 8192,
-    'Internlm2_5 - 20b': 8192,
+    'Dolphin-Qwen 2 - 1.5b': 1024,
+    'Phi 3.5 Mini - 4b': 4096,
+    'Internlm2_5 - 7b': 4096,
+    'CodeQwen 1.5 - 7b': 4096,
+    'Dolphin-Llama 3.1 - 8b': 4096,
+    'Hermes-3-Llama-3.1 - 8b': 4096,
+    'Dolphin-Qwen 2 - 7b': 4096,
+    'Yi Coder - 9b': 4096,
+    'Dolphin-Mistral-Nemo - 12b': 4096,
+    'DeepSeek Coder v2 - 16b': 4096,
+    'Internlm2_5 - 20b': 4096,
+    'LongWriter Llama 3.1 - 8b': 16384,
 }
 
 WHISPER_SPEECH_MODELS = {
@@ -321,6 +326,16 @@ CHAT_MODELS = {
         'context_length': 8192,
         'avg_vram_usage': '7.1 GB',
         'function': 'Dolphin_Llama3_1_8B',
+        'precision': 'bfloat16'
+    },
+    'LongWriter Llama 3.1 - 8b': {
+        'model': 'LongWriter Llama 3.1 - 8b',
+        'repo_id': 'THUDM/LongWriter-llama3.1-8b',
+        'cache_dir': 'THUDM--LongWriter-llama3.1-8b',
+        'tokens_per_second': 50.33,
+        'context_length': 32768,
+        'avg_vram_usage': '7.1 GB',
+        'function': 'LongWriter_Llama_3_1',
         'precision': 'bfloat16'
     },
     'Hermes-3-Llama-3.1 - 8b': {
