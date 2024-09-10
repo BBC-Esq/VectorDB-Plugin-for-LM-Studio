@@ -76,9 +76,10 @@ python setup_windows.py
 
 <a name="using-the-program"></a>
 <div align="center"> <h3>🖥️Usage🖥️</h3></div>
+
 > 🔥Important🔥 more detailed instructions are located within the ```User Guide``` tab.
 
-### Activate Virtual Environment and start the program
+### Activate the virtual environment and start the program
 > Every time you want to use the program you must activate the virtual environment:
 ```
 .\Scripts\activate
@@ -87,13 +88,10 @@ python setup_windows.py
 python gui.py
 ```
 
-### 🔥Important🔥
-* Read the User Guide located within the graphical user interface itself.
-
-### Download Vector Model
+### Download the vector model
 * Select and download a vector/embedding model from the ```Models Tab```.
 
-### Create a Vector Database
+### Create a vector database
 This program extracts the text from a variety of file types and puts them into the vector database.  It also allows you to create summarizes of images and transcriptions of audio files to be put into the database.
 
 ### Entering General File Types
