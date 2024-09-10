@@ -37,13 +37,12 @@ You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95
 
 |        |                                                                                                                                                                                                                    |
 |--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 🔥 Windows OS        | Feel free to fork or contribute to support additional platforms!                                                                                                                                     |
+| Windows OS        | Feel free to fork or contribute to support additional platforms!                                                                                                                                     |
 | 🐍 Python 3.11    | [Download Link](https://www.python.org/downloads/release/python-3119/)                                                                                                                                       |
 | 📁 Git            | [Download Link](https://git-scm.com/downloads)                                                                                                                                                               |
 | 📁 Git LFS        | [Download Link](https://git-lfs.com/)                                                                                                                                                                        |
 | 🌐 Pandoc         | [Download Link](https://github.com/jgm/pandoc/releases)                                                                                                                                                      |
-| 🛠️ Compiler       | One option is [Visual Studio](https://visualstudio.microsoft.com/), but make sure and install the required SDKs. <br><br> <details> <summary>EXAMPLE of no compiler error:</summary> <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true"> </details> <details> <summary>EXAMPLE proper SDKs:</summary> <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true"> </details> |
-
+| 🛠️ Compiler       | One option is [Visual Studio](https://visualstudio.microsoft.com/), but make sure and install the required SDKs. <br><br> <details> <summary>EXAMPLE of no compiler error:</summary> <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true"> </details> <details> <summary>EXAMPLE installing the proper SDKs:</summary> <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true"> </details> |
 
 </div>
 
@@ -53,11 +52,11 @@ You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95
 <div align="center"> <h2>Installation</h2></div>
   
 ### Step 1
-Download the latest "release," extract its contents, and navigate to the "src" folder:
-  * NOTE: If you clone this repository you WILL NOT get the latest release.  Instead, you will development versions, which may or may not be stable.
+Download the latest "release," extract its contents, and open the "src" folder:
+  * NOTE: If you clone this repository you will development versions, which may or may not be stable.
    > The last attempt to support 🐧 Linux and 🍎 MacOS is Release v3.5.2.  Make sure and follow the ```readme.md``` instructions there.
 ### Step 2
-Within the ```src``` folder, open a command prompt and create a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/):
+Within the ```src``` folder, create a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/):
 ```
 python -m venv .
 ```
@@ -72,40 +71,34 @@ Run the setup script:
 ```
 python setup_windows.py
 ```
-### Optional Step 5
-Run this command if you want to doublecheck that you installed the Pytorch and gpu-acceleration software correctly:
-```
-python check_gpu.py
-```
 
 [Back to Top](#top)
 
 <a name="using-the-program"></a>
-<div align="center"> <h2>Usage</h2></div>
-<details>
-  <summary>🖥️INSTRUCTIONS🖥</summary>
+<div align="center"> <h3>🖥️Usage🖥️</h3></div>
+> 🔥Important🔥 more detailed instructions are located within the ```User Guide``` tab.
 
-## Activate Virtual Environment
-* Every time you want to use the program you must activate the virtual environment first from within the ```src``` folder.
-## Start the Program
-To start the program run this command:
+### Activate Virtual Environment and start the program
+> Every time you want to use the program you must activate the virtual environment:
+```
+.\Scripts\activate
+```
 ```
 python gui.py
 ```
 
-## 🔥Important🔥
+### 🔥Important🔥
 * Read the User Guide located within the graphical user interface itself.
 
-## Download Vector Model
+### Download Vector Model
 * Select and download a vector/embedding model from the ```Models Tab```.
 
-## Create a Vector Database
+### Create a Vector Database
 This program extracts the text from a variety of file types and puts them into the vector database.  It also allows you to create summarizes of images and transcriptions of audio files to be put into the database.
 
 ### Entering General File Types
 
 In the ```Create Database``` tab, select files you want to add to the database.  You can click the ```Choose Files``` button as many times as you want.
-   > The supported file extensions are: ```.pdf```, ```.docx```, ```.epub```, ```.txt```, ```.html```, ```.enex```, ```.eml```, ```.msg```, ```.csv```, ```.xls```, ```.xlsx```, ```.rtf```, ```.odt```.
 
 ### Entering Images
 This program uses "vision" models to create summaries of images, which can then be entered into the database and searched.  Before inputting images, I highly recommend that you test the various vision models for the one you like the most.
@@ -116,23 +109,20 @@ To test a vision model:
 3) From the ```Tools``` tab, process the images.
 
 After determining which vision model you like, add images to the database by selecting them from the ```Create Database``` tab like any other file.  When you eventually create the database they will be automatically processed.
-   > Supported file types are: ```.png```, ```.jpg```, ```.jpeg```, ```.bmp```, ```.gif```, ```.tif```, ```.tiff```
 
 ### Entering Audio Files
-Audio files can be transcribed and put into the database to be searched.  Before transcribing a long audio file, I highly recommend testing the various ```Whisper``` models on a shorter audio file as well as experimenting with different ```batch``` settings.  Your goal should be to use as large of a ```Whisper``` model as your GPU supports and then adjust the batch size to keep the VRAM usage within your available VRAM> to ensure that the settings don't exceed your available VRAM.
-   > Supported audio extensions include, but are not limited to: ```.mp3```, ```.wav```, ```.m4a```, ```.ogg```, ```.wma```
+Audio files can be transcribed and put into the database to be searched.  Before transcribing a long audio file, I highly recommend testing the various ```Whisper``` models on a shorter audio file as well as experimenting with different ```batch``` settings.  Your goal should be to use as large of a ```Whisper``` model as your GPU supports and then adjust the batch size to keep the VRAM usage within your available VRAM.
 
 To test optimal settings:
 1) Within the ```Tools``` tab, select a short audio file.
-2) Select a ```Whisper``` model.  Read more about the size and quantization levels in the ```User Guide```.
+2) Select a ```Whisper``` model.
 3) Process the audio file.
 4) Within the ```Create Database``` tab, doubleclick the transcription that was just created.
 5) Skim the ```page content``` field to get a sense of whether the transcription is accurate enough for your use-case or if you need to selecta more accurate ```Whisper``` model.
-   > To avoid getting a shoddy transcription, it is always better IMHO to choose as large a model as possible, reducing the ```batch``` setting if need be to keep the VRAM requirements within you're available VRAM.
 
 Once you've obtained the optimal settings for your system, it's time to transcribe an audio file into the database:
 1) Within the ```Create Database``` tab, delete any transcriptions you don't want entered into the database.
-2) Create new transctiptions you want entered (repeate for multiple files).
+2) Create new transcriptions you want entered (repeate for multiple files).
    > Batch processing is not yet available.
 
 ### Actually Creating The Database
