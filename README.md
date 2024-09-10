@@ -21,12 +21,12 @@ You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95
 
 | Feature                                             | Details                                                                                                              |
 |-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| General text extraction                             | `.pdf`, `.docx`, `.epub`, `.txt`, `.html`, `.enex`, `.eml`, `.msg`, `.csv`, `.xls`, `.xlsx`, `.rtf`, `.odt`          |
-| "Vision" models to create image summaries           | `.png`, `.jpg`, `.jpeg`, `.bmp`, `.gif`, `.tif`, `.tiff`                                                             |
-| Transcribe audio files to text                      | `.mp3`, `.wav`, `.m4a`, `.ogg`, `.wma`, `.flac`, and more...                                                         |
+| General text extraction                             | `.pdf` `.docx` `.epub` `.txt` `.html` `.enex` `.eml` `.msg` `.csv` `.xls` `.xlsx` `.rtf` `.odt`          |
+| "Vision" models to create image summaries           | `.png` `.jpg` `.jpeg` `.bmp` `.gif` `.tif` `.tiff`                                                             |
+| Transcribe audio files to text                      | `.mp3` `.wav` `.m4a` `.ogg` `.wma` `.flac` and more...                                                         |
 | Type or speak your query                            | Using a powerful ```WhisperS2T``` voice recorder                                                                     |
-| Get a response from an LLM                          | `LM Studio`, `Local Models`, `Chat GPT` (coming soon)                                                                |
-| Text to speech playback of the LLM's response       | ```Bark```, ```WhisperSpeech```, ```ChatTTS```, ```Google TTS```                                                     |
+| Get a response from an LLM                          | `LM Studio` `Local Models` `Chat GPT` (coming soon)                                                                |
+| Text to speech playback of the LLM's response       | ```Bark``` ```WhisperSpeech``` ```ChatTTS``` ```Google TTS```                                                     |
 | CPU and ```Nvidia``` GPU support                    | Looking for testers or contributors for ```AMD``` and ```Intel``` GPUs as well as ```Metal/MPS/MLX```                |
 
 </div>
