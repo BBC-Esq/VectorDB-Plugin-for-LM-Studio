@@ -1,11 +1,6 @@
 <div align="center">
-  <h2>🚀 Supercharge <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h2>
-  <h4>Search images, audio, and other general file types + Text to Speech<br><a href="https://www.youtube.com/watch?v=J1t95ecV11U">Introductory Video</a> &nbsp;&bull;&nbsp <a href="https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5">Medium Article</a></h4>
-</div>
+  <h1>🚀 Supercharge <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
 
-<h3 align="center">Table of Contents</h3>
-
-<div align="center">
   <a href="#requirements">Requirements</a>
   &nbsp;&bull;&nbsp;
   <a href="#installation">Installation</a>
@@ -16,54 +11,51 @@
   &nbsp;&bull;&nbsp;
   <a href="#contact">Contact</a>
 </div>
-<br>
+
+This repository allows you to create and search a vector database.  You can then send the search results (along with your initial question) to a large language model for an accurate answer.  This is commonly referred to as "retrieval augmented generation" (RAG) and it drastically reduces hallucinations from the LLM!
+
+You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95ecV11U) or read a [Medium article here](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) for a quick primer. <br>
+
 <div align="center">
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" target="_blank">
-        <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/example1.png?raw=true" alt="Example Image" width="350">
-    </a>
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" target="_blank">
-        <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/example2.png?raw=true" alt="Example Image" width="350">
-    </a>
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" target="_blank">
-        <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/example3.png?raw=true" alt="Example Image" width="350">
-    </a>
-    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" target="_blank">
-        <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/example4.png?raw=true" alt="Example Image" width="350">
-    </a>
+  <h3>At a Glance</h3>
+
+| Feature                                             | Details                                                                                                              |
+|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| General text extraction                             | `.pdf`, `.docx`, `.epub`, `.txt`, `.html`, `.enex`, `.eml`, `.msg`, `.csv`, `.xls`, `.xlsx`, `.rtf`, `.odt`          |
+| "Vision" models to create image summaries           | `.png`, `.jpg`, `.jpeg`, `.bmp`, `.gif`, `.tif`, `.tiff`                                                             |
+| Transcribe audio files to text                      | `.mp3`, `.wav`, `.m4a`, `.ogg`, `.wma`, `.flac`, and more...                                                         |
+| Type or speak your query                            | Using a powerful ```WhisperS2T``` voice recorder                                                                     |
+| Get a response from an LLM                          | `LM Studio`, `Local Models`, `Chat GPT`                                                                              |
+| Text to speech playback of the LLM's response       | ```Bark```, ```WhisperSpeech```, ```ChatTTS```, ```Google TTS```                                                     |
+| CPU and ```Nvidia``` GPU support                    | Looking for testers or contributors for ```AMD``` and ```Intel``` GPUs as well as ```Metal/MPS/MLX```                |
+
 </div>
 
 <a name="requirements"></a>
-<div align="center"> <h3><u>Requirements</h3></div>
-  
-1) 🔥 Windows systems - sorry only able to test on Window but feel free to contribute!
-2) 🐍[Python 3.11](https://www.python.org/downloads/release/python-3119/)
-3) 📁[Git](https://git-scm.com/downloads)
-4) 📁[Git Large File Storage](https://git-lfs.com/).
-5) 🌐[Pandoc](https://github.com/jgm/pandoc/releases).
-6) Compiler.
-   > Certain dependencies don't have a pre-compiled "wheel" so you must build them with something like [Microsoft Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and/or [Visual Studio](https://visualstudio.microsoft.com/).  If you choose Visual Studio, for example, make sure to select the "Desktop development with C++" extension and check the four boxes on the right containing the "SDK."
+<div align="center">
+  <h3><u>Requirements</u></h3>
 
-   <details>
-     <summary>EXAMPLE ERROR ON WINDOWS</summary>
-     <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true">
-   </details>
+|        |                                                                                                                                                                                                                    |
+|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 🔥 Windows OS        | Feel free to fork or contribute to support additional platforms!                                                                                                                                     |
+| 🐍 Python 3.11    | [Download Link](https://www.python.org/downloads/release/python-3119/)                                                                                                                                       |
+| 📁 Git            | [Download Link](https://git-scm.com/downloads)                                                                                                                                                               |
+| 📁 Git LFS        | [Download Link](https://git-lfs.com/)                                                                                                                                                                        |
+| 🌐 Pandoc         | [Download Link](https://github.com/jgm/pandoc/releases)                                                                                                                                                      |
+| 🛠️ Compiler       | One option is [Visual Studio](https://visualstudio.microsoft.com/), but make sure and install the required SDKs. <br><br> <details> <summary>EXAMPLE of no compiler error:</summary> <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true"> </details> <details> <summary>EXAMPLE proper SDKs:</summary> <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true"> </details> |
 
-   <details>
-     <summary>EXAMPLE SOLUTION ON WINDOWS</summary>
-     <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true">
-   </details>
+
+</div>
 
 [Back to Top](#top)
 
 <a name="installation"></a>
-<div align="center"> <h3>INSTALLATION</h3></div>
-
-<details>
-  <summary>🪟WINDOWS INSTRUCTIONS</summary>
+<div align="center"> <h2>Installation</h2></div>
   
 ### Step 1
-Download the latest "release," extract its contents, and navigate to the "src" folder to run the following commands:
-  * NOTE: If you clone this repository you WILL NOT get the latest release.  Instead, you will development versions of this program which may or may not be stable.
+Download the latest "release," extract its contents, and navigate to the "src" folder:
+  * NOTE: If you clone this repository you WILL NOT get the latest release.  Instead, you will development versions, which may or may not be stable.
+   > The last attempt to support 🐧 Linux and 🍎 MacOS is Release v3.5.2.  Make sure and follow the ```readme.md``` instructions there.
 ### Step 2
 Within the ```src``` folder, open a command prompt and create a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/):
 ```
@@ -85,26 +77,11 @@ Run this command if you want to doublecheck that you installed the Pytorch and g
 ```
 python check_gpu.py
 ```
-</details>
-
-<details>
-  <summary>🐧LINUX INSTRUCTIONS</summary>
-
-Linux users must use Release v3.5.2 until I can update the codebase due to recent major changes.  Download the ZIP file for that release and follow the instructions in the readme.md.
-
-</details>
-
-<details>
-  <summary>🍎APPLE INSTRUCTIONS</summary>
-
-MacOS users must use Release v3.5.2 until I can update the codebase due to recent major changes.  Download the ZIP file for that release and follow the instructions in the readme.md.
-
-</details>
 
 [Back to Top](#top)
 
 <a name="using-the-program"></a>
-<div align="center"> <h3>USING THE PROGRAM</h3></div>
+<div align="center"> <h2>Usage</h2></div>
 <details>
   <summary>🖥️INSTRUCTIONS🖥</summary>
 
@@ -203,4 +180,18 @@ Feel free to report bugs or request enhancements by creating an issue on github 
 
 All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
 
-
+<br>
+<div align="center">
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example1.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/example1.png?raw=true" alt="Example Image" width="350">
+    </a>
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example2.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/example2.png?raw=true" alt="Example Image" width="350">
+    </a>
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example3.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/example3.png?raw=true" alt="Example Image" width="350">
+    </a>
+    <a href="https://github.com/BBC-Esq/ChromaDB-Plugin-for-LM-Studio/raw/main/example4.png" target="_blank">
+        <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/example4.png?raw=true" alt="Example Image" width="350">
+    </a>
+</div>
