@@ -48,7 +48,7 @@ You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95
 > </details>
 > 
 > <details>
->   <summary>EXAMPLE of correct installation of compiler:</summary>
+>   <summary>EXAMPLE of installing the correct SDKs:</summary>
 >   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true">
 > </details>
 
