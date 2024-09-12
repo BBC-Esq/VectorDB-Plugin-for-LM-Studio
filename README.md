@@ -38,8 +38,8 @@ LM Studio allows you to chat locally with large language models.  This repositor
 | [🐍 Python 3.11](https://www.python.org/downloads/release/python-3119/) &nbsp;&bull;&nbsp; [📁 Git](https://git-scm.com/downloads) &nbsp;&bull;&nbsp; [📁 Git LFS](https://git-lfs.com/) &nbsp;&bull;&nbsp; [🌐 Pandoc](https://github.com/jgm/pandoc/releases) &nbsp;&bull;&nbsp; [🛠️ Compiler](https://visualstudio.microsoft.com/) |
 |---|
 
-> Note: For the compiler, one option is Visual Studio, but make sure to install the required SDKs.
-> 
+The above link downloads Visual Studio as an example.  Make sure to install the required SDKs, however.
+ 
 > <details>
 >   <summary>EXAMPLE error when no compiler installed:</summary>
 >   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true">
