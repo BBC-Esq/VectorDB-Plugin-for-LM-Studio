@@ -43,12 +43,12 @@ You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95
 > Note: For the compiler, one option is Visual Studio, but make sure to install the required SDKs.
 > 
 > <details>
->   <summary>EXAMPLE of no compiler error:</summary>
+>   <summary>EXAMPLE error when no compiler installed: error:</summary>
 >   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true">
 > </details>
 > 
 > <details>
->   <summary>EXAMPLE installing the proper SDKs:</summary>
+>   <summary>EXAMPLE of correct installation of compiler:</summary>
 >   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true">
 > </details>
 
