@@ -12,7 +12,7 @@
   <a href="#contact">Contact</a>
 </div>
 
-This repository allows you to create and search a vector database.  You can then send the search results (along with your initial question) to a large language model for an accurate answer.  This is commonly referred to as "retrieval augmented generation" (RAG) and it drastically reduces hallucinations from the LLM!
+LM Studio allows you to chat locally with large language models.  This repository allows you to create and search a vector database for relevant context across a wide variety of documents and then get a response from the large language model that's more accurate.  This is commonly referred to as "retrieval augmented generation" (RAG) and it drastically reduces hallucinations from the LLM!
 
 You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95ecV11U) or read a [Medium article here](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) for a quick primer. <br>
 
