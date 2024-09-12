@@ -16,6 +16,9 @@ This repository allows you to create and search a vector database.  You can then
 
 You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95ecV11U) or read a [Medium article here](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) for a quick primer. <br>
 
+
+
+
 <div align="center">
   <h3>At a Glance</h3>
 
@@ -31,18 +34,23 @@ You can watch an [introductory video here](https://www.youtube.com/watch?v=J1t95
 
 </div>
 
-<a name="requirements"></a>
 <div align="center">
   <h3><u>Requirements</u></h3>
 
-|        |                                                                                                                                                                                                                    |
-|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows OS        | Feel free to fork or contribute to support additional platforms!                                                                                                                                     |
-| 🐍 Python 3.11    | [Download Link](https://www.python.org/downloads/release/python-3119/)                                                                                                                                       |
-| 📁 Git            | [Download Link](https://git-scm.com/downloads)                                                                                                                                                               |
-| 📁 Git LFS        | [Download Link](https://git-lfs.com/)                                                                                                                                                                        |
-| 🌐 Pandoc         | [Download Link](https://github.com/jgm/pandoc/releases)                                                                                                                                                      |
-| 🛠️ Compiler       | One option is [Visual Studio](https://visualstudio.microsoft.com/), but make sure and install the required SDKs. <br><br> <details> <summary>EXAMPLE of no compiler error:</summary> <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true"> </details> <details> <summary>EXAMPLE installing the proper SDKs:</summary> <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true"> </details> |
+| [🐍 Python 3.11](https://www.python.org/downloads/release/python-3119/) &nbsp;&bull;&nbsp; [📁 Git](https://git-scm.com/downloads) &nbsp;&bull;&nbsp; [📁 Git LFS](https://git-lfs.com/) &nbsp;&bull;&nbsp; [🌐 Pandoc](https://github.com/jgm/pandoc/releases) &nbsp;&bull;&nbsp; [🛠️ Compiler](https://visualstudio.microsoft.com/) |
+|---|
+
+> Note: For the compiler, one option is Visual Studio, but make sure to install the required SDKs.
+> 
+> <details>
+>   <summary>EXAMPLE of no compiler error:</summary>
+>   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true">
+> </details>
+> 
+> <details>
+>   <summary>EXAMPLE installing the proper SDKs:</summary>
+>   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true">
+> </details>
 
 </div>
 
