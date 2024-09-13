@@ -4,6 +4,7 @@ import subprocess
 from multiprocessing import Process
 from pathlib import Path
 import warnings
+import shutil
 
 import torch
 import av
@@ -68,7 +69,6 @@ class WhisperTranscriber:
         process.start()
         process.join()
 
-
     @torch.inference_mode()
     def transcribe_and_create_document(self):
         audio_file_str = str(self.audio_file)
@@ -89,55 +89,78 @@ class WhisperTranscriber:
                 **model_kwargs
             )
             
+            transcription = self.transcribe(model, [str(converted_audio_file)])
+            self.create_document_object(transcription, audio_file_str)
+
         except Exception as e:
-            print(f"Error loading model {self.model_identifier}: {e}")
+            print(f"Error during transcription: {e}")
             raise
 
-        transcription = self.transcribe(model, [str(converted_audio_file)])
-        self.create_document_object(transcription, audio_file_str)
+        finally:
+            if converted_audio_file != audio_file_str and Path(converted_audio_file).exists():
+                try:
+                    Path(converted_audio_file).unlink()
+                    print(f"Deleted temporary file: {converted_audio_file}")
+                except Exception as e:
+                    print(f"Error deleting temporary file {converted_audio_file}: {e}")
 
-        script_dir = Path(__file__).parent
-        converted_audio_file_name = f"{Path(audio_file_str).stem}_converted.wav"
-        converted_audio_file_full_path = script_dir / converted_audio_file_name
-
-        if converted_audio_file_full_path.exists():
-            try:
-                converted_audio_file_full_path.unlink()
-            except Exception as e:
-                print(f"Error deleting file {converted_audio_file_full_path}: {e}")
-        else:
-            print(f"File does not exist: {converted_audio_file_full_path}")
+        print("Transcription created and ready to be input into vector database.")
 
     def convert_to_wav(self, audio_file):
-        output_file = f"{Path(audio_file).stem}_converted.wav"
-        output_path = Path(__file__).parent / output_file
+        if self.is_correct_format(audio_file):
+            print(f"File is already in the correct format.  No pre-processing is necessary.")
+            return str(audio_file)
         
-        with av.open(audio_file) as input_container:
-            input_stream = input_container.streams.audio[0]
-            
-            output_container = av.open(str(output_path), mode='w')
-            output_stream = output_container.add_stream('pcm_s16le', rate=16000)
-            output_stream.channels = 1
-            
-            resampler = av.AudioResampler(format='s16', layout='mono', rate=16000)
-            
-            # Determine optimal chunk size (adjust as needed)
-            chunk_size = 1024 * 32  # 32KB chunks
-            
-            for frame in input_container.decode(audio=0):
-                frame.pts = None
-                resampled_frames = resampler.resample(frame)
-                if resampled_frames:
-                    for resampled_frame in resampled_frames:
-                        for packet in output_stream.encode(resampled_frame):
-                            output_container.mux(packet)
-            
-            for packet in output_stream.encode(None):
-                output_container.mux(packet)
-            
-            output_container.close()
+        ffmpeg_available = shutil.which('ffmpeg') is not None
         
-        return str(output_path)
+        if ffmpeg_available:
+            print(f"FFmpeg detected. Sending the audio file to WhisperS2T for pre-processing and transcription.")
+            return str(audio_file)
+        else:
+            print(f"FFmpeg not detected. Pre-processing with the av library then sending to WhisperS2T for transcription.")
+            output_file = f"{Path(audio_file).stem}_temp_converted.wav"
+            output_path = Path(__file__).parent / output_file
+            return self.convert_with_av(audio_file, output_path)
+
+    def is_correct_format(self, audio_file):
+        try:
+            with av.open(audio_file) as container:
+                stream = container.streams.audio[0]
+                return stream.sample_rate == 16000 and stream.channels == 1 and container.format.name == 'wav'
+        except Exception as e:
+            print(f"Error checking audio format: {e}")
+            return False
+
+
+    def convert_with_av(self, audio_file, output_path):
+        try:
+            with av.open(audio_file) as input_container:
+                input_stream = input_container.streams.audio[0]
+                
+                output_container = av.open(str(output_path), mode='w')
+                output_stream = output_container.add_stream('pcm_s16le', rate=16000)
+                output_stream.channels = 1
+                
+                resampler = av.AudioResampler(format='s16', layout='mono', rate=16000)
+                
+                for frame in input_container.decode(audio=0):
+                    frame.pts = None
+                    resampled_frames = resampler.resample(frame)
+                    if resampled_frames:
+                        for resampled_frame in resampled_frames:
+                            for packet in output_stream.encode(resampled_frame):
+                                output_container.mux(packet)
+                
+                for packet in output_stream.encode(None):
+                    output_container.mux(packet)
+                
+                output_container.close()
+            
+            print(f"Conversion using av complete.")
+            return str(output_path)
+        except Exception as e:
+            print(f"Error converting file with av library {audio_file}: {e}")
+            raise
 
     def transcribe(self, model, files, lang_codes=['en'], tasks=['transcribe'], initial_prompts=[None]):
         out = model.transcribe_with_vad(files,
