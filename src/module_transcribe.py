@@ -104,8 +104,6 @@ class WhisperTranscriber:
                 except Exception as e:
                     print(f"Error deleting temporary file {converted_audio_file}: {e}")
 
-        print("Transcription created and ready to be input into vector database.")
-
     def convert_to_wav(self, audio_file):
         if self.is_correct_format(audio_file):
             print(f"File is already in the correct format.  No pre-processing is necessary.")
@@ -189,15 +187,3 @@ class WhisperTranscriber:
         json_file_path = docs_dir / f"{audio_file_name}.json"
         
         json_file_path.write_text(doc.json(indent=4), encoding='utf-8')
-            
-        script_dir = Path(__file__).parent
-        converted_audio_file_name = f"{Path(audio_file_path).stem}_converted.wav"
-        converted_audio_file_full_path = script_dir / converted_audio_file_name
-
-        if converted_audio_file_full_path.exists():
-            try:
-                converted_audio_file_full_path.unlink()
-            except Exception as e:
-                print(f"Error deleting file {converted_audio_file_full_path}: {e}")
-        else:
-            print(f"File does not exist: {converted_audio_file_full_path}")
