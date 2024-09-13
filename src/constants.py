@@ -52,6 +52,26 @@ WHISPER_SPEECH_MODELS = {
 }
 
 VECTOR_MODELS = {
+    'Alibaba-NLP': [
+        {
+            'name': 'Alibaba-gte-base',
+            'dimensions': 768,
+            'max_sequence': 8192,
+            'size_mb': 547,
+            'repo_id': 'Alibaba-NLP/gte-base-en-v1.5',
+            'cache_dir': 'Alibaba-NLP--gte-base-en-v1.5',
+            'type': 'vector'
+        },
+        {
+            'name': 'Alibaba-gte-large',
+            'dimensions': 1024,
+            'max_sequence': 8192,
+            'size_mb': 1740,
+            'repo_id': 'Alibaba-NLP/gte-large-en-v1.5',
+            'cache_dir': 'Alibaba-NLP--gte-large-en-v1.5',
+            'type': 'vector'
+        },
+    ],
     'BAAI': [
         {
             'name': 'bge-small-en-v1.5',
@@ -110,6 +130,46 @@ VECTOR_MODELS = {
             'type': 'vector'
         },
     ],
+    'intfloat': [
+        {
+            'name': 'e5-small-v2',
+            'dimensions': 384,
+            'max_sequence': 512,
+            'size_mb': 134,
+            'repo_id': 'intfloat/e5-small-v2',
+            'cache_dir': 'intfloat--e5-small-v2',
+            'type': 'vector'
+        },
+        {
+            'name': 'e5-base-v2',
+            'dimensions': 768,
+            'max_sequence': 512,
+            'size_mb': 438,
+            'repo_id': 'intfloat/e5-base-v2',
+            'cache_dir': 'intfloat--e5-base-v2',
+            'type': 'vector'
+        },
+        {
+            'name': 'e5-large-v2',
+            'dimensions': 1024,
+            'max_sequence': 512,
+            'size_mb': 1340,
+            'repo_id': 'intfloat/e5-large-v2',
+            'cache_dir': 'intfloat--e5-large-v2',
+            'type': 'vector'
+        },
+    ],
+    # 'Nvidia': [
+        # {
+            # 'name': 'NV-Embed-v2',
+            # 'dimensions': 4096,
+            # 'max_sequence': 32768,
+            # 'size_mb': 16700,
+            # 'repo_id': 'nvidia/NV-Embed-v2',
+            # 'cache_dir': 'nvidia--NV-Embed-v2',
+            # 'type': 'vector'
+        # },
+    # ],
     'sentence-transformers': [
         {
             'name': 'all-MiniLM-L12-v2',
@@ -157,26 +217,7 @@ VECTOR_MODELS = {
             'type': 'vector'
         },
     ],
-    'Alibaba-NLP': [
-        {
-            'name': 'Alibaba-gte-base',
-            'dimensions': 768,
-            'max_sequence': 8192,
-            'size_mb': 547,
-            'repo_id': 'Alibaba-NLP/gte-base-en-v1.5',
-            'cache_dir': 'Alibaba-NLP--gte-base-en-v1.5',
-            'type': 'vector'
-        },
-        {
-            'name': 'Alibaba-gte-large',
-            'dimensions': 1024,
-            'max_sequence': 8192,
-            'size_mb': 1740,
-            'repo_id': 'Alibaba-NLP/gte-large-en-v1.5',
-            'cache_dir': 'Alibaba-NLP--gte-large-en-v1.5',
-            'type': 'vector'
-        },
-    ],
+
     'thenlper': [
         {
             'name': 'gte-small',
@@ -206,35 +247,7 @@ VECTOR_MODELS = {
             'type': 'vector'
         },
     ],
-    'intfloat': [
-        {
-            'name': 'e5-small-v2',
-            'dimensions': 384,
-            'max_sequence': 512,
-            'size_mb': 134,
-            'repo_id': 'intfloat/e5-small-v2',
-            'cache_dir': 'intfloat--e5-small-v2',
-            'type': 'vector'
-        },
-        {
-            'name': 'e5-base-v2',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 438,
-            'repo_id': 'intfloat/e5-base-v2',
-            'cache_dir': 'intfloat--e5-base-v2',
-            'type': 'vector'
-        },
-        {
-            'name': 'e5-large-v2',
-            'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 1340,
-            'repo_id': 'intfloat/e5-large-v2',
-            'cache_dir': 'intfloat--e5-large-v2',
-            'type': 'vector'
-        },
-    ],
+
 }
 
 CHAT_MODELS = {
@@ -458,6 +471,16 @@ CHAT_MODELS = {
         'context_length': 32768,
         'avg_vram_usage': '14.2 GB',
         'function': 'InternLM2_5_20b',
+        'precision': 'bfloat16'
+    },
+    'Solar Pro Preview - 22.1b': {
+        'model': 'Solar Pro Preview - 22.1b',
+        'repo_id': 'upstage/solar-pro-preview-instruct',
+        'cache_dir': 'upstage--solar-pro-preview-instruct',
+        'tokens_per_second': 20.21,
+        'context_length': 32768,
+        'avg_vram_usage': '13.7 GB',
+        'function': 'SOLAR_pro_preview',
         'precision': 'bfloat16'
     },
 }

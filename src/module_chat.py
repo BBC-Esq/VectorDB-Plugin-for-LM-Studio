@@ -441,6 +441,17 @@ class SOLAR_10_7B(BaseModel):
         ### Assistant:
         """
 
+class SOLAR_pro_preview(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Solar Pro Preview - 22.1b']
+        super().__init__(model_info, bnb_float16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|startoftext|><|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
+
 class Zephyr_1_6B(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Zephyr - 1.6b']
