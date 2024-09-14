@@ -165,7 +165,6 @@ def cleanup_resources(model, tokenizer):
     torch.cuda.empty_cache()
     gc.collect()
 
-
 class Phi3_5_mini_4b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Phi 3.5 Mini - 4b']
@@ -179,75 +178,17 @@ class Phi3_5_mini_4b(BaseModel):
         <|assistant|>
         """
 
-
-class Dolphin_Llama3_1_8B(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Dolphin-Llama 3.1 - 8b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
-
 class LongWriter_Llama_3_1(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['LongWriter Llama 3.1 - 8b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"<<SYS>>\n{system_message}\n<</SYS>>\n\n[INST]{augmented_query}[/INST]"
-
-class Danube_3_4b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Danube 3 - 4b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|prompt|>{augmented_query}</s><|answer|>"""
-
-class Hermes_3_Llama_3_1(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Hermes-3-Llama-3.1 - 8b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
-
-class Dolphin_Mistral_Nemo(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Dolphin-Mistral-Nemo - 12b']
-        # tokenizer_kwargs = {'eos_token': "<|im_end|>"}
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<s><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
-
-class Dolphin_Phi3_Medium(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Dolphin-Phi 3 - Medium']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs={'legacy': False})
-
-    def create_prompt(self, augmented_query):
-        return f"""<s><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
+        return f"""<<SYS>>
+        {system_message}
+        <</SYS>>
+        
+        [INST]{augmented_query}[/INST]"""
 
 class CodeQwen1_5_7b_chat(BaseModel):
     def __init__(self, generation_settings):
@@ -263,9 +204,6 @@ class CodeQwen1_5_7b_chat(BaseModel):
         """
 
     def generate_response(self, inputs):
-        """
-        Overrides the BaseModel method to handle model-specific kwargs.
-        """
         # Remove token_type_ids if it exists
         inputs.pop('token_type_ids', None)
 
@@ -282,43 +220,20 @@ class CodeQwen1_5_7b_chat(BaseModel):
 
         generation_thread.join()
 
-
-class Dolphin_Qwen2_7b(BaseModel):
+class Yi_9b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Dolphin-Qwen 2 - 7b']
+        model_info = CHAT_MODELS['Yi - 9b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
+       return f"""<|im_start|>system
+        {system_message}
+        <|im_end|>
+        
         <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
-
-class Dolphin_Qwen2_1_5b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Dolphin-Qwen 2 - 1.5b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
-
-class Dolphin_Yi_1_5_9b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Dolphin-Yi 1.5 - 9b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
+        {augmented_query}
+        <|im_end|>
+        
         <|im_start|>assistant
         """
 
@@ -349,70 +264,16 @@ class InternLM2_5_7b(BaseModel):
         <|im_start|>assistant
         """
 
-class InternLM2_5_20b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Internlm2_5 - 20b']
-        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
-
-class Llama2_13b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Llama 2 - 13b']
-        super().__init__(model_info, bnb_float16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<s>[INST]<<SYS>>
-        {system_message}
-        <</SYS>>
-
-        {augmented_query}[/INST]"""
-
-
 class DeepSeek_Coder_v2_lite(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['DeepSeek Coder v2 - 16b']
-        super().__init__(model_info, bnb_float16_settings, generation_settings)
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""<｜begin▁of▁sentence｜>{system_message}
         User: {augmented_query}
         
         Assistant:"""
-
-
-class Neural_Chat_7b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Neural-Chat - 7b']
-        super().__init__(model_info, bnb_float16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""### System:
-        {system_message}
-        ### User:
-        {augmented_query}
-        ### Assistant:
-        """
-
-class Orca2_7b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Orca 2 - 7b']
-        super().__init__(model_info, bnb_float16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant"""
-
 
 class Orca2_13b(BaseModel):
     def __init__(self, generation_settings):
@@ -449,8 +310,7 @@ class SOLAR_pro_preview(BaseModel):
     def create_prompt(self, augmented_query):
         return f"""<|startoftext|><|im_start|>user
         {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
+        <|im_start|>assistant"""
 
 class Zephyr_1_6B(BaseModel):
     def __init__(self, generation_settings):
@@ -476,6 +336,20 @@ class Zephyr_3B(BaseModel):
         <|user|>
         {augmented_query}<|endoftext|>
         <|assistant|>"""
+
+class InternLM2_5_20b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Internlm2_5 - 20b']
+        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
 
 @torch.inference_mode()
 def generate_response(model_instance, augmented_query):

@@ -56,7 +56,7 @@ class DocQA_GUI(QWidget):
 
     def init_ui(self):
         try:
-            self.setWindowTitle('VectorDB Plugin (LM Studio Edition) - version 6.7.0')
+            self.setWindowTitle('VectorDB Plugin (LM Studio Edition)')
             self.setGeometry(300, 300, 820, 1000)
             self.setMinimumSize(350, 410)
             

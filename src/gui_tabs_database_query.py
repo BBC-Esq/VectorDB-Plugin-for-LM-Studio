@@ -312,7 +312,7 @@ class DatabaseQueryTab(QWidget):
     def run_tts_module(self):
         process = multiprocessing.Process(target=run_tts_in_process, args=(str(self.config_path), input_text_file))
         process.start()
-        process.join()  # wait for the process to finish
+        process.join()
 
     def toggle_recording(self):
         if self.is_recording:

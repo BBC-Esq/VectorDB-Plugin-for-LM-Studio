@@ -200,7 +200,7 @@ class LocalModelChat:
                             conn.send(("finished", None))
                             continue
                         
-                        prepend_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I want you to only base your response on these contexts and do not use outside knowledge that you may have been trained with."
+                        prepend_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
                         augmented_query = f"{prepend_string}\n\n---\n\n" + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + user_question
                         # DEBUG
                         # print(augmented_query)

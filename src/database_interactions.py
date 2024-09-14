@@ -22,13 +22,13 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.document import Document
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
 from langchain_community.vectorstores import TileDB
-from langchain_core.load import dumps # debugging
+from langchain_core.load import dumps # DEBUG
 
 from document_processor import load_documents, split_documents
 from module_process_images import choose_image_loader
 from utilities import my_cprint
 
-# debugging
+# DEBUG
 # def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
     # """
     # "dumps" is a JSON string, which is a text-based representation that's good for saving to a file or sending over the
