@@ -113,16 +113,6 @@ CHAT_MODELS = {
         'function': 'CodeQwen1_5_7b_chat',
         'precision': 'bfloat16'
     },
-    'SOLAR - 10.7b': {
-        'model': 'SOLAR - 10.7b',
-        'repo_id': 'upstage/SOLAR-10.7B-Instruct-v1.0',
-        'cache_dir': 'upstage--SOLAR-10.7B-Instruct-v1.0',
-        'tokens_per_second': 28,
-        'context_length': 4096,
-        'avg_vram_usage': '9.3 GB',
-        'function': 'SOLAR_10_7B',
-        'precision': 'float16'
-    },
     'DeepSeek Coder v2 - 16b': {
         'model': 'DeepSeek Coder v2 - 16b',
         'repo_id': 'deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct',
@@ -463,16 +453,6 @@ VISION_MODELS = {
         'requires_cuda': True,
         'avg_vram_usage': '9.8 GB',
         'tokens_per_second': 38.03
-    },
-    'falcon-vlm - 11b': {
-        'precision': 'bfloat16',
-        'quant': '4-bit',
-        'size': '13b',
-        'repo_id': 'tiiuae/falcon-11B-vlm',
-        'cache_dir': 'tiiuae--falcon-11B-vlm',
-        'requires_cuda': True,
-        'avg_vram_usage': '12.8 GB',
-        'tokens_per_second': 18.36
     },
     'Llava 1.6 Vicuna - 13b': {
         'precision': 'float16',
