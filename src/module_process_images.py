@@ -66,8 +66,6 @@ def choose_image_loader():
         loader_func = loader_llava(config).process_images
     elif chosen_model == 'Moondream2 - 1.9b':
         loader_func = loader_moondream(config).process_images
-    elif chosen_model == 'falcon-vlm - 11b':
-        loader_func = loader_falcon(config).process_images
     elif chosen_model in ["Florence-2-large", "Florence-2-base"]:
         loader_func = loader_florence2(config).process_images
     elif chosen_model == 'Phi-3-vision - 4.2b':
@@ -232,60 +230,6 @@ class loader_llava_next(BaseLoader):
         
         return model_response
 
-class loader_falcon(BaseLoader):
-    def initialize_model_and_tokenizer(self):
-        chosen_model = self.config['vision']['chosen_model']
-        
-        model_info = VISION_MODELS[chosen_model]
-        model_id = model_info['repo_id']
-        precision = model_info['precision']
-        save_dir = model_info["cache_dir"]
-        cache_dir = CACHE_DIR / save_dir
-        cache_dir.mkdir(parents=True, exist_ok=True)
-
-        # Check GPU capability
-        if torch.cuda.is_available():
-            capability = torch.cuda.get_device_capability()
-            use_bfloat16 = capability >= (8, 6)
-        else:
-            use_bfloat16 = False
-
-        # Set the appropriate dtype
-        compute_dtype = torch.bfloat16 if use_bfloat16 else torch.float16
-
-        quantization_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=compute_dtype,
-        )
-        
-        model = LlavaNextForConditionalGeneration.from_pretrained(
-            model_id,
-            quantization_config=quantization_config,
-            torch_dtype=compute_dtype,
-            low_cpu_mem_usage=True,
-            cache_dir=cache_dir
-        )
-        
-        my_cprint(f"{chosen_model} vision model loaded into memory...", "green")
-        
-        processor = LlavaNextProcessor.from_pretrained(model_id, cache_dir=cache_dir)
-        
-        return model, None, processor
-
-    @ torch.inference_mode()
-    def process_single_image(self, raw_image):
-        user_prompt = "Describe this image in as much detail as possible while still trying to be succinct and not repeat yourself."
-        prompt = f"User:<image>\n{user_prompt} Falcon:"
-        inputs = self.processor(text=prompt, images=raw_image, return_tensors="pt").to(self.device)
-        
-        output = self.model.generate(**inputs, max_new_tokens=512, do_sample=False)
-        
-        response = self.processor.decode(output[0], skip_special_tokens=True) # possibly adjust to "full_response = self.processor.decode(output[0][2:], skip_special_tokens=True)" or something similar if output is preceded by special tokens inexplicatly
-        model_response = response.split("Falcon:")[-1].strip()
-        
-        return model_response
-
 class loader_moondream(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']
@@ -294,14 +238,14 @@ class loader_moondream(BaseLoader):
         
         model = AutoModelForCausalLM.from_pretrained(model_id, 
                                                      trust_remote_code=True, 
-                                                     revision="2024-07-23",
+                                                     revision="2024-08-26",
                                                      torch_dtype=torch.float16,
                                                      cache_dir=cache_dir,
                                                      low_cpu_mem_usage=True).to(self.device)
 
         my_cprint(f"Moondream2 vision model loaded into memory...", "green")
         
-        tokenizer = AutoTokenizer.from_pretrained(model_id, revision="2024-07-23", cache_dir=cache_dir)
+        tokenizer = AutoTokenizer.from_pretrained(model_id, revision="2024-08-26", cache_dir=cache_dir)
         
         return model, tokenizer, None
     
