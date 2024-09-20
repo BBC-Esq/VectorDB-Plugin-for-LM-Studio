@@ -38,11 +38,11 @@ bnb_bfloat16_settings = {
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.bfloat16,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
+            # bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         'trust_remote_code': True,
-        'attn_implementation': "flash_attention_2"
+        'attn_implementation': "sdpa"
     }
 }
 
@@ -57,13 +57,14 @@ bnb_float16_settings = {
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.float16,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
+            # bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         'trust_remote_code': True,
-        'attn_implementation': "flash_attention_2"
+        'attn_implementation': "sdpa"
     }
 }
+
 class BaseModel(ABC):
     def __init__(self, model_info, settings, generation_settings, tokenizer_kwargs=None, model_kwargs=None):
         self.model_info = model_info
@@ -286,21 +287,6 @@ class Orca2_13b(BaseModel):
         <|im_start|>user
         {augmented_query}<|im_end|>
         <|im_start|>assistant"""
-
-class SOLAR_10_7B(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['SOLAR - 10.7b']
-        super().__init__(model_info, bnb_float16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<s>### System:
-        {system_message}
-
-        ### User:
-        {augmented_query}
-
-        ### Assistant:
-        """
 
 class SOLAR_pro_preview(BaseModel):
     def __init__(self, generation_settings):
