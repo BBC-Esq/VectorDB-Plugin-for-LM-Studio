@@ -1,6 +1,7 @@
 import gc
 import logging
 import warnings
+import copy
 from pathlib import Path
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer, BitsAndBytesConfig
@@ -10,6 +11,11 @@ from abc import ABC, abstractmethod
 from constants import CHAT_MODELS, system_message, MODEL_MAX_TOKENS, MODEL_MAX_NEW_TOKENS
 from utilities import my_cprint, has_bfloat16_support
 
+def get_model_settings(base_settings, attn_implementation):
+    settings = copy.deepcopy(base_settings)
+    settings['model_settings']['attn_implementation'] = attn_implementation
+    return settings
+    
 def get_max_length(model_name):
     return MODEL_MAX_TOKENS.get(model_name, 4096)
 
@@ -25,6 +31,7 @@ def get_generation_settings(max_length, max_new_tokens):
         'use_cache': True,
         'temperature': None,
         'top_p': None,
+        'top_k': None,
     }
 
 bnb_bfloat16_settings = {
@@ -38,7 +45,6 @@ bnb_bfloat16_settings = {
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.bfloat16,
             bnb_4bit_quant_type="nf4",
-            # bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         'trust_remote_code': True,
@@ -57,7 +63,6 @@ bnb_float16_settings = {
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.float16,
             bnb_4bit_quant_type="nf4",
-            # bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         'trust_remote_code': True,
@@ -66,7 +71,9 @@ bnb_float16_settings = {
 }
 
 class BaseModel(ABC):
-    def __init__(self, model_info, settings, generation_settings, tokenizer_kwargs=None, model_kwargs=None):
+    def __init__(self, model_info, settings, generation_settings, attn_implementation=None, tokenizer_kwargs=None, model_kwargs=None):
+        if attn_implementation:
+            settings = get_model_settings(settings, attn_implementation)
         self.model_info = model_info
         self.settings = settings
         self.model_name = model_info['model']
@@ -169,7 +176,7 @@ def cleanup_resources(model, tokenizer):
 class Phi3_5_mini_4b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Phi 3.5 Mini - 4b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, attn_implementation="flash_attention_2")
 
     def create_prompt(self, augmented_query):
         return f"""<s><|system|>
