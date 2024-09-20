@@ -283,17 +283,6 @@ class DeepSeek_Coder_v2_lite(BaseModel):
         
         Assistant:"""
 
-class Orca2_13b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Orca 2 - 13b']
-        super().__init__(model_info, bnb_float16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant"""
 
 class SOLAR_pro_preview(BaseModel):
     def __init__(self, generation_settings):

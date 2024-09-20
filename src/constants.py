@@ -93,16 +93,6 @@ CHAT_MODELS = {
         'function': 'Yi_Coder_9b',
         'precision': 'bfloat16'
     },
-    'Orca 2 - 13b': {
-        'model': 'Orca 2 - 13b',
-        'repo_id': 'microsoft/Orca-2-13b',
-        'cache_dir': 'microsoft--Orca-2-13b',
-        'tokens_per_second': 36.11,
-        'context_length': 4096,
-        'avg_vram_usage': '9.9 GB',
-        'function': 'Orca2_13b',
-        'precision': 'float16'
-    },
     'CodeQwen 1.5 - 7b': {
         'model': 'CodeQwen 1.5 - 7b',
         'repo_id': 'Qwen/CodeQwen1.5-7B-Chat',
@@ -143,6 +133,16 @@ CHAT_MODELS = {
         'function': 'InternLM2_5_20b',
         'precision': 'bfloat16'
     },
+    # 'Qwen 2.5': {
+        # 'model': 'Qwen 2.5',
+        # 'repo_id': 'internlm/internlm2_5-20b-chat',
+        # 'cache_dir': 'internlm--internlm2_5-20b-chat',
+        # 'tokens_per_second': 20.21,
+        # 'context_length': 32768,
+        # 'avg_vram_usage': '14.2 GB',
+        # 'function': 'InternLM2_5_20b',
+        # 'precision': 'bfloat16'
+    # },
 }
 
 WHISPER_SPEECH_MODELS = {
