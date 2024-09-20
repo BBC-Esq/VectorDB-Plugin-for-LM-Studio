@@ -275,7 +275,7 @@ class InternLM2_5_7b(BaseModel):
 class DeepSeek_Coder_v2_lite(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['DeepSeek Coder v2 - 16b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, attn_implementation="flash_attention_2")
 
     def create_prompt(self, augmented_query):
         return f"""<｜begin▁of▁sentence｜>{system_message}
@@ -356,13 +356,13 @@ def choose_model(model_name):
         model_class_name = CHAT_MODELS[model_name]['function']
         model_class = globals()[model_class_name]
         
-        # Get the max_length for this model
+        # Get the relevant max_length
         max_length = get_max_length(model_name)
 
-        # Get the max_new_tokens for this model
+        # Get the relevant max_new_tokens
         max_new_tokens = get_max_new_tokens(model_name)
 
-        # Generate the settings based on both max_length and max_new_tokens
+        # Generate the settings based on max_length and max_new_tokens
         generation_settings = get_generation_settings(max_length, max_new_tokens)
         
         # Pass the generation settings to the model constructor
