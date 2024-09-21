@@ -105,7 +105,7 @@ class VisionSettingsTab(QWidget):
         model_info = VISION_MODELS[chosen_model]
         self.sizeLabel.setText(model_info['size'])
         self.precisionLabel.setText(model_info['precision'])
-        self.vramLabel.setText(model_info['avg_vram_usage'])
+        self.vramLabel.setText(model_info['vram'])
         self.quantLabel.setText(model_info['quant'])
 
     def read_config(self):

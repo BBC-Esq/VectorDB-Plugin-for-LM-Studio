@@ -1,25 +1,39 @@
 system_message = """You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. Here are one or more contexts to solely base your answer off of. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."""
 
 MODEL_MAX_TOKENS = {
+    'Qwen 2.5 Coder - 1.5b': 8192,
     'Phi 3.5 Mini - 4b': 8192,
     'Internlm2_5 - 7b': 8192,
+    'Qwen 2.5 - 7b': 8192,
     'CodeQwen 1.5 - 7b': 8192,
+    'Qwen 2.5 Coder - 7b': 8192,
     'Yi Coder - 9b': 8192,
     'DeepSeek Coder v2 - 16b': 8192,
     'Internlm2_5 - 20b': 8192,
-    'LongWriter Llama 3.1 - 8b': 24576,
-    'Yi - 9b': 8192
+    'LongWriter Llama 3.1 - 8b': 16384,
+    'LongCite Llama 3.1 - 8b': 16384,
+    'Longwriter GLM4 - 9b': 16384,
+    'LongCite GLM4 - 9b': 16384,
+    'Yi - 9b': 8192,
+    
+    'Qwen 2.5 - 14b': 8192
 }
 
 MODEL_MAX_NEW_TOKENS = {
+    'Qwen 2.5 Coder - 1.5b': 4096,
     'Phi 3.5 Mini - 4b': 4096,
     'Internlm2_5 - 7b': 4096,
-    'CodeQwen 1.5 - 7b': 4096,
+    'Qwen 2.5 - 7b': 4096,
+    'Qwen 2.5 Coder - 7b': 4096,
     'Yi Coder - 9b': 4096,
     'DeepSeek Coder v2 - 16b': 4096,
     'Internlm2_5 - 20b': 4096,
-    'LongWriter Llama 3.1 - 8b': 12288,
-    'Yi - 9b': 4096
+    'LongWriter Llama 3.1 - 8b': 8192,
+    'LongCite Llama 3.1 - 8b': 8192,
+    'Longwriter GLM4 - 9b': 8192,
+    'LongCite GLM4 - 9b': 8192,
+    'Yi - 9b': 4096,
+    'Qwen 2.5 - 14b': 4096
 }
 
 CHAT_MODELS = {
@@ -43,6 +57,16 @@ CHAT_MODELS = {
         'function': 'Zephyr_3B',
         'precision': 'bfloat16'
     },
+    'Qwen 2.5 Coder - 1.5b': {
+        'model': 'Qwen 2.5 Coder - 1.5b',
+        'repo_id': 'Qwen/Qwen2.5-Coder-1.5B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-Coder-1.5B-Instruct',
+        'tokens_per_second': 57,
+        'context_length': 4096,
+        'avg_vram_usage': '2.9 GB',
+        'function': 'QwenCoder_1_5b',
+        'precision': 'bfloat16'
+    },
     'Phi 3.5 Mini - 4b': {
         'model': 'Phi 3.5 Mini - 4b',
         'repo_id': 'microsoft/Phi-3.5-mini-instruct',
@@ -63,6 +87,26 @@ CHAT_MODELS = {
         'function': 'InternLM2_5_7b',
         'precision': 'bfloat16'
     },
+    'Qwen 2.5 - 7b': {
+        'model': 'Qwen 2.5 - 7b',
+        'repo_id': 'Qwen/Qwen2.5-7B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-7B-Instruct',
+        'tokens_per_second': 57,
+        'context_length': 4096,
+        'avg_vram_usage': '2.9 GB',
+        'function': 'Qwen_2_5_7b',
+        'precision': 'bfloat16'
+    },
+    'Qwen 2.5 Coder - 7b': {
+        'model': 'Qwen 2.5 Coder - 7b',
+        'repo_id': 'Qwen/Qwen2.5-Coder-7B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-Coder-7B-Instruct',
+        'tokens_per_second': 57,
+        'context_length': 4096,
+        'avg_vram_usage': '2.9 GB',
+        'function': 'QwenCoder_7b',
+        'precision': 'bfloat16'
+    },
     'LongWriter Llama 3.1 - 8b': {
         'model': 'LongWriter Llama 3.1 - 8b',
         'repo_id': 'THUDM/LongWriter-llama3.1-8b',
@@ -71,6 +115,36 @@ CHAT_MODELS = {
         'context_length': 32768,
         'avg_vram_usage': '7.1 GB',
         'function': 'LongWriter_Llama_3_1',
+        'precision': 'bfloat16'
+    },
+    'LongCite Llama 3.1 - 8b': {
+        'model': 'LongCite Llama 3.1 - 8b',
+        'repo_id': 'THUDM/LongCite-llama3.1-8b',
+        'cache_dir': 'THUDM--LongCite-llama3.1-8b',
+        'tokens_per_second': 50.33,
+        'context_length': 32768,
+        'avg_vram_usage': '7.1 GB',
+        'function': 'LongCite_Llama_3_1',
+        'precision': 'bfloat16'
+    },
+    'Longwriter GLM4 - 9b': {
+        'model': 'Longwriter GLM4 - 9b',
+        'repo_id': 'THUDM/LongWriter-glm4-9b',
+        'cache_dir': 'THUDM--LongWriter-glm4-9b',
+        'tokens_per_second': 57,
+        'context_length': 4096,
+        'avg_vram_usage': '2.9 GB',
+        'function': 'Longwriter_glm4_9b',
+        'precision': 'bfloat16'
+    },
+    'LongCite GLM4 - 9b': {
+        'model': 'LongCite GLM4 - 9b',
+        'repo_id': 'THUDM/LongCite-glm4-9b',
+        'cache_dir': 'THUDM--LongCite-glm4-9b',
+        'tokens_per_second': 57,
+        'context_length': 4096,
+        'avg_vram_usage': '2.9 GB',
+        'function': 'LongCite_glm4_9b',
         'precision': 'bfloat16'
     },
     'Yi - 9b': {
@@ -93,16 +167,6 @@ CHAT_MODELS = {
         'function': 'Yi_Coder_9b',
         'precision': 'bfloat16'
     },
-    'CodeQwen 1.5 - 7b': {
-        'model': 'CodeQwen 1.5 - 7b',
-        'repo_id': 'Qwen/CodeQwen1.5-7B-Chat',
-        'cache_dir': 'Qwen--CodeQwen1.5-7B-Chat',
-        'tokens_per_second': 52,
-        'context_length': 16384,
-        'avg_vram_usage': '9.2 GB',
-        'function': 'CodeQwen1_5_7b_chat',
-        'precision': 'bfloat16'
-    },
     'DeepSeek Coder v2 - 16b': {
         'model': 'DeepSeek Coder v2 - 16b',
         'repo_id': 'deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct',
@@ -111,6 +175,16 @@ CHAT_MODELS = {
         'context_length': 8192,
         'avg_vram_usage': '10.0 GB',
         'function': 'DeepSeek_Coder_v2_lite',
+        'precision': 'bfloat16'
+    },
+    'Qwen 2.5 - 14b': {
+        'model': 'Qwen 2.5 - 14b',
+        'repo_id': 'Qwen/Qwen2.5-14B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-14B-Instruct',
+        'tokens_per_second': 57,
+        'context_length': 4096,
+        'avg_vram_usage': '2.9 GB',
+        'function': 'Qwen_2_5_14b',
         'precision': 'bfloat16'
     },
     'Solar Pro Preview - 22.1b': {
@@ -133,16 +207,6 @@ CHAT_MODELS = {
         'function': 'InternLM2_5_20b',
         'precision': 'bfloat16'
     },
-    # 'Qwen 2.5': {
-        # 'model': 'Qwen 2.5',
-        # 'repo_id': 'internlm/internlm2_5-20b-chat',
-        # 'cache_dir': 'internlm--internlm2_5-20b-chat',
-        # 'tokens_per_second': 20.21,
-        # 'context_length': 32768,
-        # 'avg_vram_usage': '14.2 GB',
-        # 'function': 'InternLM2_5_20b',
-        # 'precision': 'bfloat16'
-    # },
 }
 
 WHISPER_SPEECH_MODELS = {
@@ -371,8 +435,8 @@ VISION_MODELS = {
         'repo_id': 'microsoft/Florence-2-base',
         'cache_dir': 'microsoft--Florence-2-base',
         'requires_cuda': False,
-        'avg_vram_usage': '2.6 GB',
-        'tokens_per_second': 163.06
+        'vram': '2.6 GB',
+        'tps': 163.06
     },
     'Moondream2 - 1.9b': {
         'precision': 'float16',
@@ -381,8 +445,8 @@ VISION_MODELS = {
         'repo_id': 'vikhyatk/moondream2',
         'cache_dir': 'vikhyatk--moondream2',
         'requires_cuda': True,
-        'avg_vram_usage': '4.6 GB',
-        'tokens_per_second': 82.28
+        'vram': '4.6 GB',
+        'tps': 82.28
     },
     'Florence-2-large': {
         'precision': 'autoselect',
@@ -391,38 +455,8 @@ VISION_MODELS = {
         'repo_id': 'microsoft/Florence-2-large',
         'cache_dir': 'microsoft--Florence-2-large',
         'requires_cuda': False,
-        'avg_vram_usage': '5.3 GB',
-        'tokens_per_second': 113.32
-    },
-    'Phi-3-vision - 4.2b': {
-        'precision': 'bfloat16',
-        'quant': '4-bit',
-        'size': '4.2b',
-        'repo_id': 'microsoft/Phi-3-vision-128k-instruct',
-        'cache_dir': 'microsoft--Phi-3-vision-128k-instruct',
-        'requires_cuda': True,
-        'avg_vram_usage': '5.4 GB',
-        'tokens_per_second': 30.72
-    },
-    'Llava 1.5 - 7b': {
-        'precision': 'float16',
-        'quant': '4-bit',
-        'size': '7b',
-        'repo_id': 'llava-hf/llava-1.5-7b-hf',
-        'cache_dir': 'llava-hf--llava-1.5-7b-hf',
-        'requires_cuda': True,
-        'avg_vram_usage': '5.8 GB',
-        'tokens_per_second': 48.30
-    },
-    'Bakllava 1.5 - 7b': {
-        'precision': 'float16',
-        'quant': '4-bit',
-        'size': '7b',
-        'repo_id': 'llava-hf/bakLlava-v1-hf',
-        'cache_dir': 'llava-hf--bakLlava-v1-hf',
-        'requires_cuda': True,
-        'avg_vram_usage': '5.9 GB',
-        'tokens_per_second': 48.30
+        'vram': '5.3 GB',
+        'tps': 113.32
     },
     'Llava 1.6 Vicuna - 7b': {
         'precision': 'float16',
@@ -431,8 +465,8 @@ VISION_MODELS = {
         'repo_id': 'llava-hf/llava-v1.6-vicuna-7b-hf',
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-7b-hf',
         'requires_cuda': True,
-        'avg_vram_usage': '7.9 GB',
-        'tokens_per_second': 56.33
+        'vram': '7.9 GB',
+        'tps': 56.33
     },
     'MiniCPM-V-2_6 - 8b': {
         'precision': 'bfloat16',
@@ -441,18 +475,18 @@ VISION_MODELS = {
         'repo_id': 'openbmb/MiniCPM-V-2_6-int4',
         'cache_dir': 'openbmb--MiniCPM-V-2_6-int4',
         'requires_cuda': True,
-        'avg_vram_usage': '9.1 GB',
-        'tokens_per_second': 16.40
+        'vram': '9.1 GB',
+        'tps': 16.99
     },
-    'Llava 1.5 - 13b': {
-        'precision': 'float16',
+    'THUDM glm4v - 9b': {
+        'precision': 'bfloat16',
         'quant': '4-bit',
-        'size': '13b',
-        'repo_id': 'llava-hf/llava-1.5-13b-hf',
-        'cache_dir': 'llava-hf--llava-1.5-13b-hf',
+        'size': '9b',
+        'repo_id': 'THUDM/glm-4v-9b',
+        'cache_dir': 'THUDM--glm-4v-9b',
         'requires_cuda': True,
-        'avg_vram_usage': '9.8 GB',
-        'tokens_per_second': 38.03
+        'vram': '10.5 GB',
+        'tps': 28.69
     },
     'Llava 1.6 Vicuna - 13b': {
         'precision': 'float16',
@@ -461,10 +495,11 @@ VISION_MODELS = {
         'repo_id': 'llava-hf/llava-v1.6-vicuna-13b-hf',
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-13b-hf',
         'requires_cuda': True,
-        'avg_vram_usage': '14.1 GB',
-        'tokens_per_second': 41.43
+        'vram': '14.1 GB',
+        'tps': 41.43
     }
 }
+
 
 WHISPER_MODELS = {
     # LARGE-V3
