@@ -87,16 +87,16 @@ CHAT_MODELS = {
         'function': 'InternLM2_5_7b',
         'precision': 'bfloat16'
     },
-    'Qwen 2.5 - 7b': {
-        'model': 'Qwen 2.5 - 7b',
-        'repo_id': 'Qwen/Qwen2.5-7B-Instruct',
-        'cache_dir': 'Qwen--Qwen2.5-7B-Instruct',
-        'tokens_per_second': 57,
-        'context_length': 4096,
-        'avg_vram_usage': '2.9 GB',
-        'function': 'Qwen_2_5_7b',
-        'precision': 'bfloat16'
-    },
+    # 'Qwen 2.5 - 7b': {
+        # 'model': 'Qwen 2.5 - 7b',
+        # 'repo_id': 'Qwen/Qwen2.5-7B-Instruct',
+        # 'cache_dir': 'Qwen--Qwen2.5-7B-Instruct',
+        # 'tokens_per_second': 57,
+        # 'context_length': 4096,
+        # 'avg_vram_usage': '2.9 GB',
+        # 'function': 'Qwen_2_5_7b',
+        # 'precision': 'bfloat16'
+    # },
     'Qwen 2.5 Coder - 7b': {
         'model': 'Qwen 2.5 Coder - 7b',
         'repo_id': 'Qwen/Qwen2.5-Coder-7B-Instruct',
@@ -117,16 +117,16 @@ CHAT_MODELS = {
         'function': 'LongWriter_Llama_3_1',
         'precision': 'bfloat16'
     },
-    'LongCite Llama 3.1 - 8b': {
-        'model': 'LongCite Llama 3.1 - 8b',
-        'repo_id': 'THUDM/LongCite-llama3.1-8b',
-        'cache_dir': 'THUDM--LongCite-llama3.1-8b',
-        'tokens_per_second': 50.33,
-        'context_length': 32768,
-        'avg_vram_usage': '7.1 GB',
-        'function': 'LongCite_Llama_3_1',
-        'precision': 'bfloat16'
-    },
+    # 'LongCite Llama 3.1 - 8b': {
+        # 'model': 'LongCite Llama 3.1 - 8b',
+        # 'repo_id': 'THUDM/LongCite-llama3.1-8b',
+        # 'cache_dir': 'THUDM--LongCite-llama3.1-8b',
+        # 'tokens_per_second': 50.33,
+        # 'context_length': 32768,
+        # 'avg_vram_usage': '7.1 GB',
+        # 'function': 'LongCite_Llama_3_1',
+        # 'precision': 'bfloat16'
+    # },
     'Longwriter GLM4 - 9b': {
         'model': 'Longwriter GLM4 - 9b',
         'repo_id': 'THUDM/LongWriter-glm4-9b',
@@ -137,16 +137,16 @@ CHAT_MODELS = {
         'function': 'Longwriter_glm4_9b',
         'precision': 'bfloat16'
     },
-    'LongCite GLM4 - 9b': {
-        'model': 'LongCite GLM4 - 9b',
-        'repo_id': 'THUDM/LongCite-glm4-9b',
-        'cache_dir': 'THUDM--LongCite-glm4-9b',
-        'tokens_per_second': 57,
-        'context_length': 4096,
-        'avg_vram_usage': '2.9 GB',
-        'function': 'LongCite_glm4_9b',
-        'precision': 'bfloat16'
-    },
+    # 'LongCite GLM4 - 9b': {
+        # 'model': 'LongCite GLM4 - 9b',
+        # 'repo_id': 'THUDM/LongCite-glm4-9b',
+        # 'cache_dir': 'THUDM--LongCite-glm4-9b',
+        # 'tokens_per_second': 57,
+        # 'context_length': 4096,
+        # 'avg_vram_usage': '2.9 GB',
+        # 'function': 'LongCite_glm4_9b',
+        # 'precision': 'bfloat16'
+    # },
     'Yi - 9b': {
         'model': 'Yi - 9b',
         'repo_id': '01-ai/Yi-1.5-9B-Chat-16K',

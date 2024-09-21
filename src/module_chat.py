@@ -173,34 +173,35 @@ def cleanup_resources(model, tokenizer):
     torch.cuda.empty_cache()
     gc.collect()
 
-class Phi3_5_mini_4b(BaseModel):
+class Zephyr_1_6B(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Phi 3.5 Mini - 4b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, attn_implementation="flash_attention_2")
+        model_info = CHAT_MODELS['Zephyr - 1.6b']
+        settings = bnb_float16_settings if torch.cuda.is_available() else {}
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<s><|system|>
-        {system_message}<|end|>
+        return f"""<|system|>
+        {system_message}<|endoftext|>
         <|user|>
-        {augmented_query}<|end|>
-        <|assistant|>
-        """
+        {augmented_query}<|endoftext|>
+        <|assistant|>"""
 
-class LongWriter_Llama_3_1(BaseModel):
+
+class Zephyr_3B(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['LongWriter Llama 3.1 - 8b']
+        model_info = CHAT_MODELS['Zephyr - 3b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<<SYS>>
-        {system_message}
-        <</SYS>>
-        
-        [INST]{augmented_query}[/INST]"""
+        return f"""<|system|>
+        {system_message}<|endoftext|>
+        <|user|>
+        {augmented_query}<|endoftext|>
+        <|assistant|>"""
 
-class CodeQwen1_5_7b_chat(BaseModel):
+class QwenCoder_1_5b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['CodeQwen 1.5 - 7b']
+        model_info = CHAT_MODELS['Qwen 2.5 Coder - 1.5b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
@@ -227,6 +228,131 @@ class CodeQwen1_5_7b_chat(BaseModel):
             yield partial_response
 
         generation_thread.join()
+
+class Phi3_5_mini_4b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Phi 3.5 Mini - 4b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, attn_implementation="flash_attention_2")
+
+    def create_prompt(self, augmented_query):
+        return f"""<s><|system|>
+        {system_message}<|end|>
+        <|user|>
+        {augmented_query}<|end|>
+        <|assistant|>
+        """
+
+class InternLM2_5_7b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Internlm2_5 - 7b']
+        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_text|><|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
+
+class LongWriter_Llama_3_1(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['LongWriter Llama 3.1 - 8b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<<SYS>>
+        {system_message}
+        <</SYS>>
+        
+        [INST]{augmented_query}[/INST]"""
+
+
+# class LongCite_Llama_3_1(BaseModel):
+    # def __init__(self, generation_settings):
+        # model_info = CHAT_MODELS['LongCite Llama 3.1 - 8b']
+        # super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    # def create_prompt(self, augmented_query):
+        # return f"""<<SYS>>
+        # {system_message}
+        # <</SYS>>
+        
+        # [INST]{augmented_query}[/INST]"""
+
+
+class Longwriter_glm4_9b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Longwriter GLM4 - 9b']
+        tokenizer_kwargs = {'eos_token': "<|endoftext|>"}
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
+
+    def create_prompt(self, augmented_query):
+       return f"""[gMASK]sop<|system|>
+       {system_message}<|user|>
+       {augmented_query}<|assistant|>"""
+
+
+# class LongCite_glm4_9b(BaseModel):
+    # def __init__(self, generation_settings):
+        # model_info = CHAT_MODELS['LongCite GLM4 - 9b']
+        # tokenizer_kwargs = {'eos_token': "<|endoftext|>"}
+        # super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
+
+    # def create_prompt(self, augmented_query):
+       # return f"""[gMASK]sop<|system|>
+       # {system_message}<|user|>
+       # {augmented_query}<|assistant|>"""
+
+
+# class Qwen_2_5_7b(BaseModel):
+    # def __init__(self, generation_settings):
+        # model_info = CHAT_MODELS['Qwen 2.5 - 7b']
+        # super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    # def create_prompt(self, augmented_query):
+        # return f"""<|im_start|>system
+        # {system_message}
+        # <|im_end|>
+        
+        # <|im_start|>user
+        # {augmented_query}
+        # <|im_end|>
+        
+        # <|im_start|>assistant
+        # """
+
+class QwenCoder_7b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Qwen 2.5 Coder - 7b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {augmented_query}<|im_end|>
+        <|im_start|>assistant
+        """
+
+    def generate_response(self, inputs):
+        # Remove token_type_ids if it exists
+        inputs.pop('token_type_ids', None)
+
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        eos_token_id = self.tokenizer.eos_token_id
+
+        all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
+
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        for partial_response in streamer:
+            yield partial_response
+
+        generation_thread.join()
+
 
 class Yi_9b(BaseModel):
     def __init__(self, generation_settings):
@@ -258,20 +384,6 @@ class Yi_Coder_9b(BaseModel):
         <|im_start|>assistant
         """
 
-class InternLM2_5_7b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Internlm2_5 - 7b']
-        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
-
 class DeepSeek_Coder_v2_lite(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['DeepSeek Coder v2 - 16b']
@@ -283,6 +395,22 @@ class DeepSeek_Coder_v2_lite(BaseModel):
         
         Assistant:"""
 
+class Qwen_2_5_14b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Qwen 2.5 - 14b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+        {system_message}
+        <|im_end|>
+        
+        <|im_start|>user
+        {augmented_query}
+        <|im_end|>
+        
+        <|im_start|>assistant
+        """
 
 class SOLAR_pro_preview(BaseModel):
     def __init__(self, generation_settings):
@@ -294,30 +422,6 @@ class SOLAR_pro_preview(BaseModel):
         {augmented_query}<|im_end|>
         <|im_start|>assistant"""
 
-class Zephyr_1_6B(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Zephyr - 1.6b']
-        settings = bnb_float16_settings if torch.cuda.is_available() else {}
-        super().__init__(model_info, settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|system|>
-        {system_message}<|endoftext|>
-        <|user|>
-        {augmented_query}<|endoftext|>
-        <|assistant|>"""
-
-class Zephyr_3B(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Zephyr - 3b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|system|>
-        {system_message}<|endoftext|>
-        <|user|>
-        {augmented_query}<|endoftext|>
-        <|assistant|>"""
 
 class InternLM2_5_20b(BaseModel):
     def __init__(self, generation_settings):
