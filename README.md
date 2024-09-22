@@ -1,7 +1,7 @@
 <div align="center">
   <h1>🚀 Supercharge <a href="https://lmstudio.ai/">LM Studio</a> with a Vector Database!</h1>
 
-  <a href="#requirements">Requirements</a>
+  <h3><a href="#requirements">Requirements</a>
   &nbsp;&bull;&nbsp;
   <a href="#installation">Installation</a>
   &nbsp;&bull;&nbsp;
@@ -9,7 +9,7 @@
   &nbsp;&bull;&nbsp;
   <a href="#request-a-feature-or-report-a-bug">Request a Feature or Report a Bug</a>
   &nbsp;&bull;&nbsp;
-  <a href="#contact">Contact</a>
+  <a href="#contact">Contact</a></h3>
 </div>
 
 LM Studio allows you to chat locally with large language models.  This repository allows you to create and search a vector database for relevant context across a wide variety of documents and then get a response from the large language model that's more accurate.  This is commonly referred to as "retrieval augmented generation" (RAG) and it drastically reduces hallucinations from the LLM!  You can watch an introductory [Video](https://www.youtube.com/watch?v=8-ZAYI4MvtA) or read a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) about the program. <br>
