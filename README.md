@@ -42,12 +42,12 @@ The above link downloads Visual Studio as an example.  Make sure to install the 
  
 > <details>
 >   <summary>EXAMPLE error when no compiler installed:</summary>
->   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/sample_error.png?raw=true">
+>   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/Assets/sample_error.png?raw=true">
 > </details>
 > 
 > <details>
 >   <summary>EXAMPLE of installing the correct SDKs:</summary>
->   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/build_tools.png?raw=true">
+>   <img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/Assets/build_tools.png?raw=true">
 > </details>
 
 </div>
