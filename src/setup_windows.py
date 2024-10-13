@@ -431,6 +431,8 @@ create_directory_structure()
 def download_kobold():
     import platform
     import requests
+    import os
+
     system = platform.system()
     if system == "Linux":
         file_name = "koboldcpp-linux-x64-nocuda"
@@ -439,7 +441,12 @@ def download_kobold():
     url = f"https://github.com/LostRuins/koboldcpp/releases/latest/download/{file_name}"
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    kobold_path = os.path.join(script_dir, file_name)
+    assets_dir = os.path.join(script_dir, "Assets")
+    
+    if not os.path.exists(assets_dir):
+        os.makedirs(assets_dir)
+    
+    kobold_path = os.path.join(assets_dir, file_name)
     
     try:
         print(f"Downloading KoboldCPP from {url}...")
