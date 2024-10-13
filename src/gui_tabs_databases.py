@@ -1,7 +1,6 @@
 import time
 import gc
 import os
-import logging
 import warnings
 import platform
 import pickle
@@ -43,22 +42,23 @@ class CreateDatabaseProcess:
 class CreateDatabaseThread(QThread):
     creationComplete = Signal()
     
-    def __init__(self, database_name, parent=None):
+    def __init__(self, database_name, model_name, parent=None):
         super().__init__(parent)
         self.database_name = database_name
+        self.model_name = model_name
         self.process = None
 
     def run(self):
-        # create db in separate process
+        # create db in a separate process
         self.process = multiprocessing.Process(target=create_vector_db_in_process, args=(self.database_name,))
         self.process.start()
         self.process.join()
 
-        my_cprint("Vector model removed from memory.", "red")
+        my_cprint(f"{self.model_name} removed from memory.", "red")
         self.creationComplete.emit()
 
         # after the db is created, backup db and update config
-        time.sleep(.5)
+        time.sleep(.2)
         self.update_config_with_database_name()
 
         backup_database_incremental(self.database_name)
@@ -297,6 +297,7 @@ class DatabasesTab(QWidget):
         self.database_name_input.setDisabled(True)
         
         database_name = self.database_name_input.text().strip()
+        model_name = self.model_combobox.currentText()
         script_dir = Path(__file__).resolve().parent
         
         checks_passed, message = check_preconditions_for_db_creation(script_dir, database_name)
@@ -311,7 +312,7 @@ class DatabasesTab(QWidget):
 
         print(f"Database will be named: '{database_name}'")
         
-        self.create_database_thread = CreateDatabaseThread(database_name=database_name, parent=self)
+        self.create_database_thread = CreateDatabaseThread(database_name=database_name, model_name=model_name, parent=self)
         self.create_database_thread.creationComplete.connect(self.reenable_create_db_button)
         self.create_database_thread.start()
 

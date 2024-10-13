@@ -1,61 +1,41 @@
-system_message = """You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. Here are one or more contexts to solely base your answer off of. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."""
+jeeves_system_message = "You are a helpful British butler who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address a question you answer based on what the contexts say and then briefly summarize the parts of the question that the contexts didn't provide an answer to.  Also, you should be very respectful to the person asking the question and frequently offer traditional butler services like various fancy drinks, snacks, various butler services like shining of shoes, pressing of suites, and stuff like that. Also, if you can't answer the question at all based on the provided contexts, you should apologize profusely and beg to keep your job."
+system_message = "You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."
+rag_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
 
 MODEL_MAX_TOKENS = {
-    'Qwen 2.5 Coder - 1.5b': 8192,
+    'Zephyr - 1.6b': 4096,
+    'Zephyr - 1.6b': 4096,
+    'Llama 3.2 - 3b': 8192,
     'Phi 3.5 Mini - 4b': 8192,
     'Internlm2_5 - 7b': 8192,
-    'Qwen 2.5 - 7b': 8192,
     'CodeQwen 1.5 - 7b': 8192,
     'Qwen 2.5 Coder - 7b': 8192,
     'Yi Coder - 9b': 8192,
     'DeepSeek Coder v2 - 16b': 8192,
     'Internlm2_5 - 20b': 8192,
-    'LongWriter Llama 3.1 - 8b': 16384,
-    'LongCite Llama 3.1 - 8b': 16384,
-    'Longwriter GLM4 - 9b': 16384,
-    'LongCite GLM4 - 9b': 16384,
-    'Yi - 9b': 8192,
-    
-    'Qwen 2.5 - 14b': 8192
+    'Qwen 2.5 - 14b': 8192,
 }
 
 MODEL_MAX_NEW_TOKENS = {
-    'Qwen 2.5 Coder - 1.5b': 4096,
-    'Phi 3.5 Mini - 4b': 4096,
-    'Internlm2_5 - 7b': 4096,
-    'Qwen 2.5 - 7b': 4096,
-    'Qwen 2.5 Coder - 7b': 4096,
-    'Yi Coder - 9b': 4096,
-    'DeepSeek Coder v2 - 16b': 4096,
-    'Internlm2_5 - 20b': 4096,
-    'LongWriter Llama 3.1 - 8b': 8192,
-    'LongCite Llama 3.1 - 8b': 8192,
-    'Longwriter GLM4 - 9b': 8192,
-    'LongCite GLM4 - 9b': 8192,
-    'Yi - 9b': 4096,
-    'Qwen 2.5 - 14b': 4096
+    'Zephyr - 1.6b': 512,
+    'Zephyr - 3b': 512,
+    'Qwen 2.5 - 1.5b': 512,
+    'Internlm2_5 - 1.8b': 512,
+    'Qwen 2.5 Coder - 1.5b': 512,
+    'Qwen 2.5 - 14b': 2048,
+    'Internlm2_5 - 20b': 2048,
 }
 
 CHAT_MODELS = {
-    'Zephyr - 1.6b': {
-        'model': 'Zephyr - 1.6b',
-        'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
-        'cache_dir': 'stabilityai--stablelm-2-zephyr-1_6b',
-        'tokens_per_second': 74,
-        'context_length': 4096,
-        'avg_vram_usage': '2.5 GB',
-        'function': 'Zephyr_1_6B',
-        'precision': 'float16'
-    },
-    'Zephyr - 3b': {
-        'model': 'Zephyr - 3b',
-        'repo_id': 'stabilityai/stablelm-zephyr-3b',
-        'cache_dir': 'stabilityai--stablelm-zephyr-3b',
-        'tokens_per_second': 57,
-        'context_length': 4096,
-        'avg_vram_usage': '2.9 GB',
-        'function': 'Zephyr_3B',
-        'precision': 'bfloat16'
+    'Qwen 2.5 - 1.5b': {
+        'model': 'Qwen 2.5 - 1.5b',
+        'repo_id': 'Qwen/Qwen2.5-1.5B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-1.5B-Instruct',
+        'tokens_per_second': 65,
+        'context_length': 32768,
+        'avg_vram_usage': '3.7 GB',
+        'function': 'Qwen2_5_1_5b',
+        'gated': False,
     },
     'Qwen 2.5 Coder - 1.5b': {
         'model': 'Qwen 2.5 Coder - 1.5b',
@@ -65,7 +45,60 @@ CHAT_MODELS = {
         'context_length': 4096,
         'avg_vram_usage': '2.9 GB',
         'function': 'QwenCoder_1_5b',
-        'precision': 'bfloat16'
+        'precision': 'bfloat16',
+        'gated': False,
+    },
+    'Zephyr - 1.6b': {
+        'model': 'Zephyr - 1.6b',
+        'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
+        'cache_dir': 'stabilityai--stablelm-2-zephyr-1_6b',
+        'tokens_per_second': 74,
+        'context_length': 4096,
+        'avg_vram_usage': '2.5 GB',
+        'function': 'Zephyr_1_6B',
+        'precision': 'float16',
+        'gated': False,
+    },
+    'Zephyr - 3b': {
+        'model': 'Zephyr - 3b',
+        'repo_id': 'stabilityai/stablelm-zephyr-3b',
+        'cache_dir': 'stabilityai--stablelm-zephyr-3b',
+        'tokens_per_second': 57,
+        'context_length': 4096,
+        'avg_vram_usage': '2.9 GB',
+        'function': 'Zephyr_3B',
+        'precision': 'bfloat16',
+        'gated': False,
+    },
+    'Qwen 2.5 - 3b': {
+        'model': 'Qwen 2.5 - 3b',
+        'repo_id': 'Qwen/Qwen2.5-3B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-3B-Instruct',
+        'tokens_per_second': 65,
+        'context_length': 32768,
+        'avg_vram_usage': '3.7 GB',
+        'function': 'Qwen2_5_3b',
+        'gated': False,
+    },
+    'Llama 3.2 - 3b': {
+        'model': 'Llama 3.2 - 3b',
+        'repo_id': 'meta-llama/Llama-3.2-3B-Instruct',
+        'cache_dir': 'meta-llama--Llama-3.2-3B-Instruct',
+        'tokens_per_second': 65,
+        'context_length': 32768,
+        'avg_vram_usage': '3.7 GB',
+        'function': 'Llama_3_2_3b',
+        'gated': True,
+    },
+    'Internlm2_5 - 1.8b': {
+        'model': 'Internlm2_5 - 1.8b',
+        'repo_id': 'internlm/internlm2_5-1_8b-chat',
+        'cache_dir': 'internlm--internlm2_5-1_8b-chat',
+        'tokens_per_second': 55.51,
+        'context_length': 32768,
+        'avg_vram_usage': '2.8 GB',
+        'function': 'InternLM2_5_1_8b',
+        'gated': False,
     },
     'Phi 3.5 Mini - 4b': {
         'model': 'Phi 3.5 Mini - 4b',
@@ -75,28 +108,19 @@ CHAT_MODELS = {
         'context_length': 8192,
         'avg_vram_usage': '3.8 GB',
         'function': 'Phi3_5_mini_4b',
-        'precision': 'bfloat16'
+        'precision': 'bfloat16',
+        'gated': False,
     },
-    'Internlm2_5 - 7b': {
-        'model': 'Internlm2_5 - 7b',
-        'repo_id': 'internlm/internlm2_5-7b-chat',
-        'cache_dir': 'internlm--internlm2_5-7b-chat',
-        'tokens_per_second': 35.12,
+    'Qwen 2.5 - 7b': {
+        'model': 'Qwen 2.5 - 7b',
+        'repo_id': 'Qwen/Qwen2.5-7B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-7B-Instruct',
+        'tokens_per_second': 65,
         'context_length': 32768,
-        'avg_vram_usage': '6.8 GB',
-        'function': 'InternLM2_5_7b',
-        'precision': 'bfloat16'
+        'avg_vram_usage': '3.7 GB',
+        'function': 'Qwen2_5_7b',
+        'gated': False,
     },
-    # 'Qwen 2.5 - 7b': {
-        # 'model': 'Qwen 2.5 - 7b',
-        # 'repo_id': 'Qwen/Qwen2.5-7B-Instruct',
-        # 'cache_dir': 'Qwen--Qwen2.5-7B-Instruct',
-        # 'tokens_per_second': 57,
-        # 'context_length': 4096,
-        # 'avg_vram_usage': '2.9 GB',
-        # 'function': 'Qwen_2_5_7b',
-        # 'precision': 'bfloat16'
-    # },
     'Qwen 2.5 Coder - 7b': {
         'model': 'Qwen 2.5 Coder - 7b',
         'repo_id': 'Qwen/Qwen2.5-Coder-7B-Instruct',
@@ -105,57 +129,18 @@ CHAT_MODELS = {
         'context_length': 4096,
         'avg_vram_usage': '2.9 GB',
         'function': 'QwenCoder_7b',
-        'precision': 'bfloat16'
+        'precision': 'bfloat16',
+        'gated': False,
     },
-    'LongWriter Llama 3.1 - 8b': {
-        'model': 'LongWriter Llama 3.1 - 8b',
-        'repo_id': 'THUDM/LongWriter-llama3.1-8b',
-        'cache_dir': 'THUDM--LongWriter-llama3.1-8b',
+    'Dolphin-Llama 3.1 - 8b': {
+        'model': 'Dolphin-Llama 3.1 - 8b',
+        'repo_id': 'cognitivecomputations/dolphin-2.9.4-llama3.1-8b',
+        'cache_dir': 'cognitivecomputations--dolphin-2.9.4-llama3.1-8b',
         'tokens_per_second': 50.33,
-        'context_length': 32768,
+        'context_length': 8192,
         'avg_vram_usage': '7.1 GB',
-        'function': 'LongWriter_Llama_3_1',
-        'precision': 'bfloat16'
-    },
-    # 'LongCite Llama 3.1 - 8b': {
-        # 'model': 'LongCite Llama 3.1 - 8b',
-        # 'repo_id': 'THUDM/LongCite-llama3.1-8b',
-        # 'cache_dir': 'THUDM--LongCite-llama3.1-8b',
-        # 'tokens_per_second': 50.33,
-        # 'context_length': 32768,
-        # 'avg_vram_usage': '7.1 GB',
-        # 'function': 'LongCite_Llama_3_1',
-        # 'precision': 'bfloat16'
-    # },
-    'Longwriter GLM4 - 9b': {
-        'model': 'Longwriter GLM4 - 9b',
-        'repo_id': 'THUDM/LongWriter-glm4-9b',
-        'cache_dir': 'THUDM--LongWriter-glm4-9b',
-        'tokens_per_second': 57,
-        'context_length': 4096,
-        'avg_vram_usage': '2.9 GB',
-        'function': 'Longwriter_glm4_9b',
-        'precision': 'bfloat16'
-    },
-    # 'LongCite GLM4 - 9b': {
-        # 'model': 'LongCite GLM4 - 9b',
-        # 'repo_id': 'THUDM/LongCite-glm4-9b',
-        # 'cache_dir': 'THUDM--LongCite-glm4-9b',
-        # 'tokens_per_second': 57,
-        # 'context_length': 4096,
-        # 'avg_vram_usage': '2.9 GB',
-        # 'function': 'LongCite_glm4_9b',
-        # 'precision': 'bfloat16'
-    # },
-    'Yi - 9b': {
-        'model': 'Yi - 9b',
-        'repo_id': '01-ai/Yi-1.5-9B-Chat-16K',
-        'cache_dir': '01-ai--Yi-1.5-9B-Chat-16K',
-        'tokens_per_second': 30.85,
-        'context_length': 4096,
-        'avg_vram_usage': '7.2 GB',
-        'function': 'Yi_9b',
-        'precision': 'bfloat16'
+        'function': 'Dolphin_Llama3_1_8B',
+        'gated': False,
     },
     'Yi Coder - 9b': {
         'model': 'Yi Coder - 9b',
@@ -165,17 +150,19 @@ CHAT_MODELS = {
         'context_length': 8192,
         'avg_vram_usage': '7.2 GB',
         'function': 'Yi_Coder_9b',
-        'precision': 'bfloat16'
+        'precision': 'bfloat16',
+        'gated': False,
     },
-    'DeepSeek Coder v2 - 16b': {
-        'model': 'DeepSeek Coder v2 - 16b',
-        'repo_id': 'deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct',
-        'cache_dir': 'deepseek-ai--DeepSeek-Coder-V2-Lite-Instruct',
-        'tokens_per_second': 35.86,
-        'context_length': 8192,
-        'avg_vram_usage': '10.0 GB',
-        'function': 'DeepSeek_Coder_v2_lite',
-        'precision': 'bfloat16'
+    'Internlm2_5 - 7b': {
+        'model': 'Internlm2_5 - 7b',
+        'repo_id': 'internlm/internlm2_5-7b-chat',
+        'cache_dir': 'internlm--internlm2_5-7b-chat',
+        'tokens_per_second': 35.12,
+        'context_length': 32768,
+        'avg_vram_usage': '6.8 GB',
+        'function': 'InternLM2_5_7b',
+        'precision': 'bfloat16',
+        'gated': False,
     },
     'Qwen 2.5 - 14b': {
         'model': 'Qwen 2.5 - 14b',
@@ -185,17 +172,30 @@ CHAT_MODELS = {
         'context_length': 4096,
         'avg_vram_usage': '2.9 GB',
         'function': 'Qwen_2_5_14b',
-        'precision': 'bfloat16'
+        'precision': 'bfloat16',
+        'gated': False,
     },
-    'Solar Pro Preview - 22.1b': {
-        'model': 'Solar Pro Preview - 22.1b',
-        'repo_id': 'upstage/solar-pro-preview-instruct',
-        'cache_dir': 'upstage--solar-pro-preview-instruct',
+    'DeepSeek Coder v2 - 16b': {
+        'model': 'DeepSeek Coder v2 - 16b',
+        'repo_id': 'deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct',
+        'cache_dir': 'deepseek-ai--DeepSeek-Coder-V2-Lite-Instruct',
+        'tokens_per_second': 35.86,
+        'context_length': 8192,
+        'avg_vram_usage': '10.0 GB',
+        'function': 'DeepSeek_Coder_v2_lite',
+        'precision': 'bfloat16',
+        'gated': False,
+    },
+    'Mistral Small - 22b': {
+        'model': 'Mistral Small - 22b',
+        'repo_id': 'mistralai/Mistral-Small-Instruct-2409',
+        'cache_dir': 'mistralai--Mistral-Small-Instruct-2409',
         'tokens_per_second': 20.21,
         'context_length': 32768,
-        'avg_vram_usage': '13.7 GB',
-        'function': 'SOLAR_pro_preview',
-        'precision': 'bfloat16'
+        'avg_vram_usage': '14.2 GB',
+        'function': 'Mistral_Small_22b',
+        'precision': 'bfloat16',
+        'gated': True,
     },
     'Internlm2_5 - 20b': {
         'model': 'Internlm2_5 - 20b',
@@ -205,7 +205,8 @@ CHAT_MODELS = {
         'context_length': 32768,
         'avg_vram_usage': '14.2 GB',
         'function': 'InternLM2_5_20b',
-        'precision': 'bfloat16'
+        'precision': 'bfloat16',
+        'gated': False,
     },
 }
 
@@ -336,17 +337,6 @@ VECTOR_MODELS = {
             'type': 'vector'
         },
     ],
-    # 'Nvidia': [
-        # {
-            # 'name': 'NV-Embed-v2',
-            # 'dimensions': 4096,
-            # 'max_sequence': 32768,
-            # 'size_mb': 16700,
-            # 'repo_id': 'nvidia/NV-Embed-v2',
-            # 'cache_dir': 'nvidia--NV-Embed-v2',
-            # 'type': 'vector'
-        # },
-    # ],
     'sentence-transformers': [
         {
             'name': 'all-MiniLM-L12-v2',
@@ -394,7 +384,6 @@ VECTOR_MODELS = {
             'type': 'vector'
         },
     ],
-
     'thenlper': [
         {
             'name': 'gte-small',
@@ -478,16 +467,28 @@ VISION_MODELS = {
         'vram': '9.1 GB',
         'tps': 16.99
     },
-    'THUDM glm4v - 9b': {
-        'precision': 'bfloat16',
-        'quant': '4-bit',
-        'size': '9b',
-        'repo_id': 'THUDM/glm-4v-9b',
-        'cache_dir': 'THUDM--glm-4v-9b',
-        'requires_cuda': True,
-        'vram': '10.5 GB',
-        'tps': 28.69
-    },
+    # awaiting fix to custom modeling code on huggingface repo
+    # 'THUDM glm4v - 9b': {
+        # 'precision': 'bfloat16',
+        # 'quant': '4-bit',
+        # 'size': '9b',
+        # 'repo_id': 'THUDM/glm-4v-9b',
+        # 'cache_dir': 'THUDM--glm-4v-9b',
+        # 'requires_cuda': True,
+        # 'vram': '10.5 GB',
+        # 'tps': 28.69
+    # },
+    # i need to add a sub-class
+    # 'Molmo-D-0924 - 8b': {
+        # 'precision': 'float32',
+        # 'quant': '4-bit',
+        # 'size': '8b',
+        # 'repo_id': 'cyan2k/molmo-7B-D-bnb-4bit',
+        # 'cache_dir': 'cyan2k--molmo-7B-D-bnb-4bit',
+        # 'requires_cuda': True,
+        # 'vram': '10.5 GB',
+        # 'tps': 28.69
+    # },
     'Llava 1.6 Vicuna - 13b': {
         'precision': 'float16',
         'quant': '4-bit',
@@ -499,7 +500,6 @@ VISION_MODELS = {
         'tps': 41.43
     }
 }
-
 
 WHISPER_MODELS = {
     # LARGE-V3
@@ -701,6 +701,76 @@ WHISPER_MODELS = {
     },
 }
 
+kobold_config = {
+  "benchmark": None,
+  "blasbatchsize": 512,
+  "blasthreads": None,
+  "chatcompletionsadapter": None,
+  "config": None,
+  "contextsize": 2048,
+  "debugmode": 0,
+  "flashattention": False,
+  "forceversion": 0,
+  "foreground": False,
+  "gpulayers": -1,
+  "highpriority": True,
+  "hordeconfig": None,
+  "hordegenlen": 0,
+  "hordekey": "",
+  "hordemaxctx": 0,
+  "hordemodelname": "",
+  "hordeworkername": "",
+  "host": "",
+  "ignoremissing": False,
+  "istemplate": True,
+  "launch": False,
+  "lora": None,
+  "mmproj": None,
+  "model": "",
+  "model_param": "",
+  "multiuser": 1,
+  "noblas": False,
+  "nocertify": False,
+  "noavx2": False,
+  "nommap": False,
+  "nomodel": False,
+  "noshift": True,
+  "onready": "",
+  "password": None,
+  "port": 5001,
+  "port_param": 5001,
+  "preloadstory": None,
+  "prompt": "",
+  "promptlimit": 100,
+  "quantkv": 0,
+  "quiet": True,
+  "remotetunnel": False,
+  "ropeconfig": [0.0, 10000.0],
+  "sdclamped": 0,
+  "sdconfig": None,
+  "sdlora": "",
+  "sdloramult": 1.0,
+  "sdmodel": "",
+  "sdquant": False,
+  "sdthreads": 0,
+  "sdvae": "",
+  "sdvaeauto": False,
+  "showgui": False,
+  "skiplauncher": True,
+  "smartcontext": True,
+  "ssl": None,
+  "tensor_split": None,
+  "threads": -1,
+  "unpack": "",
+  "useblascpu": None,
+  "useclblast": None,
+  "usecpu": False,
+  "usecublas": None,
+  "usemlock": True,
+  "usevulkan": None,
+  "whispermodel": ""
+}
+
 DOCUMENT_LOADERS = {
     ".pdf": "PyMuPDFLoader",
     ".docx": "Docx2txtLoader",
@@ -787,6 +857,569 @@ TOOLTIPS = {
     "COPY_RESPONSE": "Copy the model's response to the clipboard.",
     "CHUNKS_ONLY": "Only return relevant chunks without connecting to the LLM. Extremely useful to test the chunk size/overlap settings."
 }
+
+scrape_documentation = {
+    "Accelerate 0.34.2": {
+        "URL": "https://huggingface.co/docs/accelerate/v0.34.2/en/",
+        "folder": "accelerate_0342"
+    },
+    "Huggingface Hub": {
+        "URL": "https://huggingface.co/docs/huggingface_hub/",
+        "folder": "huggingface_hub"
+    },
+    "Optimum 1.22.0": {
+        "URL": "https://huggingface.co/docs/optimum/v1.22.0/en/",
+        "folder": "optimum_1220"
+    },
+    "Safetensors": {
+        "URL": "https://huggingface.co/docs/safetensors/",
+        "folder": "safetensors"
+    },
+    "Transformers 4.45.2": {
+        "URL": "https://huggingface.co/docs/transformers/v4.45.2/en/",
+        "folder": "transformers_4452"
+    },
+    "Langchain": {
+        "URL": "https://api.python.langchain.com/en/latest/",
+        "folder": "langchain"
+    },
+    "Torchaudio 2.4": {
+        "URL": "https://pytorch.org/audio/2.4.0/",
+        "folder": "torchaudio_24"
+    },
+    "Torch 2.4": {
+        "URL": "https://pytorch.org/docs/2.4/",
+        "folder": "torch_24"
+    },
+    "Torchvision 0.19": {
+        "URL": "https://pytorch.org/vision/0.19/",
+        "folder": "torchvision_019"
+    },
+    "Python 3.11": {
+        "URL": "https://docs.python.org/3.11/",
+        "folder": "python_311"
+    },
+    "LM Studio": {
+        "URL": "https://lmstudio.ai/docs/",
+        "folder": "lm_studio"
+    },
+    "PyInstaller 6.10.0": {
+        "URL": "https://pyinstaller.org/en/v6.10.0/",
+        "folder": "pyinstaller_6100"
+    },
+    "CuPy": {
+        "URL": "https://docs.cupy.dev/en/stable/reference/",
+        "folder": "cupy"
+    },
+    "AutoAWQ": {
+        "URL": "https://casper-hansen.github.io/AutoAWQ/",
+        "folder": "autoawq"
+    },
+    "Numexpr": {
+        "URL": "https://numexpr.readthedocs.io/en/latest/",
+        "folder": "numexpr"
+    },
+    "Dask": {
+        "URL": "https://docs.dask.org/en/stable/",
+        "folder": "dask"
+    },
+    "Transformers.js": {
+        "URL": "https://huggingface.co/docs/transformers.js/",
+        "folder": "transformers_js"
+    },
+    "NLTK": {
+        "URL": "https://www.nltk.org/",
+        "folder": "nltk"
+    },
+    "gTTS": {
+        "URL": "https://gtts.readthedocs.io/en/latest/",
+        "folder": "gtts"
+    },
+    "Loguru": {
+        "URL": "https://loguru.readthedocs.io/en/stable/",
+        "folder": "loguru"
+    },
+    "Pygments": {
+        "URL": "https://pygments.org/docs/",
+        "folder": "pygments"
+    },
+    "Soxr": {
+        "URL": "https://python-soxr.readthedocs.io/en/stable/",
+        "folder": "soxr"
+    },
+    "Librosa": {
+        "URL": "https://librosa.org/doc/latest/",
+        "folder": "librosa"
+    },
+    "ONNX Runtime": {
+        "URL": "https://onnxruntime.ai/docs/api/python/",
+        "folder": "onnx_runtime"
+    },
+    "ONNX": {
+        "URL": "https://onnx.ai/onnx/",
+        "folder": "onnx"
+    },
+    "Jinja 3.1": {
+        "URL": "https://jinja.palletsprojects.com/en/3.1.x/",
+        "folder": "jinja_31"
+    },
+    "Torchmetrics": {
+        "URL": "https://lightning.ai/docs/torchmetrics/stable/",
+        "folder": "torchmetrics"
+    },
+    "PyTorch Lightning": {
+        "URL": "https://lightning.ai/docs/pytorch/stable/",
+        "folder": "pytorch_lightning"
+    },
+    "Matplotlib": {
+        "URL": "https://matplotlib.org/stable/",
+        "folder": "matplotlib"
+    },
+    "llama-cpp-python": {
+        "URL": "https://llama-cpp-python.readthedocs.io/en/stable/",
+        "folder": "llama_cpp_python"
+    },
+    "TensorRT-LLM": {
+        "URL": "https://nvidia.github.io/TensorRT-LLM/",
+        "folder": "tensorrt_llm"
+    },
+    "Rust": {
+        "URL": "https://doc.rust-lang.org/stable/",
+        "folder": "rust"
+    },
+    "Rust Docs": {
+        "URL": "https://docs.rs",
+        "folder": "docs_rs"
+    },
+    "Rust Std Docs": {
+        "URL": "https://doc.rust-lang.org/std/",
+        "folder": "rust_std"
+    },
+    "Beautiful Soup 4": {
+        "URL": "https://beautiful-soup-4.readthedocs.io/en/latest/",
+        "folder": "beautiful_soup_4"
+    },
+    "CustomTkinter": {
+        "URL": "https://customtkinter.tomschimansky.com/documentation/",
+        "folder": "customtkinter"
+    },
+    "Rust UV": {
+        "URL": "https://docs.astral.sh/uv/",
+        "folder": "uv"
+    },
+    "xlrd": {
+        "URL": "https://xlrd.readthedocs.io/en/latest/",
+        "folder": "xlrd"
+    },
+    "xFormers": {
+        "URL": "https://facebookresearch.github.io/xformers/",
+        "folder": "xformers"
+    },
+    "Wrapt": {
+        "URL": "https://wrapt.readthedocs.io/en/master/",
+        "folder": "wrapt"
+    },
+    "urllib3": {
+        "URL": "https://urllib3.readthedocs.io/en/stable/",
+        "folder": "urllib3"
+    },
+    "Timm 0.9.16": {
+        "URL": "https://huggingface.co/docs/timm/v0.9.16/en/",
+        "folder": "timm_0916"
+    },
+    "SQLAlchemy 20": {
+        "URL": "https://docs.sqlalchemy.org/en/20/",
+        "folder": "sqlalchemy_20"
+    },
+    "SpeechBrain 0.5.15": {
+        "URL": "https://speechbrain.readthedocs.io/en/v0.5.15/",
+        "folder": "speechbrain_0515"
+    },
+    "Soupsieve": {
+        "URL": "https://facelessuser.github.io/soupsieve/",
+        "folder": "soupsieve"
+    },
+    "Six": {
+        "URL": "https://six.readthedocs.io/",
+        "folder": "six"
+    },
+    "SciPy 1.14.1": {
+        "URL": "https://docs.scipy.org/doc/scipy-1.14.1/",
+        "folder": "scipy_1141"
+    },
+    "scikit-learn": {
+        "URL": "https://scikit-learn.org/stable/",
+        "folder": "scikit_learn"
+    },
+    "Rich": {
+        "URL": "https://rich.readthedocs.io/en/latest/",
+        "folder": "rich"
+    },
+    "RapidFuzz": {
+        "URL": "https://rapidfuzz.github.io/RapidFuzz/",
+        "folder": "rapidfuzz"
+    },
+    "PyYAML": {
+        "URL": "https://pyyaml.org/wiki/PyYAMLDocumentation",
+        "folder": "pyyaml"
+    },
+    "python-docx": {
+        "URL": "https://python-docx.readthedocs.io/en/latest/",
+        "folder": "python_docx"
+    },
+    "PyMuPDF": {
+        "URL": "https://pymupdf.readthedocs.io/en/latest/",
+        "folder": "pymupdf"
+    },
+    "PyPDF 5.0.1": {
+        "URL": "https://pypdf.readthedocs.io/en/5.0.1/",
+        "folder": "pypdf_501"
+    },
+    "PyPDF 4.3.1": {
+        "URL": "https://pypdf.readthedocs.io/en/4.3.1/",
+        "folder": "pypdf_431"
+    },
+    "Pandoc": {
+        "URL": "https://pandoc.org",
+        "folder": "pandoc"
+    },
+    "marshmallow": {
+        "URL": "https://marshmallow.readthedocs.io/en/stable/",
+        "folder": "marshmallow"
+    },
+    "Protocol Buffers": {
+        "URL": "https://protobuf.dev/",
+        "folder": "protocol_buffers"
+    },
+    "platformdirs": {
+        "URL": "https://platformdirs.readthedocs.io/en/stable/",
+        "folder": "platformdirs"
+    },
+    "packaging": {
+        "URL": "https://packaging.pypa.io/en/stable/",
+        "folder": "packaging"
+    },
+    "OmegaConf 2.2": {
+        "URL": "https://omegaconf.readthedocs.io/en/2.2_branch/",
+        "folder": "omegaconf_22"
+    },
+    "multiprocess": {
+        "URL": "https://multiprocess.readthedocs.io/en/latest/",
+        "folder": "multiprocess"
+    },
+    "msg-parser": {
+        "URL": "https://msg-parser.readthedocs.io/en/latest/",
+        "folder": "msg_parser"
+    },
+    "mpmath": {
+        "URL": "https://mpmath.org/doc/current/",
+        "folder": "mpmath"
+    },
+    "openpyxl": {
+        "URL": "https://openpyxl.readthedocs.io/en/stable/",
+        "folder": "openpyxl"
+    },
+    "Numba 0.60.0": {
+        "URL": "https://numba.readthedocs.io/en/0.60.0/",
+        "folder": "numba_0600"
+    },
+    "NetworkX": {
+        "URL": "https://networkx.org/documentation/stable/",
+        "folder": "networkx"
+    },
+    "natsort 8.4.0": {
+        "URL": "https://natsort.readthedocs.io/en/8.4.0/",
+        "folder": "natsort_840"
+    },
+    "dill": {
+        "URL": "https://dill.readthedocs.io/en/latest/",
+        "folder": "dill"
+    },
+    "coloredlogs": {
+        "URL": "https://coloredlogs.readthedocs.io/en/latest/",
+        "folder": "coloredlogs"
+    },
+    "Click 8.1": {
+        "URL": "https://click.palletsprojects.com/en/8.1.x/",
+        "folder": "click_81"
+    },
+    "charset-normalizer 3.3.2": {
+        "URL": "https://charset-normalizer.readthedocs.io/en/3.3.2/",
+        "folder": "charset_normalizer_332"
+    },
+    "aiohttp 3.9.5": {
+        "URL": "https://docs.aiohttp.org/en/v3.9.5/",
+        "folder": "aiohttp_395"
+    },
+    "NumPy 1.26": {
+        "URL": "https://numpy.org/doc/1.26/",
+        "folder": "numpy_126"
+    },
+    "CTranslate2": {
+        "URL": "https://opennmt.net/CTranslate2/",
+        "folder": "ctranslate2"
+    },
+    "pandas": {
+        "URL": "https://pandas.pydata.org/docs/",
+        "folder": "pandas"
+    },
+    "tqdm": {
+        "URL": "https://tqdm.github.io",
+        "folder": "tqdm"
+    },
+    "Requests": {
+        "URL": "https://requests.readthedocs.io/en/latest/",
+        "folder": "requests"
+    },
+    "Pillow": {
+        "URL": "https://pillow.readthedocs.io/en/stable/",
+        "folder": "pillow"
+    },
+    "bitsandbytes 0.44.1": {
+        "URL": "https://huggingface.co/docs/bitsandbytes/v0.44.1/en/",
+        "folder": "bitsandbytes_0441"
+    },
+    "bitsandbytes 0.43.3": {
+        "URL": "https://huggingface.co/docs/bitsandbytes/v0.43.3/en/",
+        "folder": "bitsandbytes_0433"
+    },
+    "chardet": {
+        "URL": "https://chardet.readthedocs.io/en/latest/",
+        "folder": "chardet"
+    },
+    "Transformers 4.43.4": {
+        "URL": "https://huggingface.co/docs/transformers/v4.43.4/en/",
+        "folder": "transformers_4434"
+    },
+    "Transformers 4.44.2": {
+        "URL": "https://huggingface.co/docs/transformers/v4.44.2/en/",
+        "folder": "transformers_4442"
+    },
+    "SoundFile": {
+        "URL": "https://python-soundfile.readthedocs.io/en/latest/",
+        "folder": "soundfile"
+    },
+    "sounddevice 0.4.6": {
+        "URL": "https://python-sounddevice.readthedocs.io/en/0.4.6/",
+        "folder": "sounddevice_046"
+    },
+    "Sentence-Transformers": {
+        "URL": "https://www.sbert.net/docs",
+        "folder": "sentence_transformers"
+    },
+    "PyAV": {
+        "URL": "https://pyav.basswood-io.com/docs/stable/",
+        "folder": "pyav"
+    },
+    "Qt for Python 6": {
+        "URL": "https://doc.qt.io/qtforpython-6/",
+        "folder": "qt_for_python_6"
+    },
+    "jiwer": {
+        "URL": "https://jitsi.github.io/jiwer/",
+        "folder": "jiwer"
+    },
+    "SymPy": {
+        "URL": "https://docs.sympy.org/latest/",
+        "folder": "sympy"
+    },
+    "Torchvision 0.18": {
+        "URL": "https://pytorch.org/vision/0.18/",
+        "folder": "torchvision_018"
+    },
+    "Torchvision 0.17": {
+        "URL": "https://pytorch.org/vision/0.17/",
+        "folder": "torchvision_017"
+    },
+    "Torchaudio 2.3": {
+        "URL": "https://pytorch.org/audio/2.3.0/",
+        "folder": "torchaudio_23"
+    },
+    "Torchaudio 2.2": {
+        "URL": "https://pytorch.org/audio/2.2.0/",
+        "folder": "torchaudio_22"
+    },
+    "Torch 2.3": {
+        "URL": "https://pytorch.org/docs/2.3/",
+        "folder": "torch_23"
+    },
+    "Torch 2.2": {
+        "URL": "https://pytorch.org/docs/2.2/",
+        "folder": "torch_22"
+    }
+}
+
+class CustomButtonStyles:
+    SUBDUED_RED = "#320A0A"
+    LIGHT_GREY = "#C8C8C8"
+    SUBDUED_BLUE = "#0A0A32"
+    SUBDUED_GREEN = "#0A320A"
+    SUBDUED_YELLOW = "#32320A"
+    SUBDUED_PURPLE = "#320A32"
+    SUBDUED_ORANGE = "#321E0A"
+    SUBDUED_TEAL = "#0A3232"
+    SUBDUED_PINK = "#320A1E"
+    SUBDUED_BROWN = "#2B1E0A"
+    
+    RED_BUTTON_STYLE = f"""
+        QPushButton {{
+            background-color: {SUBDUED_RED};
+            color: {LIGHT_GREY};
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }}
+        QPushButton:hover {{
+            background-color: #4B0F0F;
+        }}
+        QPushButton:pressed {{
+            background-color: #290909;
+        }}
+        QPushButton:disabled {{
+            background-color: #7D1919;
+            color: #969696;
+        }}
+    """
+    
+    BLUE_BUTTON_STYLE = f"""
+        QPushButton {{
+            background-color: {SUBDUED_BLUE};
+            color: {LIGHT_GREY};
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }}
+        QPushButton:hover {{
+            background-color: #0F0F4B;
+        }}
+        QPushButton:pressed {{
+            background-color: #09092B;
+        }}
+        QPushButton:disabled {{
+            background-color: #19197D;
+            color: #969696;
+        }}
+    """
+    
+    GREEN_BUTTON_STYLE = f"""
+        QPushButton {{
+            background-color: {SUBDUED_GREEN};
+            color: {LIGHT_GREY};
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }}
+        QPushButton:hover {{
+            background-color: #0F4B0F;
+        }}
+        QPushButton:pressed {{
+            background-color: #092909;
+        }}
+        QPushButton:disabled {{
+            background-color: #197D19;
+            color: #969696;
+        }}
+    """
+
+    YELLOW_BUTTON_STYLE = f"""
+        QPushButton {{
+            background-color: {SUBDUED_YELLOW};
+            color: {LIGHT_GREY};
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }}
+        QPushButton:hover {{
+            background-color: #4B4B0F;
+        }}
+        QPushButton:pressed {{
+            background-color: #292909;
+        }}
+        QPushButton:disabled {{
+            background-color: #7D7D19;
+            color: #969696;
+        }}
+    """
+
+    PURPLE_BUTTON_STYLE = f"""
+        QPushButton {{
+            background-color: {SUBDUED_PURPLE};
+            color: {LIGHT_GREY};
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }}
+        QPushButton:hover {{
+            background-color: #4B0F4B;
+        }}
+        QPushButton:pressed {{
+            background-color: #290929;
+        }}
+        QPushButton:disabled {{
+            background-color: #7D197D;
+            color: #969696;
+        }}
+    """
+
+    ORANGE_BUTTON_STYLE = f"""
+        QPushButton {{
+            background-color: {SUBDUED_ORANGE};
+            color: {LIGHT_GREY};
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }}
+        QPushButton:hover {{
+            background-color: #4B2D0F;
+        }}
+        QPushButton:pressed {{
+            background-color: #291909;
+        }}
+        QPushButton:disabled {{
+            background-color: #7D5A19;
+            color: #969696;
+        }}
+    """
+
+    TEAL_BUTTON_STYLE = f"""
+        QPushButton {{
+            background-color: {SUBDUED_TEAL};
+            color: {LIGHT_GREY};
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }}
+        QPushButton:hover {{
+            background-color: #0F4B4B;
+        }}
+        QPushButton:pressed {{
+            background-color: #092929;
+        }}
+        QPushButton:disabled {{
+            background-color: #197D7D;
+            color: #969696;
+        }}
+    """
+
+    BROWN_BUTTON_STYLE = f"""
+        QPushButton {{
+            background-color: {SUBDUED_BROWN};
+            color: {LIGHT_GREY};
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }}
+        QPushButton:hover {{
+            background-color: #412D0F;
+        }}
+        QPushButton:pressed {{
+            background-color: #231909;
+        }}
+        QPushButton:disabled {{
+            background-color: #6B5A19;
+            color: #969696;
+        }}
+    """
 
 GPUS_NVIDIA = {
     "GeForce GTX 1630": {

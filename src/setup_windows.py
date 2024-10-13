@@ -7,6 +7,8 @@ from tkinter import messagebox
 from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
 import time
 
+
+
 start_time = time.time()
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
@@ -77,7 +79,7 @@ def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
             try:
                 print(f"\nAttempt {attempt + 1} of {max_retries}: Upgrading {package}...")
                 process = subprocess.run(command, check=True, capture_output=True, text=True, timeout=240)
-                print(f"Successfully upgraded {package}")
+                print(f"\033[92mSuccessfully upgraded {package}\033[0m")
                 break
             except subprocess.CalledProcessError as e:
                 print(f"Attempt {attempt + 1} failed. Error: {e.stderr.strip()}")
@@ -110,9 +112,8 @@ def pip_install_with_retry(library, max_retries=5, delay=3):
         for attempt in range(max_retries):
             try:
                 print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {pip_args[3]}")
-                print(f"Running command: {' '.join(pip_args)}")
                 result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=240)
-                print(f"Successfully installed {pip_args[3]}")
+                print(f"\033[92mSuccessfully installed {pip_args[3]}\033[0m")
                 break
             except subprocess.CalledProcessError as e:
                 print(f"Attempt {attempt + 1} failed. Error: {e.stderr.strip()}")
@@ -172,6 +173,7 @@ other_libraries = [
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "ctranslate2==4.3.1",
+    "cycler==0.12.1",
     "dataclasses-json==0.6.7",
     "datasets==2.20.0",
     "deepdiff==7.0.1",
@@ -196,7 +198,7 @@ other_libraries = [
     "h5py==3.11.0",
     "httpcore==1.0.5",
     "httpx==0.27.0",
-    "huggingface-hub==0.24.1",
+    "huggingface-hub==0.24.7",
     "humanfriendly==10.0",
     "HyperPyYAML==1.2.2",
     "idna==3.7",
@@ -207,6 +209,7 @@ other_libraries = [
     "jsonpatch==1.33",
     "jsonpath-python==1.0.6",
     "jsonpointer==3.0.0",
+    "kiwisolver==1.4.5",
     "langchain==0.2.12",
     "langchain-community==0.2.11",
     "langchain-core==0.2.29",
@@ -220,6 +223,7 @@ other_libraries = [
     "markdown-it-py==3.0.0",
     "MarkupSafe==2.1.5",
     "marshmallow==3.21.3",
+    "matplotlib==3.9.2", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
     "mdurl==0.1.2",
     "more-itertools==10.3.0",
     "mpmath==1.3.0",
@@ -243,7 +247,7 @@ other_libraries = [
     "openai==1.23.6",
     "openai-whisper==20231117",
     "openpyxl==3.1.2",
-    "optimum==1.21.4",
+    "optimum==1.22",
     "ordered-set==4.1.0",
     "orjson==3.10.6",
     "packaging==24.1",
@@ -259,6 +263,7 @@ other_libraries = [
     "pydantic_core==2.18.4",
     "Pygments==2.18.0",
     "pypandoc==1.13",
+    "pyparsing==3.1.2",
     "pypdf==4.3.1",
     "pyreadline3==3.4.1",
     "python-dateutil==2.9.0.post0",
@@ -287,6 +292,7 @@ other_libraries = [
     "soupsieve==2.5",
     "speechbrain==0.5.16",
     "SQLAlchemy==2.0.31",
+    "sseclient-py==1.8.0",
     "sympy==1.12.1", # anything above is not compatible with llava-next-vicuna vision models
     "tabulate==0.9.0",
     "tblib==1.7.0",
@@ -298,9 +304,9 @@ other_libraries = [
     "tiledb-cloud==0.12.18",
     "tiledb-vector-search==0.2.2",
     "timm==0.9.16",
-    "tokenizers==0.19.1",
+    "tokenizers==0.20",
     "tqdm==4.66.4",
-    "transformers==4.43.1",
+    "transformers==4.45.2",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
     "unstructured-client==0.24.1",
@@ -317,9 +323,6 @@ other_libraries = [
     "zipp==3.19.2"
 ]
 
-# pip install matplotlib==3.9.2 pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5 --no-deps
-# matplotlib will still show conflicts re missing libraries, but these are not needed to run my specific plots
-
 full_install_libraries = [
     "pyside6==6.7.2",
     "pymupdf==1.24.9",
@@ -332,9 +335,8 @@ def pip_install_with_deps(library, max_retries=5, delay=3):
     for attempt in range(max_retries):
         try:
             print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {library} with dependencies")
-            print(f"Running command: {' '.join(pip_args)}")
             result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=300)
-            print(f"Successfully installed {library} with dependencies")
+            print(f"\033[92mSuccessfully installed {library} with dependencies\033[0m")
             return attempt + 1
         except subprocess.CalledProcessError as e:
             print(f"Attempt {attempt + 1} failed. Error: {e.stderr.strip()}")
@@ -360,23 +362,23 @@ def install_libraries_with_deps(libraries):
     return failed_installations, multiple_attempts
 
 # 1. upgrade pip, setuptools, wheel
-print("\033[92mUpgrading pip, setuptools, and wheel:\033[0m")
+print("Upgrading pip, setuptools, and wheel:")
 upgrade_pip_setuptools_wheel()
 
 # 2. install uv
-print("\033[92mInstalling uv:\033[0m")
+print("Installing uv:")
 subprocess.run(["pip", "install", "uv"], check=True)
 
 # 3. install priority_libraries
-print("\033[92m\nInstalling priority libraries:\033[0m")
+print("\nInstalling priority libraries:")
 priority_failed, priority_multiple = install_libraries(priority_libraries)
 
 # 4. install install other_libraries
-print("\033[92m\nInstalling other libraries:\033[0m")
+print("\nInstalling other libraries:")
 other_failed, other_multiple = install_libraries(other_libraries)
 
 # 5. install full_install_libraries
-print("\033[92m\nInstalling libraries with dependencies:\033[0m")
+print("\nInstalling libraries with dependencies:")
 full_install_failed, full_install_multiple = install_libraries_with_deps(full_install_libraries)
 
 print("\n----- Installation Summary -----")
@@ -395,16 +397,70 @@ if all_multiple:
         print(f"\033[93m- {lib} (took {attempts} attempts)\033[0m")
 
 if not all_failed and not all_multiple:
-    print(f"\033[93m\nAll libraries installed successfully on the first attempt.\033[0m")
+    print(f"\033[92mAll libraries installed successfully on the first attempt.\033[0m")
 elif not all_failed:
-    print(f"\033[93m\nAll libraries were eventually installed successfully.\033[0m")
+    print(f"\033[92mAll libraries were eventually installed successfully.\033[0m")
 
 if all_failed:
     sys.exit(1)
-    
+
+# 6. replace sourcode files
 replace_pdf_file()
 replace_instructor_file()
 replace_sentence_transformer_file()
+
+# 7. Create directores if needed
+def create_directory_structure():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    models_dir = os.path.join(base_dir, "Models")
+    subdirs = ["chat", "tts", "vector", "vision", "whisper"]
+    
+    if not os.path.exists(models_dir):
+        os.makedirs(models_dir)
+        print(f"Created Models directory: {models_dir}")
+    
+    for subdir in subdirs:
+        subdir_path = os.path.join(models_dir, subdir)
+        os.makedirs(subdir_path, exist_ok=True)
+        print(f"Ensured subdirectory exists: {subdir_path}")
+
+
+create_directory_structure()
+
+# 8. download kobold
+def download_kobold():
+    import platform
+    import requests
+    system = platform.system()
+    if system == "Linux":
+        file_name = "koboldcpp-linux-x64-nocuda"
+    else:
+        file_name = "koboldcpp_nocuda.exe"
+    url = f"https://github.com/LostRuins/koboldcpp/releases/latest/download/{file_name}"
+    
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    kobold_path = os.path.join(script_dir, file_name)
+    
+    try:
+        print(f"Downloading KoboldCPP from {url}...")
+        response = requests.get(url)
+        response.raise_for_status()
+        with open(kobold_path, 'wb') as file:
+            file.write(response.content)
+        
+        print(f"\033[92mKoboldCPP nocuda version downloaded successfully to {kobold_path}.\033[0m")
+        
+        # if the system is Linux, make the file executable
+        if system == "Linux":
+            os.chmod(kobold_path, 0o755)
+            print("\033[92mMade the Linux version executable.\033[0m")
+                
+    except requests.exceptions.HTTPError as http_err:
+        print(f"\033[91mHTTP error occurred while downloading KoboldCPP: {http_err}\033[0m")
+    except Exception as e:
+        print(f"\033[91mFailed to download KoboldCPP nocuda version: {e}\033[0m")
+
+download_kobold()
 
 end_time = time.time()
 total_time = end_time - start_time

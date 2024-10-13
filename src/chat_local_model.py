@@ -5,12 +5,13 @@ import gc
 import torch
 from pathlib import Path
 from multiprocessing import Process, Pipe
-from multiprocessing.connection import PipeConnection  # New import
+from multiprocessing.connection import PipeConnection
 from PySide6.QtCore import QObject, Signal
 
 import module_chat
 from database_interactions import QueryVectorDB
-from utilities import format_citations
+from utilities import format_citations, my_cprint
+from constants import rag_string
 
 # DECLARE SIGNALS
 class LocalModelSignals(QObject):
@@ -30,7 +31,6 @@ class LocalModelChat:
         self.signals = LocalModelSignals()
 
     def start_model_process(self, model_name):
-        logging.info(f"Starting model process for {model_name}")
         if self.current_model != model_name:
             if self.is_model_loaded():
                 self.terminate_current_process()
@@ -46,12 +46,10 @@ class LocalModelChat:
             self._start_listening_thread()
             # 3. signal that model is loaded
             self.signals.model_loaded_signal.emit()
-            logging.info(f"Model process started for {model_name}")
         else:
-            logging.info(f"Model {model_name} is already loaded")
+            logging.warning(f"Model {model_name} is already loaded")
 
     def terminate_current_process(self):
-        logging.info("Terminating current process")
         if self.model_process is not None:
             try:
                 if self.model_pipe:
@@ -75,31 +73,27 @@ class LocalModelChat:
             except Exception as e:
                 logging.exception(f"Error during process termination: {e}")
         else:
-            logging.info("No process to terminate")
+            logging.warning("No process to terminate")
 
         self.model_pipe = None
         self.model_process = None
         self.current_model = None
-        gc.collect()
         time.sleep(0.5)
-        logging.info("Current process terminated and resources cleared")
         self.signals.model_unloaded_signal.emit()
 
-    def start_chat(self, user_question, chunks_only, selected_model, selected_database):
+    def start_chat(self, user_question, selected_model, selected_database):
         if not self.model_pipe:
             self.signals.error_signal.emit("Model not loaded. Please start a model first.")
             return
 
         # Sends the information selected by a user in gui_tabs_database_query.py to the new child process
-        self.model_pipe.send(("question", (user_question, chunks_only, selected_model, selected_database)))
+        self.model_pipe.send(("question", (user_question, selected_model, selected_database)))
 
     def is_model_loaded(self):
         return self.model_process is not None and self.model_process.is_alive()
 
     def eject_model(self):
-        logging.info("Ejecting model")
         self.terminate_current_process()
-        logging.info("Model ejected")
 
     def _start_listening_thread(self):
         import threading
@@ -108,12 +102,10 @@ class LocalModelChat:
     def _listen_for_response(self):
         """
         Listens every second for messages coming through the pipe from the child process. When a message is received, the
-        "message type" determines which signal is emitted, displaying the streamed response, citations, etc.
+        "message type" determines which signal is emitted.
         """
-        logging.info("Starting response listener")
         while True:
             if not self.model_pipe or not isinstance(self.model_pipe, PipeConnection):
-                logging.info("Model pipe is no longer valid. Exiting listener.")
                 break
             
             try:
@@ -133,31 +125,28 @@ class LocalModelChat:
                         # 10. signals "on_submission_finished"
                         self.signals.finished_signal.emit()
                         if message == "exit":
-                            logging.info("Received exit signal, terminating listener")
                             break
-                    # signals...
                     elif message_type == "token_counts":
+                        # signal
                         self.signals.token_count_signal.emit(message)
                 else:
                     time.sleep(0.1)
             except (BrokenPipeError, EOFError, OSError) as e:
-                logging.info(f"Pipe communication error: {e}. Model likely ejected. Exiting listener.")
+                # inconsequential but i'll address later
+                # logging.warning(f"Pipe communication error: {str(e)}")
                 break
             except Exception as e:
-                logging.exception(f"Unexpected error in _listen_for_response: {e}")
+                logging.warning(f"Unexpected error in _listen_for_response: {str(e)}")
                 break
 
-        logging.info("Response listener terminated")
         self.cleanup_listener_resources()
 
     def cleanup_listener_resources(self):
-        logging.info("Cleaning up listener resources")
         self.model_pipe = None
         self.model_process = None
         self.current_model = None
         # 11. signals"on_model_unloaded"
         self.signals.model_unloaded_signal.emit()
-        logging.info("Listener resource cleanup completed")
 
     @staticmethod
     def _local_model_process(conn, model_name): # child process for local model's generation
@@ -169,7 +158,7 @@ class LocalModelChat:
                 try:
                     message_type, message = conn.recv()
                     if message_type == "question":
-                        user_question, chunks_only, _, selected_database = message
+                        user_question, _, selected_database = message
                         if query_vector_db is None or current_database != selected_database:
                             query_vector_db = QueryVectorDB(selected_database)
                             current_database = selected_database
@@ -183,6 +172,7 @@ class LocalModelChat:
                         context_tokens = len(model_instance.tokenizer.encode("\n\n---\n\n".join(contexts)))
 
                         if context_tokens > max_context_tokens:
+                            logging.warning(f"Context tokens ({context_tokens}) exceed max context limit ({max_context_tokens})")
                             error_message = (
                                 "The contexts received from the vector database exceed the chat model's context limit.\n\n"
                                 "You can either:\n"
@@ -193,20 +183,13 @@ class LocalModelChat:
                             conn.send(("error", error_message))
                             conn.send(("finished", None))
                             continue
-
-                        if chunks_only:
-                            formatted_contexts = LocalModelChat._format_contexts_and_metadata(contexts, metadata_list)
-                            conn.send(("response", formatted_contexts))
-                            conn.send(("finished", None))
-                            continue
                         
-                        prepend_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
-                        augmented_query = f"{prepend_string}\n\n---\n\n" + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + user_question
+                        augmented_query = f"{rag_string}\n\n---\n\n" + "\n\n---\n\n".join(contexts) + "\n\n-----\n\n" + user_question
                         # DEBUG
                         # print(augmented_query)
 
                         # counts tokens using the chosen model's tokenizer
-                        prepend_token_count = len(model_instance.tokenizer.encode(prepend_string))
+                        prepend_token_count = len(model_instance.tokenizer.encode(rag_string))
                         context_token_count = len(model_instance.tokenizer.encode("\n\n---\n\n".join(contexts)))
                         user_question_token_count = len(model_instance.tokenizer.encode(user_question))
                         
@@ -242,28 +225,16 @@ class LocalModelChat:
                     elif message_type == "exit":
                         break
                 except EOFError:
-                    logging.error("Connection closed by main process.")
+                    logging.warning("Connection closed by main process.")
                     break
                 except Exception as e:
                     logging.exception(f"Error in local_model_process: {e}")
                     conn.send(("error", str(e)))
                     conn.send(("finished", None))
         finally:
-            module_chat.cleanup_resources(model_instance, model_instance.tokenizer)
+            # module_chat.cleanup_resources(model_instance, model_instance.tokenizer)
             conn.close()
-            logging.info("Local chat model removed from memory.")
-
-    @staticmethod
-    def _format_contexts_and_metadata(contexts, metadata_list):
-        formatted_contexts = []
-        for index, (context, metadata) in enumerate(zip(contexts, metadata_list), start=1):
-            file_name = metadata.get('file_name', 'Unknown')
-            formatted_context = (
-                f"---------- Context {index} | From File: {file_name} ----------\n"
-                f"{context}\n"
-            )
-            formatted_contexts.append(formatted_context)
-        return "\n".join(formatted_contexts)
+            my_cprint("Local chat model removed from memory.", "red")
 
 def is_cuda_available():
     return torch.cuda.is_available()

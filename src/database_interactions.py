@@ -1,5 +1,3 @@
-# DEPRECATED
-# import json
 import gc
 import logging
 import warnings
@@ -175,24 +173,24 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs
             )
 
-        model_name = Path(EMBEDDING_MODEL_NAME).name
+        model_name = os.path.basename(EMBEDDING_MODEL_NAME)
         precision = "float32" if torch_dtype is None else str(torch_dtype).split('.')[-1]
     
-        my_cprint(f"{model_name} ({precision}) loaded into memory using batch size of {encode_kwargs['batch_size']}.", "green")
+        my_cprint(f"{model_name} ({precision}) loaded using a batch size of {encode_kwargs['batch_size']}.", "green")
         
         return model, encode_kwargs
 
     @torch.inference_mode()
     def create_database(self, texts, embeddings):
-        my_cprint("The progress bar relates to computing vectors. Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
+        my_cprint(f"\nThe progress bar relates to computing vectors. Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
 
         start_time = time.time()
 
         if not self.PERSIST_DIRECTORY.exists():
             self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
-            logging.info(f"Created directory: {self.PERSIST_DIRECTORY}")
+            print(f"Created directory: {self.PERSIST_DIRECTORY}")
         else:
-            logging.info(f"Directory already exists: {self.PERSIST_DIRECTORY}")
+            logging.warning(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
             # break out page_content and metadata
@@ -224,34 +222,7 @@ class CreateVectorDB:
         end_time = time.time()
         elapsed_time = end_time - start_time
 
-        print("Database created.")
-        print(f"Creating the vector database took {elapsed_time:.2f} seconds.")
-
-    # DEPRECATED
-    # def save_documents_to_json(self, json_docs_to_save):
-        # """
-        # Json of all documents in a database to populate the database management tab. Uses "json_docs_to_save".
-        # """
-        # if not self.SAVE_JSON_DIRECTORY.exists():
-            # self.SAVE_JSON_DIRECTORY.mkdir(parents=True, exist_ok=True)
-
-        # for document in json_docs_to_save:
-            # document_hash = document.metadata.get('hash', None)
-            # if document_hash:
-                # json_filename = f"{document_hash}.json"
-                # json_file_path = self.SAVE_JSON_DIRECTORY / json_filename
-
-                # actual_file_path = document.metadata.get('file_path')
-                # if os.path.islink(actual_file_path):
-                    # resolved_path = os.path.realpath(actual_file_path)
-                    # document.metadata['file_path'] = resolved_path
-
-                # document_json = document.json(indent=4)
-
-                # with open(json_file_path, 'w', encoding='utf-8') as json_file:
-                    # json_file.write(document_json)
-            # else:
-                # print("Warning: Document missing 'hash' in metadata. Skipping JSON creation.")
+        my_cprint(f"Database created.  Elapsed time: {elapsed_time:.2f} seconds.")
 
     def create_metadata_db(self, documents):
         if not self.PERSIST_DIRECTORY.exists():
@@ -333,7 +304,6 @@ class CreateVectorDB:
             pickle_file_path = pickle_directory / f"document_{i}.pickle"
             with open(pickle_file_path, 'wb') as pickle_file:
                 pickle.dump(doc, pickle_file)
-
     
     @torch.inference_mode()
     def run(self):
@@ -344,7 +314,7 @@ class CreateVectorDB:
         documents = []
         
         # load text document objects
-        print("Loading any general files...")
+        # print("Loading any general files...")
         text_documents = load_documents(self.SOURCE_DIRECTORY)
         if isinstance(text_documents, list) and text_documents:
             documents.extend(text_documents)
@@ -379,6 +349,7 @@ class CreateVectorDB:
         # split
         if (isinstance(documents, list) and documents) or (isinstance(text_documents_pdf, list) and text_documents_pdf):
             texts = split_documents(documents, text_documents_pdf)
+            print(f"Documents split into {len(texts)} chunks.")
 
         # debugging
         # serialize_documents_to_json(texts, file_name="split_document_objects.json")
@@ -392,11 +363,9 @@ class CreateVectorDB:
 
             # create database
             if isinstance(texts, list) and texts:
-                print("Creating vector database...")
+                # print("Creating vector database...")
                 self.create_database(texts, embeddings)
             
-            # DEPRECATED
-            # self.save_documents_to_json(json_docs_to_save)
             self.create_metadata_db(json_docs_to_save)
             self.clear_docs_for_db_folder()
 
@@ -404,8 +373,9 @@ class QueryVectorDB:
     def __init__(self, selected_database):
         self.config = self.load_configuration()
         self.selected_database = selected_database
-        self.embeddings = self.initialize_vector_model()
-        self.db = self.initialize_database()
+        self.embeddings = None
+        self.db = None
+        self.model_name = None
 
     def load_configuration(self):
         config_file_path = Path(__file__).resolve().parent / "config.yaml"
@@ -415,25 +385,27 @@ class QueryVectorDB:
     def initialize_vector_model(self):    
         model_path = self.config['created_databases'][self.selected_database]['model']
         
+        self.model_name = os.path.basename(model_path)
+        
         compute_device = self.config['Compute_Device']['database_query']
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
         
         if "instructor" in model_path:
-            return HuggingFaceInstructEmbeddings(
+            embeddings = HuggingFaceInstructEmbeddings(
                 model_name=model_path,
                 model_kwargs={"device": compute_device, "trust_remote_code": True},
                 encode_kwargs=encode_kwargs,
             )
         elif "bge" in model_path:
             query_instruction = self.config['embedding-models']['bge']['query_instruction']
-            return HuggingFaceBgeEmbeddings(
+            embeddings = HuggingFaceBgeEmbeddings(
                 model_name=model_path,
                 model_kwargs={"device": compute_device, "trust_remote_code": True},
                 query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs
             )
         elif "Alibaba" in model_path:
-            return HuggingFaceEmbeddings(
+            embeddings = HuggingFaceEmbeddings(
                 model_name=model_path,
                 model_kwargs={
                     "device": compute_device,
@@ -447,11 +419,14 @@ class QueryVectorDB:
                 encode_kwargs=encode_kwargs
             )
         else:
-            return HuggingFaceEmbeddings(
+            embeddings = HuggingFaceEmbeddings(
                 model_name=model_path,
                 model_kwargs={"device": compute_device, "trust_remote_code": True},
                 encode_kwargs=encode_kwargs
             )
+        # my_cprint(f"{self.model_name} loaded.", "green")
+        
+        return embeddings
 
     def initialize_database(self):
         persist_directory = Path(__file__).resolve().parent / "Vector_DB" / self.selected_database
@@ -462,18 +437,23 @@ class QueryVectorDB:
         model_path = self.config['created_databases'][self.selected_database]['model']
         return "intfloat" in model_path.lower()
 
-    def search(self, query):
+    def search(self, query, k: Optional[int] = None, score_threshold: Optional[float] = None):
+        if not self.embeddings:
+            self.embeddings = self.initialize_vector_model()
+        if not self.db:
+            self.db = self.initialize_database()
+
         # get latest settings
         self.config = self.load_configuration()
         document_types = self.config['database'].get('document_types', '')
         search_filter = {'document_type': document_types} if document_types else {}
-        score_threshold = float(self.config['database']['similarity'])
-        k = int(self.config['database']['contexts'])
+        
+        k = k if k is not None else int(self.config['database']['contexts'])
+        score_threshold = score_threshold if score_threshold is not None else float(self.config['database']['similarity'])
         
         if self.is_intfloat_model():
             query = f"query: {query}"
         
-        # search
         relevant_contexts = self.db.similarity_search_with_score(
             query,
             k=k,
@@ -491,85 +471,100 @@ class QueryVectorDB:
         # DEBUG
         # print(scores)
         
+        self.cleanup()
+        
         return contexts, metadata_list
 
-class DeleteDoc:
-    def __init__(self, selected_database):
-        self.selected_database = selected_database
-        self.config = self.load_configuration()
-        self.embeddings = self.initialize_vector_model()
-        self.vectorstore = self.initialize_database()
-
-    def load_configuration(self):
-        config_file_path = Path(__file__).resolve().parent / "config.yaml"
-        with open(config_file_path, 'r') as config_file:
-            return yaml.safe_load(config_file)
-
-    def initialize_vector_model(self):    
-        model_path = self.config['created_databases'][self.selected_database]['model']
+    def cleanup(self):
+        if self.embeddings:
+            del self.embeddings
+            self.embeddings = None
+        if self.db:
+            del self.db
+            self.db = None
         
-        compute_device = self.config['Compute_Device']['database_query']
-        encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
-        
-        if "instructor" in model_path:
-            return HuggingFaceInstructEmbeddings(
-                model_name=model_path,
-                model_kwargs={"device": compute_device, "trust_remote_code": True},
-                encode_kwargs=encode_kwargs,
-            )
-        elif "bge" in model_path:
-            query_instruction = self.config['embedding-models']['bge']['query_instruction']
-            return HuggingFaceBgeEmbeddings(
-                model_name=model_path,
-                model_kwargs={"device": compute_device, "trust_remote_code": True},
-                query_instruction=query_instruction,
-                encode_kwargs=encode_kwargs
-            )
-        elif "Alibaba" in model_path:
-            return HuggingFaceEmbeddings(
-                model_name=model_path,
-                model_kwargs={
-                    "device": compute_device,
-                    "trust_remote_code": True,
-                    "tokenizer_kwargs": {
-                        "max_length": 8192,
-                        "padding": True,
-                        "truncation": True
-                    }
-                },
-                encode_kwargs=encode_kwargs
-            )
-        else:
-            return HuggingFaceEmbeddings(
-                model_name=model_path,
-                model_kwargs={"device": compute_device, "trust_remote_code": True},
-                encode_kwargs=encode_kwargs
-            )
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
+        # my_cprint(f"{self.model_name} removed from memory.", "red")
 
-    def initialize_database(self):
-        persist_directory = Path(__file__).resolve().parent / "Vector_DB" / self.selected_database
-        
-        return TileDB.load(index_uri=str(persist_directory), embedding=self.embeddings, allow_dangerous_deserialization=True)
+# class DeleteDoc:
+    # def __init__(self, selected_database):
+        # self.selected_database = selected_database
+        # self.config = self.load_configuration()
+        # self.embeddings = self.initialize_vector_model()
+        # self.vectorstore = self.initialize_database()
 
-    def delete_entries_by_hash(self, hash_value: str, batch_size: int = 1000) -> int:
-        total_deleted = 0
-        while True:
-            results = self.vectorstore.similarity_search_with_score(
-                query="",
-                k=batch_size,
-                filter={"hash": hash_value}
-            )
-            
-            if not results:
-                break
-            
-            ids_to_delete = [str(doc.metadata.get("id")) for doc, _ in results if doc.metadata.get("hash") == hash_value]
-            
-            if ids_to_delete:
-                self.vectorstore.delete(ids=ids_to_delete)
-                total_deleted += len(ids_to_delete)
-            
-            if len(results) < batch_size:
-                break
+    # def load_configuration(self):
+        # config_file_path = Path(__file__).resolve().parent / "config.yaml"
+        # with open(config_file_path, 'r') as config_file:
+            # return yaml.safe_load(config_file)
+
+    # def initialize_vector_model(self):    
+        # model_path = self.config['created_databases'][self.selected_database]['model']
         
-        return total_deleted
+        # compute_device = self.config['Compute_Device']['database_query']
+        # encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
+        
+        # if "instructor" in model_path:
+            # return HuggingFaceInstructEmbeddings(
+                # model_name=model_path,
+                # model_kwargs={"device": compute_device, "trust_remote_code": True},
+                # encode_kwargs=encode_kwargs,
+            # )
+        # elif "bge" in model_path:
+            # query_instruction = self.config['embedding-models']['bge']['query_instruction']
+            # return HuggingFaceBgeEmbeddings(
+                # model_name=model_path,
+                # model_kwargs={"device": compute_device, "trust_remote_code": True},
+                # query_instruction=query_instruction,
+                # encode_kwargs=encode_kwargs
+            # )
+        # elif "Alibaba" in model_path:
+            # return HuggingFaceEmbeddings(
+                # model_name=model_path,
+                # model_kwargs={
+                    # "device": compute_device,
+                    # "trust_remote_code": True,
+                    # "tokenizer_kwargs": {
+                        # "max_length": 8192,
+                        # "padding": True,
+                        # "truncation": True
+                    # }
+                # },
+                # encode_kwargs=encode_kwargs
+            # )
+        # else:
+            # return HuggingFaceEmbeddings(
+                # model_name=model_path,
+                # model_kwargs={"device": compute_device, "trust_remote_code": True},
+                # encode_kwargs=encode_kwargs
+            # )
+
+    # def initialize_database(self):
+        # persist_directory = Path(__file__).resolve().parent / "Vector_DB" / self.selected_database
+        
+        # return TileDB.load(index_uri=str(persist_directory), embedding=self.embeddings, allow_dangerous_deserialization=True)
+
+    # def delete_entries_by_hash(self, hash_value: str, batch_size: int = 1000) -> int:
+        # total_deleted = 0
+        # while True:
+            # results = self.vectorstore.similarity_search_with_score(
+                # query="",
+                # k=batch_size,
+                # filter={"hash": hash_value}
+            # )
+            
+            # if not results:
+                # break
+            
+            # ids_to_delete = [str(doc.metadata.get("id")) for doc, _ in results if doc.metadata.get("hash") == hash_value]
+            
+            # if ids_to_delete:
+                # self.vectorstore.delete(ids=ids_to_delete)
+                # total_deleted += len(ids_to_delete)
+            
+            # if len(results) < batch_size:
+                # break
+        
+        # return total_deleted

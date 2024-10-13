@@ -17,9 +17,9 @@ class TranscriberToolSettingsTab(QWidget):
         self.selected_audio_file = None
         self.create_layout()
 
-    def read_config(self):
-        with open(self.CONFIG_FILE, 'r') as file:
-            return yaml.safe_load(file)
+    def set_buttons_enabled(self, enabled):
+        self.transcribe_button.setEnabled(enabled)
+        self.select_file_button.setEnabled(enabled)
 
     def create_layout(self):
         main_layout = QVBoxLayout()
@@ -88,6 +88,7 @@ class TranscriberToolSettingsTab(QWidget):
             file_path = Path(file_name)
             short_path = f"...{file_path.parent.name}/{file_path.name}"
             self.file_path_label.setText(short_path)
+            self.file_path_label.setToolTip(str(file_path.absolute()))
             self.selected_audio_file = file_name
 
     def start_transcription(self):
@@ -99,11 +100,15 @@ class TranscriberToolSettingsTab(QWidget):
         selected_batch_size = int(self.slider_label.text())
         
         def transcription_thread():
-            transcriber = WhisperTranscriber(
-                model_key=selected_model_key, 
-                batch_size=selected_batch_size
-            )
-            transcriber.start_transcription_process(self.selected_audio_file)
-            my_cprint("Transcription created and ready to be input into vector database.", 'green')
+            self.set_buttons_enabled(False)
+            try:
+                transcriber = WhisperTranscriber(
+                    model_key=selected_model_key, 
+                    batch_size=selected_batch_size
+                )
+                transcriber.start_transcription_process(self.selected_audio_file)
+                my_cprint("Transcription created and ready to be input into vector database.", 'green')
+            finally:
+                self.set_buttons_enabled(True)
         
         threading.Thread(target=transcription_thread, daemon=True).start()

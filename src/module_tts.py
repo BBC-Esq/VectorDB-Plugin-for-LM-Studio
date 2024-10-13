@@ -1,11 +1,8 @@
 import os
-import gc
-import platform
 import queue
 import re
 import threading
 import time
-from functools import lru_cache
 from pathlib import Path
 
 import io
@@ -36,9 +33,17 @@ class BaseAudio:
         self.audio_queue = queue.Queue()
         self.stop_event = threading.Event()
         self.lock = threading.Lock()
+        self.config = {}
+        self.processing_thread = None
 
     def load_config(self, config_file, section):
-        self.config = yaml.safe_load(open(config_file, encoding='utf-8'))[section]
+        with open(config_file, 'r', encoding='utf-8') as f:
+            config_data = yaml.safe_load(f)
+            if section in config_data:
+                self.config = config_data[section]
+            else:
+                print(f"Warning: Section '{section}' not found in config file.")
+                self.config = {}
 
     def initialize_device(self):
         if torch.cuda.is_available():
@@ -63,7 +68,7 @@ class BaseAudio:
                 except Exception as e:
                     print(f"Error playing audio: {e}")
             except queue.Empty:
-                if not self.processing_thread.is_alive():
+                if self.processing_thread is None or not self.processing_thread.is_alive():
                     break
 
     def run(self, input_text_file):
@@ -104,8 +109,6 @@ class BarkAudio(BaseAudio):
         # processor
         self.processor = AutoProcessor.from_pretrained(repository_id, cache_dir=CACHE_DIR)
         
-        precision = torch.float16
-        
         # model
         self.model = BarkModel.from_pretrained(
             repository_id,
@@ -143,17 +146,9 @@ class BarkAudio(BaseAudio):
 class WhisperSpeechAudio(BaseAudio):
     def __init__(self):
         super().__init__()
-        self.config = self.load_config('config.yaml', 'tts')
+        self.load_config('config.yaml', 'tts')
         self.pipe = None
         self.initialize_model()
-
-    def load_config(self, config_file, section):
-        try:
-            with open(config_file, 'r') as f:
-                return yaml.safe_load(f)[section]
-        except Exception as e:
-            my_cprint(f"Error loading config: {str(e)}", "red")
-            return {}
 
     def get_whisper_speech_models(self):
         s2a_model = self.config.get('s2a', 's2a-q4-hq-fast-en+pl.model')
@@ -271,13 +266,20 @@ class ChatTTSAudio:
 
     def _play_audio(self):
         while True:
-            audio_data = self.audio_queue.get()
-            if audio_data is None:
+            try:
+                audio_data = self.audio_queue.get(timeout=10)  # 10-second timeout
+                if audio_data is None:
+                    self.audio_queue.task_done()
+                    break
+                sd.play(audio_data, samplerate=24000)
+                sd.wait()  # Wait for playback to finish
                 self.audio_queue.task_done()
+            except queue.Empty:
+                print("Timeout waiting for audio data. Ending playback.")
                 break
-            sd.play(audio_data, samplerate=24000)
-            time.sleep(len(audio_data) / 24000)
-            self.audio_queue.task_done()
+            except Exception as e:
+                print(f"Error during audio playback: {e}")
+                self.audio_queue.task_done()
 
 
 class GoogleTTSAudio:
@@ -392,27 +394,6 @@ class GoogleTTSAudio:
                     minimized_tokens.append(current_chunk.strip())
         
         return minimized_tokens
-
-    def trim_silence(self, audio, samplerate):
-        max_silence_samples = int(self.max_silence_ms * samplerate / 1000)
-        is_silent = np.abs(audio) < self.silence_threshold
-        silent_regions = np.where(np.diff(is_silent.astype(int)))[0]
-
-        if len(silent_regions) < 2:
-            return audio
-
-        processed_chunks = []
-        start = 0
-
-        for i in range(0, len(silent_regions) - 1, 2):
-            silence_start, silence_end = silent_regions[i], silent_regions[i + 1]
-            chunk_start = max(start, silence_start - max_silence_samples)
-            chunk_end = min(silence_end, silence_start + max_silence_samples)
-            processed_chunks.append(audio[chunk_start:chunk_end])
-            start = silence_end
-
-        processed_chunks.append(audio[start:])
-        return np.concatenate(processed_chunks)
 
     def trim_silence(self, audio, samplerate):
         max_silence_samples = int(self.max_silence_ms * samplerate / 1000)

@@ -50,14 +50,13 @@ class TranscriptionThread(QThread):
         
         transcription_text = " ".join(item['text'] for item in out[0]).strip()
         
-        my_cprint("Transcription completed.", 'white')
         self.transcription_complete.emit(transcription_text)
         
         Path(self.audio_file).unlink()
         self.voice_recorder.ReleaseTranscriber()
 
         del self.model
-        my_cprint("Whisper model removed from memory.", 'red')
+        # my_cprint("Whisper model removed from memory.", 'red')
 
 class RecordingThread(QThread):
     def __init__(self, voice_recorder):

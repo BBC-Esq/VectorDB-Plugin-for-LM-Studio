@@ -4,15 +4,6 @@ import yaml
 from PySide6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QMessageBox
 import torch
 
-def check_cuda_for_images(files):
-    image_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff'}
-    if any(Path(file).suffix.lower() in image_extensions for file in files):
-        if not torch.cuda.is_available():
-            QMessageBox.warning(None, "CUDA Support Required", 
-                "Processing images currently only available with GPU acceleration. Please remove any images and try again.")
-            return False
-    return True
-
 def choose_documents_directory():
     allowed_extensions = {'.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', 
                           '.rtf', '.odt', '.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff', '.html', 
@@ -23,9 +14,6 @@ def choose_documents_directory():
     file_paths, _ = file_dialog.getOpenFileNames(None, "Choose Documents and Images for Database", str(current_dir))
 
     if file_paths:
-        if not check_cuda_for_images(file_paths):
-            return
-
         compatible_files = [file for file in file_paths if Path(file).suffix.lower() in allowed_extensions]
         incompatible_files = [Path(file).name for file in file_paths if Path(file).suffix.lower() not in allowed_extensions]
 

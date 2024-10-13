@@ -65,15 +65,15 @@ class DependencyUpdater:
 
 def replace_pdf_file():
     updater = DependencyUpdater()
-    updater.update_file_in_dependency("user_manual", "pdf.py", ["langchain_community", "document_loaders", "parsers"])
+    updater.update_file_in_dependency("Assets", "pdf.py", ["langchain_community", "document_loaders", "parsers"])
 
 def replace_instructor_file():
     updater = DependencyUpdater()
-    updater.update_file_in_dependency("user_manual", "instructor.py", ["InstructorEmbedding"])
+    updater.update_file_in_dependency("Assets", "instructor.py", ["InstructorEmbedding"])
 
 def replace_sentence_transformer_file():
     updater = DependencyUpdater()
-    updater.update_file_in_dependency("user_manual", "SentenceTransformer.py", ["sentence_transformers"])
+    updater.update_file_in_dependency("Assets", "SentenceTransformer.py", ["sentence_transformers"])
 
 if __name__ == "__main__":
     replace_pdf_file()

@@ -72,7 +72,8 @@ class ManageDatabasesTab(QWidget):
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as file:
                 config = yaml.safe_load(file)
-                return list(config.get('created_databases', {}).keys())
+                databases = list(config.get('created_databases', {}).keys())
+                return [db for db in databases if db != "user_manual"]
         return []
 
     def display_no_databases_message(self):

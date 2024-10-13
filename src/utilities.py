@@ -160,7 +160,6 @@ def backup_database():
 
 
 def backup_database_incremental(new_database_name):
-    my_cprint("Creating backup of new database...", "yellow")
     source_directory = Path('Vector_DB')
     backup_directory = Path('Vector_DB_Backup')
 
@@ -177,7 +176,7 @@ def backup_database_incremental(new_database_name):
 
     try:
         shutil.copytree(source_db_path, backup_db_path)
-        my_cprint(f"Successfully backed up {new_database_name}", "green")
+        # my_cprint(f"Creating backup of {new_database_name} database.", "green")
     except Exception as e:
         print(f"Error backing up {new_database_name}: {e}")
 
@@ -489,3 +488,22 @@ def set_logging_level():
     for lib, level in library_levels.items():
         logging.getLogger(lib).setLevel(level)
 
+
+def prepare_long_path(base_path: str, filename: str) -> str:
+    """
+    Prepares a path for long filenames, especially for Windows systems.
+    
+    Args:
+    base_path (str): The base directory path.
+    filename (str): The original filename.
+    
+    Returns:
+    str: Prepared full path, using extended-length path syntax if necessary.
+    """
+    base_path = os.path.normpath(base_path)
+    full_path = os.path.join(base_path, filename)
+    
+    if os.name == 'nt' and len(full_path) > 255:
+        full_path = "\\\\?\\" + os.path.abspath(full_path)
+    
+    return full_path

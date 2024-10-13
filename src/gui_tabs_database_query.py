@@ -18,10 +18,41 @@ from constants import CHAT_MODELS
 from module_voice_recorder import VoiceRecorder
 from utilities import check_preconditions_for_submit_question, my_cprint
 from constants import TOOLTIPS
+from database_interactions import QueryVectorDB
 
 current_dir = Path(__file__).resolve().parent
 input_text_file = str(current_dir / 'chat_history.txt')
 
+
+class DatabaseQueryThread(QThread):
+    chunks_ready = Signal(str)
+
+    def __init__(self, query, database_name):
+        super().__init__()
+        self.query = query
+        self.database_name = database_name
+
+    def run(self):
+        try:
+            query_db = QueryVectorDB(self.database_name)
+            contexts, metadata_list = query_db.search(self.query)
+            formatted_chunks = self.format_chunks(contexts, metadata_list)
+            self.chunks_ready.emit(formatted_chunks)
+        except Exception as e:
+            logging.exception(f"Error in database query thread: {e}")
+            self.chunks_ready.emit(f"Error querying database: {str(e)}")
+
+    @staticmethod
+    def format_chunks(contexts, metadata_list):
+        formatted_contexts = []
+        for index, (context, metadata) in enumerate(zip(contexts, metadata_list), start=1):
+            file_name = metadata.get('file_name', 'Unknown')
+            formatted_context = (
+                f"---------- Context {index} | From File: {file_name} ----------\n"
+                f"{context}\n"
+            )
+            formatted_contexts.append(formatted_context)
+        return "\n".join(formatted_contexts)
 
 def run_tts_in_process(config_path, input_text_file):
     from module_tts import run_tts  # Import here to avoid potential circular imports
@@ -47,7 +78,7 @@ class GuiSignals(QObject):
 class CustomTextBrowser(QTextBrowser):
     '''
     Inherits from QTextBrowser but overrides the doSetSource method to ensure that "http," "https," and "file" schemes are opened
-    with the system's default program while other types are still opened however the QTextBrowswer normall does.
+    with the system's default program while other types are still opened however the QTextBrowswer normally does.
     
     The following examples allow for additional handling and/or make the opening internal or external based on the type of link.
         
@@ -76,6 +107,7 @@ class DatabaseQueryTab(QWidget):
         self.local_model_chat = LocalModelChat()
         self.gui_signals = GuiSignals()
         self.current_model_name = None
+        self.database_query_thread = None
         self.initWidgets()
         self.setup_signals()
 
@@ -105,20 +137,17 @@ class DatabaseQueryTab(QWidget):
 
         self.model_combo_box = QComboBox()
         self.model_combo_box.setToolTip(TOOLTIPS["LOCAL_MODEL_SELECT"])
-        
-        # add all local models to combobox if cuda exists, otherwise just Zephyr 1.6b
+
         if torch.cuda.is_available():
             self.model_combo_box.addItems([model_info['model'] for model_info in CHAT_MODELS.values()])
+            self.model_combo_box.setEnabled(True)
         else:
             self.model_combo_box.addItem(CHAT_MODELS['Zephyr - 1.6b']['model'])
-        
+            self.model_combo_box.setToolTip("The Local Model option requires GPU-acceleration.")
+
         if self.model_combo_box.count() > 0:
             self.model_combo_box.setCurrentIndex(0)
-        self.model_combo_box.setEnabled(torch.cuda.is_available())
-        
-        self.model_combo_box.addItems(model_info['model'] for model_info in CHAT_MODELS.values())
-        self.model_combo_box.setCurrentText("Zephyr - 1.6b")
-        self.model_combo_box.setEnabled(False)
+
         hbox1_layout.addWidget(self.model_combo_box)
 
         self.eject_button = QPushButton("Eject Local Model")
@@ -173,19 +202,12 @@ class DatabaseQueryTab(QWidget):
         self.voice_recorder = VoiceRecorder(self)
 
     def setup_signals(self):
-        # connects signal #7 in chat_model_local to update_response_local_model method
         self.local_model_chat.signals.response_signal.connect(self.update_response_local_model)
-        # connects signal #8 in chat_model_local to display_citations_in_widget method
         self.local_model_chat.signals.citations_signal.connect(self.display_citations_in_widget)
-        # connects signal #9 in chat_model_local to show_error_message method
         self.local_model_chat.signals.error_signal.connect(self.show_error_message)
-        # connects signal #10 in chat_model_local to on_submission_finished method
         self.local_model_chat.signals.finished_signal.connect(self.on_submission_finished)
-        # connects signal #3 in chat_model_local to on_model_loaded method
         self.local_model_chat.signals.model_loaded_signal.connect(self.on_model_loaded)
-        # connects signal #11 in chat_model_local to on_model_unloaded method
         self.local_model_chat.signals.model_unloaded_signal.connect(self.on_model_unloaded)
-        # connects signal in chat_model_local to update_token_count_label
         self.local_model_chat.signals.token_count_signal.connect(self.update_token_count_label)
 
     def update_token_count_label(self, token_count_string):
@@ -216,14 +238,13 @@ class DatabaseQueryTab(QWidget):
         self.response_widget.clear()
         self.token_count_label.clear()
         
-        # prevents the LLM's responses from being hyperlinked
         self.response_widget.clear()
-        self.response_widget.setPlainText("")  # Clear text content
-        self.response_widget.setHtml("")  # Clear any HTML formatting
-        self.response_widget.document().clear()  # Clear all document content
-        cursor = self.response_widget.textCursor()  # Get current text cursor
-        cursor.clearSelection()  # Remove any text selection
-        self.response_widget.setTextCursor(cursor)  # Reset cursor to start
+        self.response_widget.setPlainText("")
+        self.response_widget.setHtml("")
+        self.response_widget.document().clear()
+        cursor = self.response_widget.textCursor()
+        cursor.clearSelection()
+        self.response_widget.setTextCursor(cursor)
         
         self.cumulative_response = ""
         self.submit_button.setDisabled(True)
@@ -232,26 +253,37 @@ class DatabaseQueryTab(QWidget):
         
         selected_database = self.database_pulldown.currentText()
 
-        if self.model_source_combo.currentText() == "LM Studio":
-            self.lm_studio_chat_thread = LMStudioChatThread(user_question, chunks_only, selected_database)
-            self.lm_studio_chat_thread.lm_studio_chat.signals.response_signal.connect(self.update_response_lm_studio)
-            self.lm_studio_chat_thread.lm_studio_chat.signals.error_signal.connect(self.show_error_message)
-            self.lm_studio_chat_thread.lm_studio_chat.signals.finished_signal.connect(self.on_submission_finished)
-            self.lm_studio_chat_thread.lm_studio_chat.signals.citation_signal.connect(self.display_citations_in_widget)
-            self.lm_studio_chat_thread.start()
-        else:  # Used by Local Model.  Add additional "elif" statements if more backends are added
-            selected_model = self.model_combo_box.currentText()
-            try:
-                if selected_model != self.local_model_chat.current_model:
-                    if self.local_model_chat.is_model_loaded():
-                        self.local_model_chat.terminate_current_process()
-                    self.local_model_chat.start_model_process(selected_model)
-                # starts the "localModelChat" class in "chat_local_model.py"
-                self.local_model_chat.start_chat(user_question, chunks_only, selected_model, selected_database)
-            except Exception as e:
-                logging.exception(f"Error starting or using local model: {e}")
-                self.show_error_message(f"Error with local model: {str(e)}")
-                self.submit_button.setDisabled(False)
+        if chunks_only: # only get chunks
+            self.database_query_thread = DatabaseQueryThread(user_question, selected_database)
+            self.database_query_thread.chunks_ready.connect(self.display_chunks)
+            self.database_query_thread.finished.connect(self.on_database_query_finished)
+            self.database_query_thread.start()
+        else: # lm studio or local model
+            if self.model_source_combo.currentText() == "LM Studio":
+                self.lm_studio_chat_thread = LMStudioChatThread(user_question, selected_database)
+                self.lm_studio_chat_thread.lm_studio_chat.signals.response_signal.connect(self.update_response_lm_studio)
+                self.lm_studio_chat_thread.lm_studio_chat.signals.error_signal.connect(self.show_error_message)
+                self.lm_studio_chat_thread.lm_studio_chat.signals.finished_signal.connect(self.on_submission_finished)
+                self.lm_studio_chat_thread.lm_studio_chat.signals.citation_signal.connect(self.display_citations_in_widget)
+                self.lm_studio_chat_thread.start()
+            else:  # local models
+                selected_model = self.model_combo_box.currentText()
+                try:
+                    if selected_model != self.local_model_chat.current_model:
+                        if self.local_model_chat.is_model_loaded():
+                            self.local_model_chat.terminate_current_process()
+                        self.local_model_chat.start_model_process(selected_model)
+                    self.local_model_chat.start_chat(user_question, selected_model, selected_database)
+                except Exception as e:
+                    logging.exception(f"Error starting or using local model: {e}")
+                    self.show_error_message(f"Error with local model: {str(e)}")
+                    self.submit_button.setDisabled(False)
+
+    def display_chunks(self, chunks):
+        self.response_widget.setPlainText(chunks)
+
+    def on_database_query_finished(self):
+        self.submit_button.setDisabled(False)
 
     def eject_model(self):
         if self.local_model_chat.is_model_loaded():
@@ -263,7 +295,7 @@ class DatabaseQueryTab(QWidget):
                 self.eject_button.setEnabled(False)
                 self.model_combo_box.setEnabled(True)
         else:
-            logging.info("No model is currently loaded.")
+            logging.warning("No model is currently loaded.")
 
     def on_model_unloaded(self):
         self.eject_button.setEnabled(False)
@@ -305,14 +337,11 @@ class DatabaseQueryTab(QWidget):
             QMessageBox.warning(self, "Error", "No response to play.")
             return
 
-        tts_thread = threading.Thread(target=self.run_tts_module)
-        tts_thread.daemon = True
-        tts_thread.start()
+        self.run_tts_module()
 
     def run_tts_module(self):
         process = multiprocessing.Process(target=run_tts_in_process, args=(str(self.config_path), input_text_file))
         process.start()
-        process.join()
 
     def toggle_recording(self):
         if self.is_recording:
@@ -326,6 +355,9 @@ class DatabaseQueryTab(QWidget):
     def update_response_lm_studio(self, response_chunk):
         self.cumulative_response += response_chunk
         self.response_widget.setPlainText(self.cumulative_response)
+        self.response_widget.verticalScrollBar().setValue(
+            self.response_widget.verticalScrollBar().maximum()
+        )
 
     def update_response_local_model(self, response):
         current_text = self.response_widget.toPlainText()
@@ -337,7 +369,7 @@ class DatabaseQueryTab(QWidget):
             self.eject_button.setEnabled(True)
 
     def show_error_message(self, error_message):
-        # error message for if the contexts exceed the chat model's limit
+        # error message if the contexts exceed the chat model's limit
         if "exceed the chat model's context limit" in error_message:
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Warning)
@@ -359,4 +391,6 @@ class DatabaseQueryTab(QWidget):
     def cleanup(self):
         if self.local_model_chat.is_model_loaded():
             self.local_model_chat.eject_model()
+        if self.database_query_thread and self.database_query_thread.isRunning():
+            self.database_query_thread.wait()
         print("Cleanup completed")

@@ -57,23 +57,50 @@ def update_config_file(**system_info):
         yaml.safe_dump(config_data, stream)
 
 def check_for_necessary_folders():
-    for folder in ["Docs_for_DB", "Vector_DB_Backup", "Vector_DB", "Models", "Models/vector", "Models/chat", "Models/tts", "Models/vision", "Models/whisper"]:
+    folders = [
+        "Assets",
+        "Docs_for_DB",
+        "Vector_DB_Backup",
+        "Vector_DB"
+        "Models",
+        "Models/vector",
+        "Models/chat",
+        "Models/tts",
+        "Models/vision",
+        "Models/whisper",
+        "Scraped_Documentation",
+    ]
+    
+    for folder in folders:
         Path(folder).mkdir(exist_ok=True)
 
 def restore_vector_db_backup():
     backup_folder = Path('Vector_DB_Backup')
     destination_folder = Path('Vector_DB')
 
-    if destination_folder.exists():
-        shutil.rmtree(destination_folder)
-    destination_folder.mkdir()
+    if not backup_folder.exists():
+        logging.error("Backup folder 'Vector_DB_Backup' does not exist.")
+        return
 
-    for item in backup_folder.iterdir():
-        dest_path = destination_folder / item.name
-        if item.is_dir():
-            shutil.copytree(item, dest_path)
-        else:
-            shutil.copy2(item, dest_path)
+    try:
+        if destination_folder.exists():
+            shutil.rmtree(destination_folder)
+            logging.info("Deleted existing 'Vector_DB' folder.")
+        destination_folder.mkdir()
+        logging.info("Created 'Vector_DB' folder.")
+
+        for item in backup_folder.iterdir():
+            dest_path = destination_folder / item.name
+            if item.is_dir():
+                shutil.copytree(item, dest_path)
+                logging.info(f"Copied directory: {item.name}")
+            else:
+                shutil.copy2(item, dest_path)
+                logging.info(f"Copied file: {item.name}")
+        logging.info("Successfully restored Vector DB backup.")
+    except Exception as e:
+        logging.error(f"Error restoring Vector DB backup: {e}")
+
 
 def clear_pickle_folder():
     pickle_folder = Path('pickle')

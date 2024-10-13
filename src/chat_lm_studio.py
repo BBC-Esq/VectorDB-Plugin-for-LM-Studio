@@ -1,14 +1,15 @@
 import gc
-import os
-from pathlib import Path
+import logging
 
+from pathlib import Path
 import torch
 import yaml
 from openai import OpenAI
 from PySide6.QtCore import QThread, Signal, QObject
 
 from database_interactions import QueryVectorDB
-from utilities import my_cprint, format_citations
+from utilities import format_citations
+from constants import rag_string
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
 
@@ -62,7 +63,9 @@ class LMStudioChat:
         if self.query_vector_db and self.query_vector_db.embeddings:
             del self.query_vector_db.embeddings.client
             del self.query_vector_db.embeddings
-        torch.cuda.empty_cache()
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         gc.collect()
         print("Embedding model removed from memory.")
         
@@ -73,13 +76,7 @@ class LMStudioChat:
             for metadata in metadata_list:
                 output_file.write(f"{metadata}\n")
 
-    def yield_formatted_contexts(self, contexts, metadata_list):
-        for index, (context, metadata) in enumerate(zip(contexts, metadata_list), start=1):
-            file_name = metadata.get('file_name', 'Unknown')
-            formatted_context = f"---------- Context {index} | From File: {file_name} ----------\n\n{context}\n\n"
-            yield formatted_context
-
-    def ask_local_chatgpt(self, query, chunks_only, selected_database):
+    def ask_local_chatgpt(self, query, selected_database):
         if self.query_vector_db is None or self.query_vector_db.selected_database != selected_database:
             self.query_vector_db = QueryVectorDB(selected_database)
         
@@ -92,14 +89,7 @@ class LMStudioChat:
             self.signals.finished_signal.emit()
             return
         
-        if chunks_only:
-            for formatted_context in self.yield_formatted_contexts(contexts, metadata_list):
-                self.signals.response_signal.emit(formatted_context)
-            self.signals.finished_signal.emit()
-            return
-        
-        prepend_string = "Only base your answer on the provided context/contexts. If you cannot, please state so."
-        augmented_query = f"{prepend_string}\n\n---\n\n" + "\n\n---\n\n".join(contexts) + f"\n\n-----\n\n{query}"
+        augmented_query = f"{rag_string}\n\n---\n\n" + "\n\n---\n\n".join(contexts) + f"\n\n-----\n\n{query}"
         
         full_response = ""
         response_generator = self.connect_to_local_chatgpt(augmented_query)
@@ -117,17 +107,17 @@ class LMStudioChat:
         self.signals.finished_signal.emit()
 
 class LMStudioChatThread(QThread):
-    def __init__(self, query, chunks_only, selected_database):
+    def __init__(self, query, selected_database):
         super().__init__()
         self.query = query
-        self.chunks_only = chunks_only
         self.selected_database = selected_database
         self.lm_studio_chat = LMStudioChat()
 
     def run(self):
         try:
-            self.lm_studio_chat.ask_local_chatgpt(self.query, self.chunks_only, self.selected_database)
+            self.lm_studio_chat.ask_local_chatgpt(self.query, self.selected_database)
         except Exception as e:
+            logging.error(f"Error in LMStudioChatThread: {str(e)}")
             self.lm_studio_chat.signals.error_signal.emit(str(e))
 
 def is_lm_studio_available():

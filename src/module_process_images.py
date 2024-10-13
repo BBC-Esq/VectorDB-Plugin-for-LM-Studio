@@ -1,7 +1,5 @@
 import datetime
 import gc
-import os
-import logging
 import traceback
 import platform
 import time
@@ -21,11 +19,10 @@ from transformers import (
 from langchain_community.docstore.document import Document
 
 from extract_metadata import extract_image_metadata
-from utilities import my_cprint, set_logging_level
+from utilities import my_cprint
 from constants import VISION_MODELS
 
 warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
-set_logging_level()
 
 ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
 
@@ -45,8 +42,8 @@ def get_best_device():
 
 def check_for_images(image_dir):
     return any(
-        os.path.splitext(file)[1].lower() in ALLOWED_EXTENSIONS
-        for file in os.listdir(image_dir)
+        Path(file).suffix.lower() in ALLOWED_EXTENSIONS
+        for file in Path(image_dir).iterdir()
     )
 
 def run_loader_in_process(loader_func):
@@ -77,11 +74,11 @@ def choose_image_loader():
         my_cprint("No valid image model specified in config.yaml", "red")
         return []
 
-    script_dir = os.path.dirname(__file__)
-    image_dir = os.path.join(script_dir, "Docs_for_DB")
+    script_dir = Path(__file__).parent
+    image_dir = script_dir / "Docs_for_DB"
 
     if not check_for_images(image_dir):
-        print("No images selected for processing...")
+        # print("No images selected to process...")
         return []
 
     with ProcessPoolExecutor(1) as executor:
@@ -109,12 +106,12 @@ class BaseLoader:
         raise NotImplementedError("Subclasses must implement initialize_model_and_tokenizer method")
 
     def process_images(self):
-        script_dir = os.path.dirname(__file__)
-        image_dir = os.path.join(script_dir, "Docs_for_DB")
+        script_dir = Path(__file__).parent
+        image_dir = script_dir / "Docs_for_DB"
         documents = []
         allowed_extensions = ALLOWED_EXTENSIONS
 
-        image_files = [file for file in os.listdir(image_dir) if os.path.splitext(file)[1].lower() in allowed_extensions]
+        image_files = [file for file in image_dir.iterdir() if file.suffix.lower() in allowed_extensions]
 
         self.model, self.tokenizer, self.processor = self.initialize_model_and_tokenizer()
 
@@ -124,7 +121,7 @@ class BaseLoader:
 
         with tqdm(total=len(image_files), unit="image") as progress_bar:
             for file_name in image_files:
-                full_path = os.path.join(image_dir, file_name)
+                full_path = image_dir / file_name
                 try:
                     with Image.open(full_path) as raw_image:
                         extracted_text = self.process_single_image(raw_image)
@@ -172,11 +169,15 @@ class loader_llava_next(BaseLoader):
             low_cpu_mem_usage=True,
             cache_dir=cache_dir
         )
+        model.eval()
         
         my_cprint(f"{chosen_model} vision model loaded into memory...", "green")
-        
-        processor = LlavaNextProcessor.from_pretrained(model_id, cache_dir=cache_dir)
-        
+
+        processor = LlavaNextProcessor.from_pretrained(
+            model_id, 
+            cache_dir=cache_dir
+        )
+
         return model, None, processor
 
     @ torch.inference_mode()
@@ -194,22 +195,33 @@ class loader_llava_next(BaseLoader):
 
 
 class loader_moondream(BaseLoader):
+    """ Cache directory handling: Most classes use CACHE_DIR consistently, but there's a slight inconsistency in the
+    loader_moondream class, which uses VISION_DIR instead of CACHE_DIR.
+    """
     def initialize_model_and_tokenizer(self):
+        # moondream's approach uses the "vision" directory and does not create a nested folder like all other sub-classes; use
         chosen_model = self.config['vision']['chosen_model']
         model_id = VISION_MODELS[chosen_model]['repo_id']
         cache_dir=VISION_DIR
         
-        model = AutoModelForCausalLM.from_pretrained(model_id, 
-                                                     trust_remote_code=True, 
-                                                     revision="2024-08-26",
-                                                     torch_dtype=torch.float16,
-                                                     cache_dir=cache_dir,
-                                                     low_cpu_mem_usage=True).to(self.device)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_id, 
+            trust_remote_code=True, 
+            revision="2024-08-26",
+            torch_dtype=torch.float16,
+            cache_dir=cache_dir,
+            low_cpu_mem_usage=True
+        ).to(self.device)
+        model.eval()
 
         my_cprint(f"Moondream2 vision model loaded into memory...", "green")
-        
-        tokenizer = AutoTokenizer.from_pretrained(model_id, revision="2024-08-26", cache_dir=cache_dir)
-        
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_id, 
+            revision="2024-08-26", 
+            cache_dir=cache_dir
+        )
+
         return model, tokenizer, None
     
     @torch.inference_mode()
@@ -233,9 +245,20 @@ class loader_florence2(BaseLoader):
         
         cache_dir = CACHE_DIR / save_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
-        
-        model = AutoModelForCausalLM.from_pretrained(repo_id, trust_remote_code=True, low_cpu_mem_usage=True, cache_dir=cache_dir)
-        processor = AutoProcessor.from_pretrained(repo_id, trust_remote_code=True, cache_dir=cache_dir)
+
+        model = AutoModelForCausalLM.from_pretrained(
+            repo_id, 
+            trust_remote_code=True, 
+            low_cpu_mem_usage=True, 
+            cache_dir=cache_dir
+        )
+        model.eval()
+
+        processor = AutoProcessor.from_pretrained(
+            repo_id, 
+            trust_remote_code=True, 
+            cache_dir=cache_dir
+        )
 
         device_type, precision_type = self.get_device_and_precision()
         
@@ -297,9 +320,9 @@ class loader_minicpm_V_2_6(BaseLoader):
         model = AutoModel.from_pretrained(
             repo_id,
             trust_remote_code=True,
-            # low_cpu_mem_usage=True,
+            low_cpu_mem_usage=True,
             cache_dir=cache_dir,
-            attention_implementation="sdpa",
+            attn_implementation="flash_attention_2",
         )
         tokenizer = AutoTokenizer.from_pretrained(
             repo_id,
@@ -335,6 +358,7 @@ class loader_minicpm_V_2_6(BaseLoader):
         
         return res
 
+# custom tokenizer code is only compatible with transformers before 4.45; awaiting fix
 class loader_glmv4(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']
@@ -359,6 +383,7 @@ class loader_glmv4(BaseLoader):
             quantization_config=quantization_config,
             cache_dir=cache_dir
         )
+        model.eval()
 
         tokenizer = AutoTokenizer.from_pretrained(
             model_id,
@@ -374,7 +399,6 @@ class loader_glmv4(BaseLoader):
     def process_single_image(self, raw_image):
         query = "Describe this image in detail as possible but be succinct and don't repeat yourself."
         
-        # Prepare input using tokenizer's custom method if available
         inputs = self.tokenizer.apply_chat_template(
             [{"role": "user", "image": raw_image, "content": query}],
             add_generation_prompt=True,
@@ -385,9 +409,8 @@ class loader_glmv4(BaseLoader):
 
         inputs = inputs.to(self.device)
 
-        # Generate output
         gen_kwargs = {
-            "max_length": 2500,
+            "max_length": 512,
             "do_sample": False,
             "top_k": None,
             "top_p": None,
@@ -397,8 +420,67 @@ class loader_glmv4(BaseLoader):
         with torch.no_grad():
             outputs = self.model.generate(**inputs, **gen_kwargs)
 
-        # Process results
         outputs = outputs[:, inputs['input_ids'].shape[1]:]
         description = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         
         return description
+
+class loader_molmo(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        
+        model_info = VISION_MODELS[chosen_model]
+        model_id = model_info['repo_id']
+        save_dir = model_info["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        try:
+            processor = AutoProcessor.from_pretrained(
+                model_id,
+                trust_remote_code=True,
+                torch_dtype='auto',
+                device_map='auto',
+                cache_dir=cache_dir
+            )
+            
+            model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                trust_remote_code=True,
+                torch_dtype='auto',
+                device_map='auto',
+                cache_dir=cache_dir
+            )
+            model.eval()
+            
+            my_cprint(f"{chosen_model} vision model loaded into memory...", "green")
+        except Exception as e:
+            my_cprint(f"Error loading {chosen_model} model: {str(e)}", "red")
+            raise
+
+        return model, None, processor
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        if raw_image.mode != "RGB":
+            raw_image = raw_image.convert("RGB")
+
+        user_prompt = "Describe this image in detail as possible but be succinct and don't repeat yourself."
+        inputs = self.processor.process(images=[raw_image], text=user_prompt)
+        inputs = {k: v.to(self.device).unsqueeze(0) for k, v in inputs.items()}
+
+        try:
+            output = self.model.generate_from_batch(
+                inputs,
+                max_new_tokens=500,
+                do_sample=False,
+                tokenizer=self.processor.tokenizer
+            )
+
+            generated_tokens = output[0, inputs['input_ids'].size(1):]
+            generated_text = self.processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        except Exception as e:
+            my_cprint(f"Error processing image: {str(e)}", "red")
+            return ""
+
+        return generated_text

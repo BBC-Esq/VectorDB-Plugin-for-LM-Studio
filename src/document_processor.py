@@ -3,11 +3,8 @@ import logging
 import warnings
 import yaml
 import math
-import tqdm
-from collections import defaultdict
-from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor
 from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from langchain_community.docstore.document import Document
 from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import (
@@ -27,21 +24,9 @@ from langchain_community.document_loaders import (
 
 from constants import DOCUMENT_LOADERS
 from extract_metadata import extract_document_metadata, add_pymupdf_page_metadata
-from utilities import my_cprint
-import traceback
-
-datasets_logger = logging.getLogger('datasets')
-datasets_logger.setLevel(logging.WARNING)
-logging.getLogger().setLevel(logging.WARNING)
-logging.getLogger("transformers").setLevel(logging.ERROR)
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s:%(filename)s:%(lineno)d - %(message)s'
-)
 
 ROOT_DIRECTORY = Path(__file__).parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
@@ -76,7 +61,7 @@ def load_single_document(file_path: Path) -> Document:
             # "get_text_separator": " ",  # Use space instead of newline if preferred
         })
         
-    elif file_extension in [".xlsx", ".xlsd"]:
+    elif file_extension in [".xlsx", ".xls"]:
         loader_options.update({"mode": "single"})
     elif file_extension in [".csv", ".txt"]:
         loader_options.update({
@@ -112,7 +97,6 @@ def load_documents(source_dir: Path) -> list:
         n_workers = min(INGEST_THREADS, max(len(doc_paths), 1))
         
         total_cores = os.cpu_count()
-        max_threads = max(4, total_cores - 8)
         threads_per_process = 1
         
         with ProcessPoolExecutor(n_workers) as executor:
@@ -130,6 +114,7 @@ def load_documents(source_dir: Path) -> list:
 
 def split_documents(documents=None, text_documents_pdf=None):
     try:
+        print("\nSplitting documents into chunks.")
         with open("config.yaml", "r", encoding='utf-8') as config_file:
             config = yaml.safe_load(config_file)
             chunk_size = config["database"]["chunk_size"]
@@ -145,19 +130,17 @@ def split_documents(documents=None, text_documents_pdf=None):
 
         # split non-PDF document objects
         if documents:
-            print(f"\nSplitting {len(documents)} non-PDF documents.")
             for i, doc in enumerate(documents):
                 if not isinstance(doc.page_content, str):
                     logging.warning(f"Document {i} content is not a string. Converting to string.")
                     documents[i].page_content = str(doc.page_content)
 
             texts = text_splitter.split_documents(documents)
-            print(f"Created {len(texts)} chunks from non-PDF documents.")
 
         # split PDF document objects
         
         """
-        PDF files are split using the custom pymupdfparser, which includes custom page markers in the following format:
+        PDF files are split using the custom pymupdfparser, which adds custom page markers in the following format:
         
         [[page1]]This is the text content of the first page.
         It might contain multiple lines, paragraphs, or sections.
@@ -169,18 +152,15 @@ def split_documents(documents=None, text_documents_pdf=None):
         """
         
         if text_documents_pdf:
-            print(f"Splitting {len(text_documents_pdf)} PDF documents.")
             processed_pdf_docs = []
             for doc in text_documents_pdf:
                 chunked_docs = add_pymupdf_page_metadata(doc, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 processed_pdf_docs.extend(chunked_docs)
             texts.extend(processed_pdf_docs)
-            print(f"Created {len(processed_pdf_docs)} chunks from PDF documents.")
 
         return texts
 
     except Exception as e:
-        logging.error(f"Error during document splitting: {str(e)}")
-        logging.error(f"Error type: {type(e)}")
-        logging.error(f"Error traceback: {traceback.format_exc()}")
-        raise
+            logging.exception("Error during document splitting")
+            logging.error(f"Error type: {type(e)}")
+            raise

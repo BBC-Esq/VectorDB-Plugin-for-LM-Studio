@@ -1,6 +1,6 @@
-import gc
+import yaml
 import logging
-import warnings
+import gc
 import copy
 from pathlib import Path
 import torch
@@ -11,16 +11,19 @@ from abc import ABC, abstractmethod
 from constants import CHAT_MODELS, system_message, MODEL_MAX_TOKENS, MODEL_MAX_NEW_TOKENS
 from utilities import my_cprint, has_bfloat16_support
 
+# logging.getLogger("transformers").setLevel(logging.WARNING) # adjust to see deprecation and other non-fatal errors
+logging.getLogger("transformers").setLevel(logging.ERROR)
+
 def get_model_settings(base_settings, attn_implementation):
     settings = copy.deepcopy(base_settings)
     settings['model_settings']['attn_implementation'] = attn_implementation
     return settings
     
 def get_max_length(model_name):
-    return MODEL_MAX_TOKENS.get(model_name, 4096)
+    return MODEL_MAX_TOKENS.get(model_name, 8192)
 
 def get_max_new_tokens(model_name):
-    return MODEL_MAX_NEW_TOKENS.get(model_name, 2048)
+    return MODEL_MAX_NEW_TOKENS.get(model_name, 1024)
 
 def get_generation_settings(max_length, max_new_tokens):
     return {
@@ -70,6 +73,14 @@ bnb_float16_settings = {
     }
 }
 
+def get_hf_token():
+    config_path = Path("config.yaml")
+    if config_path.exists():
+        with open(config_path, 'r') as config_file:
+            config = yaml.safe_load(config_file)
+            return config.get('hf_access_token')
+    return None
+
 class BaseModel(ABC):
     def __init__(self, model_info, settings, generation_settings, attn_implementation=None, tokenizer_kwargs=None, model_kwargs=None):
         if attn_implementation:
@@ -93,12 +104,16 @@ class BaseModel(ABC):
                 settings['bnb_float16_settings']['model_settings']['torch_dtype'] = torch.float16
                 settings['bnb_float16_settings']['model_settings']['quantization_config'].bnb_4bit_compute_dtype = torch.float16
 
+        hf_token = get_hf_token()
+
         tokenizer_settings = {
             **settings.get('tokenizer_settings', {}), 
             'cache_dir': str(cache_dir)
         }
         if tokenizer_kwargs:
             tokenizer_settings.update(tokenizer_kwargs)
+        if hf_token:
+            tokenizer_settings['use_auth_token'] = hf_token
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_info['repo_id'], **tokenizer_settings)
         
@@ -119,7 +134,11 @@ class BaseModel(ABC):
             model_settings.pop('attn_implementation', None)
             model_settings['device_map'] = "cpu"
 
+        if hf_token:
+            model_settings['use_auth_token'] = hf_token
+
         self.model = AutoModelForCausalLM.from_pretrained(model_info['repo_id'], **model_settings)
+        self.model.eval()
         
         my_cprint(f"Loaded {model_info['model']} on {self.device}", "green")
 
@@ -167,24 +186,26 @@ class BaseModel(ABC):
         self.cleanup()
         return new_model_class()
 
-def cleanup_resources(model, tokenizer):
-    del model
-    del tokenizer
-    torch.cuda.empty_cache()
-    gc.collect()
+    def cleanup_resources(model, tokenizer):
+        del model
+        del tokenizer
+        torch.cuda.empty_cache()
+        gc.collect()
 
 class Zephyr_1_6B(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Zephyr - 1.6b']
         settings = bnb_float16_settings if torch.cuda.is_available() else {}
-        super().__init__(model_info, settings, generation_settings)
+        attn_implementation="eager" if torch.cuda.is_available() else {}
+        super().__init__(model_info, settings, generation_settings, attn_implementation=attn_implementation)
 
     def create_prompt(self, augmented_query):
         return f"""<|system|>
-        {system_message}<|endoftext|>
-        <|user|>
-        {augmented_query}<|endoftext|>
-        <|assistant|>"""
+{system_message}<|endoftext|>
+<|user|>
+{augmented_query}<|endoftext|>
+<|assistant|>
+"""
 
 
 class Zephyr_3B(BaseModel):
@@ -194,10 +215,41 @@ class Zephyr_3B(BaseModel):
 
     def create_prompt(self, augmented_query):
         return f"""<|system|>
-        {system_message}<|endoftext|>
-        <|user|>
-        {augmented_query}<|endoftext|>
-        <|assistant|>"""
+{system_message}<|endoftext|>
+<|user|>
+{augmented_query}<|endoftext|>
+<|assistant|>
+"""
+
+
+class Qwen2_5_1_5b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Qwen 2.5 - 1.5b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
+
+class InternLM2_5_1_8b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Internlm2_5 - 1.8b']
+        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
+
+    def create_prompt(self, augmented_query):
+        return f"""<s><|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
 
 class QwenCoder_1_5b(BaseModel):
     def __init__(self, generation_settings):
@@ -206,11 +258,11 @@ class QwenCoder_1_5b(BaseModel):
 
     def create_prompt(self, augmented_query):
         return f"""<|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
 
     def generate_response(self, inputs):
         # Remove token_type_ids if it exists
@@ -229,18 +281,52 @@ class QwenCoder_1_5b(BaseModel):
 
         generation_thread.join()
 
+class Qwen2_5_3b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Qwen 2.5 - 3b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
+
+class Llama_3_2_3b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Llama 3.2 - 3b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+Cutting Knowledge Date: December 2023
+
+{system_message}<|eot_id|>
+<|start_header_id|>user<|end_header_id|>
+
+{augmented_query}<|eot_id|>
+<|start_header_id|>assistant<|end_header_id|>
+
+"""
+
+
 class Phi3_5_mini_4b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Phi 3.5 Mini - 4b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings, attn_implementation="flash_attention_2")
 
     def create_prompt(self, augmented_query):
-        return f"""<s><|system|>
-        {system_message}<|end|>
-        <|user|>
-        {augmented_query}<|end|>
-        <|assistant|>
-        """
+        return f"""<|system|>
+{system_message}<|end|>
+<|user|>
+{augmented_query}<|end|>
+<|assistant|>
+"""
+
 
 class InternLM2_5_7b(BaseModel):
     def __init__(self, generation_settings):
@@ -249,79 +335,27 @@ class InternLM2_5_7b(BaseModel):
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
 
     def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
+        return f"""<s><|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
 
-class LongWriter_Llama_3_1(BaseModel):
+
+class Qwen2_5_7b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['LongWriter Llama 3.1 - 8b']
+        model_info = CHAT_MODELS['Qwen 2.5 - 7b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<<SYS>>
-        {system_message}
-        <</SYS>>
-        
-        [INST]{augmented_query}[/INST]"""
+        return f"""<|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
 
-
-# class LongCite_Llama_3_1(BaseModel):
-    # def __init__(self, generation_settings):
-        # model_info = CHAT_MODELS['LongCite Llama 3.1 - 8b']
-        # super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    # def create_prompt(self, augmented_query):
-        # return f"""<<SYS>>
-        # {system_message}
-        # <</SYS>>
-        
-        # [INST]{augmented_query}[/INST]"""
-
-
-class Longwriter_glm4_9b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Longwriter GLM4 - 9b']
-        tokenizer_kwargs = {'eos_token': "<|endoftext|>"}
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
-
-    def create_prompt(self, augmented_query):
-       return f"""[gMASK]sop<|system|>
-       {system_message}<|user|>
-       {augmented_query}<|assistant|>"""
-
-
-# class LongCite_glm4_9b(BaseModel):
-    # def __init__(self, generation_settings):
-        # model_info = CHAT_MODELS['LongCite GLM4 - 9b']
-        # tokenizer_kwargs = {'eos_token': "<|endoftext|>"}
-        # super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
-
-    # def create_prompt(self, augmented_query):
-       # return f"""[gMASK]sop<|system|>
-       # {system_message}<|user|>
-       # {augmented_query}<|assistant|>"""
-
-
-# class Qwen_2_5_7b(BaseModel):
-    # def __init__(self, generation_settings):
-        # model_info = CHAT_MODELS['Qwen 2.5 - 7b']
-        # super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    # def create_prompt(self, augmented_query):
-        # return f"""<|im_start|>system
-        # {system_message}
-        # <|im_end|>
-        
-        # <|im_start|>user
-        # {augmented_query}
-        # <|im_end|>
-        
-        # <|im_start|>assistant
-        # """
 
 class QwenCoder_7b(BaseModel):
     def __init__(self, generation_settings):
@@ -330,11 +364,11 @@ class QwenCoder_7b(BaseModel):
 
     def create_prompt(self, augmented_query):
         return f"""<|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
 
     def generate_response(self, inputs):
         # Remove token_type_ids if it exists
@@ -354,22 +388,19 @@ class QwenCoder_7b(BaseModel):
         generation_thread.join()
 
 
-class Yi_9b(BaseModel):
+class Dolphin_Llama3_1_8B(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Yi - 9b']
+        model_info = CHAT_MODELS['Dolphin-Llama 3.1 - 8b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-       return f"""<|im_start|>system
-        {system_message}
-        <|im_end|>
-        
-        <|im_start|>user
-        {augmented_query}
-        <|im_end|>
-        
-        <|im_start|>assistant
-        """
+        return f"""<|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
 
 class Yi_Coder_9b(BaseModel):
     def __init__(self, generation_settings):
@@ -377,12 +408,13 @@ class Yi_Coder_9b(BaseModel):
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<|endoftext|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
+        return f"""<|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
 
 class DeepSeek_Coder_v2_lite(BaseModel):
     def __init__(self, generation_settings):
@@ -391,9 +423,9 @@ class DeepSeek_Coder_v2_lite(BaseModel):
 
     def create_prompt(self, augmented_query):
         return f"""<｜begin▁of▁sentence｜>{system_message}
-        User: {augmented_query}
-        
-        Assistant:"""
+User: {augmented_query}
+Assistant:"""
+
 
 class Qwen_2_5_14b(BaseModel):
     def __init__(self, generation_settings):
@@ -402,25 +434,23 @@ class Qwen_2_5_14b(BaseModel):
 
     def create_prompt(self, augmented_query):
         return f"""<|im_start|>system
-        {system_message}
-        <|im_end|>
-        
-        <|im_start|>user
-        {augmented_query}
-        <|im_end|>
-        
-        <|im_start|>assistant
-        """
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
 
-class SOLAR_pro_preview(BaseModel):
+
+class Mistral_Small_22b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Solar Pro Preview - 22.1b']
-        super().__init__(model_info, bnb_float16_settings, generation_settings)
+        model_info = CHAT_MODELS['Mistral Small - 22b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<|startoftext|><|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant"""
+        return f"""<s>
+[INST] {system_message}
+
+{augmented_query}[/INST]"""
 
 
 class InternLM2_5_20b(BaseModel):
@@ -430,12 +460,13 @@ class InternLM2_5_20b(BaseModel):
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
 
     def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {augmented_query}<|im_end|>
-        <|im_start|>assistant
-        """
+        return f"""<s><|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
 
 @torch.inference_mode()
 def generate_response(model_instance, augmented_query):

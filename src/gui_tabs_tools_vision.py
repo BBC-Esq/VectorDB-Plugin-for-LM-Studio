@@ -16,18 +16,15 @@ from module_process_images import choose_image_loader
 
 CONFIG_FILE = 'config.yaml'
 
-logging.basicConfig(level=logging.DEBUG) # doublecheck how to suppress cuda version info messsage
-
 class CustomWebEnginePage(QWebEnginePage):
     def acceptNavigationRequest(self, url, _type, isMainFrame):
         if _type == QWebEnginePage.NavigationTypeLinkClicked:
-            logging.debug(f"Opening URL in system browser: {url.toString()}")
+            print(f"Opening URL in system browser: {url.toString()}")
             QDesktopServices.openUrl(url)
             return False
         return super().acceptNavigationRequest(url, _type, isMainFrame)
 
     def createWindow(self, _type):
-        logging.debug(f"createWindow called with type: {_type}")
         if _type == QWebEnginePage.WebBrowserTab or _type == QWebEnginePage.WebBrowserBackgroundTab:
             return self
         return None
@@ -64,7 +61,7 @@ class VisionToolSettingsTab(QWidget):
         custom_page = CustomWebEnginePage(self.webView)
         self.webView.setPage(custom_page)
         script_dir = Path(__file__).resolve().parent
-        html_file_path = script_dir / self.HTML_FILE
+        html_file_path = script_dir / "Assets" / self.HTML_FILE
         self.webView.setUrl(QUrl.fromLocalFile(str(html_file_path)))
         mainVLayout.addWidget(self.webView)
 
@@ -97,7 +94,7 @@ class VisionToolSettingsTab(QWidget):
 
     def onProcessingFinished(self, documents):
         self.thread = None
-        logging.info(f"Processed {len(documents)} documents")
+        print(f"Processed {len(documents)} documents")
         contents = self.extract_page_content(documents)
         self.save_page_contents(contents)
 
@@ -138,7 +135,7 @@ class VisionToolSettingsTab(QWidget):
                 file.write(f"{filename}\n\n")
                 file.write(f"{content}\n\n")
 
-        logging.info(f"Saved vision summaries to {output_file}")
+        print(f"Saved vision summaries to {output_file}")
 
         self.open_file(output_file)
 
@@ -152,7 +149,6 @@ class VisionToolSettingsTab(QWidget):
                 subprocess.Popen(['xdg-open', file_path])
             else:
                 raise NotImplementedError("Unsupported operating system")
-            logging.info(f"Opened file: {file_path}")
         except Exception as e:
             error_msg = f"Error opening file: {e}"
             logging.error(error_msg)
