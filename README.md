@@ -77,6 +77,14 @@ Run the setup script:
 ```
 python setup_windows.py
 ```
+### Step 5 - 🔥IMPORTANT🔥
+In order to use the Ask Jeeves functionality you must:
+1) Go into the ```Assets``` folder;
+2) Right click on ```koboldcpp_nocuda.exe```;
+3) Check the "Unblock" checkbox
+4) Click OK.
+
+<img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/Assets/kobold_unblock.png?raw=true" width="300">
 
 [Back to Top](#top)
 
