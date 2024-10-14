@@ -469,6 +469,31 @@ def download_kobold():
 
 download_kobold()
 
+# 9. update config.yaml to include jeeves database
+def update_config_yaml():
+    import yaml
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(script_dir, 'config.yaml')
+    
+    with open(config_path, 'r', encoding='utf-8') as file:
+        config = yaml.safe_load(file)
+    
+    vector_model_path = os.path.join(script_dir, 'Models', 'vector', 'thenlper--gte-base')
+    
+    if 'created_databases' not in config:
+        config['created_databases'] = {}
+    if 'user_manual' not in config['created_databases']:
+        config['created_databases']['user_manual'] = {}
+    
+    config['created_databases']['user_manual']['chunk_overlap'] = 349
+    config['created_databases']['user_manual']['chunk_size'] = 700
+    config['created_databases']['user_manual']['model'] = vector_model_path
+    
+    with open(config_path, 'w', encoding='utf-8') as file:
+        yaml.dump(config, file, default_flow_style=False)
+
+update_config_yaml()
+
 end_time = time.time()
 total_time = end_time - start_time
 hours, rem = divmod(total_time, 3600)
