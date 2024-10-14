@@ -91,7 +91,7 @@ In order to use the Ask Jeeves functionality you must:
 <a name="using-the-program"></a>
 <div align="center"> <h3>🖥️Usage🖥️</h3></div>
 
-> 🔥Important🔥 more detailed instructions are located within the ```User Guide``` tab.
+> 🔥Important🔥 for more detailed instructions just Ask Jeeves!
 
 ### Activate the virtual environment and start the program
 > Every time you want to use the program you must activate the virtual environment:
