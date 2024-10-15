@@ -6,6 +6,7 @@ from initialize import restore_vector_db_backup
 from utilities import backup_database
 import matplotlib.pyplot as plt
 from chart_all_gpus import create_gpu_comparison_plot
+from chart_models_chat import create_chat_models_comparison_plot
 from constants import CustomButtonStyles
 
 class WorkerThread(QThread):
@@ -41,7 +42,11 @@ class MiscTab(QWidget):
         self.chart_gpus_button = QPushButton("Compare GPUs")
         self.chart_gpus_button.clicked.connect(self.chart_gpus)
         self.chart_gpus_button.setToolTip("Compare various GPUs.")
-        
+
+        self.chart_chat_models_button = QPushButton("Compare Chat Models")
+        self.chart_chat_models_button.clicked.connect(self.chart_chat_models)
+        self.chart_chat_models_button.setToolTip("Compare various chat models.")
+
         self.gpu_count_combo = QComboBox()
         self.gpu_count_combo.addItems(["4", "6", "8", "10-12", "16-24"])
         self.gpu_count_combo.setCurrentIndex(0)
@@ -50,6 +55,7 @@ class MiscTab(QWidget):
         self.backup_all_button.setStyleSheet(CustomButtonStyles.RED_BUTTON_STYLE)
         self.restore_backup_button.setStyleSheet(CustomButtonStyles.RED_BUTTON_STYLE)
         self.chart_gpus_button.setStyleSheet(CustomButtonStyles.GREEN_BUTTON_STYLE)
+        self.chart_chat_models_button.setStyleSheet(CustomButtonStyles.BLUE_BUTTON_STYLE)
         
         center_button_layout = QHBoxLayout()
         center_button_layout.addStretch(1)
@@ -57,6 +63,7 @@ class MiscTab(QWidget):
         center_button_layout.addWidget(self.restore_backup_button)
         center_button_layout.addWidget(self.chart_gpus_button)
         center_button_layout.addWidget(self.gpu_count_combo)
+        center_button_layout.addWidget(self.chart_chat_models_button)
         center_button_layout.addStretch(1)
         
         self.layout.addLayout(center_button_layout)
@@ -150,3 +157,17 @@ class MiscTab(QWidget):
     def reset_chart_button(self):
         self.set_button_text(self.chart_gpus_button, "Compare GPUs")
         self.chart_gpus_button.setEnabled(True)
+
+    def chart_chat_models(self):
+        self.chart_chat_models_button.setEnabled(False)
+        self.set_button_text(self.chart_chat_models_button, "Charting...")
+
+        fig = create_chat_models_comparison_plot()
+        plt.figure(fig.number)
+        plt.show(block=False)
+
+        QTimer.singleShot(500, self.reset_chart_chat_models_button)
+
+    def reset_chart_chat_models_button(self):
+        self.set_button_text(self.chart_chat_models_button, "Compare Chat Models")
+        self.chart_chat_models_button.setEnabled(True)

@@ -2,28 +2,25 @@ jeeves_system_message = "You are a helpful British butler who clearly and direct
 system_message = "You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."
 rag_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
 
+# to change the default of 8192 in module_chat.py
 MODEL_MAX_TOKENS = {
+    'Qwen 2.5 - 1.5b': 4096,
+    'Qwen 2.5 Coder - 1.5b': 4096,
     'Zephyr - 1.6b': 4096,
-    'Zephyr - 1.6b': 4096,
-    'Llama 3.2 - 3b': 8192,
-    'Phi 3.5 Mini - 4b': 8192,
-    'Internlm2_5 - 7b': 8192,
-    'CodeQwen 1.5 - 7b': 8192,
-    'Qwen 2.5 Coder - 7b': 8192,
-    'Yi Coder - 9b': 8192,
-    'DeepSeek Coder v2 - 16b': 8192,
-    'Internlm2_5 - 20b': 8192,
-    'Qwen 2.5 - 14b': 8192,
+    'Zephyr - 3b': 4096,
+    'Qwen 2.5 - 3b': 4096,
+    'Llama 3.2 - 3b': 4096,
+    'Internlm2_5 - 1.8b': 4096
 }
 
+# to change the default of 1024 in module_chat.mpy
 MODEL_MAX_NEW_TOKENS = {
+    'Qwen 2.5 - 1.5b': 512,
+    'Qwen 2.5 Coder - 1.5b': 512,
     'Zephyr - 1.6b': 512,
     'Zephyr - 3b': 512,
-    'Qwen 2.5 - 1.5b': 512,
+    'Qwen 2.5 - 3b': 512,
     'Internlm2_5 - 1.8b': 512,
-    'Qwen 2.5 Coder - 1.5b': 512,
-    'Qwen 2.5 - 14b': 2048,
-    'Internlm2_5 - 20b': 2048,
 }
 
 CHAT_MODELS = {
@@ -31,9 +28,9 @@ CHAT_MODELS = {
         'model': 'Qwen 2.5 - 1.5b',
         'repo_id': 'Qwen/Qwen2.5-1.5B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-1.5B-Instruct',
-        'tokens_per_second': 65,
+        'cps': 261.31,
         'context_length': 32768,
-        'avg_vram_usage': '3.7 GB',
+        'vram': 1749.97,
         'function': 'Qwen2_5_1_5b',
         'gated': False,
     },
@@ -41,9 +38,9 @@ CHAT_MODELS = {
         'model': 'Qwen 2.5 Coder - 1.5b',
         'repo_id': 'Qwen/Qwen2.5-Coder-1.5B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-Coder-1.5B-Instruct',
-        'tokens_per_second': 57,
+        'cps': 236.32,
         'context_length': 4096,
-        'avg_vram_usage': '2.9 GB',
+        'vram': 1742.12,
         'function': 'QwenCoder_1_5b',
         'precision': 'bfloat16',
         'gated': False,
@@ -52,9 +49,9 @@ CHAT_MODELS = {
         'model': 'Zephyr - 1.6b',
         'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
         'cache_dir': 'stabilityai--stablelm-2-zephyr-1_6b',
-        'tokens_per_second': 74,
+        'cps': 375.77,
         'context_length': 4096,
-        'avg_vram_usage': '2.5 GB',
+        'vram': 2233.45,
         'function': 'Zephyr_1_6B',
         'precision': 'float16',
         'gated': False,
@@ -63,9 +60,9 @@ CHAT_MODELS = {
         'model': 'Zephyr - 3b',
         'repo_id': 'stabilityai/stablelm-zephyr-3b',
         'cache_dir': 'stabilityai--stablelm-zephyr-3b',
-        'tokens_per_second': 57,
+        'cps': 293.68,
         'context_length': 4096,
-        'avg_vram_usage': '2.9 GB',
+        'vram': 2733.85,
         'function': 'Zephyr_3B',
         'precision': 'bfloat16',
         'gated': False,
@@ -74,9 +71,9 @@ CHAT_MODELS = {
         'model': 'Qwen 2.5 - 3b',
         'repo_id': 'Qwen/Qwen2.5-3B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-3B-Instruct',
-        'tokens_per_second': 65,
+        'cps': 213.40,
         'context_length': 32768,
-        'avg_vram_usage': '3.7 GB',
+        'vram': 2864.89,
         'function': 'Qwen2_5_3b',
         'gated': False,
     },
@@ -84,9 +81,9 @@ CHAT_MODELS = {
         'model': 'Llama 3.2 - 3b',
         'repo_id': 'meta-llama/Llama-3.2-3B-Instruct',
         'cache_dir': 'meta-llama--Llama-3.2-3B-Instruct',
-        'tokens_per_second': 65,
+        'cps': 265.09,
         'context_length': 32768,
-        'avg_vram_usage': '3.7 GB',
+        'vram': 3003.67,
         'function': 'Llama_3_2_3b',
         'gated': True,
     },
@@ -94,9 +91,9 @@ CHAT_MODELS = {
         'model': 'Internlm2_5 - 1.8b',
         'repo_id': 'internlm/internlm2_5-1_8b-chat',
         'cache_dir': 'internlm--internlm2_5-1_8b-chat',
-        'tokens_per_second': 55.51,
+        'cps': 262.98,
         'context_length': 32768,
-        'avg_vram_usage': '2.8 GB',
+        'vram': 3019.65,
         'function': 'InternLM2_5_1_8b',
         'gated': False,
     },
@@ -104,9 +101,9 @@ CHAT_MODELS = {
         'model': 'Phi 3.5 Mini - 4b',
         'repo_id': 'microsoft/Phi-3.5-mini-instruct',
         'cache_dir': 'microsoft--Phi-3.5-mini-instruct',
-        'tokens_per_second': 40,
+        'cps': 139.05,
         'context_length': 8192,
-        'avg_vram_usage': '3.8 GB',
+        'vram': 3957.12,
         'function': 'Phi3_5_mini_4b',
         'precision': 'bfloat16',
         'gated': False,
@@ -115,9 +112,9 @@ CHAT_MODELS = {
         'model': 'Qwen 2.5 - 7b',
         'repo_id': 'Qwen/Qwen2.5-7B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-7B-Instruct',
-        'tokens_per_second': 65,
+        'cps': 226.22,
         'context_length': 32768,
-        'avg_vram_usage': '3.7 GB',
+        'vram': 6766.57,
         'function': 'Qwen2_5_7b',
         'gated': False,
     },
@@ -125,9 +122,9 @@ CHAT_MODELS = {
         'model': 'Qwen 2.5 Coder - 7b',
         'repo_id': 'Qwen/Qwen2.5-Coder-7B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-Coder-7B-Instruct',
-        'tokens_per_second': 57,
+        'cps': 219.55,
         'context_length': 4096,
-        'avg_vram_usage': '2.9 GB',
+        'vram': 6760.18,
         'function': 'QwenCoder_7b',
         'precision': 'bfloat16',
         'gated': False,
@@ -136,9 +133,9 @@ CHAT_MODELS = {
         'model': 'Dolphin-Llama 3.1 - 8b',
         'repo_id': 'cognitivecomputations/dolphin-2.9.4-llama3.1-8b',
         'cache_dir': 'cognitivecomputations--dolphin-2.9.4-llama3.1-8b',
-        'tokens_per_second': 50.33,
+        'cps': 228.31,
         'context_length': 8192,
-        'avg_vram_usage': '7.1 GB',
+        'vram': 6598.98,
         'function': 'Dolphin_Llama3_1_8B',
         'gated': False,
     },
@@ -146,9 +143,9 @@ CHAT_MODELS = {
         'model': 'Yi Coder - 9b',
         'repo_id': '01-ai/Yi-Coder-9B-Chat',
         'cache_dir': '01-ai--Yi-Coder-9B-Chat',
-        'tokens_per_second': 30.85,
+        'cps': 143.72,
         'context_length': 8192,
-        'avg_vram_usage': '7.2 GB',
+        'vram': 6500.29,
         'function': 'Yi_Coder_9b',
         'precision': 'bfloat16',
         'gated': False,
@@ -157,9 +154,9 @@ CHAT_MODELS = {
         'model': 'Internlm2_5 - 7b',
         'repo_id': 'internlm/internlm2_5-7b-chat',
         'cache_dir': 'internlm--internlm2_5-7b-chat',
-        'tokens_per_second': 35.12,
+        'cps': 156.65,
         'context_length': 32768,
-        'avg_vram_usage': '6.8 GB',
+        'vram': 6926.25,
         'function': 'InternLM2_5_7b',
         'precision': 'bfloat16',
         'gated': False,
@@ -168,9 +165,9 @@ CHAT_MODELS = {
         'model': 'Qwen 2.5 - 14b',
         'repo_id': 'Qwen/Qwen2.5-14B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-14B-Instruct',
-        'tokens_per_second': 57,
+        'cps': 139.26,
         'context_length': 4096,
-        'avg_vram_usage': '2.9 GB',
+        'vram': 12599.22,
         'function': 'Qwen_2_5_14b',
         'precision': 'bfloat16',
         'gated': False,
@@ -179,9 +176,9 @@ CHAT_MODELS = {
         'model': 'DeepSeek Coder v2 - 16b',
         'repo_id': 'deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct',
         'cache_dir': 'deepseek-ai--DeepSeek-Coder-V2-Lite-Instruct',
-        'tokens_per_second': 35.86,
+        'cps': 79.17,
         'context_length': 8192,
-        'avg_vram_usage': '10.0 GB',
+        'vram': 11830.24,
         'function': 'DeepSeek_Coder_v2_lite',
         'precision': 'bfloat16',
         'gated': False,
@@ -190,9 +187,9 @@ CHAT_MODELS = {
         'model': 'Mistral Small - 22b',
         'repo_id': 'mistralai/Mistral-Small-Instruct-2409',
         'cache_dir': 'mistralai--Mistral-Small-Instruct-2409',
-        'tokens_per_second': 20.21,
+        'cps': 98.33,
         'context_length': 32768,
-        'avg_vram_usage': '14.2 GB',
+        'vram': 13723.65,
         'function': 'Mistral_Small_22b',
         'precision': 'bfloat16',
         'gated': True,
@@ -201,9 +198,9 @@ CHAT_MODELS = {
         'model': 'Internlm2_5 - 20b',
         'repo_id': 'internlm/internlm2_5-20b-chat',
         'cache_dir': 'internlm--internlm2_5-20b-chat',
-        'tokens_per_second': 20.21,
+        'cps': 101.13,
         'context_length': 32768,
-        'avg_vram_usage': '14.2 GB',
+        'vram': 14305.22,
         'function': 'InternLM2_5_20b',
         'precision': 'bfloat16',
         'gated': False,
@@ -507,197 +504,197 @@ WHISPER_MODELS = {
         'name': 'Distil Whisper large-v3',
         'precision': 'float32',
         'repo_id': 'ctranslate2-4you/distil-whisper-large-v3-ct2-float32',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Distil Whisper large-v3 - bfloat16': {
         'name': 'Distil Whisper large-v3',
         'precision': 'bfloat16',
         'repo_id': 'ctranslate2-4you/distil-whisper-large-v3-ct2-bfloat16',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Distil Whisper large-v3 - float16': {
         'name': 'Distil Whisper large-v3',
         'precision': 'float16',
         'repo_id': 'ctranslate2-4you/distil-whisper-large-v3-ct2-float16',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Whisper large-v3 - float32': {
         'name': 'Whisper large-v3',
         'precision': 'float32',
         'repo_id': 'ctranslate2-4you/whisper-large-v3-ct2-float32',
-        'tokens_per_second': 85,
+        'cps': 85,
         'optimal_batch_size': 2,
-        'avg_vram_usage': '5.5 GB'
+        'vram': '5.5 GB'
     },
     'Whisper large-v3 - bfloat16': {
         'name': 'Whisper large-v3',
         'precision': 'bfloat16',
         'repo_id': 'ctranslate2-4you/whisper-large-v3-ct2-bfloat16',
-        'tokens_per_second': 95,
+        'cps': 95,
         'optimal_batch_size': 3,
-        'avg_vram_usage': '3.8 GB'
+        'vram': '3.8 GB'
     },
     'Whisper large-v3 - float16': {
         'name': 'Whisper large-v3',
         'precision': 'float16',
         'repo_id': 'ctranslate2-4you/whisper-large-v3-ct2-float16',
-        'tokens_per_second': 100,
+        'cps': 100,
         'optimal_batch_size': 3,
-        'avg_vram_usage': '3.3 GB'
+        'vram': '3.3 GB'
     },
     # MEDIUM.EN
     'Distil Whisper medium.en - float32': {
         'name': 'Distil Whisper large-v3',
         'precision': 'float32',
         'repo_id': 'ctranslate2-4you/distil-whisper-medium.en-ct2-float32',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Distil Whisper medium.en - bfloat16': {
         'name': 'Distil Whisper medium.en',
         'precision': 'bfloat16',
         'repo_id': 'ctranslate2-4you/distil-whisper-medium.en-ct2-bfloat16',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Distil Whisper medium.en - float16': {
         'name': 'Distil Whisper medium.en',
         'precision': 'float16',
         'repo_id': 'ctranslate2-4you/distil-whisper-medium.en-ct2-float16',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Whisper medium.en - float32': {
         'name': 'Whisper medium.en',
         'precision': 'float32',
         'repo_id': 'ctranslate2-4you/whisper-medium.en-ct2-float32',
-        'tokens_per_second': 130,
+        'cps': 130,
         'optimal_batch_size': 6,
-        'avg_vram_usage': '2.5 GB'
+        'vram': '2.5 GB'
     },
     'Whisper medium.en - bfloat16': {
         'name': 'Whisper medium.en',
         'precision': 'bfloat16',
         'repo_id': 'ctranslate2-4you/whisper-medium.en-ct2-bfloat16',
-        'tokens_per_second': 140,
+        'cps': 140,
         'optimal_batch_size': 7,
-        'avg_vram_usage': '2.0 GB'
+        'vram': '2.0 GB'
     },
     'Whisper medium.en - float16': {
         'name': 'Whisper medium.en',
         'precision': 'float16',
         'repo_id': 'ctranslate2-4you/whisper-medium.en-ct2-float16',
-        'tokens_per_second': 145,
+        'cps': 145,
         'optimal_batch_size': 7,
-        'avg_vram_usage': '1.8 GB'
+        'vram': '1.8 GB'
     },
     # SMALL.EN
     'Distil Whisper small.en - float32': {
         'name': 'Distil Whisper small.en',
         'precision': 'float32',
         'repo_id': 'ctranslate2-4you/distil-whisper-small.en-ct2-float32',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Distil Whisper small.en - bfloat16': {
         'name': 'Distil Whisper small.en',
         'precision': 'bfloat16',
         'repo_id': 'ctranslate2-4you/distil-whisper-small.en-ct2-bfloat16',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Distil Whisper small.en - float16': {
         'name': 'Distil Whisper small.en',
         'precision': 'float16',
         'repo_id': 'ctranslate2-4you/distil-whisper-small.en-ct2-float16',
-        'tokens_per_second': 160,
+        'cps': 160,
         'optimal_batch_size': 4,
-        'avg_vram_usage': '3.0 GB'
+        'vram': '3.0 GB'
     },
     'Whisper small.en - float32': {
         'name': 'Whisper small.en',
         'precision': 'float32',
         'repo_id': 'ctranslate2-4you/whisper-small.en-ct2-float32',
-        'tokens_per_second': 180,
+        'cps': 180,
         'optimal_batch_size': 14,
-        'avg_vram_usage': '1.5 GB'
+        'vram': '1.5 GB'
     },
     'Whisper small.en - bfloat16': {
         'name': 'Whisper small.en',
         'precision': 'bfloat16',
         'repo_id': 'ctranslate2-4you/whisper-small.en-ct2-bfloat16',
-        'tokens_per_second': 190,
+        'cps': 190,
         'optimal_batch_size': 15,
-        'avg_vram_usage': '1.2 GB'
+        'vram': '1.2 GB'
     },
     'Whisper small.en - float16': {
         'name': 'Whisper small.en',
         'precision': 'float16',
         'repo_id': 'ctranslate2-4you/whisper-small.en-ct2-float16',
-        'tokens_per_second': 195,
+        'cps': 195,
         'optimal_batch_size': 15,
-        'avg_vram_usage': '1.1 GB'
+        'vram': '1.1 GB'
     },
     # BASE.EN
     'Whisper base.en - float32': {
         'name': 'Whisper base.en',
         'precision': 'float32',
         'repo_id': 'ctranslate2-4you/whisper-base.en-ct2-float32',
-        'tokens_per_second': 230,
+        'cps': 230,
         'optimal_batch_size': 22,
-        'avg_vram_usage': '1.0 GB'
+        'vram': '1.0 GB'
     },
     'Whisper base.en - bfloat16': {
         'name': 'Whisper base.en',
         'precision': 'bfloat16',
         'repo_id': 'ctranslate2-4you/whisper-base.en-ct2-bfloat16',
-        'tokens_per_second': 240,
+        'cps': 240,
         'optimal_batch_size': 23,
-        'avg_vram_usage': '0.85 GB'
+        'vram': '0.85 GB'
     },
     'Whisper base.en - float16': {
         'name': 'Whisper base.en',
         'precision': 'float16',
         'repo_id': 'ctranslate2-4you/whisper-base.en-ct2-float16',
-        'tokens_per_second': 245,
+        'cps': 245,
         'optimal_batch_size': 23,
-        'avg_vram_usage': '0.8 GB'
+        'vram': '0.8 GB'
     },
     # TINY.EN
     'Whisper tiny.en - float32': {
         'name': 'Whisper tiny.en',
         'precision': 'float32',
         'repo_id': 'ctranslate2-4you/whisper-tiny.en-ct2-float32',
-        'tokens_per_second': 280,
+        'cps': 280,
         'optimal_batch_size': 30,
-        'avg_vram_usage': '0.7 GB'
+        'vram': '0.7 GB'
     },
     'Whisper tiny.en - bfloat16': {
         'name': 'Whisper tiny.en',
         'precision': 'bfloat16',
         'repo_id': 'ctranslate2-4you/whisper-tiny.en-ct2-bfloat16',
-        'tokens_per_second': 290,
+        'cps': 290,
         'optimal_batch_size': 31,
-        'avg_vram_usage': '0.6 GB'
+        'vram': '0.6 GB'
     },
     'Whisper tiny.en - float16': {
         'name': 'Whisper tiny.en',
         'precision': 'float16',
         'repo_id': 'ctranslate2-4you/whisper-tiny.en-ct2-float16',
-        'tokens_per_second': 295,
+        'cps': 295,
         'optimal_batch_size': 31,
-        'avg_vram_usage': '0.55 GB'
+        'vram': '0.55 GB'
     },
 }
 
