@@ -84,11 +84,16 @@ class ModelDownloader:
             
             safetensors_files = [file for file in repo_files if file.path.endswith('.safetensors')]
             bin_files = [file for file in repo_files if file.path.endswith('.bin')]
-            # allow_patterns=["*.safetensors", "*.bin"],
-            ignore_patterns = ["*consolidated*", "*.gguf", "*.h5", "*.ot", "*.md", "README*", "onnx/**", "coreml/**"]
+            
+            ignore_patterns = ["*.gguf", "*.h5", "*.ot", "*.md", "README*", "onnx/**", "coreml/**"]
             
             if safetensors_files and bin_files:
                 ignore_patterns.append("*.bin")
+            
+            # Only add "*consolidated*" to ignore_patterns if there are other .safetensors or .bin files
+            if safetensors_files or bin_files:
+                ignore_patterns.append("*consolidated*")
+            
             total_size = 0
             included_files = []
             ignored_files = []
@@ -100,6 +105,7 @@ class ModelDownloader:
                         total_size += file.size
                     else:
                         ignored_files.append(file)
+            
             readable_total_size = humanfriendly.format_size(total_size)
             print(f"\nTotal size to be downloaded: {readable_total_size}")
             print(f"\nDownloading to {local_dir}...")
