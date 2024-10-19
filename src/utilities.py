@@ -45,7 +45,6 @@ def cpu_db_creation_vision_model_compatibility(directory, image_extensions, conf
 
     return True, None
 
-
 def get_pkl_file_path(pkl_file_path):
     # used in gui_tabs_databases.py when opening a file
     try:
@@ -82,45 +81,12 @@ def format_citations(metadata_list):
     
     return f"<ol>{list_items}</ol>"
 
-
-def get_physical_core_count():
+def count_physical_cores():
     return psutil.cpu_count(logical=False)
-
 
 def load_config(config_file):
     with open(config_file, 'r') as file:
         return yaml.safe_load(file)
-
-
-def is_nvidia_gpu_available():
-    return torch.cuda.is_available() and torch.version.cuda is not None
-
-config = load_config('config.yaml')
-
-
-# Import pynvml only if CUDA is available and an NVIDIA GPU is detected
-if is_nvidia_gpu_available():
-    import pynvml
-
-    def print_cuda_memory_usage():
-        try:
-            pynvml.nvmlInit()
-            handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-
-            memory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
-            print(f"Memory Total: {memory_info.total / 1024**2} MB")
-            print(f"Memory Used: {memory_info.used / 1024**2} MB")
-            print(f"Memory Free: {memory_info.free / 1024**2} MB")
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-
-        finally:
-            pynvml.nvmlShutdown()
-else:
-    def print_cuda_memory_usage():
-        print("CUDA is not available, or no NVIDIA GPU detected.")
-
 
 def load_stylesheet(filename):
     script_dir = Path(__file__).parent
@@ -129,19 +95,16 @@ def load_stylesheet(filename):
         stylesheet = file.read()
     return stylesheet
 
-
 def list_theme_files():
     script_dir = Path(__file__).parent
     theme_dir = script_dir / 'CSS'
     return [f.name for f in theme_dir.iterdir() if f.suffix == '.css']
-
 
 def make_theme_changer(theme_name):
     def change_theme():
         stylesheet = load_stylesheet(theme_name)
         QApplication.instance().setStyleSheet(stylesheet)
     return change_theme
-
 
 def backup_database():
     source_directory = Path('Vector_DB')
@@ -157,7 +120,6 @@ def backup_database():
         backup_directory.mkdir(parents=True, exist_ok=True)
 
     shutil.copytree(source_directory, backup_directory, dirs_exist_ok=True)
-
 
 def backup_database_incremental(new_database_name):
     source_directory = Path('Vector_DB')
@@ -196,13 +158,11 @@ def open_file(file_path):
     except OSError:
         QMessageBox.warning(None, "Error", "No default viewer detected.")
 
-
 def delete_file(file_path):
     try:
         os.remove(file_path)
     except OSError:
         QMessageBox.warning(None, "Unable to delete file(s), please delete manually.")
-
 
 def check_preconditions_for_db_creation(script_dir, database_name):
     # is db name valid
@@ -274,7 +234,6 @@ def check_preconditions_for_db_creation(script_dir, database_name):
 
     return True, ""
 
-
 # gui.py
 def check_preconditions_for_submit_question(script_dir):
     config_path = script_dir / 'config.yaml'
@@ -288,32 +247,14 @@ def check_preconditions_for_submit_question(script_dir):
 
     return True, ""
 
-
 def my_cprint(*args, **kwargs):
     filename = os.path.basename(sys._getframe(1).f_code.co_filename)
     modified_message = f"{args[0]}"
     # modified_message = f"{filename}: {args[0]}" # uncomment to print script name as well
     kwargs['flush'] = True
     cprint(modified_message, *args[1:], **kwargs)
-    
-    
-def print_cuda_memory_usage():
-    try:
-        pynvml.nvmlInit()
-        handle = pynvml.nvmlDeviceGetHandleByIndex(0)
 
-        memory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
-        print(f"Memory Total: {memory_info.total / 1024**2} MB") 
-        print(f"Memory Used: {memory_info.used / 1024**2} MB")
-        print(f"Memory Free: {memory_info.free / 1024**2} MB")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-    finally:
-        pynvml.nvmlShutdown()
-
-
+# not currently used
 def get_cuda_compute_capabilities():
     ccs = []
     for i in range(torch.cuda.device_count()):
@@ -322,12 +263,10 @@ def get_cuda_compute_capabilities():
 
     return ccs
 
-
 def get_cuda_version():
     major, minor = map(int, torch.version.cuda.split("."))
 
     return f'{major}{minor}'
-
 
 # returns True if cuda exists and supports compute 8.6 of higher
 def has_bfloat16_support():
@@ -336,7 +275,6 @@ def has_bfloat16_support():
     
     capability = torch.cuda.get_device_capability()
     return capability >= (8, 6)
-
 
 def get_precision():
     if not torch.cuda.is_available():
@@ -350,7 +288,6 @@ def get_precision():
     
     return precision
 
-
 def get_device_and_precision():
     if torch.cuda.is_available():
         device = "cuda"
@@ -363,7 +300,6 @@ def get_device_and_precision():
         device = "cpu"
         precision = "float32"
     return device, precision
-
 
 class FlashAttentionUtils:
     @staticmethod
@@ -419,7 +355,6 @@ class FlashAttentionUtils:
         # Enable Flash Attention in the config
         config._attn_implementation = "flash_attention_2"
         return config
-
 
 
 '''
@@ -487,7 +422,6 @@ def set_logging_level():
 
     for lib, level in library_levels.items():
         logging.getLogger(lib).setLevel(level)
-
 
 def prepare_long_path(base_path: str, filename: str) -> str:
     """

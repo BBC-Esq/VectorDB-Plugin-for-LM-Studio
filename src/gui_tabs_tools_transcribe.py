@@ -1,12 +1,13 @@
 import threading
 from pathlib import Path
 import yaml
+import torch
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QFileDialog, QLabel, QComboBox, QSlider
 )
 from module_transcribe import WhisperTranscriber
-from utilities import my_cprint
+from utilities import my_cprint, has_bfloat16_support
 from constants import WHISPER_MODELS, TOOLTIPS
 
 class TranscriberToolSettingsTab(QWidget):
@@ -30,7 +31,7 @@ class TranscriberToolSettingsTab(QWidget):
         model_selection_hbox.addWidget(model_label)
         
         self.model_combo = QComboBox()
-        self.model_combo.addItems(WHISPER_MODELS.keys())
+        self.populate_model_combo()
         self.model_combo.setToolTip(TOOLTIPS["WHISPER_MODEL_SELECT"])
         model_selection_hbox.addWidget(self.model_combo)
         
@@ -73,6 +74,22 @@ class TranscriberToolSettingsTab(QWidget):
         main_layout.addWidget(self.file_path_label)
         
         self.setLayout(main_layout)
+
+    def populate_model_combo(self):
+        cuda_available = torch.cuda.is_available()
+        bfloat16_supported = has_bfloat16_support()
+
+        filtered_models = []
+        for model_name, model_info in WHISPER_MODELS.items():
+            precision = model_info['precision']
+            if precision == 'float32':
+                filtered_models.append(model_name)
+            elif precision == 'bfloat16' and bfloat16_supported:
+                filtered_models.append(model_name)
+            elif precision == 'float16' and cuda_available:
+                filtered_models.append(model_name)
+
+        self.model_combo.addItems(filtered_models)
 
     def update_slider_label(self, value):
         self.slider_label.setText(str(value))
