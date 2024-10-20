@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
     QStyleFactory, QMenuBar, QHBoxLayout, QMessageBox
 )
 from initialize import main as initialize_system
-from metrics_bar import MetricsBar
+from metrics_bar import MetricsWidget as MetricsBar
 from gui_tabs import create_tabs
 from utilities import list_theme_files, make_theme_changer, load_stylesheet
 from gui_file_settings_hf import set_hf_access_token
@@ -56,8 +56,8 @@ class DocQA_GUI(QWidget):
         metrics_layout = QHBoxLayout()
         metrics_layout.addWidget(self.metrics_bar)
         
-        # Set a max height for the MetricsBar
-        self.metrics_bar.setMaximumHeight(60)
+        # max height for the MetricsBar
+        self.metrics_bar.setMaximumHeight(80)
         
         main_layout.addLayout(metrics_layout)
 
