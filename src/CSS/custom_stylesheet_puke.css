@@ -14,16 +14,20 @@ QPushButton {
     border-radius: 5px;
     padding: 5px;
     min-width: 60px;
+    border: 1px solid transparent;
 }
 
 QPushButton:hover {
-    background-color: #3c4742;
-    border: 1px solid #7a8c7c;
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
     color: white;
 }
 
 QGroupBox {
     border: 2px solid #303a35;
+    color: #6b7b6e;
+    font-size: 12pt;
+    padding: 10px;
 }
 
 QLabel {
@@ -33,9 +37,14 @@ QLabel {
 QComboBox {
     background-color: #4a5a4e;
     color: white;
-    border: none;
+    border: 1px solid #39424e;
     border-radius: 5px;
     padding: 3px;
+}
+
+QComboBox:hover,
+QComboBox:focus {
+    border: 1px solid #6c757d;
 }
 
 QRadioButton {
@@ -43,30 +52,29 @@ QRadioButton {
 }
 
 QComboBox QAbstractItemView {
-    background-color: #4a5a4e;
+    background-color: #39424e;
     color: white;
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: #b2bcb0;
+    background-color: #39424e;
     color: white;
 }
 
 QLineEdit {
     background-color: #161b22;
     color: #59665c;
-    border: none;
+    border: 1px solid transparent;
     padding: 3px;
+}
+
+QLineEdit:hover,
+QLineEdit:focus {
+    border: 1px solid #6c757d;
 }
 
 QLineEdit::placeholder {
     color: #6e7e71;
-}
-
-QGroupBox {
-    color: #6b7b6e;
-    font-size: 12pt;
-    padding: 10px;
 }
 
 DownloadModelDialog {
@@ -116,8 +124,8 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: #7a8c7c;
-    border-bottom: 3px solid #8c9c89;
+    background-color: #39424e;
+    border-bottom: 3px solid #6c757d;
 }
 
 QTabBar::tab:hover {
@@ -154,6 +162,11 @@ QCheckBox {
     color: white;
 }
 
+QCheckBox::indicator:unchecked:hover,
+QCheckBox::indicator:checked:hover {
+    border: 1px solid #6c757d;
+}
+
 QMessageBox {
     background-color: #1e1e1e;
 }
@@ -170,6 +183,12 @@ QMessageBox QPushButton {
     border: none;
 }
 
-QMessageBox QPushButton:hover, QMessageBox QPushButton:pressed {
+QMessageBox QPushButton:hover,
+QMessageBox QPushButton:pressed {
     background-color: #2f343f;
+}
+
+QAbstractItemView::item:hover {
+    background-color: #39424e;
+    color: white;
 }

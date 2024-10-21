@@ -3,7 +3,6 @@ DocQA_GUI {
 }
 
 QWidget {
-    border: 2px solid #0E0D13;
     border: none;
 }
 
@@ -14,11 +13,12 @@ QPushButton {
     border-radius: 5px;
     padding: 5px;
     min-width: 60px;
+    border: 1px solid transparent;
 }
 
 QPushButton:hover {
-    background-color: #0E0D13;
-    border: 1px solid #253141;
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
     color: #D1D7E2;
 }
 
@@ -29,9 +29,14 @@ QLabel {
 QComboBox {
     background-color: #0B0A11;
     color: #D1D7E2;
-    border: none;
+    border: 1px solid #39424e;
     border-radius: 5px;
     padding: 3px;
+}
+
+QComboBox:hover,
+QComboBox:focus {
+    border: 1px solid #6c757d;
 }
 
 QComboBox QAbstractItemView {
@@ -40,15 +45,20 @@ QComboBox QAbstractItemView {
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: #0E0D13;
-    color: #D1D7E2;
+    background-color: #39424e;
+    color: white;
 }
 
 QLineEdit {
     background-color: #0E0D13;
     color: #D1D7E2;
-    border: none;
+    border: 1px solid transparent;
     padding: 3px;
+}
+
+QLineEdit:hover,
+QLineEdit:focus {
+    border: 1px solid #6c757d;
 }
 
 QLineEdit::placeholder {
@@ -57,7 +67,7 @@ QLineEdit::placeholder {
 
 QGroupBox {
     border: 2px solid #0D0C12;
-	color: white;
+    color: white;
     font-size: 12pt;
     padding: 10px;
 }
@@ -97,7 +107,7 @@ QTabWidget {
     border: none;
 }
 
-QTabWidget, QTabWidget::pane {
+QTabWidget::pane {
     margin: 0px;
     padding: 0px;
     border: none;
@@ -113,8 +123,8 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: #0E0D13;
-    border-bottom: 3px solid #253141;
+    background-color: #39424e;
+    border-bottom: 3px solid #6c757d;
 }
 
 QTabBar::tab:hover {
@@ -151,6 +161,16 @@ QCheckBox {
     color: white;
 }
 
+QCheckBox::indicator:unchecked:hover,
+QCheckBox::indicator:checked:hover {
+    border: 1px solid #6c757d;
+}
+
+QAbstractItemView::item:hover {
+    background-color: #39424e;
+    color: white;
+}
+
 QMessageBox {
     background-color: #1e1e1e;
 }
@@ -167,6 +187,7 @@ QMessageBox QPushButton {
     border: none;
 }
 
-QMessageBox QPushButton:hover, QMessageBox QPushButton:pressed {
+QMessageBox QPushButton:hover,
+QMessageBox QPushButton:pressed {
     background-color: #2f343f;
 }

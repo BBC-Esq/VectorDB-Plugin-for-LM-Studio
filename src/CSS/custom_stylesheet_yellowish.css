@@ -14,11 +14,12 @@ QPushButton {
     border-radius: 5px;
     padding: 5px;
     min-width: 60px;
+    border: 1px solid transparent;
 }
 
 QPushButton:hover {
-    background-color: #3e392b;
-    border: 1px solid #75705b;
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
     color: white;
 }
 
@@ -33,26 +34,36 @@ QRadioButton {
 QComboBox {
     background-color: #4a4739;
     color: white;
-    border: none;
     border-radius: 5px;
     padding: 3px;
+    border: 1px solid #39424e;
+}
+
+QComboBox:hover,
+QComboBox:focus {
+    border: 1px solid #6c757d;
 }
 
 QComboBox QAbstractItemView {
-    background-color: #4a4739;
+    background-color: #39424e;
     color: white;
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: #6b6934;
+    background-color: #39424e;
     color: white;
 }
 
 QLineEdit {
     background-color: #161b22;
     color: white;
-    border: none;
+    border: 1px solid transparent;
     padding: 3px;
+}
+
+QLineEdit:hover,
+QLineEdit:focus {
+    border: 1px solid #6c757d;
 }
 
 QLineEdit::placeholder {
@@ -113,8 +124,8 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: #75705b;
-    border-bottom: 3px solid #6b6934;
+    background-color: #39424e;
+    border-bottom: 3px solid #6c757d;
 }
 
 QTabBar::tab:hover {
@@ -148,6 +159,16 @@ QMenuBar::item:selected {
 }
 
 QCheckBox {
+    color: white;
+}
+
+QCheckBox::indicator:unchecked:hover,
+QCheckBox::indicator:checked:hover {
+    border: 1px solid #6c757d;
+}
+
+QAbstractItemView::item:hover {
+    background-color: #39424e;
     color: white;
 }
 

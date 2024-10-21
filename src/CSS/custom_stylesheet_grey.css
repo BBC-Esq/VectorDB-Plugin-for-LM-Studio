@@ -14,11 +14,12 @@ QPushButton {
     border-radius: 5px;
     padding: 5px;
     min-width: 60px;
+    border: 1px solid transparent;
 }
 
 QPushButton:hover {
-    background-color: #626262;
-    border: 1px solid #7E7E7E;
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
     color: white;
 }
 
@@ -33,26 +34,36 @@ QLabel {
 QComboBox {
     background-color: #4E4E4E;
     color: white;
-    border: none;
+    border: 1px solid #39424e;
     border-radius: 5px;
     padding: 3px;
 }
 
+QComboBox:hover,
+QComboBox:focus {
+    border: 1px solid #6c757d;
+}
+
 QComboBox QAbstractItemView {
-    background-color: #4E4E4E;
+    background-color: #39424e;
     color: white;
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: #8C8C8C;
+    background-color: #39424e;
     color: white;
 }
 
 QLineEdit {
     background-color: #2D2D2D;
     color: #A0A0A0;
-    border: none;
+    border: 1px solid transparent;
     padding: 3px;
+}
+
+QLineEdit:hover,
+QLineEdit:focus {
+    border: 1px solid #6c757d;
 }
 
 QLineEdit::placeholder {
@@ -116,8 +127,8 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: #626262;
-    border-bottom: 3px solid #8C8C8C;
+    background-color: #39424e;
+    border-bottom: 3px solid #6c757d;
 }
 
 QTabBar::tab:hover {
@@ -154,6 +165,11 @@ QCheckBox {
     color: white;
 }
 
+QCheckBox::indicator:unchecked:hover,
+QCheckBox::indicator:checked:hover {
+    border: 1px solid #6c757d;
+}
+
 QMessageBox {
     background-color: #1e1e1e;
 }
@@ -172,4 +188,9 @@ QMessageBox QPushButton {
 
 QMessageBox QPushButton:hover, QMessageBox QPushButton:pressed {
     background-color: #2f343f;
+}
+
+QAbstractItemView::item:hover {
+    background-color: #39424e;
+    color: white;
 }

@@ -14,16 +14,20 @@ QPushButton {
     border-radius: 5px;
     padding: 5px;
     min-width: 60px;
+    border: 1px solid transparent;
 }
 
 QPushButton:hover {
-    background-color: #4a422b;
-    border: 1px solid #8c7a5a;
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
     color: white;
 }
 
 QGroupBox {
     border: 2px solid #3b382b;
+    color: white;
+    font-size: 12pt;
+    padding: 10px;
 }
 
 QLabel {
@@ -33,13 +37,23 @@ QLabel {
 QComboBox {
     background-color: #5a5a5a;
     color: white;
-    border: none;
+    border: 1px solid #39424e;
     border-radius: 5px;
     padding: 3px;
 }
 
+QComboBox:hover,
+QComboBox:focus {
+    border: 1px solid #6c757d;
+}
+
 QComboBox QAbstractItemView {
-    background-color: #5a5a5a;
+    background-color: #39424e;
+    color: white;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: #39424e;
     color: white;
 }
 
@@ -47,26 +61,20 @@ QRadioButton {
     color: white;
 }
 
-QComboBox QAbstractItemView::item:hover {
-    background-color: #8c6b34;
-    color: white;
-}
-
 QLineEdit {
     background-color: #161b22;
     color: white;
-    border: none;
+    border: 1px solid transparent;
     padding: 3px;
+}
+
+QLineEdit:hover,
+QLineEdit:focus {
+    border: 1px solid #6c757d;
 }
 
 QLineEdit::placeholder {
     color: #b2a27a;
-}
-
-QGroupBox {
-    color: white;
-    font-size: 12pt;
-    padding: 10px;
 }
 
 DownloadModelDialog {
@@ -116,8 +124,8 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: #8c7a5a;
-    border-bottom: 3px solid #8c6b34;
+    background-color: #39424e;
+    border-bottom: 3px solid #6c757d;
 }
 
 QTabBar::tab:hover {
@@ -154,6 +162,16 @@ QCheckBox {
     color: white;
 }
 
+QCheckBox::indicator:unchecked:hover,
+QCheckBox::indicator:checked:hover {
+    border: 1px solid #6c757d;
+}
+
+QAbstractItemView::item:hover {
+    background-color: #39424e;
+    color: white;
+}
+
 QMessageBox {
     background-color: #1e1e1e;
 }
@@ -170,6 +188,7 @@ QMessageBox QPushButton {
     border: none;
 }
 
-QMessageBox QPushButton:hover, QMessageBox QPushButton:pressed {
+QMessageBox QPushButton:hover,
+QMessageBox QPushButton:pressed {
     background-color: #2f343f;
 }
