@@ -468,6 +468,20 @@ class InternLM2_5_20b(BaseModel):
 """
 
 
+class Qwen_2_5_32b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Qwen 2.5 - 32b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
+
 @torch.inference_mode()
 def generate_response(model_instance, augmented_query):
     prompt = model_instance.create_prompt(augmented_query)

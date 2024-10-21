@@ -2,7 +2,7 @@ jeeves_system_message = "You are a helpful British butler who clearly and direct
 system_message = "You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."
 rag_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
 
-# to change the default of 8192 in module_chat.py
+# changes the default of 8192 in module_chat.py
 MODEL_MAX_TOKENS = {
     'Qwen 2.5 - 1.5b': 4096,
     'Qwen 2.5 Coder - 1.5b': 4096,
@@ -13,7 +13,7 @@ MODEL_MAX_TOKENS = {
     'Internlm2_5 - 1.8b': 4096
 }
 
-# to change the default of 1024 in module_chat.mpy
+# changes the default of 1024 in module_chat.mpy
 MODEL_MAX_NEW_TOKENS = {
     'Qwen 2.5 - 1.5b': 512,
     'Qwen 2.5 Coder - 1.5b': 512,
@@ -166,7 +166,7 @@ CHAT_MODELS = {
         'repo_id': 'Qwen/Qwen2.5-14B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-14B-Instruct',
         'cps': 139.26,
-        'context_length': 4096,
+        'context_length': 8192,
         'vram': 12599.22,
         'function': 'Qwen_2_5_14b',
         'precision': 'bfloat16',
@@ -202,6 +202,17 @@ CHAT_MODELS = {
         'context_length': 32768,
         'vram': 14305.22,
         'function': 'InternLM2_5_20b',
+        'precision': 'bfloat16',
+        'gated': False,
+    },
+    'Qwen 2.5 - 32b': {
+        'model': 'Qwen 2.5 - 32b',
+        'repo_id': 'Qwen/Qwen2.5-32B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-32B-Instruct',
+        'cps': 101.51,
+        'context_length': 8192,
+        'vram': 21128.30,
+        'function': 'Qwen_2_5_32b',
         'precision': 'bfloat16',
         'gated': False,
     },

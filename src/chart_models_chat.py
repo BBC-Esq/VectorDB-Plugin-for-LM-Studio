@@ -28,6 +28,7 @@ def create_chat_models_comparison_plot():
                 "Qwen 2.5 - 14b",
                 "Mistral Small - 22b",
                 "Internlm2_5 - 20b",
+                "Qwen 2.5 - 32b",
             ],
             "color": "#CD5C5C",
             "label": "8k Context"
