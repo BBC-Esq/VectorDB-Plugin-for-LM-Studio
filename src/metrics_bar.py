@@ -244,11 +244,11 @@ class BarVisualization(MetricsVisualization):
 ### Sparkline Visualization Class ###
 
 class Sparkline(QWidget):
-    def __init__(self, max_values=150, color="#0074D9"):
+    def __init__(self, max_values=125, color="#0074D9"):
         super().__init__()
         self.max_values = max_values
         self.values = deque(maxlen=max_values)
-        self.setFixedSize(90, 65)
+        self.setFixedSize(125, 65)
         self.color = QColor(color)
 
     def add_value(self, value):
@@ -418,8 +418,9 @@ class Speedometer(QWidget):
         self.min_value = min_value
         self.max_value = max_value
         self.current_value = 0
+        # To change colors, modify this list. Each color corresponds to a section of the speedometer.
         self.colors = colors or ["#00FF00", "#FFFF00", "#FF0000"]  # Green, Yellow, Red
-        self.setFixedSize(65, 65)  # pixel size
+        self.setFixedSize(105, 105)  # Adjust these values to change the overall size of the speedometer
 
     def set_value(self, value):
         self.current_value = max(self.min_value, min(self.max_value, value))
@@ -433,7 +434,7 @@ class Speedometer(QWidget):
         height = self.height()
         center_x = width / 2
         center_y = height / 2
-        radius = min(width, height) / 2 * 0.7  # Adjusted radius
+        radius = min(width, height) / 2 * 0.7  # Adjust the 0.7 factor to change the size of the arc relative to the widget
 
         # Colored background arc
         start_angle = 180 * 16
@@ -454,8 +455,8 @@ class Speedometer(QWidget):
             self.max_value - self.min_value
         ) * 180
 
-        needle_length = radius * 0.9  # Needle length of 90% of radius
-        needle_width = 5  # Thickness of the needle
+        needle_length = radius * 0.9  # Adjust this factor to change the length of the needle
+        needle_width = 5  # Adjust this value to change the thickness of the needle
         needle_angle = angle * (pi / 180)
 
         needle_tip_x = center_x + needle_length * cos(needle_angle)
@@ -477,10 +478,12 @@ class Speedometer(QWidget):
         needle = QPolygon([point1.toPoint(), point2.toPoint(), point3.toPoint()])
 
         painter.setPen(Qt.NoPen)
-        painter.setBrush(Qt.white)
+        painter.setBrush(Qt.white)  # Change this color to modify the needle color
         painter.drawPolygon(needle)
 
     def get_color_at_angle(self, angle):
+        # This method determines the color gradient of the speedometer.
+        # Modify the color interpolation logic here to change the appearance.
         t = angle / 180
         if t <= 0:
             return QColor(self.colors[0])
@@ -507,14 +510,14 @@ class SpeedometerVisualization(MetricsVisualization):
 
     def initUI(self):
         main_layout = QGridLayout(self)
-        main_layout.setSpacing(1)
-        main_layout.setContentsMargins(1, 1, 1, 1)
+        main_layout.setSpacing(1)  # Adjust this value to change the spacing between speedometers
+        main_layout.setContentsMargins(1, 1, 1, 1)  # Adjust these values to change the margins around the speedometers
 
         def create_speedometer_group(name):
             group = QVBoxLayout()
-            group.setSpacing(2)  # spacing within the group
-            speedometer = Speedometer(colors=["#00FF00", "#FFFF00", "#FF0000"])
-            speedometer.setFixedSize(65, 65)  # speedometer pixel size
+            group.setSpacing(2)  # Adjust this value to change the spacing between the speedometer and its label
+            speedometer = Speedometer(colors=["#00FF00", "#FFFF00", "#FF0000"])  # Modify these colors to change the speedometer appearance
+            speedometer.setFixedSize(105, 105)  # Adjust these values to change the size of individual speedometers
             group.addWidget(speedometer, alignment=Qt.AlignCenter)
             label = QLabel(f"{name} 0.0%")
             label.setAlignment(Qt.AlignCenter)
@@ -556,6 +559,8 @@ class SpeedometerVisualization(MetricsVisualization):
             main_layout.setColumnStretch(i, 1)
 
     def update_metrics(self, metrics):
+        # This method updates the speedometer values
+        # Modify the formatting of the label text here if needed
         (
             cpu_usage,
             ram_usage_percent,
@@ -597,7 +602,7 @@ class SpeedometerVisualization(MetricsVisualization):
 
     # Sets number of samples in rolling average to display
     def setup_metrics_buffers(self):
-        buffer_size = 5
+        buffer_size = 5  # Adjust this value to change the number of samples used for the rolling average
         self.cpu_buffer = deque(maxlen=buffer_size)
         self.ram_buffer = deque(maxlen=buffer_size)
         self.gpu_buffer = deque(maxlen=buffer_size)
