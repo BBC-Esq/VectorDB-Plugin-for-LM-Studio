@@ -9,6 +9,7 @@ from PySide6.QtCore import (
     QObject,
     Signal,
     QPointF,
+    QThread,
 )
 from PySide6.QtWidgets import (
     QWidget,
@@ -97,38 +98,56 @@ def collect_power_metrics(handle):
     return power_percentage, power_limit
 
 
+class MetricsCollectorThread(QThread):
+    metrics_updated = Signal(tuple)
+
+    def __init__(self):
+        super().__init__()
+        self.running = True
+        self.interval = 100  # 100ms polling interval
+        self.gpu_available = HAS_NVIDIA_GPU
+
+    def run(self):
+        while self.running:
+            cpu_usage = collect_cpu_metrics()
+            ram_usage_percent, _ = collect_ram_metrics()
+
+            if self.gpu_available:
+                gpu_utilization, vram_usage_percent = collect_gpu_metrics(HANDLE)
+                power_usage_percent, power_limit_percent = collect_power_metrics(HANDLE)
+            else:
+                gpu_utilization, vram_usage_percent = None, None
+                power_usage_percent, power_limit_percent = None, None
+
+            self.metrics_updated.emit(
+                (
+                    cpu_usage,
+                    ram_usage_percent,
+                    gpu_utilization,
+                    vram_usage_percent,
+                    power_usage_percent,
+                    power_limit_percent,
+                )
+            )
+            self.msleep(self.interval)
+
+    def stop(self):
+        self.running = False
+        self.wait()
+
+
 class MetricsCollector(QObject):
     metrics_updated = Signal(tuple)
 
     def __init__(self):
         super().__init__()
-        self.gpu_available = HAS_NVIDIA_GPU
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.collect_metrics)
-        self.timer.start(100)  # 100 ms polling interval
+        self.thread = MetricsCollectorThread()
+        self.thread.metrics_updated.connect(self.metrics_updated)
+        self.thread.start()
 
-    def collect_metrics(self):
-        cpu_usage = collect_cpu_metrics()
-        ram_usage_percent, _ = collect_ram_metrics()
-
-        # Only collect GPU metrics if NVIDIA GPU is present
-        if self.gpu_available:
-            gpu_utilization, vram_usage_percent = collect_gpu_metrics(HANDLE)
-            power_usage_percent, power_limit_percent = collect_power_metrics(HANDLE)
-        else:
-            gpu_utilization, vram_usage_percent = None, None
-            power_usage_percent, power_limit_percent = None, None
-
-        self.metrics_updated.emit(
-            (
-                cpu_usage,
-                ram_usage_percent,
-                gpu_utilization,
-                vram_usage_percent,
-                power_usage_percent,
-                power_limit_percent,
-            )
-        )
+    def stop(self):
+        if self.thread.isRunning():
+            self.thread.stop()
 
 
 class MetricsVisualization(QWidget):
@@ -619,7 +638,6 @@ class MetricsWidget(QWidget):
         self.metrics_collector = MetricsCollector()
         self.metrics_collector.metrics_updated.connect(self.update_visualization)
         self.current_visualization_type = 1  # Default to SparklineVisualization
-        
         self.setToolTip("Right click for display options")
 
     def init_ui(self):
@@ -675,5 +693,4 @@ class MetricsWidget(QWidget):
         self.current_visualization.update_metrics(metrics)
 
     def stop_metrics_collector(self):
-        if hasattr(self.metrics_collector, 'timer'):
-            self.metrics_collector.timer.stop()
+        self.metrics_collector.stop()
