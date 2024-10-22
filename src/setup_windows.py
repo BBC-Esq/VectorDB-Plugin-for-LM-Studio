@@ -7,7 +7,9 @@ from tkinter import messagebox
 from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
 import time
 
-
+# In order to use torch 2.4+ cudnn 9+ is required.
+# supposedly there are ctranslate2 wheels that support cudnn 9+ here:
+# https://github.com/OpenNMT/CTranslate2/pull/1803
 
 start_time = time.time()
 
@@ -324,7 +326,7 @@ other_libraries = [
 ]
 
 full_install_libraries = [
-    "pyside6==6.7.2",
+    "pyside6==6.7.3",
     "pymupdf==1.24.9",
     "unstructured==0.13.4"
 ]
