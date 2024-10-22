@@ -7,8 +7,9 @@ from tkinter import messagebox
 from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
 import time
 
-# ctranslate2==4.5.0 now supports cudnn 9+ and hence torch 2.4.0+
-# one user reported errors trying to use torch 2.3.1 and cudnn 9+
+# ctranslate2==4.5.0 now requires cudnn 9+, which works with CUDA 12.3+; however, torch 2.3.1 only supports up to CUDA 12.1
+# Therefore, torch 2.4.0+ is required to use cuDNN 9+ with ctranslate2 4.5.0+.
+# This consequently requires installing at least xformers 0.0.27.post1, flash-attn 2.6.3, and triton
 """
 # torch 2.5.0 - supports CUDA 11.8, 12.1, and 12.4
 # torch 2.4.1 - supports CUDA 11.8, 12.1, and 12.4
@@ -16,15 +17,16 @@ import time
 # torch 2.3.1 - supports CUDA 11.8 and 12.1
 
 # cuDNN 8.9.7 supports CUDA 11 through 12.2
-# cuDNN 9.0.0 - supports CUDA 11 through 12.3
-# cuDNN 9.1.0 - supports CUDA 11 through 12.4
-# cuDNN 9.2.0 - supports CUDA 11 through 12.5
-# cuDNN 9.2.1 - supports CUDA 11 through 12.5
-# cuDNN 9.3.0 - supports CUDA 11 through 12.6
-# cuDNN 9.4.0 - supports CUDA 11 through 12.6
-# cuDNN 9.5.0 - supports CUDA 11 through 12.6
+# cuDNN 9.0.0 - " " through 12.3
+# cuDNN 9.1.0 - " " through 12.4
+# cuDNN 9.2.0 - " " through 12.5
+# cuDNN 9.2.1 - " " through 12.5
+# cuDNN 9.3.0 - " " through 12.6
+# cuDNN 9.4.0 - " " through 12.6
+# cuDNN 9.5.0 - " " through 12.6
 
-# As of 10/22/2024 (release 2.6.3) flash-attention builds are only supporting up to CUDA 12.3 and torch 2.4.0
+# Flash-attn 2.6.3 is currently the only build that supports torch 2.4.0, but it only supports up to CUDA 12.3 (released 7/25/2024)
+# This is problematic since some models like florence2, minicpm2.6, phi 3.5 mini, and deepseek coder require FA and can't run on SDPA...
 
 # xformers 0.0.26.post1 - requires torch 2.3.0
 # xformers 0.0.27 - requires torch 2.3.0 but also states "some might require torch 2.4".
@@ -36,12 +38,19 @@ import time
 # new repo for windows triton wheels: https://github.com/woct0rdho/triton-windows/releases
 
 # Triton 3.1.0 requires torch at least torch 2.4.0 pursuant to the github readme.md
-pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.0.0-cp311-cp311-win_amd64.whl
 pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl
+pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp312-cp312-win_amd64.whl
 
 # older triton wheels compatible with pre-torch 2.4.0
 pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.0.0-cp311-cp311-win_amd64.whl
 pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.0.0-cp312-cp312-win_amd64.whl
+"""
+
+"""
+pip install nvidia-cudnn-cu12==9.5.0.50
+pip install nvidia-cuda-nvrtc-cu12==12.4.127
+pip install nvidia-cuda-runtime-cu12==12.4.127
+pip install nvidia-cublas-cu12==12.4.5.8
 """
 
 start_time = time.time()
