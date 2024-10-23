@@ -68,51 +68,63 @@ def print_first_citation_metadata(metadata_list):
             print(f"{key}: {value}")
 
 def format_citations(metadata_list):
-   """
-   Format metadata into an HTML list with grouped files, relevance ranges, and unique page numbers.
-   Sorted by lowest relevance score.
-   """
-   grouped_citations = {}
-   
-   for metadata in metadata_list:
-       file_path = metadata['file_path']
-       if file_path not in grouped_citations:
-           grouped_citations[file_path] = {
-               'name': Path(file_path).name,
-               'scores': [],
-               'pages': set(),
-               'file_type': metadata['file_type']
-           }
-       
-       grouped_citations[file_path]['scores'].append(metadata['similarity_score'])
-       if metadata['file_type'] == '.pdf':
-           grouped_citations[file_path]['pages'].add(metadata['page_number'])
-   
-   citations_with_scores = []
-   for file_path, data in grouped_citations.items():
-       min_score = min(data['scores'])
-       max_score = max(data['scores'])
-       
-       citation = f'<a href="file:{file_path}" style="color:#DAA520;text-decoration:none;">{data["name"]}</a>'
-       citation += f'<span style="color:#808080;font-size:0.9em;"> ['
-       citation += f'<span style="color:#4CAF50;">{min_score:.4f}'
-       
-       if len(data['scores']) > 1:
-           citation += f'-{max_score:.4f}'
-           
-       citation += ']'
-       
-       if data['file_type'] == '.pdf' and data['pages']:
-           sorted_pages = sorted(data['pages'])
-           citation += f' <span style="color:#666;">p.{", ".join(str(p) for p in sorted_pages)}</span>'
-           
-       citation += '</span>'
-           
-       citations_with_scores.append((min_score, citation))
-   
-   sorted_citations = [citation for score, citation in sorted(citations_with_scores)]
-   list_items = "".join(f"<li>{citation}</li>" for citation in sorted_citations)
-   return f"<ol>{list_items}</ol>"
+    """
+    Create citations with relevance scores and, for .pdf files, page numbers.
+    """
+    def group_metadata(metadata_list):
+        grouped = {}
+        for metadata in metadata_list:
+            file_path = metadata['file_path']
+            grouped.setdefault(file_path, {
+                'name': Path(file_path).name,
+                'scores': [],
+                'pages': set(),
+                'file_type': metadata.get('file_type', '')
+            })
+            grouped[file_path]['scores'].append(metadata['similarity_score'])
+            if grouped[file_path]['file_type'] == '.pdf':
+                page_number = metadata.get('page_number')
+                if page_number is not None:
+                    grouped[file_path]['pages'].add(page_number)
+        return grouped
+
+    def format_pages(pages):
+        if not pages:
+            return ''
+        sorted_pages = sorted(pages)
+        ranges = []
+        start = prev = sorted_pages[0]
+        for page in sorted_pages[1:]:
+            if page == prev + 1:
+                prev = page
+            else:
+                ranges.append((start, prev))
+                start = prev = page
+        ranges.append((start, prev))
+        page_str = ', '.join(f"{s}-{e}" if s != e else f"{s}" for s, e in ranges)
+        return f'<span style="color:#666;"> p.{page_str}</span>'
+
+    def create_citation(data, file_path):
+        min_score = min(data['scores'])
+        max_score = max(data['scores'])
+        score_range = f"{min_score:.4f}" if min_score == max_score else f"{min_score:.4f}-{max_score:.4f}"
+        pages_html = format_pages(data['pages']) if data['file_type'] == '.pdf' else ''
+        citation = (
+            f'<a href="file:{file_path}" style="color:#DAA520;text-decoration:none;">{data["name"]}</a>'
+            f'<span style="color:#808080;font-size:0.9em;"> ['
+            f'<span style="color:#4CAF50;">{score_range}</span>]'
+            f'{pages_html}'
+            f'</span>'
+        )
+        return min_score, citation
+
+    grouped_citations = group_metadata(metadata_list)
+    citations_with_scores = [create_citation(data, file_path) for file_path, data in grouped_citations.items()]
+    sorted_citations = [citation for _, citation in sorted(citations_with_scores)]
+    list_items = "".join(f"<li>{citation}</li>" for citation in sorted_citations)
+    
+    return f"<ol>{list_items}</ol>"
+
 
 def count_physical_cores():
     return psutil.cpu_count(logical=False)
