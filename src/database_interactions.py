@@ -471,7 +471,12 @@ class QueryVectorDB:
         # DEBUG
         # print(scores)
         
+        for metadata, score in zip(metadata_list, scores):
+            metadata['similarity_score'] = score
+        
         self.cleanup()
+        
+        # print(metadata_list)
         
         return contexts, metadata_list
 
