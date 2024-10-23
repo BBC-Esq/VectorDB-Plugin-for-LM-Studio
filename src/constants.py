@@ -1258,176 +1258,87 @@ scrape_documentation = {
 }
 
 class CustomButtonStyles:
-    SUBDUED_RED = "#320A0A"
+    # Base colors
     LIGHT_GREY = "#C8C8C8"
-    SUBDUED_BLUE = "#0A0A32"
-    SUBDUED_GREEN = "#0A320A"
-    SUBDUED_YELLOW = "#32320A"
-    SUBDUED_PURPLE = "#320A32"
-    SUBDUED_ORANGE = "#321E0A"
-    SUBDUED_TEAL = "#0A3232"
-    SUBDUED_PINK = "#320A1E"
-    SUBDUED_BROWN = "#2B1E0A"
+    DISABLED_TEXT = "#969696"
     
-    RED_BUTTON_STYLE = f"""
-        QPushButton {{
-            background-color: {SUBDUED_RED};
-            color: {LIGHT_GREY};
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }}
-        QPushButton:hover {{
-            background-color: #4B0F0F;
-        }}
-        QPushButton:pressed {{
-            background-color: #290909;
-        }}
-        QPushButton:disabled {{
-            background-color: #7D1919;
-            color: #969696;
-        }}
-    """
-    
-    BLUE_BUTTON_STYLE = f"""
-        QPushButton {{
-            background-color: {SUBDUED_BLUE};
-            color: {LIGHT_GREY};
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }}
-        QPushButton:hover {{
-            background-color: #0F0F4B;
-        }}
-        QPushButton:pressed {{
-            background-color: #09092B;
-        }}
-        QPushButton:disabled {{
-            background-color: #19197D;
-            color: #969696;
-        }}
-    """
-    
-    GREEN_BUTTON_STYLE = f"""
-        QPushButton {{
-            background-color: {SUBDUED_GREEN};
-            color: {LIGHT_GREY};
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }}
-        QPushButton:hover {{
-            background-color: #0F4B0F;
-        }}
-        QPushButton:pressed {{
-            background-color: #092909;
-        }}
-        QPushButton:disabled {{
-            background-color: #197D19;
-            color: #969696;
-        }}
-    """
+    # Color definitions with their hover/pressed/disabled variations
+    COLORS = {
+        "RED": {
+            "base": "#320A0A",
+            "hover": "#4B0F0F",
+            "pressed": "#290909",
+            "disabled": "#7D1919"
+        },
+        "BLUE": {
+            "base": "#0A0A32",
+            "hover": "#0F0F4B",
+            "pressed": "#09092B",
+            "disabled": "#19197D"
+        },
+        "GREEN": {
+            "base": "#0A320A",
+            "hover": "#0F4B0F",
+            "pressed": "#092909",
+            "disabled": "#197D19"
+        },
+        "YELLOW": {
+            "base": "#32320A",
+            "hover": "#4B4B0F",
+            "pressed": "#292909",
+            "disabled": "#7D7D19"
+        },
+        "PURPLE": {
+            "base": "#320A32",
+            "hover": "#4B0F4B",
+            "pressed": "#290929",
+            "disabled": "#7D197D"
+        },
+        "ORANGE": {
+            "base": "#321E0A",
+            "hover": "#4B2D0F",
+            "pressed": "#291909",
+            "disabled": "#7D5A19"
+        },
+        "TEAL": {
+            "base": "#0A3232",
+            "hover": "#0F4B4B",
+            "pressed": "#092929",
+            "disabled": "#197D7D"
+        },
+        "BROWN": {
+            "base": "#2B1E0A",
+            "hover": "#412D0F",
+            "pressed": "#231909",
+            "disabled": "#6B5A19"
+        }
+    }
 
-    YELLOW_BUTTON_STYLE = f"""
-        QPushButton {{
-            background-color: {SUBDUED_YELLOW};
-            color: {LIGHT_GREY};
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }}
-        QPushButton:hover {{
-            background-color: #4B4B0F;
-        }}
-        QPushButton:pressed {{
-            background-color: #292909;
-        }}
-        QPushButton:disabled {{
-            background-color: #7D7D19;
-            color: #969696;
-        }}
-    """
+    @classmethod
+    def _generate_button_style(cls, color_values):
+        return f"""
+            QPushButton {{
+                background-color: {color_values['base']};
+                color: {cls.LIGHT_GREY};
+                padding: 5px;
+                border: none;
+                border-radius: 3px;
+            }}
+            QPushButton:hover {{
+                background-color: {color_values['hover']};
+            }}
+            QPushButton:pressed {{
+                background-color: {color_values['pressed']};
+            }}
+            QPushButton:disabled {{
+                background-color: {color_values['disabled']};
+                color: {cls.DISABLED_TEXT};
+            }}
+        """
 
-    PURPLE_BUTTON_STYLE = f"""
-        QPushButton {{
-            background-color: {SUBDUED_PURPLE};
-            color: {LIGHT_GREY};
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }}
-        QPushButton:hover {{
-            background-color: #4B0F4B;
-        }}
-        QPushButton:pressed {{
-            background-color: #290929;
-        }}
-        QPushButton:disabled {{
-            background-color: #7D197D;
-            color: #969696;
-        }}
-    """
-
-    ORANGE_BUTTON_STYLE = f"""
-        QPushButton {{
-            background-color: {SUBDUED_ORANGE};
-            color: {LIGHT_GREY};
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }}
-        QPushButton:hover {{
-            background-color: #4B2D0F;
-        }}
-        QPushButton:pressed {{
-            background-color: #291909;
-        }}
-        QPushButton:disabled {{
-            background-color: #7D5A19;
-            color: #969696;
-        }}
-    """
-
-    TEAL_BUTTON_STYLE = f"""
-        QPushButton {{
-            background-color: {SUBDUED_TEAL};
-            color: {LIGHT_GREY};
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }}
-        QPushButton:hover {{
-            background-color: #0F4B4B;
-        }}
-        QPushButton:pressed {{
-            background-color: #092929;
-        }}
-        QPushButton:disabled {{
-            background-color: #197D7D;
-            color: #969696;
-        }}
-    """
-
-    BROWN_BUTTON_STYLE = f"""
-        QPushButton {{
-            background-color: {SUBDUED_BROWN};
-            color: {LIGHT_GREY};
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }}
-        QPushButton:hover {{
-            background-color: #412D0F;
-        }}
-        QPushButton:pressed {{
-            background-color: #231909;
-        }}
-        QPushButton:disabled {{
-            background-color: #6B5A19;
-            color: #969696;
-        }}
-    """
+for color_name, color_values in CustomButtonStyles.COLORS.items():
+    setattr(CustomButtonStyles, f"{color_name}_BUTTON_STYLE", 
+            CustomButtonStyles._generate_button_style(color_values))
 
 GPUS_NVIDIA = {
     "GeForce GTX 1630": {
