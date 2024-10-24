@@ -80,10 +80,15 @@ class VoiceRecorder:
                 print(status)
             self.frames.append(indata.copy())
 
-        with sd.InputStream(samplerate=self.rate, channels=self.channels, 
-                            callback=callback, blocksize=self.chunk):
-            while self.is_recording:
-                sd.sleep(100)
+        try:
+            with sd.InputStream(samplerate=self.rate, channels=self.channels, 
+                              callback=callback, blocksize=self.chunk):
+                while self.is_recording:
+                    sd.sleep(100)
+        except sd.PortAudioError as e:
+            my_cprint(f"Audio recording error: {str(e)}", 'red')
+            self.is_recording = False
+            self.gui_instance.update_transcription("Error: Failed to access microphone")
 
     def save_audio(self):
         self.is_recording = False
