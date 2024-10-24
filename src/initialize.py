@@ -61,7 +61,7 @@ def check_for_necessary_folders():
         "Assets",
         "Docs_for_DB",
         "Vector_DB_Backup",
-        "Vector_DB"
+        "Vector_DB",
         "Models",
         "Models/vector",
         "Models/chat",
