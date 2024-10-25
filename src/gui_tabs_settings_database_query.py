@@ -46,7 +46,7 @@ class DatabaseSettingsTab(QWidget):
         # Similarity Settings
         similarity_value = self.database_config.get('similarity', '')
         self.similarity_edit = QLineEdit()
-        self.similarity_edit.setPlaceholderText("Enter new similarity (0.0 - 1.0)...")
+        self.similarity_edit.setPlaceholderText("Similarity (0.0 - 1.0)...")
         self.similarity_edit.setValidator(QDoubleValidator(0.0, 1.0, 4))
         self.similarity_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.similarity_edit.setToolTip(TOOLTIPS["SIMILARITY"])
@@ -61,7 +61,7 @@ class DatabaseSettingsTab(QWidget):
         # Contexts Settings
         contexts_value = self.database_config.get('contexts', '')
         self.contexts_edit = QLineEdit()
-        self.contexts_edit.setPlaceholderText("Enter new contexts (positive integer)...")
+        self.contexts_edit.setPlaceholderText("# Contexts to return...")
         self.contexts_edit.setValidator(QIntValidator(1, 1000000))
         self.contexts_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.contexts_edit.setToolTip(TOOLTIPS["CONTEXTS"])
@@ -75,7 +75,7 @@ class DatabaseSettingsTab(QWidget):
 
         # Search Term Filter
         self.search_term_edit = QLineEdit()
-        self.search_term_edit.setPlaceholderText("Enter new search term...")
+        self.search_term_edit.setPlaceholderText("Term to exclude...")
         self.search_term_edit.setText(self.search_term)
         self.search_term_edit.setToolTip(TOOLTIPS["SEARCH_TERM_FILTER"])
         self.search_term_label = QLabel(f"Search Term Filter: {self.search_term}")
