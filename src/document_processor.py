@@ -47,6 +47,7 @@ def load_single_document(file_path: Path) -> Document:
     file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
     if not loader_class:
+        print(f"\033[91mFailed---> {file_path.name} (extension: {file_extension})\033[0m")
         logging.error(f"Unsupported file type: {file_path.name} (extension: {file_extension})")
         return None
     
@@ -74,12 +75,12 @@ def load_single_document(file_path: Path) -> Document:
             "encoding": "utf-8",
             "autodetect_encoding": True
         })
-
     try:
         loader = loader_class(str(file_path), **loader_options)
         documents = loader.load()
         
         if not documents:
+            print(f"\033[91mFailed---> {file_path.name} (No content extracted)\033[0m")
             logging.error(f"No content could be extracted from file: {file_path.name}")
             return None
             
@@ -87,12 +88,15 @@ def load_single_document(file_path: Path) -> Document:
         metadata = extract_document_metadata(file_path)
         document.metadata.update(metadata)
         
+        print(f"Loaded---> {file_path.name}")
         return document
         
     except (OSError, UnicodeDecodeError) as e:
+        print(f"\033[91mFailed---> {file_path.name} (Access/encoding error)\033[0m")
         logging.error(f"File access/encoding error - File: {file_path.name} - Error: {str(e)}")
         return None
     except Exception as e:
+        print(f"\033[91mFailed---> {file_path.name} (Unexpected error)\033[0m")
         logging.error(f"Unexpected error processing file: {file_path.name} - Error: {str(e)}")
         return None
 
