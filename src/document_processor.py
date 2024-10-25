@@ -25,6 +25,14 @@ from langchain_community.document_loaders import (
 from constants import DOCUMENT_LOADERS
 from extract_metadata import extract_document_metadata, add_pymupdf_page_metadata
 
+logging.basicConfig(
+    level=logging.ERROR,  # Only log errors
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('document_processor.log', mode='w')  # 'w' mode overwrites the file
+    ]
+)
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -38,12 +46,11 @@ for ext, loader_name in DOCUMENT_LOADERS.items():
 def load_single_document(file_path: Path) -> Document:
     file_extension = file_path.suffix.lower()
     loader_class = DOCUMENT_LOADERS.get(file_extension)
-
     if not loader_class:
-        raise ValueError(f"Document type for extension {file_extension} is undefined")
-
+        logging.error(f"Unsupported file type: {file_path.name} (extension: {file_extension})")
+        return None
+    
     loader_options = {}
-
     if file_extension in [".epub", ".rtf", ".odt", ".md"]:
         loader_options.update({"mode": "single", "strategy": "fast"})
     elif file_extension == ".html":
@@ -60,7 +67,6 @@ def load_single_document(file_path: Path) -> Document:
             # "open_encoding": None,  # Set to None to let BeautifulSoup detect encoding
             # "get_text_separator": " ",  # Use space instead of newline if preferred
         })
-        
     elif file_extension in [".xlsx", ".xls"]:
         loader_options.update({"mode": "single"})
     elif file_extension in [".csv", ".txt"]:
@@ -69,17 +75,26 @@ def load_single_document(file_path: Path) -> Document:
             "autodetect_encoding": True
         })
 
-    loader = loader_class(str(file_path), **loader_options)
-
-    document = loader.load()[0]
-
-    # Extract and update metadata
-    metadata = extract_document_metadata(file_path)
-    document.metadata.update(metadata)
-    
-    print(f"Loaded---> {file_path.name}")
-    
-    return document
+    try:
+        loader = loader_class(str(file_path), **loader_options)
+        documents = loader.load()
+        
+        if not documents:
+            logging.error(f"No content could be extracted from file: {file_path.name}")
+            return None
+            
+        document = documents[0]
+        metadata = extract_document_metadata(file_path)
+        document.metadata.update(metadata)
+        
+        return document
+        
+    except (OSError, UnicodeDecodeError) as e:
+        logging.error(f"File access/encoding error - File: {file_path.name} - Error: {str(e)}")
+        return None
+    except Exception as e:
+        logging.error(f"Unexpected error processing file: {file_path.name} - Error: {str(e)}")
+        return None
 
 def load_document_batch(filepaths, threads_per_process):
     with ThreadPoolExecutor(threads_per_process) as exe:
