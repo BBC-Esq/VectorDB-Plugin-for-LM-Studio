@@ -20,6 +20,7 @@ def create_chat_models_comparison_plot():
         "long_context": {
             "models": [
                 "Phi 3.5 Mini - 4b",
+                # "MiniCPM3 - 4b",
                 "Qwen 2.5 - 7b",
                 "Internlm2_5 - 7b",
                 "Yi Coder - 9b",

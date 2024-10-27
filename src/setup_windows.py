@@ -8,8 +8,8 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 import time
 
 # ctranslate2==4.5.0 now requires cudnn 9+, which works with CUDA 12.3+; however, torch 2.3.1 only supports up to CUDA 12.1
+# SUPPORTS Phi3.5 and Mistral Nemo...AWQ support was added in 4.4.0.  FA was added in 4.3.1 but removed in 4.4.0
 # Therefore, torch 2.4.0+ is required to use cuDNN 9+ with ctranslate2 4.5.0+.
-# This consequently requires installing at least xformers 0.0.27.post1, flash-attn 2.6.3, and triton
 """
 # torch 2.5.0 - supports CUDA 11.8, 12.1, and 12.4
 # torch 2.4.1 - supports CUDA 11.8, 12.1, and 12.4
@@ -27,9 +27,10 @@ import time
 
 # Flash-attn 2.6.3 is currently the only build that supports torch 2.4.0, but it only supports up to CUDA 12.3 (released 7/25/2024)
 # This is problematic since some models like florence2, minicpm2.6, phi 3.5 mini, and deepseek coder require FA and can't run on SDPA...
+# The FA2 repo mainter said it's compatible with newer versions and this isn't an issue.
 
 # xformers 0.0.26.post1 - requires torch 2.3.0
-# xformers 0.0.27 - requires torch 2.3.0 but also states "some might require torch 2.4".
+# xformers 0.0.27 - requires torch 2.3.0 but also states "some operation might require torch 2.4".
 # xformers 0.0.27.post1 - requires torch 2.4.0
 # xformers 0.0.27.post2 - requires torch 2.4.0
 # xformers 0.0.28.post1 (non-post1 release was not successfully uploaded to pypi) - requires torch 2.4.1
@@ -364,7 +365,21 @@ other_libraries = [
     "xlrd==2.0.1",
     "xxhash==3.4.1",
     "yarl==1.9.4",
-    "zipp==3.19.2"
+    "zipp==3.19.2",
+    # the following are only required by minicpm3 chat model
+    "argcomplete==3.5.0",
+    "black==24.8.0",
+    "datamodel_code_generator==0.26.0",
+    "dnspython==2.7.0",
+    "email-validator==2.2.0",
+    "genson==1.3.0",
+    "inflect==5.6.2",
+    "isort==5.13.2",
+    "jsonschema==4.23.0",
+    "jsonschema-specifications==2023.12.1",
+    "pathspec==0.12.1",
+    "referencing==0.35.1",
+    "rpds-py==0.20.0",
 ]
 
 full_install_libraries = [

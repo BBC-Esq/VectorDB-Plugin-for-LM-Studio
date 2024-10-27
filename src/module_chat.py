@@ -281,6 +281,7 @@ class QwenCoder_1_5b(BaseModel):
 
         generation_thread.join()
 
+
 class Qwen2_5_3b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen 2.5 - 3b']
@@ -326,6 +327,23 @@ class Phi3_5_mini_4b(BaseModel):
 {augmented_query}<|end|>
 <|assistant|>
 """
+
+
+class MiniCPM3_4b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['MiniCPM3 - 4b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<s><|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
+    def create_inputs(self, prompt):
+        inputs = super().create_inputs(prompt)
+        inputs['pad_token_id'] = self.tokenizer.pad_token_id
+        return inputs
 
 
 class InternLM2_5_7b(BaseModel):

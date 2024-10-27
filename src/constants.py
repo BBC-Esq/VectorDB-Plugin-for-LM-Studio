@@ -10,7 +10,8 @@ MODEL_MAX_TOKENS = {
     'Zephyr - 3b': 4096,
     'Qwen 2.5 - 3b': 4096,
     'Llama 3.2 - 3b': 4096,
-    'Internlm2_5 - 1.8b': 4096
+    'Internlm2_5 - 1.8b': 4096,
+    # 'MiniCPM3 - 4b': 4096
 }
 
 # changes the default of 1024 in module_chat.mpy
@@ -21,6 +22,7 @@ MODEL_MAX_NEW_TOKENS = {
     'Zephyr - 3b': 512,
     'Qwen 2.5 - 3b': 512,
     'Internlm2_5 - 1.8b': 512,
+    'MiniCPM3 - 4b': 512,
 }
 
 CHAT_MODELS = {
@@ -105,6 +107,17 @@ CHAT_MODELS = {
         'context_length': 8192,
         'vram': 3957.12,
         'function': 'Phi3_5_mini_4b',
+        'precision': 'bfloat16',
+        'gated': False,
+    },
+    'MiniCPM3 - 4b': {
+        'model': 'MiniCPM3 - 4b',
+        'repo_id': 'openbmb/MiniCPM3-4B',
+        'cache_dir': 'openbmb--MiniCPM3-4B',
+        'cps': 80.67,
+        'context_length': 8192,
+        'vram': 4998.10,
+        'function': 'MiniCPM3_4b',
         'precision': 'bfloat16',
         'gated': False,
     },
