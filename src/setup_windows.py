@@ -1,33 +1,36 @@
 import sys
+import os
+from pathlib import Path
 import subprocess
 import time
-import os
 import tkinter as tk
 from tkinter import messagebox
+
 from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
-import time
 
 # ctranslate2==4.5.0 now requires cudnn 9+, which works with CUDA 12.3+; however, torch 2.3.1 only supports up to CUDA 12.1
-# SUPPORTS Phi3.5 and Mistral Nemo...AWQ support was added in 4.4.0.  FA was added in 4.3.1 but removed in 4.4.0
+# SUPPORTS Phi3.5 and Mistral Nemo...AWQ support was added in 4.4.0.  Flash Attention was added in 4.3.1 but removed in 4.4.0
 # Therefore, torch 2.4.0+ is required to use cuDNN 9+ with ctranslate2 4.5.0+.
 """
+# Ctranslate2 3.24.0 - last to use cuDNN 8.1.1 with CUDA 11.2.2
+# Ctranslate2 4.0.0 - first to use cuDNN 8.8.0 with CUDA 12.2
+# Ctranslate2 4.5.0 - first to use cuDNN 9.1 with CUDA 12.2
+
 # torch 2.5.0 - supports CUDA 11.8, 12.1, and 12.4
 # torch 2.4.1 - supports CUDA 11.8, 12.1, and 12.4
 # torch 2.4.0 - supports CUDA 11.8, 12.1, and 12.4
 # torch 2.3.1 - supports CUDA 11.8 and 12.1
+# torch 2.2.2 - supports CUDA 11.8 and 12.1
 
 # cuDNN 8.9.7 supports CUDA 11 through 12.2
 # cuDNN 9.0.0 - " " through 12.3
 # cuDNN 9.1.0 - " " through 12.4
+# cuDNN 9.1.1 - " " through 12.4
 # cuDNN 9.2.0 - " " through 12.5
 # cuDNN 9.2.1 - " " through 12.5
 # cuDNN 9.3.0 - " " through 12.6
 # cuDNN 9.4.0 - " " through 12.6
 # cuDNN 9.5.0 - " " through 12.6
-
-# Flash-attn 2.6.3 is currently the only build that supports torch 2.4.0, but it only supports up to CUDA 12.3 (released 7/25/2024)
-# This is problematic since some models like florence2, minicpm2.6, phi 3.5 mini, and deepseek coder require FA and can't run on SDPA...
-# The FA2 repo mainter said it's compatible with newer versions and this isn't an issue.
 
 # xformers 0.0.26.post1 - requires torch 2.3.0
 # xformers 0.0.27 - requires torch 2.3.0 but also states "some operation might require torch 2.4".
@@ -40,18 +43,27 @@ import time
 
 # Triton 3.1.0 requires torch at least torch 2.4.0 pursuant to the github readme.md
 pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl
-pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp312-cp312-win_amd64.whl
 
 # older triton wheels compatible with pre-torch 2.4.0
+pip install https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl
 pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.0.0-cp311-cp311-win_amd64.whl
-pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.0.0-cp312-cp312-win_amd64.whl
 """
 
 """
-pip install nvidia-cudnn-cu12==9.5.0.50
-pip install nvidia-cuda-nvrtc-cu12==12.4.127
-pip install nvidia-cuda-runtime-cu12==12.4.127
-pip install nvidia-cublas-cu12==12.4.5.8
+# upgrading to CUDA 12.4 and Ctranslate2 4.5.0:
+
+pip install nvidia-cuda-runtime-cu12==12.4.99
+pip install nvidia-cuda-nvrtc-cu12==12.4.99
+pip install nvidia-cudnn-cu12==9.1.0.70
+pip install nvidia-cublas-cu12==12.4.2.65
+
+https://download.pytorch.org/whl/cu124/torch-2.4.0%2Bcu124-cp311-cp311-win_amd64.whl#sha256=b1d40a13a6fd3f92aa5728ab84756571381b6b1ccae7ce62037c28d539687c25
+https://download.pytorch.org/whl/cu124/torchvision-0.19.0%2Bcu124-cp311-cp311-win_amd64.whl#sha256=42ac55c0fd1cdea14c20168f0b24eba7fc2d2eb4ef75196ded7b76f81dee619f
+https://download.pytorch.org/whl/cu124/torchaudio-2.4.0%2Bcu124-cp311-cp311-win_amd64.whl#sha256=12f7f2b1c0fb435875175247083c8aca056face6bc5388b9a494a90ca197632c
+
+pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl
+xformers==0.0.27.post2
+https://github.com/bdashore3/flash-attention/releases/download/v2.6.3/flash_attn-2.6.3+cu123torch2.4.0cxx11abiFALSE-cp311-cp311-win_amd64.whl
 """
 
 start_time = time.time()
@@ -117,7 +129,7 @@ def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
         [sys.executable, "-m", "pip", "install", "--upgrade", "setuptools", "--no-cache-dir"],
         [sys.executable, "-m", "pip", "install", "--upgrade", "wheel", "--no-cache-dir"]
     ]
-    
+
     for command in upgrade_commands:
         package = command[5]
         for attempt in range(max_retries):
@@ -144,9 +156,9 @@ def upgrade_pip_setuptools_wheel(max_retries=5, delay=3):
 def pip_install_with_retry(library, max_retries=5, delay=3):
     if library.startswith("torch=="):
         pip_args_list = [
-            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl#sha256=efbcfdd4399197d06b32f7c0e1711c615188cdd65427b933648c7478fb880b3f"],
-            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp311-cp311-win_amd64.whl#sha256=10ad542aab6b47dbe73c441381986d50a7ed5021cbe01d593a14477ec1f067a0"],
-            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp311-cp311-win_amd64.whl#sha256=c7dee68cd3d2b889bab71d4a0c345bdc3ea2fe79a62b921a6b49292c605b6071"]
+            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu124/torch-2.4.0%2Bcu124-cp311-cp311-win_amd64.whl#sha256=b1d40a13a6fd3f92aa5728ab84756571381b6b1ccae7ce62037c28d539687c25"],
+            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu124/torchvision-0.19.0%2Bcu124-cp311-cp311-win_amd64.whl#sha256=42ac55c0fd1cdea14c20168f0b24eba7fc2d2eb4ef75196ded7b76f81dee619f"],
+            ["uv", "pip", "install", "https://download.pytorch.org/whl/cu124/torchaudio-2.4.0%2Bcu124-cp311-cp311-win_amd64.whl#sha256=12f7f2b1c0fb435875175247083c8aca056face6bc5388b9a494a90ca197632c"]
         ]
     elif "@" in library or "git+" in library:
         pip_args_list = [["uv", "pip", "install", library, "--no-deps"]]
@@ -186,11 +198,19 @@ def install_libraries(libraries):
 
 # Libraries to install first
 priority_libraries = [
-    "flash_attn @ https://github.com/bdashore3/flash-attention/releases/download/v2.5.9.post1/flash_attn-2.5.9.post1+cu122torch2.2.2cxx11abiFALSE-cp311-cp311-win_amd64.whl",
-    "torch==2.2.2",
-    "triton @ https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl#sha256=2c78f5f85cf88d46eb9664c23691052d6c153a6043656fc15c50a0d13bc5565c", # required by alibaba vector models
+    "flash_attn @ https://github.com/bdashore3/flash-attention/releases/download/v2.6.3/flash_attn-2.6.3+cu123torch2.4.0cxx11abiFALSE-cp311-cp311-win_amd64.whl",
+    "torch==2.4.0",
+    # "triton @ https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl",
     "whisper_s2t @ git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
     "WhisperSpeech @ git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8"
+]
+
+nvidia_libraries = [
+    "nvidia-cuda-runtime-cu12==12.4.99",
+    "nvidia-cuda-nvrtc-cu12==12.4.99",
+    "nvidia-cublas-cu12==12.4.2.65",
+    "nvidia-cudnn-cu12==9.1.0.70",
+    "nvidia-cuda-nvcc-cu12==12.4.99"
 ]
 
 other_libraries = [
@@ -206,7 +226,7 @@ other_libraries = [
     "av==12.3.0",
     "backoff==2.2.1",
     "beautifulsoup4==4.12.3",
-    "bitsandbytes==0.43.1",
+    "bitsandbytes==0.44.1",
     "braceexpand==0.1.7",
     "certifi==2024.7.4",
     "cffi==1.16.0",
@@ -217,7 +237,7 @@ other_libraries = [
     "cloudpickle==2.2.1",
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
-    "ctranslate2==4.4.0",
+    "ctranslate2==4.5.0",
     "cycler==0.12.1",
     "dataclasses-json==0.6.7",
     "datasets==2.20.0",
@@ -282,17 +302,13 @@ other_libraries = [
     "nltk==3.8.1",
     "numba==0.60.0",
     "numpy==1.26.4",
-    "nvidia-cublas-cu12==12.1.3.1",
-    "nvidia-cuda-runtime-cu12==12.1.105",
-    "nvidia-cuda-nvrtc-cu12==12.1.105",
-    "nvidia-cudnn-cu12==8.9.7.29",
     "nvidia-ml-py==12.555.43",
     "olefile==0.47",
     "omegaconf==2.3.0",
     "openai==1.23.6",
     "openai-whisper==20231117",
     "openpyxl==3.1.2",
-    "optimum==1.22",
+    "optimum==1.23.2",
     "ordered-set==4.1.0",
     "orjson==3.10.6",
     "packaging==24.1",
@@ -361,7 +377,7 @@ other_libraries = [
     "vocos==0.1.0",
     "webdataset==0.2.86",
     "wrapt==1.16.0",
-    "xformers==0.0.25.post1",
+    "xformers==0.0.27.post2",
     "xlrd==2.0.1",
     "xxhash==3.4.1",
     "yarl==1.9.4",
@@ -432,18 +448,41 @@ subprocess.run(["pip", "install", "uv"], check=True)
 print("\nInstalling priority libraries:")
 priority_failed, priority_multiple = install_libraries(priority_libraries)
 
-# 4. install install other_libraries
+# 4. install nvidia libraries
+print("\nInstalling NVIDIA libraries:")
+nvidia_failed, nvidia_multiple = install_libraries_with_deps(nvidia_libraries)
+
+def set_cuda_paths():
+    venv_base = Path(sys.executable).parent.parent
+    nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
+    cuda_path = nvidia_base_path / 'cuda_runtime' / 'bin'
+    cublas_path = nvidia_base_path / 'cublas' / 'bin'
+    cudnn_path = nvidia_base_path / 'cudnn' / 'bin'
+    nvcc_path = nvidia_base_path / 'cuda_nvcc' / 'bin'
+    nvrtc_path = nvidia_base_path / 'cuda_nvrtc' / 'bin'
+    paths_to_add = [str(cuda_path), str(cublas_path), str(cudnn_path), str(nvcc_path), str(nvrtc_path)]
+    
+    env_vars = ['CUDA_PATH', 'CUDA_PATH_V12_4', 'PATH']
+    for env_var in env_vars:
+        current_value = os.environ.get(env_var, '')
+        new_value = os.pathsep.join(paths_to_add + [current_value] if current_value else paths_to_add)
+        os.environ[env_var] = new_value
+        # print(f"Set {env_var} to: {new_value}")
+
+set_cuda_paths()
+
+# 5. install install other_libraries
 print("\nInstalling other libraries:")
 other_failed, other_multiple = install_libraries(other_libraries)
 
-# 5. install full_install_libraries
+# 6. install full_install_libraries
 print("\nInstalling libraries with dependencies:")
 full_install_failed, full_install_multiple = install_libraries_with_deps(full_install_libraries)
 
 print("\n----- Installation Summary -----")
 
-all_failed = priority_failed + other_failed + full_install_failed
-all_multiple = priority_multiple + other_multiple + full_install_multiple
+all_failed = priority_failed + nvidia_failed + other_failed + full_install_failed
+all_multiple = priority_multiple + nvidia_multiple + other_multiple + full_install_multiple
 
 if all_failed:
     print(f"\033[91m\nThe following libraries failed to install:\033[0m")
@@ -463,12 +502,12 @@ elif not all_failed:
 if all_failed:
     sys.exit(1)
 
-# 6. replace sourcode files
+# 7. replace sourcode files
 replace_pdf_file()
 replace_instructor_file()
 replace_sentence_transformer_file()
 
-# 7. Create directores if needed
+# 8. Create directores if needed
 def create_directory_structure():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     models_dir = os.path.join(base_dir, "Models")
@@ -483,10 +522,9 @@ def create_directory_structure():
         os.makedirs(subdir_path, exist_ok=True)
         print(f"Ensured subdirectory exists: {subdir_path}")
 
-
 create_directory_structure()
 
-# 8. download kobold
+# 9. download kobold
 def download_kobold():
     import platform
     import requests
@@ -528,7 +566,7 @@ def download_kobold():
 
 download_kobold()
 
-# 9. update config.yaml to include jeeves database
+# 10. update config.yaml to include jeeves database
 def update_config_yaml():
     import yaml
     script_dir = os.path.dirname(os.path.abspath(__file__))

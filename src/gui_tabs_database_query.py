@@ -4,6 +4,7 @@ import signal
 import threading
 from pathlib import Path
 import multiprocessing
+import time
 
 import torch
 import yaml
@@ -108,6 +109,7 @@ class DatabaseQueryTab(QWidget):
         self.gui_signals = GuiSignals()
         self.current_model_name = None
         self.database_query_thread = None
+        self.start_time = None # time
         self.initWidgets()
         self.setup_signals()
 
@@ -274,6 +276,7 @@ class DatabaseQueryTab(QWidget):
                         if self.local_model_chat.is_model_loaded():
                             self.local_model_chat.terminate_current_process()
                         self.local_model_chat.start_model_process(selected_model)
+                    self.start_time = time.time() # time
                     self.local_model_chat.start_chat(user_question, selected_model, selected_database)
                 except Exception as e:
                     logging.exception(f"Error starting or using local model: {e}")
@@ -383,7 +386,14 @@ class DatabaseQueryTab(QWidget):
             QMessageBox.warning(self, "Error", error_message)
         self.submit_button.setDisabled(False)
 
+    # def on_submission_finished(self):
+        # self.submit_button.setDisabled(False)
+
     def on_submission_finished(self):
+        if self.start_time is not None:
+            elapsed_time = time.time() - self.start_time
+            print(f"Local model response time: {elapsed_time:.2f} seconds")
+            self.start_time = None  # Reset the timer
         self.submit_button.setDisabled(False)
 
     def update_transcription(self, transcription_text):

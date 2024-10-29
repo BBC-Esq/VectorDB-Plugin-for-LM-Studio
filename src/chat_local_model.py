@@ -86,8 +86,17 @@ class LocalModelChat:
             self.signals.error_signal.emit("Model not loaded. Please start a model first.")
             return
 
-        # Sends the information selected by a user in gui_tabs_database_query.py to the new child process
-        self.model_pipe.send(("question", (user_question, selected_model, selected_database)))
+        try:
+            self.model_pipe.send(("question", (user_question, selected_model, selected_database)))
+        except (BrokenPipeError, OSError) as e:
+            error_msg = f"Communication error with model process: {str(e)}"
+            logging.error(error_msg)
+            self.signals.error_signal.emit(error_msg)
+            self.terminate_current_process()  # Clean up the broken process
+        except Exception as e:
+            error_msg = f"Unexpected error while sending question to model: {str(e)}"
+            logging.error(error_msg)
+            self.signals.error_signal.emit(error_msg)
 
     def is_model_loaded(self):
         return self.model_process is not None and self.model_process.is_alive()

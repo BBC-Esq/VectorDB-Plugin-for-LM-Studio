@@ -26,10 +26,10 @@ from constants import DOCUMENT_LOADERS
 from extract_metadata import extract_document_metadata, add_pymupdf_page_metadata
 
 logging.basicConfig(
-    level=logging.ERROR,  # Only log errors
+    level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('document_processor.log', mode='w')  # 'w' mode overwrites the file
+        logging.FileHandler('document_processor.log', mode='w')
     ]
 )
 

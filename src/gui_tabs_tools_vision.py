@@ -135,8 +135,6 @@ class VisionToolSettingsTab(QWidget):
                 file.write(f"{filename}\n\n")
                 file.write(f"{content}\n\n")
 
-        print(f"Saved vision summaries to {output_file}")
-
         self.open_file(output_file)
 
     def open_file(self, file_path):
