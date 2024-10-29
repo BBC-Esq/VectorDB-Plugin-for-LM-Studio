@@ -1,5 +1,6 @@
 import os
 import logging
+import gc
 import signal
 import threading
 from pathlib import Path
@@ -35,7 +36,8 @@ class DatabaseQueryThread(QThread):
 
     def run(self):
         try:
-            query_db = QueryVectorDB(self.database_name)
+            # Modified to use get_instance
+            query_db = QueryVectorDB.get_instance(self.database_name)
             contexts, metadata_list = query_db.search(self.query)
             formatted_chunks = self.format_chunks(contexts, metadata_list)
             self.chunks_ready.emit(formatted_chunks)
@@ -128,6 +130,8 @@ class DatabaseQueryTab(QWidget):
         self.database_pulldown = RefreshingComboBox(self)
         self.database_pulldown.setToolTip(TOOLTIPS["DATABASE_SELECT"])
         self.database_pulldown.addItems(self.load_created_databases())
+        self.database_pulldown.setProperty("last_selected", None)  # Added for tracking
+        self.database_pulldown.currentTextChanged.connect(self.on_database_changed)  # Added
         hbox1_layout.addWidget(self.database_pulldown)
 
         self.model_source_combo = QComboBox()
@@ -202,6 +206,8 @@ class DatabaseQueryTab(QWidget):
 
         self.is_recording = False
         self.voice_recorder = VoiceRecorder(self)
+        
+        logging.debug("DatabaseQueryTab initialized")
 
     def setup_signals(self):
         self.local_model_chat.signals.response_signal.connect(self.update_response_local_model)
@@ -230,6 +236,15 @@ class DatabaseQueryTab(QWidget):
                 databases = list(config.get('created_databases', {}).keys())
                 return [db for db in databases if db != "user_manual"]
         return []
+
+    def on_database_changed(self, new_database):
+        old_database = self.database_pulldown.property("last_selected")
+        if old_database != new_database:
+            logging.info(f"Database selection changed from {old_database} to {new_database}")
+            if QueryVectorDB._instance is not None:
+                QueryVectorDB._instance.cleanup()
+                QueryVectorDB._instance = None
+        self.database_pulldown.setProperty("last_selected", new_database)
 
     def on_submit_button_clicked(self):
         script_dir = Path(__file__).resolve().parent
@@ -386,22 +401,24 @@ class DatabaseQueryTab(QWidget):
             QMessageBox.warning(self, "Error", error_message)
         self.submit_button.setDisabled(False)
 
-    # def on_submission_finished(self):
-        # self.submit_button.setDisabled(False)
-
     def on_submission_finished(self):
         if self.start_time is not None:
             elapsed_time = time.time() - self.start_time
-            print(f"Local model response time: {elapsed_time:.2f} seconds")
-            self.start_time = None  # Reset the timer
+            # print(f"Local model response time: {elapsed_time:.2f} seconds")
+            self.start_time = None
         self.submit_button.setDisabled(False)
 
     def update_transcription(self, transcription_text):
         self.text_input.setPlainText(transcription_text)
 
     def cleanup(self):
-        if self.local_model_chat.is_model_loaded():
-            self.local_model_chat.eject_model()
-        if self.database_query_thread and self.database_query_thread.isRunning():
-            self.database_query_thread.wait()
-        print("Cleanup completed")
+            if self.local_model_chat.is_model_loaded():
+                self.local_model_chat.eject_model()
+            # Add cleanup for QueryVectorDB instance
+            if QueryVectorDB._instance is not None:
+                logging.info("Cleaning up QueryVectorDB instance during tab cleanup")
+                QueryVectorDB._instance.cleanup()
+                QueryVectorDB._instance = None
+            if self.database_query_thread and self.database_query_thread.isRunning():
+                self.database_query_thread.wait()
+            print("Cleanup completed")

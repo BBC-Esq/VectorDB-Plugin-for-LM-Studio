@@ -7,11 +7,10 @@ import shutil
 import time
 from pathlib import Path
 from typing import Dict, Optional, Union
+import threading
 
 import sqlite3
 import torch
-# NOTE: newer torch uses new namespace - torch.amp
-from torch.cuda.amp import autocast # necessary to set dtype for instructor
 import yaml
 from InstructorEmbedding import INSTRUCTOR
 from PySide6.QtCore import QDir
@@ -369,18 +368,45 @@ class CreateVectorDB:
             self.create_metadata_db(json_docs_to_save)
             self.clear_docs_for_db_folder()
 
+
 class QueryVectorDB:
+    _instance = None
+    _instance_lock = threading.Lock()
+
     def __init__(self, selected_database):
         self.config = self.load_configuration()
         self.selected_database = selected_database
         self.embeddings = None
         self.db = None
         self.model_name = None
+        self._debug_id = id(self)
+        logging.debug(f"Created new QueryVectorDB instance {self._debug_id} for database {selected_database}")
+
+    @classmethod
+    def get_instance(cls, selected_database):
+        with cls._instance_lock:
+            if cls._instance is not None:
+                if cls._instance.selected_database != selected_database:
+                    logging.info(f"Database changed from {cls._instance.selected_database} to {selected_database}")
+                    cls._instance.cleanup()
+                    cls._instance = None
+                else:
+                    logging.debug(f"Reusing existing instance {cls._instance._debug_id} for database {selected_database}")
+            
+            if cls._instance is None:
+                cls._instance = cls(selected_database)
+            
+            return cls._instance
 
     def load_configuration(self):
-        config_file_path = Path(__file__).resolve().parent / "config.yaml"
-        with open(config_file_path, 'r') as config_file:
-            return yaml.safe_load(config_file)
+        """Load configuration from config.yaml file"""
+        config_path = Path(__file__).resolve().parent / 'config.yaml'
+        try:
+            with open(config_path, 'r', encoding='utf-8') as file:
+                return yaml.safe_load(file)
+        except Exception as e:
+            logging.error(f"Error loading configuration: {e}")
+            raise
 
     def initialize_vector_model(self):    
         model_path = self.config['created_databases'][self.selected_database]['model']
@@ -439,11 +465,14 @@ class QueryVectorDB:
 
     def search(self, query, k: Optional[int] = None, score_threshold: Optional[float] = None):
         if not self.embeddings:
+            logging.info(f"Initializing embedding model for database {self.selected_database}")
             self.embeddings = self.initialize_vector_model()
+            
         if not self.db:
+            logging.info(f"Initializing database connection for {self.selected_database}")
             self.db = self.initialize_database()
 
-        # get latest settings
+        # The rest of your existing search method remains unchanged
         self.config = self.load_configuration()
         document_types = self.config['database'].get('document_types', '')
         search_filter = {'document_type': document_types} if document_types else {}
@@ -466,31 +495,33 @@ class QueryVectorDB:
         
         contexts = [document.page_content for document, _ in filtered_contexts]
         metadata_list = [document.metadata for document, _ in filtered_contexts]
-        scores = [score for _, score in filtered_contexts] # similarity scores
-        
-        # DEBUG
-        # print(scores)
+        scores = [score for _, score in filtered_contexts]
         
         for metadata, score in zip(metadata_list, scores):
             metadata['similarity_score'] = score
         
-        self.cleanup()
-        
-        # print(metadata_list)
-        
         return contexts, metadata_list
 
     def cleanup(self):
+        logging.info(f"Cleaning up QueryVectorDB instance {self._debug_id} for database {self.selected_database}")
+        
         if self.embeddings:
+            logging.debug(f"Unloading embedding model for database {self.selected_database}")
             del self.embeddings
             self.embeddings = None
+            
         if self.db:
+            logging.debug(f"Closing database connection for {self.selected_database}")
             del self.db
             self.db = None
         
         if torch.cuda.is_available():
+            logging.debug("Clearing CUDA cache")
             torch.cuda.empty_cache()
+            
         gc.collect()
+        logging.debug(f"Cleanup completed for instance {self._debug_id}")
+        
         # my_cprint(f"{self.model_name} removed from memory.", "red")
 
 # class DeleteDoc:

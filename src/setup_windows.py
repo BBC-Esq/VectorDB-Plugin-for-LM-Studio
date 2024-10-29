@@ -209,12 +209,12 @@ nvidia_libraries = [
     "nvidia-cuda-runtime-cu12==12.4.99",
     "nvidia-cuda-nvrtc-cu12==12.4.99",
     "nvidia-cublas-cu12==12.4.2.65",
-    "nvidia-cudnn-cu12==9.1.0.70",
+    "nvidia-cudnn-cu12==9.5.1.17",
     "nvidia-cuda-nvcc-cu12==12.4.99"
 ]
 
 other_libraries = [
-    "accelerate==0.33.0",
+    "accelerate==1.0.1",
     "aiohttp==3.9.5",
     "aiosignal==1.3.1",
     "anndata==0.10.8",
@@ -399,8 +399,8 @@ other_libraries = [
 ]
 
 full_install_libraries = [
-    "pyside6==6.7.3",
-    "pymupdf==1.24.9",
+    "pyside6==6.8.0.2",
+    "pymupdf==1.24.13",
     "unstructured==0.13.4"
 ]
 
@@ -444,10 +444,6 @@ upgrade_pip_setuptools_wheel()
 print("Installing uv:")
 subprocess.run(["pip", "install", "uv"], check=True)
 
-# 3. install priority_libraries
-print("\nInstalling priority libraries:")
-priority_failed, priority_multiple = install_libraries(priority_libraries)
-
 # 4. install nvidia libraries
 print("\nInstalling NVIDIA libraries:")
 nvidia_failed, nvidia_multiple = install_libraries_with_deps(nvidia_libraries)
@@ -458,9 +454,9 @@ def set_cuda_paths():
     cuda_path = nvidia_base_path / 'cuda_runtime' / 'bin'
     cublas_path = nvidia_base_path / 'cublas' / 'bin'
     cudnn_path = nvidia_base_path / 'cudnn' / 'bin'
-    nvcc_path = nvidia_base_path / 'cuda_nvcc' / 'bin'
-    nvrtc_path = nvidia_base_path / 'cuda_nvrtc' / 'bin'
-    paths_to_add = [str(cuda_path), str(cublas_path), str(cudnn_path), str(nvcc_path), str(nvrtc_path)]
+    # nvcc_path = nvidia_base_path / 'cuda_nvcc' / 'bin'
+    # nvrtc_path = nvidia_base_path / 'cuda_nvrtc' / 'bin'
+    paths_to_add = [str(cuda_path), str(cublas_path), str(cudnn_path)]
     
     env_vars = ['CUDA_PATH', 'CUDA_PATH_V12_4', 'PATH']
     for env_var in env_vars:
@@ -470,6 +466,10 @@ def set_cuda_paths():
         # print(f"Set {env_var} to: {new_value}")
 
 set_cuda_paths()
+
+# 3. install priority_libraries
+print("\nInstalling priority libraries:")
+priority_failed, priority_multiple = install_libraries(priority_libraries)
 
 # 5. install install other_libraries
 print("\nInstalling other libraries:")
