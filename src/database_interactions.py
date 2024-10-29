@@ -185,14 +185,14 @@ class CreateVectorDB:
         my_cprint(f"\nThe progress bar relates to computing vectors. Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
 
         start_time = time.time()
-        temp_dir = self.PERSIST_DIRECTORY.with_suffix('.temp')
+
+        if not self.PERSIST_DIRECTORY.exists():
+            self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {self.PERSIST_DIRECTORY}")
+        else:
+            logging.warning(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            # Create temporary directory for atomic operation
-            if temp_dir.exists():
-                shutil.rmtree(temp_dir)
-            temp_dir.mkdir(parents=True, exist_ok=True)
-
             # break out page_content and metadata
             text_content = [doc.page_content for doc in texts]
             metadatas = [doc.metadata for doc in texts]
@@ -206,32 +206,23 @@ class CreateVectorDB:
             if "intfloat" in embedding_model_name.lower():
                 text_content = [f"passage: {content}" for content in text_content]
 
-            # Create database in temporary location first
             db = TileDB.from_texts(
                 texts=text_content,
                 embedding=embeddings,
                 metadatas=metadatas,
-                index_uri=str(temp_dir),
+                index_uri=str(self.PERSIST_DIRECTORY),
                 allow_dangerous_deserialization=True,
                 metric="euclidean",
                 index_type="FLAT",
             )
-
-            # If successful, atomically move the temp directory to final location
-            if self.PERSIST_DIRECTORY.exists():
-                shutil.rmtree(self.PERSIST_DIRECTORY)
-            shutil.move(str(temp_dir), str(self.PERSIST_DIRECTORY))
-
         except Exception as e:
-            # Clean up temp directory if something goes wrong
-            if temp_dir.exists():
-                shutil.rmtree(temp_dir)
             logging.error(f"Error creating database: {str(e)}")
             raise
-        finally:
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            my_cprint(f"Database created. Elapsed time: {elapsed_time:.2f} seconds.")
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+
+        my_cprint(f"Database created.  Elapsed time: {elapsed_time:.2f} seconds.")
 
     def create_metadata_db(self, documents):
         if not self.PERSIST_DIRECTORY.exists():
@@ -243,7 +234,7 @@ class CreateVectorDB:
         conn = sqlite3.connect(sqlite_db_path)
         cursor = conn.cursor()
 
-        # schema
+        # updated schema
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS document_metadata (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -297,7 +288,7 @@ class CreateVectorDB:
 
     def save_documents_to_pickle(self, documents):
         """
-        Pickle document objects in case the database creation process terminates early; cleared when program starts.
+        Pickle all document objects in case the database creation process terminates early; cleared when program starts.
         """
         pickle_directory = self.ROOT_DIRECTORY / "pickle"
         
@@ -323,6 +314,7 @@ class CreateVectorDB:
         documents = []
         
         # load text document objects
+        # print("Loading any general files...")
         text_documents = load_documents(self.SOURCE_DIRECTORY)
         if isinstance(text_documents, list) and text_documents:
             documents.extend(text_documents)
@@ -371,6 +363,7 @@ class CreateVectorDB:
 
             # create database
             if isinstance(texts, list) and texts:
+                # print("Creating vector database...")
                 self.create_database(texts, embeddings)
             
             self.create_metadata_db(json_docs_to_save)
