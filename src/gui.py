@@ -12,46 +12,24 @@ def set_cuda_paths():
     cublas_path = nvidia_base_path / 'cublas' / 'bin'
     cudnn_path = nvidia_base_path / 'cudnn' / 'bin'
     # nvcc_path = nvidia_base_path / 'cuda_nvcc' / 'bin'
-    # nvrtc_path = nvidia_base_path / 'cuda_nvrtc' / 'bin'
-    paths_to_add = [str(cuda_path), str(cublas_path), str(cudnn_path)]
+    nvrtc_path = nvidia_base_path / 'cuda_nvrtc' / 'bin'
     
-    env_vars = ['CUDA_PATH', 'CUDA_PATH_V12_4', 'PATH']
+    paths_to_add = [
+        str(cuda_path), # CUDA runtime
+        str(cublas_path), # cuBLAS
+        str(cudnn_path), # cuDNN
+        # str(nvcc_path), # NVIDIA CUDA compiler
+        str(nvrtc_path), # NVIDIA runtime compiler
+    ]
+
+    env_vars = ['CUDA_PATH', 'CUDA_PATH_V12_1', 'PATH']
+    
     for env_var in env_vars:
         current_value = os.environ.get(env_var, '')
         new_value = os.pathsep.join(paths_to_add + [current_value] if current_value else paths_to_add)
         os.environ[env_var] = new_value
-        # print(f"Set {env_var} to: {new_value}")
 
 set_cuda_paths()
-
-# def set_cuda_paths():
-   # venv_base = Path(sys.executable).parent.parent
-   # nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
-   
-   # # Binary/DLL paths
-   # cuda_path = nvidia_base_path / 'cuda_runtime' / 'bin'
-   # cublas_path = nvidia_base_path / 'cublas' / 'bin'
-   # cudnn_path = nvidia_base_path / 'cudnn' / 'bin'
-   # nvcc_path = nvidia_base_path / 'cuda_nvcc' / 'bin'
-   # nvrtc_path = nvidia_base_path / 'cuda_nvrtc' / 'bin'
-   # paths_to_add = [str(p) for p in [cuda_path, cublas_path, cudnn_path, nvcc_path, nvrtc_path]]
-
-   # # cuDNN-specific paths
-   # cudnn_lib = nvidia_base_path / 'cudnn' / 'lib'
-   # cudnn_include = nvidia_base_path / 'cudnn' / 'include'
-   
-   # # Set PATH-like environment variables
-   # env_path_vars = ['CUDA_PATH', 'CUDA_PATH_V12_4', 'PATH']
-   # for env_var in env_path_vars:
-       # current_value = os.environ.get(env_var, '')
-       # new_value = os.pathsep.join(paths_to_add + [current_value] if current_value else paths_to_add)
-       # os.environ[env_var] = new_value
-
-   # # Set cuDNN-specific variables
-   # os.environ['CUDNN_LIBRARY'] = str(cudnn_lib)
-   # os.environ['CUDNN_INCLUDE_DIR'] = str(cudnn_include)
-
-# set_cuda_paths()
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget,
@@ -88,7 +66,7 @@ class DocQA_GUI(QWidget):
         metrics_layout = QHBoxLayout()
         metrics_layout.addWidget(self.metrics_bar)
         
-        # max height for the MetricsBar, but metrics bar will supersede
+        # max height for the MetricsBar
         self.metrics_bar.setMaximumHeight(80)
         
         main_layout.addLayout(metrics_layout)

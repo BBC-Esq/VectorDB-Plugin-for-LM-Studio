@@ -104,34 +104,36 @@ class MetricsCollectorThread(QThread):
     def __init__(self):
         super().__init__()
         self.running = True
-        self.interval = 200
+        self.interval = 100  # 100ms polling interval
         self.gpu_available = HAS_NVIDIA_GPU
 
     def run(self):
         while self.running:
-            try:
-                cpu_usage = collect_cpu_metrics()
-                ram_usage_percent, _ = collect_ram_metrics()
+            cpu_usage = collect_cpu_metrics()
+            ram_usage_percent, _ = collect_ram_metrics()
 
-                if self.gpu_available:
-                    gpu_utilization, vram_usage_percent = collect_gpu_metrics(HANDLE)
-                    power_usage_percent, power_limit_percent = collect_power_metrics(HANDLE)
-                else:
-                    gpu_utilization, vram_usage_percent = None, None
-                    power_usage_percent, power_limit_percent = None, None
+            if self.gpu_available:
+                gpu_utilization, vram_usage_percent = collect_gpu_metrics(HANDLE)
+                power_usage_percent, power_limit_percent = collect_power_metrics(HANDLE)
+            else:
+                gpu_utilization, vram_usage_percent = None, None
+                power_usage_percent, power_limit_percent = None, None
 
-                if self.running:
-                    self.metrics_updated.emit(
-                        (cpu_usage, ram_usage_percent, gpu_utilization, vram_usage_percent,
-                         power_usage_percent, power_limit_percent)
-                    )
-                    self.msleep(self.interval)
-            except Exception as e:
-                print(f"Error in metrics collection: {e}")
-                self.msleep(self.interval)
+            self.metrics_updated.emit(
+                (
+                    cpu_usage,
+                    ram_usage_percent,
+                    gpu_utilization,
+                    vram_usage_percent,
+                    power_usage_percent,
+                    power_limit_percent,
+                )
+            )
+            self.msleep(self.interval)
 
     def stop(self):
         self.running = False
+        self.wait()
 
 
 class MetricsCollector(QObject):
@@ -144,12 +146,8 @@ class MetricsCollector(QObject):
         self.thread.start()
 
     def stop(self):
-        if hasattr(self, 'thread'):
+        if self.thread.isRunning():
             self.thread.stop()
-            self.thread.wait(1000)  # Wait up to 1 second for thread to finish
-            if self.thread.isRunning():
-                self.thread.terminate()  # Force quit if necessary
-                self.thread.wait()  # Wait for termination
 
 
 class MetricsVisualization(QWidget):
@@ -265,7 +263,7 @@ class BarVisualization(MetricsVisualization):
 ### Sparkline Visualization Class ###
 
 class Sparkline(QWidget):
-    def __init__(self, max_values=100, color="#0074D9"):
+    def __init__(self, max_values=125, color="#0074D9"):
         super().__init__()
         self.max_values = max_values
         self.values = deque(maxlen=max_values)
@@ -695,8 +693,4 @@ class MetricsWidget(QWidget):
         self.current_visualization.update_metrics(metrics)
 
     def stop_metrics_collector(self):
-        try:
-            if hasattr(self, 'metrics_collector'):
-                self.metrics_collector.stop()
-        except Exception as e:
-            print(f"Error stopping metrics collector: {e}")
+        self.metrics_collector.stop()

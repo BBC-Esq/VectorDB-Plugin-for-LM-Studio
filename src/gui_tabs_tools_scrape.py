@@ -191,7 +191,7 @@ class ScrapeDocumentationTab(QWidget):
 
     def populate_combo_box(self):
         doc_options = list(scrape_documentation.keys())
-        doc_options.sort()
+        doc_options.sort(key=str.lower)
         self.doc_combo.addItems(doc_options)
 
     def start_scraping(self):
@@ -212,7 +212,6 @@ class ScrapeDocumentationTab(QWidget):
             if msg_box.exec() == QMessageBox.Cancel:
                 return
 
-            # If user clicked OK, delete the existing folder contents
             for filename in os.listdir(self.current_folder):
                 file_path = os.path.join(self.current_folder, filename)
                 try:

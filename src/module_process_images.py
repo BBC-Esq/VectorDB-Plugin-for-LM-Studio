@@ -11,13 +11,6 @@ import torch
 import yaml
 from PIL import Image
 from tqdm import tqdm
-
-# WARNING: Failed to find MSVC.
-# ---MSVC (Microsoft Visual C++ compiler) isn't found during import FIXED THIS WITH CLAUDE
-# WARNING: Failed to find CUDA.
-# ---The warning is occurring because Triton's check_cuda() function is looking for certain CUDA-related files in a standard
-# CUDA toolkit installation path rather than in your virtual environment.
-
 from transformers import (
     AutoModelForCausalLM, AutoModel, AutoTokenizer, AutoProcessor, BlipForConditionalGeneration, BlipProcessor,
     LlamaTokenizer, LlavaForConditionalGeneration, LlavaNextForConditionalGeneration, LlavaNextProcessor, BitsAndBytesConfig
