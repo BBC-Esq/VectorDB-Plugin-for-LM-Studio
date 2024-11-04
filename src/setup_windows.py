@@ -210,7 +210,7 @@ other_libraries = [
     "charset-normalizer==3.4.0",
     "chattts-fork==0.0.8",
     "click==8.1.7",
-    "cloudpickle==2.2.1",
+    "cloudpickle==2.2.1", # not higher without upgrading tiledb
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "ctranslate2==4.5.0",
@@ -218,7 +218,7 @@ other_libraries = [
     "dataclasses-json==0.6.7",
     "datasets==3.1.0",
     "deepdiff==8.0.1",
-    "dill==0.3.8",
+    "dill==0.3.8", # not higher
     "distro==1.9.0",
     "docx2txt==0.8",
     "einops==0.8.0",
@@ -271,12 +271,12 @@ other_libraries = [
     "mpmath==1.3.0",
     "msg-parser==1.2.0",
     "multidict==6.1.0",
-    "multiprocess==0.70.16",
+    "multiprocess==0.70.16", # not higher
     "mypy-extensions==1.0.0",
     "natsort==8.4.0",
     "nest-asyncio==1.6.0",
     "networkx==3.4.2",
-    "nltk==3.8.1",
+    "nltk==3.8.1", # not higher
     "numba==0.60.0",
     "numpy==1.26.4",
     "nvidia-cublas-cu12==12.1.3.1",
@@ -296,7 +296,7 @@ other_libraries = [
     "openpyxl==3.1.5",
     "optimum==1.23.3",
     "ordered-set==4.1.0",
-    "orderly-set==5.2.2",
+    "orderly-set==5.2.2", # not higher
     "orjson==3.10.11",
     "packaging==24.1",
     "pandas==2.2.3",
@@ -342,7 +342,7 @@ other_libraries = [
     "soundfile==0.12.1",
     "soupsieve==2.6",
     "speechbrain==0.5.16",
-    "SQLAlchemy==2.0.35",
+    "SQLAlchemy==2.0.35", # not higher
     "sseclient-py==1.8.0",
     "sympy==1.12.1", # anything above is not compatible with llava-next-vicuna vision models
     "tabulate==0.9.0",
@@ -380,7 +380,7 @@ other_libraries = [
     "dnspython==2.7.0",
     "email-validator==2.2.0",
     "genson==1.3.0",
-    "inflect==5.6.2",
+    "inflect==5.6.2", # not higher
     "isort==5.13.2",
     "jsonschema==4.23.0",
     "jsonschema-specifications==2023.12.1",
