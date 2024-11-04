@@ -52,8 +52,22 @@ def load_single_document(file_path: Path) -> Document:
         return None
     
     loader_options = {}
+    
     if file_extension in [".epub", ".rtf", ".odt", ".md"]:
-        loader_options.update({"mode": "single", "strategy": "fast"})
+        loader_options.update({
+            "mode": "single",
+            "unstructured_kwargs": {
+                "strategy": "fast"
+            }
+        })
+    elif file_extension in [".eml", ".msg"]:
+        loader_options.update({
+            "mode": "single",
+            "process_attachments": False,
+            "unstructured_kwargs": {
+                "strategy": "fast"
+            }
+        })
     elif file_extension == ".html":
         loader_options.update({
             "open_encoding": "utf-8",
@@ -68,15 +82,26 @@ def load_single_document(file_path: Path) -> Document:
             # "open_encoding": None,  # Set to None to let BeautifulSoup detect encoding
             # "get_text_separator": " ",  # Use space instead of newline if preferred
         })
-    elif file_extension in [".xlsx", ".xls"]:
-        loader_options.update({"mode": "single"})
+    elif file_extension in [".xlsx", ".xls", ".xlsm"]:
+        loader_options.update({
+            "mode": "single",
+            "unstructured_kwargs": {
+                "strategy": "fast"
+            }
+        })
     elif file_extension in [".csv", ".txt"]:
         loader_options.update({
             "encoding": "utf-8",
             "autodetect_encoding": True
         })
+    
     try:
-        loader = loader_class(str(file_path), **loader_options)
+        if file_extension in [".epub", ".rtf", ".odt", ".md", ".eml", ".msg", ".xlsx", ".xls", ".xlsm"]:
+            unstructured_kwargs = loader_options.pop("unstructured_kwargs", {})
+            loader = loader_class(str(file_path), mode=loader_options.get("mode", "single"), **unstructured_kwargs)
+        else:
+            loader = loader_class(str(file_path), **loader_options)
+            
         documents = loader.load()
         
         if not documents:
