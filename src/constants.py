@@ -884,125 +884,273 @@ scrape_documentation = {
         "URL": "https://huggingface.co/docs/accelerate/v0.34.2/en/",
         "folder": "accelerate_0342"
     },
-    "Huggingface Hub": {
-        "URL": "https://huggingface.co/docs/huggingface_hub/",
-        "folder": "huggingface_hub"
+    "aiohttp 3.9.5": {
+        "URL": "https://docs.aiohttp.org/en/v3.9.5/",
+        "folder": "aiohttp_395"
     },
-    "Optimum 1.22.0": {
-        "URL": "https://huggingface.co/docs/optimum/v1.22.0/en/",
-        "folder": "optimum_1220"
-    },
-    "Safetensors": {
-        "URL": "https://huggingface.co/docs/safetensors/",
-        "folder": "safetensors"
-    },
-    "Transformers 4.45.2": {
-        "URL": "https://huggingface.co/docs/transformers/v4.45.2/en/",
-        "folder": "transformers_4452"
-    },
-    "Langchain": {
-        "URL": "https://api.python.langchain.com/en/latest/",
-        "folder": "langchain"
-    },
-    "Torchaudio 2.4": {
-        "URL": "https://pytorch.org/audio/2.4.0/",
-        "folder": "torchaudio_24"
-    },
-    "Torch 2.4": {
-        "URL": "https://pytorch.org/docs/2.4/",
-        "folder": "torch_24"
-    },
-    "Torchvision 0.19": {
-        "URL": "https://pytorch.org/vision/0.19/",
-        "folder": "torchvision_019"
-    },
-    "Python 3.11": {
-        "URL": "https://docs.python.org/3.11/",
-        "folder": "python_311"
-    },
-    "LM Studio": {
-        "URL": "https://lmstudio.ai/docs/",
-        "folder": "lm_studio"
-    },
-    "PyInstaller 6.10.0": {
-        "URL": "https://pyinstaller.org/en/v6.10.0/",
-        "folder": "pyinstaller_6100"
-    },
-    "CuPy": {
-        "URL": "https://docs.cupy.dev/en/stable/reference/",
-        "folder": "cupy"
+    "Argcomplete": {
+        "URL": "https://kislyuk.github.io/argcomplete/",
+        "folder": "argcomplete"
     },
     "AutoAWQ": {
         "URL": "https://casper-hansen.github.io/AutoAWQ/",
         "folder": "autoawq"
     },
-    "Numexpr": {
-        "URL": "https://numexpr.readthedocs.io/en/latest/",
-        "folder": "numexpr"
+    "Beautiful Soup 4": {
+        "URL": "https://beautiful-soup-4.readthedocs.io/en/latest/",
+        "folder": "beautiful_soup_4"
+    },
+    "bitsandbytes 0.43.3": {
+        "URL": "https://huggingface.co/docs/bitsandbytes/v0.43.3/en/",
+        "folder": "bitsandbytes_0433"
+    },
+    "bitsandbytes 0.44.1": {
+        "URL": "https://huggingface.co/docs/bitsandbytes/v0.44.1/en/",
+        "folder": "bitsandbytes_0441"
+    },
+    "Black": {
+        "URL": "https://black.readthedocs.io/en/stable/",
+        "folder": "Black"
+    },
+    "chardet": {
+        "URL": "https://chardet.readthedocs.io/en/latest/",
+        "folder": "chardet"
+    },
+    "charset-normalizer 3.3.2": {
+        "URL": "https://charset-normalizer.readthedocs.io/en/3.3.2/",
+        "folder": "charset_normalizer_332"
+    },
+    "Click 8.1": {
+        "URL": "https://click.palletsprojects.com/en/8.1.x/",
+        "folder": "click_81"
+    },
+    "coloredlogs": {
+        "URL": "https://coloredlogs.readthedocs.io/en/latest/",
+        "folder": "coloredlogs"
+    },
+    "CTranslate2": {
+        "URL": "https://opennmt.net/CTranslate2/",
+        "folder": "ctranslate2"
+    },
+    "CuPy": {
+        "URL": "https://docs.cupy.dev/en/stable/reference/",
+        "folder": "cupy"
+    },
+    "CustomTkinter": {
+        "URL": "https://customtkinter.tomschimansky.com/documentation/",
+        "folder": "customtkinter"
     },
     "Dask": {
         "URL": "https://docs.dask.org/en/stable/",
         "folder": "dask"
     },
-    "Transformers.js": {
-        "URL": "https://huggingface.co/docs/transformers.js/",
-        "folder": "transformers_js"
+    "Datamodel-code-generator": {
+        "URL": "https://koxudaxi.github.io/datamodel-code-generator/",
+        "folder": "datamodel_code_generator"
     },
-    "NLTK": {
-        "URL": "https://www.nltk.org/",
-        "folder": "nltk"
+    "dill": {
+        "URL": "https://dill.readthedocs.io/en/latest/",
+        "folder": "dill"
+    },
+    "dnspython 2.7": {
+        "URL": "https://dnspython.readthedocs.io/en/2.7/",
+        "folder": "dill"
     },
     "gTTS": {
         "URL": "https://gtts.readthedocs.io/en/latest/",
         "folder": "gtts"
     },
-    "Loguru": {
-        "URL": "https://loguru.readthedocs.io/en/stable/",
-        "folder": "loguru"
+    "Huggingface Hub": {
+        "URL": "https://huggingface.co/docs/huggingface_hub/",
+        "folder": "huggingface_hub"
     },
-    "Pygments": {
-        "URL": "https://pygments.org/docs/",
-        "folder": "pygments"
-    },
-    "Soxr": {
-        "URL": "https://python-soxr.readthedocs.io/en/stable/",
-        "folder": "soxr"
-    },
-    "Librosa": {
-        "URL": "https://librosa.org/doc/latest/",
-        "folder": "librosa"
-    },
-    "ONNX Runtime": {
-        "URL": "https://onnxruntime.ai/docs/api/python/",
-        "folder": "onnx_runtime"
-    },
-    "ONNX": {
-        "URL": "https://onnx.ai/onnx/",
-        "folder": "onnx"
+    "isort": {
+        "URL": "https://pycqa.github.io/isort/",
+        "folder": "isort"
     },
     "Jinja 3.1": {
         "URL": "https://jinja.palletsprojects.com/en/3.1.x/",
         "folder": "jinja_31"
     },
-    "Torchmetrics": {
-        "URL": "https://lightning.ai/docs/torchmetrics/stable/",
-        "folder": "torchmetrics"
+    "jiwer": {
+        "URL": "https://jiwer.readthedocs.io/en/latest/",
+        "folder": "jiwer"
     },
-    "PyTorch Lightning": {
-        "URL": "https://lightning.ai/docs/pytorch/stable/",
-        "folder": "pytorch_lightning"
+    "jsonschema 4.23.0": {
+        "URL": "https://python-jsonschema.readthedocs.io/en/v4.23.0/",
+        "folder": "jsonschema_423"
     },
-    "Matplotlib": {
-        "URL": "https://matplotlib.org/stable/",
-        "folder": "matplotlib"
+    "jsonschema-specifications": {
+        "URL": "https://jsonschema-specifications.readthedocs.io/en/stable/",
+        "folder": "jsonschema_specifications"
+    },
+    "Langchain": {
+        "URL": "https://api.python.langchain.com/en/latest/",
+        "folder": "langchain"
+    },
+    "Librosa": {
+        "URL": "https://librosa.org/doc/latest/",
+        "folder": "librosa"
     },
     "llama-cpp-python": {
         "URL": "https://llama-cpp-python.readthedocs.io/en/stable/",
         "folder": "llama_cpp_python"
     },
-    "TensorRT-LLM": {
-        "URL": "https://nvidia.github.io/TensorRT-LLM/",
-        "folder": "tensorrt_llm"
+    "LM Studio": {
+        "URL": "https://lmstudio.ai/docs/",
+        "folder": "lm_studio"
+    },
+    "Loguru": {
+        "URL": "https://loguru.readthedocs.io/en/stable/",
+        "folder": "loguru"
+    },
+    "marshmallow": {
+        "URL": "https://marshmallow.readthedocs.io/en/stable/",
+        "folder": "marshmallow"
+    },
+    "Matplotlib": {
+        "URL": "https://matplotlib.org/stable/",
+        "folder": "matplotlib"
+    },
+    "mpmath": {
+        "URL": "https://mpmath.org/doc/current/",
+        "folder": "mpmath"
+    },
+    "msg-parser": {
+        "URL": "https://msg-parser.readthedocs.io/en/latest/",
+        "folder": "msg_parser"
+    },
+    "multiprocess": {
+        "URL": "https://multiprocess.readthedocs.io/en/latest/",
+        "folder": "multiprocess"
+    },
+    "natsort 8.4.0": {
+        "URL": "https://natsort.readthedocs.io/en/8.4.0/",
+        "folder": "natsort_840"
+    },
+    "NetworkX": {
+        "URL": "https://networkx.org/documentation/stable/",
+        "folder": "networkx"
+    },
+    "NLTK": {
+        "URL": "https://www.nltk.org/",
+        "folder": "nltk"
+    },
+    "Numba 0.60.0": {
+        "URL": "https://numba.readthedocs.io/en/0.60.0/",
+        "folder": "numba_0600"
+    },
+    "Numexpr": {
+        "URL": "https://numexpr.readthedocs.io/en/latest/",
+        "folder": "numexpr"
+    },
+    "NumPy 1.26": {
+        "URL": "https://numpy.org/doc/1.26/",
+        "folder": "numpy_126"
+    },
+    "OmegaConf 2.2": {
+        "URL": "https://omegaconf.readthedocs.io/en/2.2_branch/",
+        "folder": "omegaconf_22"
+    },
+    "ONNX": {
+        "URL": "https://onnx.ai/onnx/",
+        "folder": "onnx"
+    },
+    "ONNX Runtime": {
+        "URL": "https://onnxruntime.ai/docs/api/python/",
+        "folder": "onnx_runtime"
+    },
+    "openpyxl": {
+        "URL": "https://openpyxl.readthedocs.io/en/stable/",
+        "folder": "openpyxl"
+    },
+    "Optimum 1.22.0": {
+        "URL": "https://huggingface.co/docs/optimum/v1.22.0/en/",
+        "folder": "optimum_1220"
+    },
+    "packaging": {
+        "URL": "https://packaging.pypa.io/en/stable/",
+        "folder": "packaging"
+    },
+    "pandas": {
+        "URL": "https://pandas.pydata.org/docs/",
+        "folder": "pandas"
+    },
+    "Pandoc": {
+        "URL": "https://pandoc.org",
+        "folder": "pandoc"
+    },
+    "PathSpec 0.12.1": {
+        "URL": "https://python-path-specification.readthedocs.io/en/v0.12.1/",
+        "folder": "pathspec_0121"
+    },
+    "platformdirs": {
+        "URL": "https://platformdirs.readthedocs.io/en/stable/",
+        "folder": "platformdirs"
+    },
+    "Pillow": {
+        "URL": "https://pillow.readthedocs.io/en/stable/",
+        "folder": "pillow"
+    },
+    "Protocol Buffers": {
+        "URL": "https://protobuf.dev/",
+        "folder": "protocol_buffers"
+    },
+    "PyAV": {
+        "URL": "https://pyav.org/docs/stable/",
+        "folder": "pyav"
+    },
+    "PyInstaller 6.10.0": {
+        "URL": "https://pyinstaller.org/en/v6.10.0/",
+        "folder": "pyinstaller_6100"
+    },
+    "PyMuPDF": {
+        "URL": "https://pymupdf.readthedocs.io/en/latest/",
+        "folder": "pymupdf"
+    },
+    "PyPDF 4.3.1": {
+        "URL": "https://pypdf.readthedocs.io/en/4.3.1/",
+        "folder": "pypdf_431"
+    },
+    "PyPDF 5.0.1": {
+        "URL": "https://pypdf.readthedocs.io/en/5.0.1/",
+        "folder": "pypdf_501"
+    },
+    "PyTorch Lightning": {
+        "URL": "https://lightning.ai/docs/pytorch/stable/",
+        "folder": "pytorch_lightning"
+    },
+    "python-docx": {
+        "URL": "https://python-docx.readthedocs.io/en/latest/",
+        "folder": "python_docx"
+    },
+    "PyYAML": {
+        "URL": "https://pyyaml.org/wiki/PyYAMLDocumentation",
+        "folder": "pyyaml"
+    },
+    "Pygments": {
+        "URL": "https://pygments.org/docs/",
+        "folder": "pygments"
+    },
+    "RapidFuzz": {
+        "URL": "https://rapidfuzz.github.io/RapidFuzz/",
+        "folder": "rapidfuzz"
+    },
+    "Referencing": {
+        "URL": "https://referencing.readthedocs.io/en/stable/",
+        "folder": "referencing"
+    },
+    "Requests": {
+        "URL": "https://requests.readthedocs.io/en/latest/",
+        "folder": "requests"
+    },
+    "Rich": {
+        "URL": "https://rich.readthedocs.io/en/latest/",
+        "folder": "rich"
+    },
+    "rpds-py": {
+        "URL": "https://rpds.readthedocs.io/en/stable/",
+        "folder": "rpds_py"
     },
     "Rust": {
         "URL": "https://doc.rust-lang.org/stable/",
@@ -1016,197 +1164,109 @@ scrape_documentation = {
         "URL": "https://doc.rust-lang.org/std/",
         "folder": "rust_std"
     },
-    "Beautiful Soup 4": {
-        "URL": "https://beautiful-soup-4.readthedocs.io/en/latest/",
-        "folder": "beautiful_soup_4"
-    },
-    "CustomTkinter": {
-        "URL": "https://customtkinter.tomschimansky.com/documentation/",
-        "folder": "customtkinter"
-    },
     "Rust UV": {
         "URL": "https://docs.astral.sh/uv/",
         "folder": "uv"
     },
-    "xlrd": {
-        "URL": "https://xlrd.readthedocs.io/en/latest/",
-        "folder": "xlrd"
-    },
-    "xFormers": {
-        "URL": "https://facebookresearch.github.io/xformers/",
-        "folder": "xformers"
-    },
-    "Wrapt": {
-        "URL": "https://wrapt.readthedocs.io/en/master/",
-        "folder": "wrapt"
-    },
-    "urllib3": {
-        "URL": "https://urllib3.readthedocs.io/en/stable/",
-        "folder": "urllib3"
-    },
-    "Timm 0.9.16": {
-        "URL": "https://huggingface.co/docs/timm/v0.9.16/en/",
-        "folder": "timm_0916"
-    },
-    "SQLAlchemy 20": {
-        "URL": "https://docs.sqlalchemy.org/en/20/",
-        "folder": "sqlalchemy_20"
-    },
-    "SpeechBrain 0.5.15": {
-        "URL": "https://speechbrain.readthedocs.io/en/v0.5.15/",
-        "folder": "speechbrain_0515"
-    },
-    "Soupsieve": {
-        "URL": "https://facelessuser.github.io/soupsieve/",
-        "folder": "soupsieve"
-    },
-    "Six": {
-        "URL": "https://six.readthedocs.io/",
-        "folder": "six"
-    },
-    "SciPy 1.14.1": {
-        "URL": "https://docs.scipy.org/doc/scipy-1.14.1/",
-        "folder": "scipy_1141"
+    "Safetensors": {
+        "URL": "https://huggingface.co/docs/safetensors/",
+        "folder": "safetensors"
     },
     "scikit-learn": {
         "URL": "https://scikit-learn.org/stable/",
         "folder": "scikit_learn"
     },
-    "Rich": {
-        "URL": "https://rich.readthedocs.io/en/latest/",
-        "folder": "rich"
+    "SciPy 1.14.1": {
+        "URL": "https://docs.scipy.org/doc/scipy-1.14.1/",
+        "folder": "scipy_1141"
     },
-    "RapidFuzz": {
-        "URL": "https://rapidfuzz.github.io/RapidFuzz/",
-        "folder": "rapidfuzz"
+    "Sentence-Transformers": {
+        "URL": "https://www.sbert.net/docs",
+        "folder": "sentence_transformers"
     },
-    "PyYAML": {
-        "URL": "https://pyyaml.org/wiki/PyYAMLDocumentation",
-        "folder": "pyyaml"
+    "Six": {
+        "URL": "https://six.readthedocs.io/",
+        "folder": "six"
     },
-    "python-docx": {
-        "URL": "https://python-docx.readthedocs.io/en/latest/",
-        "folder": "python_docx"
+    "SoundFile": {
+        "URL": "https://pysoundfile.readthedocs.io/en/latest/",
+        "folder": "soundfile"
     },
-    "PyMuPDF": {
-        "URL": "https://pymupdf.readthedocs.io/en/latest/",
-        "folder": "pymupdf"
+    "sounddevice 0.4.6": {
+        "URL": "https://python-sounddevice.readthedocs.io/en/0.4.6/",
+        "folder": "sounddevice_046"
     },
-    "PyPDF 5.0.1": {
-        "URL": "https://pypdf.readthedocs.io/en/5.0.1/",
-        "folder": "pypdf_501"
+    "Soupsieve": {
+        "URL": "https://facelessuser.github.io/soupsieve/",
+        "folder": "soupsieve"
     },
-    "PyPDF 4.3.1": {
-        "URL": "https://pypdf.readthedocs.io/en/4.3.1/",
-        "folder": "pypdf_431"
+    "Soxr": {
+        "URL": "https://python-soxr.readthedocs.io/en/stable/",
+        "folder": "soxr"
     },
-    "Pandoc": {
-        "URL": "https://pandoc.org",
-        "folder": "pandoc"
+    "SpeechBrain 0.5.15": {
+        "URL": "https://speechbrain.readthedocs.io/en/v0.5.15/",
+        "folder": "speechbrain_0515"
     },
-    "marshmallow": {
-        "URL": "https://marshmallow.readthedocs.io/en/stable/",
-        "folder": "marshmallow"
+    "SQLAlchemy 20": {
+        "URL": "https://docs.sqlalchemy.org/en/20/",
+        "folder": "sqlalchemy_20"
     },
-    "Protocol Buffers": {
-        "URL": "https://protobuf.dev/",
-        "folder": "protocol_buffers"
+    "SymPy": {
+        "URL": "https://docs.sympy.org/latest/",
+        "folder": "sympy"
     },
-    "platformdirs": {
-        "URL": "https://platformdirs.readthedocs.io/en/stable/",
-        "folder": "platformdirs"
+    "TensorRT-LLM": {
+        "URL": "https://nvidia.github.io/TensorRT-LLM/",
+        "folder": "tensorrt_llm"
     },
-    "packaging": {
-        "URL": "https://packaging.pypa.io/en/stable/",
-        "folder": "packaging"
+    "Timm 0.9.16": {
+        "URL": "https://huggingface.co/docs/timm/v0.9.16/en/",
+        "folder": "timm_0916"
     },
-    "OmegaConf 2.2": {
-        "URL": "https://omegaconf.readthedocs.io/en/2.2_branch/",
-        "folder": "omegaconf_22"
+    "torch 2.2": {
+        "URL": "https://pytorch.org/docs/2.2/",
+        "folder": "torch_22"
     },
-    "multiprocess": {
-        "URL": "https://multiprocess.readthedocs.io/en/latest/",
-        "folder": "multiprocess"
+    "torch 2.3": {
+        "URL": "https://pytorch.org/docs/2.3/",
+        "folder": "torch_23"
     },
-    "msg-parser": {
-        "URL": "https://msg-parser.readthedocs.io/en/latest/",
-        "folder": "msg_parser"
+    "torch 2.4": {
+        "URL": "https://pytorch.org/docs/2.4/",
+        "folder": "torch_24"
     },
-    "mpmath": {
-        "URL": "https://mpmath.org/doc/current/",
-        "folder": "mpmath"
+    "Torchaudio 2.2": {
+        "URL": "https://pytorch.org/audio/2.2.0/",
+        "folder": "torchaudio_22"
     },
-    "openpyxl": {
-        "URL": "https://openpyxl.readthedocs.io/en/stable/",
-        "folder": "openpyxl"
+    "Torchaudio 2.3": {
+        "URL": "https://pytorch.org/audio/2.3.0/",
+        "folder": "torchaudio_23"
     },
-    "Numba 0.60.0": {
-        "URL": "https://numba.readthedocs.io/en/0.60.0/",
-        "folder": "numba_0600"
+    "Torchaudio 2.4": {
+        "URL": "https://pytorch.org/audio/2.4.0/",
+        "folder": "torchaudio_24"
     },
-    "NetworkX": {
-        "URL": "https://networkx.org/documentation/stable/",
-        "folder": "networkx"
+    "Torchmetrics": {
+        "URL": "https://lightning.ai/docs/torchmetrics/stable/",
+        "folder": "torchmetrics"
     },
-    "natsort 8.4.0": {
-        "URL": "https://natsort.readthedocs.io/en/8.4.0/",
-        "folder": "natsort_840"
+    "Torchvision 0.17": {
+        "URL": "https://pytorch.org/vision/0.17/",
+        "folder": "torchvision_017"
     },
-    "dill": {
-        "URL": "https://dill.readthedocs.io/en/latest/",
-        "folder": "dill"
+    "Torchvision 0.18": {
+        "URL": "https://pytorch.org/vision/0.18/",
+        "folder": "torchvision_018"
     },
-    "coloredlogs": {
-        "URL": "https://coloredlogs.readthedocs.io/en/latest/",
-        "folder": "coloredlogs"
-    },
-    "Click 8.1": {
-        "URL": "https://click.palletsprojects.com/en/8.1.x/",
-        "folder": "click_81"
-    },
-    "charset-normalizer 3.3.2": {
-        "URL": "https://charset-normalizer.readthedocs.io/en/3.3.2/",
-        "folder": "charset_normalizer_332"
-    },
-    "aiohttp 3.9.5": {
-        "URL": "https://docs.aiohttp.org/en/v3.9.5/",
-        "folder": "aiohttp_395"
-    },
-    "NumPy 1.26": {
-        "URL": "https://numpy.org/doc/1.26/",
-        "folder": "numpy_126"
-    },
-    "CTranslate2": {
-        "URL": "https://opennmt.net/CTranslate2/",
-        "folder": "ctranslate2"
-    },
-    "pandas": {
-        "URL": "https://pandas.pydata.org/docs/",
-        "folder": "pandas"
+    "Torchvision 0.19": {
+        "URL": "https://pytorch.org/vision/0.19/",
+        "folder": "torchvision_019"
     },
     "tqdm": {
         "URL": "https://tqdm.github.io",
         "folder": "tqdm"
-    },
-    "Requests": {
-        "URL": "https://requests.readthedocs.io/en/latest/",
-        "folder": "requests"
-    },
-    "Pillow": {
-        "URL": "https://pillow.readthedocs.io/en/stable/",
-        "folder": "pillow"
-    },
-    "bitsandbytes 0.44.1": {
-        "URL": "https://huggingface.co/docs/bitsandbytes/v0.44.1/en/",
-        "folder": "bitsandbytes_0441"
-    },
-    "bitsandbytes 0.43.3": {
-        "URL": "https://huggingface.co/docs/bitsandbytes/v0.43.3/en/",
-        "folder": "bitsandbytes_0433"
-    },
-    "chardet": {
-        "URL": "https://chardet.readthedocs.io/en/latest/",
-        "folder": "chardet"
     },
     "Transformers 4.43.4": {
         "URL": "https://huggingface.co/docs/transformers/v4.43.4/en/",
@@ -1216,58 +1276,38 @@ scrape_documentation = {
         "URL": "https://huggingface.co/docs/transformers/v4.44.2/en/",
         "folder": "transformers_4442"
     },
-    "SoundFile": {
-        "URL": "https://python-soundfile.readthedocs.io/en/latest/",
-        "folder": "soundfile"
+    "Transformers 4.45.2": {
+        "URL": "https://huggingface.co/docs/transformers/v4.45.2/en/",
+        "folder": "transformers_4452"
     },
-    "sounddevice 0.4.6": {
-        "URL": "https://python-sounddevice.readthedocs.io/en/0.4.6/",
-        "folder": "sounddevice_046"
+    "Transformers.js": {
+        "URL": "https://huggingface.co/docs/transformers.js/",
+        "folder": "transformers_js"
     },
-    "Sentence-Transformers": {
-        "URL": "https://www.sbert.net/docs",
-        "folder": "sentence_transformers"
+    "urllib3": {
+        "URL": "https://urllib3.readthedocs.io/en/stable/",
+        "folder": "urllib3"
     },
-    "PyAV": {
-        "URL": "https://pyav.basswood-io.com/docs/stable/",
-        "folder": "pyav"
+    "webdataset": {
+        "URL": "https://webdataset.github.io/webdataset/",
+        "folder": "webdataset"
     },
-    "Qt for Python 6": {
-        "URL": "https://doc.qt.io/qtforpython-6/",
-        "folder": "qt_for_python_6"
+    "Wrapt": {
+        "URL": "https://wrapt.readthedocs.io/en/master/",
+        "folder": "wrapt"
     },
-    "jiwer": {
-        "URL": "https://jitsi.github.io/jiwer/",
-        "folder": "jiwer"
+    "xlrd": {
+        "URL": "https://xlrd.readthedocs.io/en/latest/",
+        "folder": "xlrd"
     },
-    "SymPy": {
-        "URL": "https://docs.sympy.org/latest/",
-        "folder": "sympy"
+    "xFormers": {
+        "URL": "https://facebookresearch.github.io/xformers/",
+        "folder": "xformers"
     },
-    "Torchvision 0.18": {
-        "URL": "https://pytorch.org/vision/0.18/",
-        "folder": "torchvision_018"
+    "yarl": {
+        "URL": "https://yarl.aio-libs.org/en/stable/",
+        "folder": "yarl"
     },
-    "Torchvision 0.17": {
-        "URL": "https://pytorch.org/vision/0.17/",
-        "folder": "torchvision_017"
-    },
-    "Torchaudio 2.3": {
-        "URL": "https://pytorch.org/audio/2.3.0/",
-        "folder": "torchaudio_23"
-    },
-    "Torchaudio 2.2": {
-        "URL": "https://pytorch.org/audio/2.2.0/",
-        "folder": "torchaudio_22"
-    },
-    "Torch 2.3": {
-        "URL": "https://pytorch.org/docs/2.3/",
-        "folder": "torch_23"
-    },
-    "Torch 2.2": {
-        "URL": "https://pytorch.org/docs/2.2/",
-        "folder": "torch_22"
-    }
 }
 
 class CustomButtonStyles:
