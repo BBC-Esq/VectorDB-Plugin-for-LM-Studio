@@ -185,7 +185,7 @@ priority_libraries = [
     # "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl",
     "whisper_s2t @ git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
     "WhisperSpeech @ git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
-    "nvidia-pyindex"
+    # "nvidia-pyindex"
 ]
 
 other_libraries = [
@@ -195,14 +195,14 @@ other_libraries = [
     "aiosignal==1.3.1",
     "anndata==0.10.9",
     "annotated-types==0.7.0",
-    "antlr4-python3-runtime==4.9.3",
+    "antlr4-python3-runtime==4.9.3", # omegaconf 2.3.0 requires 4.9.*
     "anyio==4.6.2.post1",
     "array_api_compat==1.9.1",
     "attrs==24.2.0",
     "av==13.1.0",
     "backoff==2.2.1",
     "beautifulsoup4==4.12.3",
-    "bitsandbytes==0.43.1",
+    "bitsandbytes==0.44.1",
     "braceexpand==0.1.7",
     "certifi==2024.8.30",
     "cffi==1.17.1",
@@ -210,29 +210,29 @@ other_libraries = [
     "charset-normalizer==3.4.0",
     "chattts-fork==0.0.8",
     "click==8.1.7",
-    "cloudpickle==2.2.1", # highest version supported by tiledb-cloud
+    "cloudpickle==2.2.1", # tiledb-cloud 0.12.29 requires less than 3.0.0
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "ctranslate2==4.5.0",
     "cycler==0.12.1",
     "dataclasses-json==0.6.7",
-    "datasets==3.1.0", # requires dill<0.3.9,>=0.3.0...multiprocess<0.70.17...fsspec[http]<=2024.9.0,>=2023.1.0...huggingface-hub>=0.23.0
+    "datasets==3.1.0",
     "deepdiff==8.0.1",
-    "dill==0.3.8",
+    "dill==0.3.8", # datasets 3.1.0 requires less than 0.3.9
     "distro==1.9.0",
     "docx2txt==0.8",
     "einops==0.8.0",
     "einx==0.3.0",
     "emoji==2.14.0",
     "encodec==0.1.1",
-    "et-xmlfile==1.1.0", # required by openpyxl==3.1.5
+    "et-xmlfile==1.1.0", # openpyxl requires; hesitate to upgrade since openpyxl's most recent version pre-dates et-xmlfile 2+
     "fastcore==1.7.19",
     "fastprogress==1.0.3",
     "filetype==1.2.0",
     "filelock==3.16.1",
     "frozendict==2.4.6",
     "frozenlist==1.5.0",
-    "fsspec==2024.5.0",
+    "fsspec==2024.5.0", # datasets 3.1.0 requires less than or equal to <=2024.9.0,>=2023.1.0
     "greenlet==3.1.1",
     "gTTS==2.5.3",
     "h11==0.14.0",
@@ -246,61 +246,61 @@ other_libraries = [
     "idna==3.10",
     "importlib_metadata==8.5.0",
     "InstructorEmbedding==1.0.1",
-    "Jinja2==3.1.4",
+    "Jinja2==3.1.4", # datamodel-code-generator 0.26.2 requires less than 4.0
     "joblib==1.4.2",
     "jsonpatch==1.33",
     "jsonpath-python==1.0.6",
     "jsonpointer==3.0.0",
     "kiwisolver==1.4.7",
-    # these versions work if/when I upgrade langchain, which requires revising my code due to a change to pydantic v2 in codebase
-    "langchain==0.3.7",
     "langchain-community==0.2.17",
     "langchain-core==0.2.43",
     "langchain-huggingface==0.0.3",
     "langchain-text-splitters==0.2.4",
     "langsmith==0.1.125",
     "langdetect==1.0.9",
-    # "langchain==0.2.17",
+    "langchain==0.2.17",
+    # these versions work if/when I upgrade langchain, which requires revising my code due to a change to pydantic v2 in codebase
+    # "langchain==0.3.7",
     # "langchain-community==0.3.5",
     # "langchain-core==0.3.15",
     # "langchain-huggingface==0.1.2",
     # "langchain-text-splitters==0.3.2",
     # "langdetect==1.0.9",
     # "langsmith==0.1.125",
-    "llvmlite==0.43.0",
+    "llvmlite==0.43.0", # only required by numba
     "lxml==5.3.0",
     "Markdown==3.7",
     "markdown-it-py==3.0.0",
     "MarkupSafe==3.0.2",
-    "marshmallow==3.23.1",
+    "marshmallow==3.23.1", # dataclasses-json 0.6.7 requires less than 4.0
     "matplotlib==3.9.2", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
     "mdurl==0.1.2",
     "more-itertools==10.5.0",
-    "mpmath==1.3.0",
+    "mpmath==1.3.0", # sympy 1.12.1 requires less than 1.4
     "msg-parser==1.2.0",
     "multidict==6.1.0",
-    "multiprocess==0.70.16", # not higher
+    "multiprocess==0.70.16", # datasets 3.1.0 requires multiprocess less than 0.70.17
     "mypy-extensions==1.0.0",
     "natsort==8.4.0",
     "nest-asyncio==1.6.0",
     "networkx==3.4.2",
-    "nltk==3.8.1", # not higher
-    "numba==0.60.0",
+    "nltk==3.8.1", # not higher; gives unexplained error
+    "numba==0.60.0", # only required by openai-whisper
     "numpy==1.26.4",
-    # required by torch 2.2.2
+    # torch 2.2.2 versions
     "nvidia-cublas-cu12==12.1.3.1",
     "nvidia-cuda-runtime-cu12==12.1.105",
     "nvidia-cuda-nvrtc-cu12==12.1.105",
     "nvidia-cufft-cu12==11.0.2.54",
-    "nvidia-cuda-cupti-cu12==12.1.105",
-    "nvidia-curand-cu12==10.3.2.106",
-    "nvidia-cusolver-cu12==11.4.5.107",
-    "nvidia-cusparse-cu12==12.1.0.106",
-    "nvidia-nvtx-cu12==12.1.105",
-    # flexible-ish cudnn libraries; experiment with caution
+    # "nvidia-cuda-cupti-cu12==12.1.105",
+    # "nvidia-curand-cu12==10.3.2.106",
+    # "nvidia-cusolver-cu12==11.4.5.107",
+    # "nvidia-cusparse-cu12==12.1.0.106",
+    # "nvidia-nvtx-cu12==12.1.105",
+    # cudnn versions are flexible-ish; experiment with caution
     # "nvidia-cudnn-cu12==8.9.7.29",
     "nvidia-cudnn-cu12==9.1.0.70",
-    # required by torch 2.4.0
+    # torch 2.4.0 versions
     # "nvidia-cuda-runtime-cu12==12.4.99",
     # "nvidia-cublas-cu12==12.4.2.65",
     # "nvidia-cuda-nvrtc-cu12==12.4.99",
@@ -308,12 +308,12 @@ other_libraries = [
     "nvidia-ml-py==12.560.30",
     "olefile==0.47",
     "omegaconf==2.3.0",
-    "openai==1.23.6",
-    "openai-whisper==20231117",
+    "openai==1.23.6", # only required by chat_lm_studio.py script
+    "openai-whisper==20231117", # only required by whisper_s2t if using openai vanilla backend
     "openpyxl==3.1.5",
     "optimum==1.23.3",
     "ordered-set==4.1.0",
-    "orderly-set==5.2.2", # not higher
+    "orderly-set==5.2.2", # deepdiff 8.0.1 requires 5.2.2
     "orjson==3.10.11",
     "packaging==24.1",
     "pandas==2.2.3",
@@ -326,8 +326,8 @@ other_libraries = [
     "pyarrow-hotfix==0.6",
     "pycparser==2.22",
     "pydantic==2.9.2",
-    "pydantic_core==2.23.4",
-    "pydantic-settings==2.6.1",
+    "pydantic_core==2.23.4", # pydantic 2.9.2 requires 2.23.4
+    # "pydantic-settings==2.6.1", # not sure if required...
     "Pygments==2.18.0",
     "pypandoc==1.14",
     "pyparsing==3.2.0",
@@ -335,7 +335,7 @@ other_libraries = [
     "pyreadline3==3.5.4",
     "python-dateutil==2.9.0.post0",
     "python-docx==1.1.2",
-    "python-dotenv==1.0.1",
+    # "python-dotenv==1.0.1", # only required by pydantic-settings
     "python-iso639==2024.4.27",
     "python-magic==0.4.27",
     "pytz==2024.2",
@@ -359,7 +359,7 @@ other_libraries = [
     "soundfile==0.12.1",
     "soupsieve==2.6",
     "speechbrain==0.5.16",
-    "SQLAlchemy==2.0.35", # not higher
+    "SQLAlchemy==2.0.35", # langchain and langchain-community pre-0.3 require less than 3.0.0
     "sseclient-py==1.8.0",
     "sympy==1.12.1", # anything above is not compatible with llava-next-vicuna vision models
     "tabulate==0.9.0",
@@ -372,7 +372,8 @@ other_libraries = [
     "tiledb-cloud==0.12.29",
     "tiledb-vector-search==0.10.3",
     "timm==1.0.11",
-    "tokenizers==0.20.1",
+    # "tokenizers==0.20.1",
+    "tokenizers==0.20.2",
     "tqdm==4.66.6",
     "transformers==4.46.1",
     "typing-inspect==0.9.0",
@@ -384,23 +385,24 @@ other_libraries = [
     "vocos==0.1.0",
     "webdataset==0.2.86",
     "wrapt==1.16.0",
-    "xformers==0.0.25.post1",
+    "xformers==0.0.25.post1", # highly-specific to torch version
     # "xformers==0.0.27.post2", # requires torch 2.4.0
     "xlrd==2.0.1",
     "xxhash==3.5.0",
-    "yarl==1.12.0",
+    # "yarl==1.12.0", # langchain-related libraries and optimum require less than 2.0
+    "yarl==1.17.1", # langchain-related libraries and optimum require less than 2.0
     "zipp==3.20.2",
     # the following are only required by minicpm3 chat model
-    "argcomplete==3.5.1",
+    "argcomplete==3.5.1", # datamodel-code-generator 0.26.2 requires >=1.10,<4.0
     "black==24.10.0",
     "datamodel-code-generator==0.26.2",
     "dnspython==2.7.0",
     "email-validator==2.2.0",
-    "genson==1.3.0",
-    "inflect==5.6.2", # not higher
-    "isort==5.13.2",
+    "genson==1.3.0", # datamodel-code-generator requires less than 2.0
+    "inflect==5.6.2", # datamodel-code-generator 0.26.2 requires >=4.1.0,<6.0
+    "isort==5.13.2", # datamodel-code-generator requires less than 6.0
     "jsonschema==4.23.0",
-    "jsonschema-specifications==2023.12.1",
+    "jsonschema-specifications==2024.10.1", # jsonschema 4.23.0 requires >=2023.03.6
     "pathspec==0.12.1",
     "referencing==0.35.1",
     "rpds-py==0.20.1",
@@ -521,7 +523,7 @@ def download_kobold():
         file_name = "koboldcpp-linux-x64-nocuda"
     else:
         file_name = "koboldcpp_nocuda.exe"
-    url = f"https://github.com/LostRuins/koboldcpp/releases/latest/download/{file_name}"
+    url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.76/{file_name}"
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     assets_dir = os.path.join(script_dir, "Assets")
