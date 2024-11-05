@@ -38,7 +38,6 @@ import time
 # xformers 0.0.28.post3 - requires torch 2.5.1
 
 # new repo for windows triton wheels: https://github.com/woct0rdho/triton-windows/releases
-
 """
 
 start_time = time.time()
@@ -185,7 +184,8 @@ priority_libraries = [
     "triton @ https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl#sha256=2c78f5f85cf88d46eb9664c23691052d6c153a6043656fc15c50a0d13bc5565c", # required by alibaba vector models
     # "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl",
     "whisper_s2t @ git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
-    "WhisperSpeech @ git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8"
+    "WhisperSpeech @ git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
+    "nvidia-pyindex"
 ]
 
 other_libraries = [
@@ -210,22 +210,22 @@ other_libraries = [
     "charset-normalizer==3.4.0",
     "chattts-fork==0.0.8",
     "click==8.1.7",
-    "cloudpickle==2.2.1", # not higher without upgrading tiledb
+    "cloudpickle==2.2.1", # highest version supported by tiledb-cloud
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "ctranslate2==4.5.0",
     "cycler==0.12.1",
     "dataclasses-json==0.6.7",
-    "datasets==3.1.0",
+    "datasets==3.1.0", # requires dill<0.3.9,>=0.3.0...multiprocess<0.70.17...fsspec[http]<=2024.9.0,>=2023.1.0...huggingface-hub>=0.23.0
     "deepdiff==8.0.1",
-    "dill==0.3.8", # not higher
+    "dill==0.3.8",
     "distro==1.9.0",
     "docx2txt==0.8",
     "einops==0.8.0",
     "einx==0.3.0",
     "emoji==2.14.0",
     "encodec==0.1.1",
-    "et-xmlfile==1.1.0",
+    "et-xmlfile==1.1.0", # required by openpyxl==3.1.5
     "fastcore==1.7.19",
     "fastprogress==1.0.3",
     "filetype==1.2.0",
@@ -279,11 +279,20 @@ other_libraries = [
     "nltk==3.8.1", # not higher
     "numba==0.60.0",
     "numpy==1.26.4",
+    # required by torch 2.2.2
     "nvidia-cublas-cu12==12.1.3.1",
     "nvidia-cuda-runtime-cu12==12.1.105",
     "nvidia-cuda-nvrtc-cu12==12.1.105",
+    "nvidia-cufft-cu12==11.0.2.54",
+    "nvidia-cuda-cupti-cu12==12.1.105",
+    "nvidia-curand-cu12==10.3.2.106",
+    "nvidia-cusolver-cu12==11.4.5.107",
+    "nvidia-cusparse-cu12==12.1.0.106",
+    "nvidia-nvtx-cu12==12.1.105",
+    # flexible-ish cudnn libraries; experiment with caution
     # "nvidia-cudnn-cu12==8.9.7.29",
     "nvidia-cudnn-cu12==9.1.0.70",
+    # required by torch 2.4.0
     # "nvidia-cuda-runtime-cu12==12.4.99",
     # "nvidia-cublas-cu12==12.4.2.65",
     # "nvidia-cuda-nvrtc-cu12==12.4.99",
@@ -324,7 +333,7 @@ other_libraries = [
     "pytz==2024.2",
     "PyYAML==6.0.2",
     "rapidfuzz==3.10.1",
-    "regex==2024.5.15",
+    "regex==2024.9.11",
     "requests==2.32.3",
     "requests-toolbelt==1.0.0",
     "rich==13.9.4",
@@ -351,9 +360,9 @@ other_libraries = [
     "termcolor==2.5.0",
     "threadpoolctl==3.5.0",
     "tiktoken==0.8.0",
-    "tiledb==0.27.1",
-    "tiledb-cloud==0.12.18",
-    "tiledb-vector-search==0.2.2",
+    "tiledb==0.32.5",
+    "tiledb-cloud==0.12.29",
+    "tiledb-vector-search==0.10.3",
     "timm==1.0.11",
     "tokenizers==0.20.1",
     "tqdm==4.66.6",
