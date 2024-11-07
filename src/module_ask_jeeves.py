@@ -1,8 +1,16 @@
 import json
-import requests
-import sseclient
 import subprocess
 import sys
+import platform
+import signal
+import os
+import time
+import atexit
+from pathlib import Path
+
+import requests
+import sseclient
+from huggingface_hub import snapshot_download
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTextEdit, QLineEdit, QCommandLinkButton, QMessageBox,
@@ -11,18 +19,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QThread, Signal, QObject, Qt
 from PySide6.QtGui import QTextCursor, QPixmap
 
-import platform
-import signal
-import os
-import time
-
 from constants import kobold_config, jeeves_system_message, rag_string
 from database_interactions import QueryVectorDB
-
-from pathlib import Path
-import atexit
-
-from huggingface_hub import snapshot_download
 
 
 def has_discrete_vulkan_gpu():
