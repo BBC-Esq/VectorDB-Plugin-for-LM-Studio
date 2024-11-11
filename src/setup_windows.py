@@ -190,6 +190,7 @@ priority_libraries = [
 
 other_libraries = [
     "accelerate==1.1.0",
+    "aiofiles==24.1.0",
     "aiohappyeyeballs==2.4.3",
     "aiohttp==3.10.10",
     "aiosignal==1.3.1",
@@ -352,7 +353,6 @@ other_libraries = [
     "scipy==1.14.1",
     "sentence-transformers==3.0.1",
     "sentencepiece==0.2.0",
-    "shiboken6==6.7.3",
     "six==1.16.0",
     "sniffio==1.3.1",
     "sounddevice==0.5.1",
@@ -372,7 +372,6 @@ other_libraries = [
     "tiledb-cloud==0.12.29",
     "tiledb-vector-search==0.10.3",
     "timm==1.0.11",
-    # "tokenizers==0.20.1",
     "tokenizers==0.20.2",
     "tqdm==4.66.6",
     "transformers==4.46.1",
@@ -409,7 +408,7 @@ other_libraries = [
 ]
 
 full_install_libraries = [
-    "pyside6==6.7.3",
+    "PySide6==6.8.0.2",
     "pymupdf==1.24.13",
     "unstructured==0.13.4"
 ]
@@ -519,10 +518,8 @@ def download_kobold():
     import os
 
     system = platform.system()
-    if system == "Linux":
-        file_name = "koboldcpp-linux-x64-nocuda"
-    else:
-        file_name = "koboldcpp_nocuda.exe"
+
+    file_name = "koboldcpp_nocuda.exe"
     url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.76/{file_name}"
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -541,11 +538,6 @@ def download_kobold():
             file.write(response.content)
         
         print(f"\033[92mKoboldCPP nocuda version downloaded successfully to {kobold_path}.\033[0m")
-        
-        # if the system is Linux, make the file executable
-        if system == "Linux":
-            os.chmod(kobold_path, 0o755)
-            print("\033[92mMade the Linux version executable.\033[0m")
                 
     except requests.exceptions.HTTPError as http_err:
         print(f"\033[91mHTTP error occurred while downloading KoboldCPP: {http_err}\033[0m")
