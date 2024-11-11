@@ -121,6 +121,16 @@ CHAT_MODELS = {
         'precision': 'bfloat16',
         'gated': False,
     },
+    'OpenCoder - 8b': {
+        'model': 'OpenCoder - 8b',
+        'repo_id': 'infly/OpenCoder-8B-Instruct',
+        'cache_dir': 'infly--OpenCoder-8B-Instruct',
+        'cps': 205.50,
+        'context_length': 8192,
+        'vram': 6097.93,
+        'function': 'OpenCoder_8b',
+        'gated': False,
+    },
     'Qwen 2.5 - 7b': {
         'model': 'Qwen 2.5 - 7b',
         'repo_id': 'Qwen/Qwen2.5-7B-Instruct',
@@ -884,9 +894,17 @@ scrape_documentation = {
         "URL": "https://huggingface.co/docs/accelerate/v0.34.2/en/",
         "folder": "accelerate_0342"
     },
+    "Accelerate": {
+        "URL": "https://huggingface.co/docs/accelerate/",
+        "folder": "accelerate"
+    },
     "aiohttp 3.9.5": {
         "URL": "https://docs.aiohttp.org/en/v3.9.5/",
         "folder": "aiohttp_395"
+    },
+    "aiohttp": {
+        "URL": "https://docs.aiohttp.org/en/stable/",
+        "folder": "aiohttp"
     },
     "Argcomplete": {
         "URL": "https://kislyuk.github.io/argcomplete/",
@@ -908,21 +926,29 @@ scrape_documentation = {
         "URL": "https://huggingface.co/docs/bitsandbytes/v0.44.1/en/",
         "folder": "bitsandbytes_0441"
     },
+    "bitsandbytes": {
+        "URL": "https://huggingface.co/docs/bitsandbytes/main/en/",
+        "folder": "bitsandbytes"
+    },
     "Black": {
         "URL": "https://black.readthedocs.io/en/stable/",
         "folder": "Black"
     },
     "chardet": {
-        "URL": "https://chardet.readthedocs.io/en/latest/",
+        "URL": "https://chardet.readthedocs.io/en/stable/",
         "folder": "chardet"
     },
     "charset-normalizer 3.3.2": {
         "URL": "https://charset-normalizer.readthedocs.io/en/3.3.2/",
         "folder": "charset_normalizer_332"
     },
-    "Click 8.1": {
-        "URL": "https://click.palletsprojects.com/en/8.1.x/",
-        "folder": "click_81"
+    "charset-normalizer": {
+        "URL": "https://charset-normalizer.readthedocs.io/en/stable/",
+        "folder": "charset_normalizer"
+    },
+    "Click": {
+        "URL": "https://click.palletsprojects.com/en/stable/",
+        "folder": "click"
     },
     "coloredlogs": {
         "URL": "https://coloredlogs.readthedocs.io/en/latest/",
@@ -933,7 +959,7 @@ scrape_documentation = {
         "folder": "ctranslate2"
     },
     "CuPy": {
-        "URL": "https://docs.cupy.dev/en/stable/reference/",
+        "URL": "https://docs.cupy.dev/en/stable/",
         "folder": "cupy"
     },
     "CustomTkinter": {
@@ -968,12 +994,12 @@ scrape_documentation = {
         "URL": "https://pycqa.github.io/isort/",
         "folder": "isort"
     },
-    "Jinja 3.1": {
-        "URL": "https://jinja.palletsprojects.com/en/3.1.x/",
-        "folder": "jinja_31"
+    "Jinja": {
+        "URL": "https://jinja.palletsprojects.com/en/stable/",
+        "folder": "jinja"
     },
     "jiwer": {
-        "URL": "https://jiwer.readthedocs.io/en/latest/",
+        "URL": "https://jitsi.github.io/jiwer/",
         "folder": "jiwer"
     },
     "jsonschema 4.23.0": {
@@ -984,9 +1010,25 @@ scrape_documentation = {
         "URL": "https://jsonschema-specifications.readthedocs.io/en/stable/",
         "folder": "jsonschema_specifications"
     },
-    "Langchain": {
-        "URL": "https://api.python.langchain.com/en/latest/",
-        "folder": "langchain"
+    # "Langchain": {
+        # "URL": "https://api.python.langchain.com/en/latest/",
+        # "folder": "langchain"
+    # },
+    "Langchain 0.2.x": {
+        "URL": "https://python.langchain.com/v0.2/api_reference/langchain/",
+        "folder": "langchain_02x"
+    },
+    "Langchain Community 0.2.x": {
+        "URL": "https://python.langchain.com/v0.2/api_reference/community/",
+        "folder": "langchain_community_02x"
+    },
+    "Langchain Core 0.2.x": {
+        "URL": "https://python.langchain.com/v0.2/api_reference/core/",
+        "folder": "langchain_core_02x"
+    },
+    "Langchain Text Splitters 0.2.x": {
+        "URL": "https://python.langchain.com/v0.2/api_reference/text_splitters/",
+        "folder": "langchain_text_splitters_02x"
     },
     "Librosa": {
         "URL": "https://librosa.org/doc/latest/",
@@ -1004,12 +1046,20 @@ scrape_documentation = {
         "URL": "https://loguru.readthedocs.io/en/stable/",
         "folder": "loguru"
     },
+    "lxml 5.3.0": {
+        "URL": "https://lxml.de/5.3/",
+        "folder": "lxml_530"
+    },
+    "lxml-html-clean": {
+        "URL": "https://lxml-html-clean.readthedocs.io/en/stable/",
+        "folder": "lxml_html_clean"
+    },
     "marshmallow": {
         "URL": "https://marshmallow.readthedocs.io/en/stable/",
         "folder": "marshmallow"
     },
     "Matplotlib": {
-        "URL": "https://matplotlib.org/stable/",
+        "URL": "https://matplotlib.org/stable/", # won't scrape
         "folder": "matplotlib"
     },
     "mpmath": {
@@ -1021,12 +1071,16 @@ scrape_documentation = {
         "folder": "msg_parser"
     },
     "multiprocess": {
-        "URL": "https://multiprocess.readthedocs.io/en/latest/",
+        "URL": "https://multiprocess.readthedocs.io/en/stable/",
         "folder": "multiprocess"
     },
     "natsort 8.4.0": {
         "URL": "https://natsort.readthedocs.io/en/8.4.0/",
         "folder": "natsort_840"
+    },
+    "natsort": {
+        "URL": "https://natsort.readthedocs.io/en/stable/",
+        "folder": "natsort"
     },
     "NetworkX": {
         "URL": "https://networkx.org/documentation/stable/",
@@ -1088,6 +1142,10 @@ scrape_documentation = {
         "URL": "https://platformdirs.readthedocs.io/en/stable/",
         "folder": "platformdirs"
     },
+    "Playwright": {
+        "URL": "https://playwright.dev/python/",
+        "folder": "playwright"
+    },
     "Pillow": {
         "URL": "https://pillow.readthedocs.io/en/stable/",
         "folder": "pillow"
@@ -1099,6 +1157,10 @@ scrape_documentation = {
     "PyAV": {
         "URL": "https://pyav.org/docs/stable/",
         "folder": "pyav"
+    },
+    "Pydantic": {
+        "URL": "https://docs.pydantic.dev/latest/",
+        "folder": "pydantic"
     },
     "PyInstaller 6.10.0": {
         "URL": "https://pyinstaller.org/en/v6.10.0/",
@@ -1121,7 +1183,7 @@ scrape_documentation = {
         "folder": "pytorch_lightning"
     },
     "python-docx": {
-        "URL": "https://python-docx.readthedocs.io/en/latest/",
+        "URL": "https://python-docx.readthedocs.io/en/stable/", # won't scrape
         "folder": "python_docx"
     },
     "PyYAML": {
@@ -1132,6 +1194,10 @@ scrape_documentation = {
         "URL": "https://pygments.org/docs/",
         "folder": "pygments"
     },
+    "Pywin32": {
+        "URL": "https://mhammond.github.io/pywin32/",
+        "folder": "pywin32"
+    },
     "RapidFuzz": {
         "URL": "https://rapidfuzz.github.io/RapidFuzz/",
         "folder": "rapidfuzz"
@@ -1141,11 +1207,11 @@ scrape_documentation = {
         "folder": "referencing"
     },
     "Requests": {
-        "URL": "https://requests.readthedocs.io/en/latest/",
+        "URL": "https://requests.readthedocs.io/en/stable/",
         "folder": "requests"
     },
     "Rich": {
-        "URL": "https://rich.readthedocs.io/en/latest/",
+        "URL": "https://rich.readthedocs.io/en/stable/", # won't scrape
         "folder": "rich"
     },
     "rpds-py": {
@@ -1280,6 +1346,10 @@ scrape_documentation = {
         "URL": "https://huggingface.co/docs/transformers/v4.45.2/en/",
         "folder": "transformers_4452"
     },
+    "Transformers 4.46.2": {
+        "URL": "https://huggingface.co/docs/transformers/v4.46.2/en/",
+        "folder": "transformers_4462"
+    },
     "Transformers.js": {
         "URL": "https://huggingface.co/docs/transformers.js/",
         "folder": "transformers_js"
@@ -1293,7 +1363,7 @@ scrape_documentation = {
         "folder": "webdataset"
     },
     "Wrapt": {
-        "URL": "https://wrapt.readthedocs.io/en/master/",
+        "URL": "https://wrapt.readthedocs.io/en/master/", # not working
         "folder": "wrapt"
     },
     "xlrd": {
