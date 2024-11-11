@@ -32,7 +32,7 @@ class AsyncWorker(QObject):
        count = len([f for f in os.listdir(self.save_dir) if f.endswith('.html')])
        return count
 
-   async def crawl_domain(self, max_concurrent_requests=10, batch_size=50):
+   async def crawl_domain(self, max_concurrent_requests=100, batch_size=100): # batch and concurrency settings
        parsed_url = urlparse(self.url)
        acceptable_domain = parsed_url.netloc
        acceptable_domain_extension = parsed_url.path.rstrip('/')
@@ -68,7 +68,7 @@ class AsyncWorker(QObject):
                        new_to_visit = new_links - visited
                        to_visit.extend(new_to_visit)
                
-               await asyncio.sleep(0.1)
+               await asyncio.sleep(0.2)
                self.status_updated.emit(f"{self.stats['scraped']}")
 
        self.scraping_finished.emit()
@@ -289,3 +289,56 @@ class ScrapeDocumentationTab(QWidget):
                subprocess.Popen(["open", self.current_folder])
            else:
                subprocess.Popen(["xdg-open", self.current_folder])
+
+"""
+[GUI Interface]
+      |
+      v
+[Start Scraping Button]
+      |
+      v
+[AsyncWorker & WorkerThread]------------------------+
+      |                                             |
+      v                                             |
+[Initial URL & Settings]                            |
+  max_concurrent_requests=50                        |
+  batch_size=50                                     |
+      |                                             |
+      v                                             |
+[URL Queue]                                         |
+  to_visit = [initial_url]                          |
+      |                                             |
+      v                                             |
+[Process Batch]----------------------------+        |
+      |                                    |        |
+      v                                    |        |
+[Semaphore (50 concurrent max)]            |        |
+      |                                    |        |
+      v                                    |        |
+[aiohttp ClientSession]                    |        |
+      |                                    |        |
+      +-> [Fetch URL 1]                    |        |
+      +-> [Fetch URL 2]                    |        |
+      +-> [Fetch URL 3]...up to 50 active  |        |
+          |                                |        |
+          v                                |        |
+    [For each URL]:                        |        |
+    - Check if already saved               |        |
+    - GET request                          |        |
+    - Save HTML                            |        |
+    - Extract new links                    |        |
+          |                                |        |
+          v                                |        |
+    [New URLs found]---------------------->         |
+          |                                         |
+          v                                         |
+    [Signal GUI Update]---------------------------->
+    (Pages scraped count)
+
+[File System]
+ - Scraped_Documentation/
+   └── [Selected Doc Folder]/
+       ├── page1.html
+       ├── page2.html
+       └── failed_urls.log
+"""
