@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QLabel, QPushButton, QMessageBox
 )
 from PySide6.QtCore import Qt, Signal, QObject, QThread
+from PySide6.QtGui import QStandardItem, QStandardItemModel, QColor
 import platform
 import shutil
 from constants import scrape_documentation
@@ -25,7 +26,7 @@ class AsyncWorker(QObject):
     def run(self):
         asyncio.run(self.crawl_domain())
 
-    async def crawl_domain(self, max_concurrent_requests=10):
+    async def crawl_domain(self, max_concurrent_requests=50):
         parsed_url = urlparse(self.url)
         acceptable_domain = parsed_url.netloc
         acceptable_domain_extension = parsed_url.path.rstrip('/')
@@ -80,7 +81,7 @@ class AsyncWorker(QObject):
                     if attempt == retries:
                         self.log_failed_url(url, log_file)
                         self.stats['scraped'] += 1
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(.1)
             return set()
 
     def save_html(self, content, url, save_dir):
@@ -192,7 +193,25 @@ class ScrapeDocumentationTab(QWidget):
     def populate_combo_box(self):
         doc_options = list(scrape_documentation.keys())
         doc_options.sort(key=str.lower)
-        self.doc_combo.addItems(doc_options)
+
+        model = QStandardItemModel()
+
+        scraped_dir = os.path.join(os.path.dirname(__file__), "Scraped_Documentation")
+
+        for doc in doc_options:
+            folder = scrape_documentation[doc]["folder"]
+            folder_path = os.path.join(scraped_dir, folder)
+
+            item = QStandardItem(doc)
+
+            if os.path.exists(folder_path):
+                item.setForeground(QColor('#4B0F0F'))
+
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+
+            model.appendRow(item)
+
+        self.doc_combo.setModel(model)
 
     def start_scraping(self):
         selected_doc = self.doc_combo.currentText()
@@ -238,6 +257,8 @@ class ScrapeDocumentationTab(QWidget):
     def scraping_finished(self):
         self.scrape_button.setEnabled(True)
         self.status_label.setText(f'Scraping completed. {self.status_label.text()}')
+
+        self.populate_combo_box()
 
     def open_folder(self, link):
         if link == "open_folder":
