@@ -13,6 +13,7 @@ def create_chat_models_comparison_plot():
                 "DeepSeek Coder v2 - 16b",
                 "Yi Coder - 9b",
                 "Qwen 2.5 Coder - 7b",
+                "OpenCoder - 8b"
             ],
             "color": "#DAA520",
             "label": "Coding Focused & 8k Context"
