@@ -2,7 +2,7 @@ jeeves_system_message = "You are a helpful British butler who clearly and direct
 system_message = "You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."
 rag_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
 
-# changes the default of 8192 in module_chat.py
+# overrides default max_length parameter of 8192
 MODEL_MAX_TOKENS = {
     'Qwen 2.5 - 1.5b': 4096,
     'Qwen 2.5 Coder - 1.5b': 4096,
@@ -10,30 +10,30 @@ MODEL_MAX_TOKENS = {
     'Zephyr - 3b': 4096,
     'Qwen 2.5 - 3b': 4096,
     'Llama 3.2 - 3b': 4096,
-    'Internlm2_5 - 1.8b': 4096,
-    # 'MiniCPM3 - 4b': 4096
+    'Qwen 2.5 Coder - 3b': 4096,
+    # 'MiniCPM3 - 4b': 4096 # anomaly; good with lots of contexts but poor with long responses
 }
 
-# changes the default of 1024 in module_chat.mpy
+# overrides max_new_tokens parameter of 1024
 MODEL_MAX_NEW_TOKENS = {
     'Qwen 2.5 - 1.5b': 512,
     'Qwen 2.5 Coder - 1.5b': 512,
     'Zephyr - 1.6b': 512,
     'Zephyr - 3b': 512,
     'Qwen 2.5 - 3b': 512,
-    'Internlm2_5 - 1.8b': 512,
+    'Qwen 2.5 Coder - 3b': 512,
     'MiniCPM3 - 4b': 512,
 }
 
 CHAT_MODELS = {
     'Qwen 2.5 - 1.5b': {
-        'model': 'Qwen 2.5 - 1.5b',
-        'repo_id': 'Qwen/Qwen2.5-1.5B-Instruct',
-        'cache_dir': 'Qwen--Qwen2.5-1.5B-Instruct',
+        'model': 'Qwen 2.5 - 1.5b', # what's displayed in the combobox
+        'repo_id': 'Qwen/Qwen2.5-1.5B-Instruct', # hf repo
+        'cache_dir': 'Qwen--Qwen2.5-1.5B-Instruct', # folder to save
         'cps': 261.31,
-        'context_length': 32768,
+        'context_length': 32768, # not currently used
         'vram': 1749.97,
-        'function': 'Qwen2_5_1_5b',
+        'function': 'Qwen2_5_1_5b', # function in module_chat.py
         'gated': False,
     },
     'Qwen 2.5 Coder - 1.5b': {
@@ -76,7 +76,17 @@ CHAT_MODELS = {
         'cps': 213.40,
         'context_length': 32768,
         'vram': 2864.89,
-        'function': 'Qwen2_5_3b',
+        'function': 'QwenCoder_3b',
+        'gated': False,
+    },
+    'Qwen 2.5 Coder - 3b': {
+        'model': 'Qwen 2.5 Coder - 3b',
+        'repo_id': 'Qwen/Qwen2.5-Coder-3B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-Coder-3B-Instruct',
+        'cps': 198.99,
+        'context_length': 32768,
+        'vram': 2860.01,
+        'function': 'QwenCoder_3b',
         'gated': False,
     },
     'Llama 3.2 - 3b': {
@@ -88,16 +98,6 @@ CHAT_MODELS = {
         'vram': 3003.67,
         'function': 'Llama_3_2_3b',
         'gated': True,
-    },
-    'Internlm2_5 - 1.8b': {
-        'model': 'Internlm2_5 - 1.8b',
-        'repo_id': 'internlm/internlm2_5-1_8b-chat',
-        'cache_dir': 'internlm--internlm2_5-1_8b-chat',
-        'cps': 262.98,
-        'context_length': 32768,
-        'vram': 3019.65,
-        'function': 'InternLM2_5_1_8b',
-        'gated': False,
     },
     'Phi 3.5 Mini - 4b': {
         'model': 'Phi 3.5 Mini - 4b',
@@ -119,16 +119,6 @@ CHAT_MODELS = {
         'vram': 4998.10,
         'function': 'MiniCPM3_4b',
         'precision': 'bfloat16',
-        'gated': False,
-    },
-    'OpenCoder - 8b': {
-        'model': 'OpenCoder - 8b',
-        'repo_id': 'infly/OpenCoder-8B-Instruct',
-        'cache_dir': 'infly--OpenCoder-8B-Instruct',
-        'cps': 205.50,
-        'context_length': 8192,
-        'vram': 6097.93,
-        'function': 'OpenCoder_8b',
         'gated': False,
     },
     'Qwen 2.5 - 7b': {
@@ -162,26 +152,14 @@ CHAT_MODELS = {
         'function': 'Dolphin_Llama3_1_8B',
         'gated': False,
     },
-    'Yi Coder - 9b': {
-        'model': 'Yi Coder - 9b',
-        'repo_id': '01-ai/Yi-Coder-9B-Chat',
-        'cache_dir': '01-ai--Yi-Coder-9B-Chat',
-        'cps': 143.72,
-        'context_length': 8192,
-        'vram': 6500.29,
-        'function': 'Yi_Coder_9b',
-        'precision': 'bfloat16',
-        'gated': False,
-    },
-    'Internlm2_5 - 7b': {
-        'model': 'Internlm2_5 - 7b',
-        'repo_id': 'internlm/internlm2_5-7b-chat',
-        'cache_dir': 'internlm--internlm2_5-7b-chat',
-        'cps': 156.65,
+    'Qwen 2.5 Coder - 14b': {
+        'model': 'Qwen 2.5 Coder - 14b',
+        'repo_id': 'Qwen/Qwen2.5-Coder-14B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-Coder-14B-Instruct',
+        'cps': 144.76,
         'context_length': 32768,
-        'vram': 6926.25,
-        'function': 'InternLM2_5_7b',
-        'precision': 'bfloat16',
+        'vram': 11029.87,
+        'function': 'QwenCoder_14b',
         'gated': False,
     },
     'Qwen 2.5 - 14b': {
@@ -190,19 +168,8 @@ CHAT_MODELS = {
         'cache_dir': 'Qwen--Qwen2.5-14B-Instruct',
         'cps': 139.26,
         'context_length': 8192,
-        'vram': 12599.22,
+        'vram': 11168.49,
         'function': 'Qwen_2_5_14b',
-        'precision': 'bfloat16',
-        'gated': False,
-    },
-    'DeepSeek Coder v2 - 16b': {
-        'model': 'DeepSeek Coder v2 - 16b',
-        'repo_id': 'deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct',
-        'cache_dir': 'deepseek-ai--DeepSeek-Coder-V2-Lite-Instruct',
-        'cps': 79.17,
-        'context_length': 8192,
-        'vram': 11830.24,
-        'function': 'DeepSeek_Coder_v2_lite',
         'precision': 'bfloat16',
         'gated': False,
     },
@@ -217,15 +184,14 @@ CHAT_MODELS = {
         'precision': 'bfloat16',
         'gated': True,
     },
-    'Internlm2_5 - 20b': {
-        'model': 'Internlm2_5 - 20b',
-        'repo_id': 'internlm/internlm2_5-20b-chat',
-        'cache_dir': 'internlm--internlm2_5-20b-chat',
-        'cps': 101.13,
+    'Qwen 2.5 Coder - 32b': {
+        'model': 'Qwen 2.5 Coder - 32b',
+        'repo_id': 'Qwen/Qwen2.5-Coder-32B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-Coder-32B-Instruct',
+        'cps': 97.47,
         'context_length': 32768,
-        'vram': 14305.22,
-        'function': 'InternLM2_5_20b',
-        'precision': 'bfloat16',
+        'vram': 21120.81,
+        'function': 'QwenCoder_32b',
         'gated': False,
     },
     'Qwen 2.5 - 32b': {
@@ -456,7 +422,6 @@ VISION_MODELS = {
         'cache_dir': 'microsoft--Florence-2-base',
         'requires_cuda': False,
         'vram': '2.6 GB',
-        'tps': 163.06
     },
     'Moondream2 - 1.9b': {
         'precision': 'float16',
@@ -466,7 +431,6 @@ VISION_MODELS = {
         'cache_dir': 'vikhyatk--moondream2',
         'requires_cuda': True,
         'vram': '4.6 GB',
-        'tps': 82.28
     },
     'Florence-2-large': {
         'precision': 'autoselect',
@@ -476,7 +440,6 @@ VISION_MODELS = {
         'cache_dir': 'microsoft--Florence-2-large',
         'requires_cuda': False,
         'vram': '5.3 GB',
-        'tps': 113.32
     },
     'Llava 1.6 Vicuna - 7b': {
         'precision': 'float16',
@@ -486,7 +449,6 @@ VISION_MODELS = {
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-7b-hf',
         'requires_cuda': True,
         'vram': '7.9 GB',
-        'tps': 56.33
     },
     'MiniCPM-V-2_6 - 8b': {
         'precision': 'bfloat16',
@@ -496,19 +458,17 @@ VISION_MODELS = {
         'cache_dir': 'openbmb--MiniCPM-V-2_6-int4',
         'requires_cuda': True,
         'vram': '9.1 GB',
-        'tps': 16.99
     },
     # awaiting fix to custom modeling code on huggingface repo
-    # 'THUDM glm4v - 9b': {
-        # 'precision': 'bfloat16',
-        # 'quant': '4-bit',
-        # 'size': '9b',
-        # 'repo_id': 'THUDM/glm-4v-9b',
-        # 'cache_dir': 'THUDM--glm-4v-9b',
-        # 'requires_cuda': True,
-        # 'vram': '10.5 GB',
-        # 'tps': 28.69
-    # },
+    'THUDM glm4v - 9b': {
+        'precision': 'bfloat16',
+        'quant': '4-bit',
+        'size': '9b',
+        'repo_id': 'THUDM/glm-4v-9b',
+        'cache_dir': 'THUDM--glm-4v-9b',
+        'requires_cuda': True,
+        'vram': '10.5 GB',
+    },
     # i need to add a sub-class
     # 'Molmo-D-0924 - 8b': {
         # 'precision': 'float32',
@@ -518,7 +478,6 @@ VISION_MODELS = {
         # 'cache_dir': 'cyan2k--molmo-7B-D-bnb-4bit',
         # 'requires_cuda': True,
         # 'vram': '10.5 GB',
-        # 'tps': 28.69
     # },
     'Llava 1.6 Vicuna - 13b': {
         'precision': 'float16',
@@ -528,7 +487,6 @@ VISION_MODELS = {
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-13b-hf',
         'requires_cuda': True,
         'vram': '14.1 GB',
-        'tps': 41.43
     }
 }
 
@@ -892,11 +850,13 @@ TOOLTIPS = {
 scrape_documentation = {
     "Accelerate 0.34.2": {
         "URL": "https://huggingface.co/docs/accelerate/v0.34.2/en/",
-        "folder": "accelerate_0342"
+        "folder": "accelerate_0342",
+        "scraper_class": "HuggingfaceScraper"
     },
-    "Accelerate": {
-        "URL": "https://huggingface.co/docs/accelerate/",
-        "folder": "accelerate"
+    "Accelerate 1.1.0": {
+        "URL": "https://huggingface.co/docs/accelerate/v1.1.0/en",
+        "folder": "accelerate_110",
+        "scraper_class": "HuggingfaceScraper"
     },
     "aiohttp 3.9.5": {
         "URL": "https://docs.aiohttp.org/en/v3.9.5/",
@@ -920,15 +880,13 @@ scrape_documentation = {
     },
     "bitsandbytes 0.43.3": {
         "URL": "https://huggingface.co/docs/bitsandbytes/v0.43.3/en/",
-        "folder": "bitsandbytes_0433"
+        "folder": "bitsandbytes_0433",
+        "scraper_class": "HuggingfaceScraper"
     },
     "bitsandbytes 0.44.1": {
         "URL": "https://huggingface.co/docs/bitsandbytes/v0.44.1/en/",
-        "folder": "bitsandbytes_0441"
-    },
-    "bitsandbytes": {
-        "URL": "https://huggingface.co/docs/bitsandbytes/main/en/",
-        "folder": "bitsandbytes"
+        "folder": "bitsandbytes_0441",
+        "scraper_class": "HuggingfaceScraper"
     },
     "Black": {
         "URL": "https://black.readthedocs.io/en/stable/",
@@ -986,9 +944,10 @@ scrape_documentation = {
         "URL": "https://gtts.readthedocs.io/en/latest/",
         "folder": "gtts"
     },
-    "Huggingface Hub": {
-        "URL": "https://huggingface.co/docs/huggingface_hub/",
-        "folder": "huggingface_hub"
+    "Huggingface Hub 0.26.2": {
+        "URL": "https://huggingface.co/docs/huggingface_hub/v0.26.2/en/",
+        "folder": "huggingface_hub_0262",
+        "scraper_class": "HuggingfaceScraper"
     },
     "isort": {
         "URL": "https://pycqa.github.io/isort/",
@@ -1058,10 +1017,10 @@ scrape_documentation = {
         "URL": "https://marshmallow.readthedocs.io/en/stable/",
         "folder": "marshmallow"
     },
-    "Matplotlib": {
-        "URL": "https://matplotlib.org/stable/", # won't scrape
-        "folder": "matplotlib"
-    },
+    # "Matplotlib": {
+        # "URL": "https://matplotlib.org/stable/", # won't scrape
+        # "folder": "matplotlib"
+    # },
     "mpmath": {
         "URL": "https://mpmath.org/doc/current/",
         "folder": "mpmath"
@@ -1120,7 +1079,13 @@ scrape_documentation = {
     },
     "Optimum 1.22.0": {
         "URL": "https://huggingface.co/docs/optimum/v1.22.0/en/",
-        "folder": "optimum_1220"
+        "folder": "optimum_1220",
+        "scraper_class": "HuggingfaceScraper"
+    },
+    "Optimum 1.23.3": {
+        "URL": "https://huggingface.co/docs/optimum/v1.23.3/en/",
+        "folder": "optimum_1233",
+        "scraper_class": "HuggingfaceScraper"
     },
     "packaging": {
         "URL": "https://packaging.pypa.io/en/stable/",
@@ -1172,20 +1137,22 @@ scrape_documentation = {
     },
     "PyPDF 4.3.1": {
         "URL": "https://pypdf.readthedocs.io/en/4.3.1/",
-        "folder": "pypdf_431"
+        "folder": "pypdf_431",
+        "scraper_class": "ReadthedocsScraper"
     },
     "PyPDF 5.0.1": {
         "URL": "https://pypdf.readthedocs.io/en/5.0.1/",
-        "folder": "pypdf_501"
+        "folder": "pypdf_501",
+        "scraper_class": "ReadthedocsScraper"
     },
     "PyTorch Lightning": {
         "URL": "https://lightning.ai/docs/pytorch/stable/",
         "folder": "pytorch_lightning"
     },
-    "python-docx": {
-        "URL": "https://python-docx.readthedocs.io/en/stable/", # won't scrape
-        "folder": "python_docx"
-    },
+    # "python-docx": {
+        # "URL": "https://python-docx.readthedocs.io/en/stable/", # won't scrape
+        # "folder": "python_docx"
+    # },
     "PyYAML": {
         "URL": "https://pyyaml.org/wiki/PyYAMLDocumentation",
         "folder": "pyyaml"
@@ -1211,8 +1178,9 @@ scrape_documentation = {
         "folder": "requests"
     },
     "Rich": {
-        "URL": "https://rich.readthedocs.io/en/stable/", # won't scrape
-        "folder": "rich"
+        "URL": "https://rich.readthedocs.io/en/stable/",
+        "folder": "rich",
+        "scraper_class": "ReadthedocsScraper"
     },
     "rpds-py": {
         "URL": "https://rpds.readthedocs.io/en/stable/",
@@ -1234,9 +1202,10 @@ scrape_documentation = {
         "URL": "https://docs.astral.sh/uv/",
         "folder": "uv"
     },
-    "Safetensors": {
-        "URL": "https://huggingface.co/docs/safetensors/",
-        "folder": "safetensors"
+    "Safetensors 0.3.2": {
+        "URL": "https://huggingface.co/docs/safetensors/v0.3.2/en/",
+        "folder": "safetensors_032",
+        "scraper_class": "HuggingfaceScraper"
     },
     "scikit-learn": {
         "URL": "https://scikit-learn.org/stable/",
@@ -1252,11 +1221,13 @@ scrape_documentation = {
     },
     "Six": {
         "URL": "https://six.readthedocs.io/",
-        "folder": "six"
+        "folder": "six",
+        "scraper_class": "ReadthedocsScraper"
     },
-    "SoundFile": {
-        "URL": "https://pysoundfile.readthedocs.io/en/latest/",
-        "folder": "soundfile"
+    "SoundFile 0.11.0": {
+        "URL": "https://python-soundfile.readthedocs.io/en/0.11.0/",
+        "folder": "soundfile_0110",
+        "scraper_class": "ReadthedocsScraper"
     },
     "sounddevice 0.4.6": {
         "URL": "https://python-sounddevice.readthedocs.io/en/0.4.6/",
@@ -1272,7 +1243,8 @@ scrape_documentation = {
     },
     "SpeechBrain 0.5.15": {
         "URL": "https://speechbrain.readthedocs.io/en/v0.5.15/",
-        "folder": "speechbrain_0515"
+        "folder": "speechbrain_0515",
+        "scraper_class": "ReadthedocsScraper"
     },
     "SQLAlchemy 20": {
         "URL": "https://docs.sqlalchemy.org/en/20/",
@@ -1284,11 +1256,18 @@ scrape_documentation = {
     },
     "TensorRT-LLM": {
         "URL": "https://nvidia.github.io/TensorRT-LLM/",
-        "folder": "tensorrt_llm"
+        "folder": "tensorrt_llm",
+        "scraper_class": "ReadthedocsScraper"
     },
     "Timm 0.9.16": {
         "URL": "https://huggingface.co/docs/timm/v0.9.16/en/",
-        "folder": "timm_0916"
+        "folder": "timm_0916",
+        "scraper_class": "HuggingfaceScraper"
+    },
+    "Timm 1.0.11": {
+        "URL": "https://huggingface.co/docs/timm/v1.0.11/en/",
+        "folder": "timm_1011",
+        "scraper_class": "HuggingfaceScraper"
     },
     "torch 2.2": {
         "URL": "https://pytorch.org/docs/2.2/",
@@ -1336,23 +1315,33 @@ scrape_documentation = {
     },
     "Transformers 4.43.4": {
         "URL": "https://huggingface.co/docs/transformers/v4.43.4/en/",
-        "folder": "transformers_4434"
+        "folder": "transformers_4434",
+        "scraper_class": "HuggingfaceScraper"
     },
     "Transformers 4.44.2": {
         "URL": "https://huggingface.co/docs/transformers/v4.44.2/en/",
-        "folder": "transformers_4442"
+        "folder": "transformers_4442",
+        "scraper_class": "HuggingfaceScraper"
     },
     "Transformers 4.45.2": {
         "URL": "https://huggingface.co/docs/transformers/v4.45.2/en/",
-        "folder": "transformers_4452"
+        "folder": "transformers_4452",
+        "scraper_class": "HuggingfaceScraper"
     },
     "Transformers 4.46.2": {
         "URL": "https://huggingface.co/docs/transformers/v4.46.2/en/",
-        "folder": "transformers_4462"
+        "folder": "transformers_4462",
+        "scraper_class": "HuggingfaceScraper"
     },
-    "Transformers.js": {
-        "URL": "https://huggingface.co/docs/transformers.js/",
-        "folder": "transformers_js"
+    "Transformers 4.46.3": {
+        "URL": "https://huggingface.co/docs/transformers/v4.46.3/en",
+        "folder": "transformers_4463",
+        "scraper_class": "HuggingfaceScraper"
+    },
+    "Transformers.js 3.0.0": {
+        "URL": "https://huggingface.co/docs/transformers.js/v3.0.0/en/",
+        "folder": "transformers_js_300",
+        "scraper_class": "HuggingfaceScraper"
     },
     "urllib3": {
         "URL": "https://urllib3.readthedocs.io/en/stable/",
@@ -1360,15 +1349,18 @@ scrape_documentation = {
     },
     "webdataset": {
         "URL": "https://webdataset.github.io/webdataset/",
-        "folder": "webdataset"
+        "folder": "webdataset",
+        "scraper_class": "ReadthedocsScraper"
     },
     "Wrapt": {
-        "URL": "https://wrapt.readthedocs.io/en/master/", # not working
-        "folder": "wrapt"
+        "URL": "https://wrapt.readthedocs.io/en/master/",
+        "folder": "wrapt",
+        "scraper_class": "ReadthedocsScraper"
     },
     "xlrd": {
-        "URL": "https://xlrd.readthedocs.io/en/latest/",
-        "folder": "xlrd"
+        "URL": "https://xlrd.readthedocs.io/en/stable/",
+        "folder": "xlrd",
+        "scraper_class": "ReadthedocsScraper"
     },
     "xFormers": {
         "URL": "https://facebookresearch.github.io/xformers/",
