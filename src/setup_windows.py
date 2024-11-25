@@ -290,7 +290,7 @@ other_libraries = [
     "nltk==3.8.1", # not higher; gives unexplained error
     "numba==0.60.0", # only required by openai-whisper
     "numpy==1.26.4",
-    # torch 2.2.2 versions
+    # TORCH 2.2.2 VERSIONS
     "nvidia-cublas-cu12==12.1.3.1",
     "nvidia-cuda-runtime-cu12==12.1.105",
     "nvidia-cuda-nvrtc-cu12==12.1.105",
@@ -303,7 +303,7 @@ other_libraries = [
     # cudnn versions are flexible-ish; experiment with caution
     # "nvidia-cudnn-cu12==8.9.7.29",
     "nvidia-cudnn-cu12==9.1.0.70",
-    # torch 2.4.0 versions
+    # TORCH 2.4.0 VERSIONS
     # "nvidia-cuda-runtime-cu12==12.4.99",
     # "nvidia-cublas-cu12==12.4.2.65",
     # "nvidia-cuda-nvrtc-cu12==12.4.99",

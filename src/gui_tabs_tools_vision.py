@@ -123,10 +123,6 @@ class VisionToolSettingsTab(QWidget):
         return contents
 
     def save_page_contents(self, contents):
-        """
-        Takes a list of (filename, page_content) tuples, writes them to a file named 'sample_vision_summaries.txt'
-        in the same directory as the script, and then opens the file.
-        """
         script_dir = Path(__file__).resolve().parent
         output_file = script_dir / "sample_vision_summaries.txt"
         

@@ -343,7 +343,6 @@ class ChatWindow(QMainWindow):
         self.server_worker.start()
 
     def on_server_started(self, process):
-        print("Server started successfully.")
         self.process = process
         self.input_field.setDisabled(False)
 
