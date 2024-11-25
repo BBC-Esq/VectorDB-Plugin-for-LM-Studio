@@ -459,7 +459,6 @@ VISION_MODELS = {
         'requires_cuda': True,
         'vram': '9.1 GB',
     },
-    # awaiting fix to custom modeling code on huggingface repo
     'THUDM glm4v - 9b': {
         'precision': 'bfloat16',
         'quant': '4-bit',
@@ -469,16 +468,15 @@ VISION_MODELS = {
         'requires_cuda': True,
         'vram': '10.5 GB',
     },
-    # i need to add a sub-class
-    # 'Molmo-D-0924 - 8b': {
-        # 'precision': 'float32',
-        # 'quant': '4-bit',
-        # 'size': '8b',
-        # 'repo_id': 'cyan2k/molmo-7B-D-bnb-4bit',
-        # 'cache_dir': 'cyan2k--molmo-7B-D-bnb-4bit',
-        # 'requires_cuda': True,
-        # 'vram': '10.5 GB',
-    # },
+    'Molmo-D-0924 - 8b': {
+        'precision': 'float32',
+        'quant': '4-bit',
+        'size': '8b',
+        'repo_id': 'ctranslate2-4you/molmo-7B-O-bnb-4bit',
+        'cache_dir': 'ctranslate2-4you--molmo-7B-O-bnb-4bit',
+        'requires_cuda': True,
+        'vram': '10.5 GB',
+    },
     'Llava 1.6 Vicuna - 13b': {
         'precision': 'float16',
         'quant': '4-bit',

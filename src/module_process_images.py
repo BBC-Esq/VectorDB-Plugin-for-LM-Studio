@@ -13,7 +13,7 @@ from PIL import Image
 from tqdm import tqdm
 from transformers import (
     AutoModelForCausalLM, AutoModel, AutoTokenizer, AutoProcessor, BlipForConditionalGeneration, BlipProcessor,
-    LlamaTokenizer, LlavaForConditionalGeneration, LlavaNextForConditionalGeneration, LlavaNextProcessor, BitsAndBytesConfig
+    LlamaTokenizer, LlavaForConditionalGeneration, LlavaNextForConditionalGeneration, LlavaNextProcessor, BitsAndBytesConfig, GenerationConfig
 )
 
 from langchain_community.docstore.document import Document
@@ -70,6 +70,8 @@ def choose_image_loader():
         loader_func = loader_llava_next(config).process_images
     elif chosen_model == 'THUDM glm4v - 9b':
         loader_func = loader_glmv4(config).process_images
+    elif chosen_model == 'Molmo-D-0924 - 8b':
+        loader_func = loader_molmo(config).process_images
     else:
         my_cprint("No valid image model specified in config.yaml", "red")
         return []
@@ -358,7 +360,7 @@ class loader_minicpm_V_2_6(BaseLoader):
         
         return res
 
-# custom tokenizer code is only compatible with transformers before 4.45; awaiting fix
+
 class loader_glmv4(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']
@@ -425,40 +427,48 @@ class loader_glmv4(BaseLoader):
         
         return description
 
+
 class loader_molmo(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']
-        
         model_info = VISION_MODELS[chosen_model]
-        model_id = model_info['repo_id']
-        save_dir = model_info["cache_dir"]
-        cache_dir = CACHE_DIR / save_dir
+
+        # Use local model path if specified; otherwise, use model ID
+        model_path = model_info.get('model_path')
+        model_id = model_info.get('repo_id')
+
+        if model_path:
+            model_source = model_path
+        else:
+            model_source = model_id
+
+        cache_dir = CACHE_DIR / model_info.get('cache_dir', '')
         cache_dir.mkdir(parents=True, exist_ok=True)
 
         try:
-            processor = AutoProcessor.from_pretrained(
-                model_id,
+            self.processor = AutoProcessor.from_pretrained(
+                model_source,
                 trust_remote_code=True,
                 torch_dtype='auto',
                 device_map='auto',
                 cache_dir=cache_dir
             )
-            
-            model = AutoModelForCausalLM.from_pretrained(
-                model_id,
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_source,
                 trust_remote_code=True,
                 torch_dtype='auto',
                 device_map='auto',
                 cache_dir=cache_dir
             )
-            model.eval()
-            
+            self.model.eval()
+
             my_cprint(f"{chosen_model} vision model loaded into memory...", "green")
         except Exception as e:
             my_cprint(f"Error loading {chosen_model} model: {str(e)}", "red")
             raise
 
-        return model, None, processor
+        # Return model and processor
+        return self.model, None, self.processor
 
     @torch.inference_mode()
     def process_single_image(self, raw_image):
@@ -470,10 +480,14 @@ class loader_molmo(BaseLoader):
         inputs = {k: v.to(self.device).unsqueeze(0) for k, v in inputs.items()}
 
         try:
+            # Use GenerationConfig as in the working script
+            generation_config = GenerationConfig(
+                max_new_tokens=500,
+                stop_strings=["<|endoftext|>"]
+            )
             output = self.model.generate_from_batch(
                 inputs,
-                max_new_tokens=500,
-                do_sample=False,
+                generation_config,
                 tokenizer=self.processor.tokenizer
             )
 
