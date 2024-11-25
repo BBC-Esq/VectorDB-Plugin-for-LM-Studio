@@ -10,31 +10,35 @@ def create_chat_models_comparison_plot():
     model_categories = {
         "coding": {
             "models": [
-                "DeepSeek Coder v2 - 16b",
-                "Yi Coder - 9b",
                 "Qwen 2.5 Coder - 7b",
-                "OpenCoder - 8b"
+                "Qwen 2.5 Coder - 14b",
+                "Qwen 2.5 Coder - 32b"
             ],
             "color": "#DAA520",
-            "label": "Coding Focused & 8k Context"
+            "label": "Coding Focused (8k context)"
         },
         "long_context": {
             "models": [
                 "Phi 3.5 Mini - 4b",
                 "MiniCPM3 - 4b",
                 "Qwen 2.5 - 7b",
-                "Internlm2_5 - 7b",
-                "Yi Coder - 9b",
                 "Dolphin-Llama 3.1 - 8b",
-                "Yi-9b-16k-BNB",
+                "Marco-o1 - 7b",
                 "Qwen 2.5 - 14b",
                 "Mistral Small - 22b",
-                "Internlm2_5 - 20b",
                 "Qwen 2.5 - 32b",
             ],
-            "color": "#CD5C5C",
+            "color": "#2E8B57",
             "label": "8k Context"
         },
+        "coding_standard_context": {
+            "models": [
+                "Qwen 2.5 Coder - 1.5b",
+                "Qwen 2.5 Coder - 3b",
+            ],
+            "color": "#4682B4",
+            "label": "Coding Focused (4k context)"
+        }
     }
 
     df = pd.DataFrame([

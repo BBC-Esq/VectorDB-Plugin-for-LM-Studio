@@ -205,12 +205,22 @@ class LocalModelChat:
                         
                         # construct string for qlabel in gui
                         total_tokens = prepend_token_count + context_token_count + user_question_token_count + response_token_count
-                        token_count_string = (
-                            f"<span style='color:#2ECC40;'>available tokens ({model_instance.max_length})</span>"
-                            f"<span style='color:#FF4136;'> - rag instruction ({prepend_token_count}) - query ({user_question_token_count})"
-                            f" - contexts ({context_token_count}) - response ({response_token_count})</span>"
-                            f"<span style='color:white;'> = {remaining_tokens} remaining tokens.</span>"
-                        )
+
+                        if model_name == "Marco-o1 - 7b":  # or however the model is identified in your CHAT_MODELS
+                            token_count_string = (
+                                "<span style='color:#FF4136;'>(Token counts not accurate for Marco-o1 model due to thought process)</span><br>"
+                                f"<span style='color:#2ECC40;'>available tokens ({model_instance.max_length})</span>"
+                                f"<span style='color:#FF4136;'> - rag instruction ({prepend_token_count}) - query ({user_question_token_count})"
+                                f" - contexts ({context_token_count}) - response ({response_token_count})</span>"
+                                f"<span style='color:white;'> = {remaining_tokens} remaining tokens.</span>"
+                            )
+                        else:
+                            token_count_string = (
+                                f"<span style='color:#2ECC40;'>available tokens ({model_instance.max_length})</span>"
+                                f"<span style='color:#FF4136;'> - rag instruction ({prepend_token_count}) - query ({user_question_token_count})"
+                                f" - contexts ({context_token_count}) - response ({response_token_count})</span>"
+                                f"<span style='color:white;'> = {remaining_tokens} remaining tokens.</span>"
+                            )
 
                         # pipe to "_listen_for_response" in parent process
                         conn.send(("token_counts", token_count_string))

@@ -236,21 +236,6 @@ class Qwen2_5_1_5b(BaseModel):
 """
 
 
-class InternLM2_5_1_8b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Internlm2_5 - 1.8b']
-        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
-
-    def create_prompt(self, augmented_query):
-        return f"""<s><|im_start|>system
-{system_message}<|im_end|>
-<|im_start|>user
-{augmented_query}<|im_end|>
-<|im_start|>assistant
-"""
-
-
 class QwenCoder_1_5b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen 2.5 Coder - 1.5b']
@@ -295,6 +280,36 @@ class Qwen2_5_3b(BaseModel):
 <|im_start|>assistant
 """
 
+
+class QwenCoder_3b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Qwen 2.5 Coder - 3b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
+    def generate_response(self, inputs):
+        # Remove token_type_ids if it exists
+        inputs.pop('token_type_ids', None)
+
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        eos_token_id = self.tokenizer.eos_token_id
+
+        all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
+
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        for partial_response in streamer:
+            yield partial_response
+
+        generation_thread.join()
 
 class Llama_3_2_3b(BaseModel):
     def __init__(self, generation_settings):
@@ -344,21 +359,6 @@ class MiniCPM3_4b(BaseModel):
         inputs = super().create_inputs(prompt)
         inputs['pad_token_id'] = self.tokenizer.pad_token_id
         return inputs
-
-
-class InternLM2_5_7b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Internlm2_5 - 7b']
-        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
-
-    def create_prompt(self, augmented_query):
-        return f"""<s><|im_start|>system
-{system_message}<|im_end|>
-<|im_start|>user
-{augmented_query}<|im_end|>
-<|im_start|>assistant
-"""
 
 
 class Qwen2_5_7b(BaseModel):
@@ -420,9 +420,62 @@ class Dolphin_Llama3_1_8B(BaseModel):
 """
 
 
-class Yi_Coder_9b(BaseModel):
+class Marco_o1_7b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Yi Coder - 9b']
+        model_info = CHAT_MODELS['Marco-o1 - 7b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+
+你是一个经过良好训练的AI助手，你的名字是Marco-o1.由阿里国际数字商业集团的AI Business创造.
+
+## 重要！！！！！
+当你回答问题时，你的思考应该在<Thought>内完成，<Output>内输出你的结果。
+<Thought>应该尽可能是英文，但是有2个特例，一个是对原文中的引用，另一个是是数学应该使用markdown格式，<Output>内的输出需要遵循用户输入的语言。
+<|im_end|>
+
+<|im_start|>user
+{augmented_query}<|im_end|>
+
+<|im_start|>assistant
+"""
+
+    def generate_response(self, inputs):
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        eos_token_id = self.tokenizer.eos_token_id
+        
+        all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
+        
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        # Buffer to accumulate text until we find <Output>
+        buffer = ""
+        output_started = False
+        
+        for partial_response in streamer:
+            if not output_started:
+                buffer += partial_response
+                output_idx = buffer.find('<Output>')
+                if output_idx != -1:
+                    # Found the <Output> tag
+                    output_started = True
+                    # Yield everything after <Output>
+                    remaining_text = buffer[output_idx + len('<Output>'):]
+                    if remaining_text:
+                        yield remaining_text
+                    buffer = ""  # Clear the buffer
+            else:
+                # We're past <Output>, yield directly
+                yield partial_response
+
+        generation_thread.join()
+
+
+class QwenCoder_14b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Qwen 2.5 Coder - 14b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
@@ -433,17 +486,22 @@ class Yi_Coder_9b(BaseModel):
 <|im_start|>assistant
 """
 
+    def generate_response(self, inputs):
+        # Remove token_type_ids if it exists
+        inputs.pop('token_type_ids', None)
 
-class DeepSeek_Coder_v2_lite(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['DeepSeek Coder v2 - 16b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, attn_implementation="flash_attention_2")
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        eos_token_id = self.tokenizer.eos_token_id
 
-    def create_prompt(self, augmented_query):
-        return f"""<｜begin▁of▁sentence｜>{system_message}
-User: {augmented_query}
-Assistant:"""
+        all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
 
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        for partial_response in streamer:
+            yield partial_response
+
+        generation_thread.join()
 
 class Qwen_2_5_14b(BaseModel):
     def __init__(self, generation_settings):
@@ -471,19 +529,35 @@ class Mistral_Small_22b(BaseModel):
 {augmented_query}[/INST]"""
 
 
-class InternLM2_5_20b(BaseModel):
+class QwenCoder_32b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Internlm2_5 - 20b']
-        tokenizer_kwargs = {'eos_token': "<|im_end|>"}
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, tokenizer_kwargs=tokenizer_kwargs)
+        model_info = CHAT_MODELS['Qwen 2.5 Coder - 32b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<s><|im_start|>system
+        return f"""<|im_start|>system
 {system_message}<|im_end|>
 <|im_start|>user
 {augmented_query}<|im_end|>
 <|im_start|>assistant
 """
+
+    def generate_response(self, inputs):
+        # Remove token_type_ids if it exists
+        inputs.pop('token_type_ids', None)
+
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        eos_token_id = self.tokenizer.eos_token_id
+
+        all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
+
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        for partial_response in streamer:
+            yield partial_response
+
+        generation_thread.join()
 
 
 class Qwen_2_5_32b(BaseModel):

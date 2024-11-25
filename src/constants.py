@@ -23,6 +23,7 @@ MODEL_MAX_NEW_TOKENS = {
     'Qwen 2.5 - 3b': 512,
     'Qwen 2.5 Coder - 3b': 512,
     'MiniCPM3 - 4b': 512,
+    'Marco-o1 - 7b': 4096
 }
 
 CHAT_MODELS = {
@@ -150,6 +151,16 @@ CHAT_MODELS = {
         'context_length': 8192,
         'vram': 6598.98,
         'function': 'Dolphin_Llama3_1_8B',
+        'gated': False,
+    },
+    'Marco-o1 - 7b': {
+        'model': 'Marco-o1 - 7b',
+        'repo_id': 'AIDC-AI/Marco-o1',
+        'cache_dir': 'AIDC-AI--Marco-o1',
+        'cps': 42.51,
+        'context_length': 8192,
+        'vram': 7181.19,
+        'function': 'Marco_o1_7b',
         'gated': False,
     },
     'Qwen 2.5 Coder - 14b': {
