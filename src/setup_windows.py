@@ -26,7 +26,7 @@ import time
 # cuDNN 9.5.0 - " " through 12.6
 
 # Flash-attn 2.6.3 is currently the only build that supports torch 2.4.0, but it only supports up to CUDA 12.3 (released 7/25/2024)
-# The repo owner says that it's forward compatible with both torch and cuda, but this isn't true.
+# The repo owner says that it's forward compatible with both torch and cuda, but this isn't true in my experience.
 
 # xformers==0.0.25.post1 - requires torch 2.2.2
 # xformers 0.0.26.post1 - requires torch 2.3.0
@@ -189,12 +189,12 @@ priority_libraries = [
 ]
 
 other_libraries = [
-    "accelerate==1.1.0",
+    "accelerate==1.1.1",
     "aiofiles==24.1.0",
     "aiohappyeyeballs==2.4.3",
     "aiohttp==3.10.10",
     "aiosignal==1.3.1",
-    "anndata==0.10.9",
+    "anndata==0.11.1",
     "annotated-types==0.7.0",
     "antlr4-python3-runtime==4.9.3", # omegaconf 2.3.0 requires 4.9.*
     "anyio==4.6.2.post1",
@@ -218,6 +218,7 @@ other_libraries = [
     "cycler==0.12.1",
     "dataclasses-json==0.6.7",
     "datasets==3.1.0",
+    "datamodel-code-generator==0.26.3",
     "deepdiff==8.0.1",
     "dill==0.3.8", # datasets 3.1.0 requires less than 0.3.9
     "distro==1.9.0",
@@ -227,7 +228,7 @@ other_libraries = [
     "emoji==2.14.0",
     "encodec==0.1.1",
     "et-xmlfile==1.1.0", # openpyxl requires; hesitate to upgrade since openpyxl's most recent version pre-dates et-xmlfile 2+
-    "fastcore==1.7.19",
+    "fastcore==1.7.20",
     "fastprogress==1.0.3",
     "filetype==1.2.0",
     "filelock==3.16.1",
@@ -238,7 +239,7 @@ other_libraries = [
     "gTTS==2.5.3",
     "h11==0.14.0",
     "h5py==3.12.1",
-    "httpcore==1.0.6",
+    "httpcore==1.0.7",
     "httpx==0.27.2",
     "httpx-sse==0.4.0",
     "huggingface-hub==0.26.2",
@@ -248,6 +249,7 @@ other_libraries = [
     "importlib_metadata==8.5.0",
     "InstructorEmbedding==1.0.1",
     "Jinja2==3.1.4", # datamodel-code-generator 0.26.2 requires less than 4.0
+    "jiter==0.7.1", # required by openai newer versions
     "joblib==1.4.2",
     "jsonpatch==1.33",
     "jsonpath-python==1.0.6",
@@ -309,13 +311,13 @@ other_libraries = [
     "nvidia-ml-py==12.560.30",
     "olefile==0.47",
     "omegaconf==2.3.0",
-    "openai==1.23.6", # only required by chat_lm_studio.py script
+    "openai==1.55.0", # only required by chat_lm_studio.py script
     "openai-whisper==20231117", # only required by whisper_s2t if using openai vanilla backend
     "openpyxl==3.1.5",
     "optimum==1.23.3",
     "ordered-set==4.1.0",
     "orderly-set==5.2.2", # deepdiff 8.0.1 requires 5.2.2
-    "orjson==3.10.11",
+    "orjson==3.10.12",
     "packaging==24.1",
     "pandas==2.2.3",
     "pillow==11.0.0",
@@ -342,7 +344,7 @@ other_libraries = [
     "pytz==2024.2",
     "PyYAML==6.0.2",
     "rapidfuzz==3.10.1",
-    "regex==2024.9.11",
+    "regex==2024.9.11", # 2024.11.6 is the newest version but pypi gives an error for some reason
     "requests==2.32.3",
     "requests-toolbelt==1.0.0",
     "rich==13.9.4",
@@ -359,12 +361,12 @@ other_libraries = [
     "soundfile==0.12.1",
     "soupsieve==2.6",
     "speechbrain==0.5.16",
-    "SQLAlchemy==2.0.35", # langchain and langchain-community pre-0.3 require less than 3.0.0
+    "SQLAlchemy==2.0.36", # langchain and langchain-community pre-0.3 require less than 3.0.0
     "sseclient-py==1.8.0",
     "sympy==1.12.1", # anything above is not compatible with llava-next-vicuna vision models
     "tabulate==0.9.0",
     "tblib==1.7.0",
-    "tenacity==8.5.0",
+    "tenacity==8.5.0", # langchain requires less than 9.0.0
     "termcolor==2.5.0",
     "threadpoolctl==3.5.0",
     "tiktoken==0.8.0",
@@ -372,9 +374,9 @@ other_libraries = [
     "tiledb-cloud==0.12.29",
     "tiledb-vector-search==0.10.3",
     "timm==1.0.11",
-    "tokenizers==0.20.2",
+    "tokenizers==0.20.3",
     "tqdm==4.66.6",
-    "transformers==4.46.1",
+    "transformers==4.46.3",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
     "unstructured-client==0.24.1",
@@ -383,14 +385,14 @@ other_libraries = [
     "vector-quantize-pytorch==1.15.3",
     "vocos==0.1.0",
     "webdataset==0.2.86",
-    "wrapt==1.16.0",
+    "wrapt==1.17.0",
     "xformers==0.0.25.post1", # highly-specific to torch version
     # "xformers==0.0.27.post2", # requires torch 2.4.0
     "xlrd==2.0.1",
     "xxhash==3.5.0",
     # "yarl==1.12.0", # langchain-related libraries and optimum require less than 2.0
-    "yarl==1.17.1", # langchain-related libraries and optimum require less than 2.0
-    "zipp==3.20.2",
+    "yarl==1.18.0", # langchain-related libraries and optimum require less than 2.0
+    "zipp==3.21.0",
     # the following are only required by minicpm3 chat model
     "argcomplete==3.5.1", # datamodel-code-generator 0.26.2 requires >=1.10,<4.0
     "black==24.10.0",
@@ -404,12 +406,12 @@ other_libraries = [
     "jsonschema-specifications==2024.10.1", # jsonschema 4.23.0 requires >=2023.03.6
     "pathspec==0.12.1",
     "referencing==0.35.1",
-    "rpds-py==0.20.1",
+    "rpds-py==0.21.0",
 ]
 
 full_install_libraries = [
     "PySide6==6.8.0.2",
-    "pymupdf==1.24.13",
+    "pymupdf==1.24.14",
     "unstructured==0.13.4"
 ]
 
