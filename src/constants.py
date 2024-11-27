@@ -925,6 +925,10 @@ scrape_documentation = {
         "URL": "https://opennmt.net/CTranslate2/",
         "folder": "ctranslate2"
     },
+    "cuDF": {
+        "URL": "https://docs.rapids.ai/api/cudf/stable/",
+        "folder": "cuDF"
+    },
     "CuPy": {
         "URL": "https://docs.cupy.dev/en/stable/",
         "folder": "cupy"
