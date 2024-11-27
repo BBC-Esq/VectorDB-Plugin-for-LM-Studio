@@ -384,6 +384,7 @@ other_libraries = [
     "urllib3==2.2.3",
     "vector-quantize-pytorch==1.15.3",
     "vocos==0.1.0",
+    "watchdog==6.0.0",
     "webdataset==0.2.86",
     "wrapt==1.17.0",
     "xformers==0.0.25.post1", # highly-specific to torch version

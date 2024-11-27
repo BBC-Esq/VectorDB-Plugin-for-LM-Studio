@@ -123,6 +123,8 @@ class ScrapeDocumentationTab(QWidget):
         final_count = len([f for f in os.listdir(self.current_folder) if f.endswith('.html')])
         self.status_label.setText(f'Scraping {selected_doc} completed. Pages scraped: {final_count} <a href="open_folder">Open Folder</a>')
         self.populate_combo_box()
+        if hasattr(self.worker, 'cleanup'):
+            self.worker.cleanup()
 
     def open_folder(self, link):
         if link == "open_folder":

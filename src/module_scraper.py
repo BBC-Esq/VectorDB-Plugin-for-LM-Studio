@@ -7,6 +7,8 @@ from urllib.parse import urljoin, urlparse
 from PySide6.QtCore import Qt, Signal, QObject, QThread
 import platform
 import shutil
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 class BaseScraper:
     def __init__(self, url, folder):
@@ -24,7 +26,7 @@ class BaseScraper:
 
     def extract_main_content(self, soup):
         """
-        By default, each scraped .html file is saved in its entirety.  Subclasses can override this method to specify only a certain portion.
+        By default, each scraped .html file is saved in its entirety.  Subclasses can override and specify only a certain portion.
         If implemented, only the specified portion from each .html file will be saved.
         If NOT implemented, "None" is returned and the default behavior occurs (i.e. the entire .html file is saved).
         """
@@ -53,6 +55,7 @@ class ScraperWorker(QObject):
     status_updated = Signal(str)
     scraping_finished = Signal()
 
+    # In ScraperWorker class
     def __init__(self, url, folder, scraper_class=BaseScraper):
         super().__init__()
         self.scraper = scraper_class(url, folder)
@@ -60,6 +63,16 @@ class ScraperWorker(QObject):
         self.folder = folder
         self.stats = {'scraped': 0}
         self.save_dir = os.path.join(os.path.dirname(__file__), "Scraped_Documentation", self.folder)
+        
+        # Initialize watchdog observer
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+        self.observer = Observer()
+        handler = FileHandler(self)
+        self.observer.schedule(handler, self.save_dir, recursive=False)
+        self.observer.start()
+
+
 
     def run(self):
         asyncio.run(self.crawl_domain())
@@ -107,7 +120,7 @@ class ScraperWorker(QObject):
                         to_visit.extend(new_to_visit)
 
                 await asyncio.sleep(0.2)
-                self.status_updated.emit(f"{self.stats['scraped']}")
+                # self.status_updated.emit(f"{self.stats['scraped']}")
 
         self.scraping_finished.emit()
         return visited
@@ -127,8 +140,8 @@ class ScraperWorker(QObject):
                             if 'text/html' in content_type:
                                 html = await response.text()
                                 await self.save_html(html, url, save_dir)
-                                actual_count = self.count_saved_files()
-                                self.stats['scraped'] = actual_count
+                                # actual_count = self.count_saved_files()
+                                # self.stats['scraped'] = actual_count
                                 return self.extract_links(html, url, base_domain, acceptable_domain_extension)
                             else:
                                 self.stats['scraped'] = self.count_saved_files()
@@ -199,6 +212,22 @@ class ScraperWorker(QObject):
     def is_valid_url(self, url, base_domain, acceptable_domain_extension):
         parsed_url = urlparse(url)
         return parsed_url.netloc == base_domain and acceptable_domain_extension in parsed_url.path
+
+    def cleanup(self):
+        if hasattr(self, 'observer'):
+            self.observer.stop()
+            self.observer.join()
+
+class FileHandler(FileSystemEventHandler):
+    def __init__(self, worker):
+        self.worker = worker
+        
+    def on_created(self, event):
+        if event.is_directory:
+            return
+        if event.src_path.endswith('.html'):
+            count = len([f for f in os.listdir(self.worker.save_dir) if f.endswith('.html')])
+            self.worker.status_updated.emit(str(count))
 
 class WorkerThread(QThread):
     def __init__(self, worker):
