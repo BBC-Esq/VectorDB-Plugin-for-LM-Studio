@@ -1,15 +1,12 @@
-import os
 import queue
 import re
 import threading
-import time
 from pathlib import Path
 
 import io
 import numpy as np
 import sounddevice as sd
 import torch
-import torchaudio
 import yaml
 from tqdm import tqdm
 import ChatTTS
@@ -17,7 +14,7 @@ from transformers import AutoProcessor, BarkModel
 from whisperspeech.pipeline import Pipeline
 import soundfile as sf
 from gtts import gTTS
-from gtts.tokenizer import pre_processors, tokenizer_cases, Tokenizer
+from gtts.tokenizer import pre_processors, tokenizer_cases
 
 from utilities import my_cprint
 from constants import WHISPER_SPEECH_MODELS
@@ -117,7 +114,7 @@ class BarkAudio(BaseAudio):
             attn_implementation="flash_attention_2"
         ).to(self.device)
         
-        my_cprint(f"Bark model loaded (float16)", "green")
+        my_cprint("Bark model loaded (float16)", "green")
         
         self.model = self.model.to_bettertransformer()
 

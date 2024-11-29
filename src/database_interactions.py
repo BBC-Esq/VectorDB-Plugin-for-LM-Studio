@@ -1,20 +1,15 @@
 import gc
 import logging
-import warnings
 import os
 import pickle
-import shutil
 import time
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Optional
 import threading
 
 import sqlite3
 import torch
 import yaml
-from InstructorEmbedding import INSTRUCTOR
-from PySide6.QtCore import QDir
-from huggingface_hub import snapshot_download
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.document import Document
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
@@ -181,7 +176,7 @@ class CreateVectorDB:
 
     @torch.inference_mode()
     def create_database(self, texts, embeddings):
-        my_cprint(f"\nThe progress bar relates to computing vectors. Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
+        my_cprint("\nThe progress bar relates to computing vectors. Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
 
         start_time = time.time()
 

@@ -1,5 +1,4 @@
 import gc
-import os
 import tempfile
 from pathlib import Path
 
@@ -19,7 +18,7 @@ def get_logical_core_count():
 CPU_THREADS = max(4, get_logical_core_count() - 8)
 DEVICE = "cpu"
 COMPUTE_TYPE = "float32"
-MODEL_IDENTIFIER = f"ctranslate2-4you/distil-whisper-small.en-ct2-float32"
+MODEL_IDENTIFIER = "ctranslate2-4you/distil-whisper-small.en-ct2-float32"
 
 class TranscriptionThread(QThread):
     transcription_complete = Signal(str)

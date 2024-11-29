@@ -1,22 +1,17 @@
 import time
 import gc
-import os
-import warnings
-import platform
 import pickle
-import shutil
 from pathlib import Path
 import multiprocessing
 
 import yaml
-from PySide6.QtCore import QDir, Qt, QTimer, QThread, Signal, QRegularExpression
+from PySide6.QtCore import QDir, Qt, QThread, Signal, QRegularExpression
 from PySide6.QtGui import QAction, QRegularExpressionValidator
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox, QTreeView, QFileSystemModel,
                                QMenu, QGroupBox, QLineEdit, QGridLayout, QSizePolicy, QComboBox)
 
-import database_interactions
 from database_interactions import create_vector_db_in_process
-from choose_documents_and_vector_model import select_embedding_model_directory, choose_documents_directory
+from choose_documents_and_vector_model import choose_documents_directory
 from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database_incremental, get_pkl_file_path, my_cprint
 from download_model import model_downloaded_signal
 from constants import TOOLTIPS

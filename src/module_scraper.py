@@ -4,9 +4,8 @@ import aiohttp
 import aiofiles
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
-from PySide6.QtCore import Qt, Signal, QObject, QThread
-import platform
-import shutil
+from PySide6.QtCore import Signal, QObject, QThread
+from PySide6.QtWidgets import QMessageBox
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -153,6 +152,7 @@ class ScraperWorker(QObject):
                     if attempt == retries:
                         await self.log_failed_url(url, log_file)
                         self.stats['scraped'] = self.count_saved_files()
+                        QMessageBox.critical(None, "Error", f"Failed to fetch URL: {url}\nError: {str(e)}")
                     await asyncio.sleep(1)
             return set()
 

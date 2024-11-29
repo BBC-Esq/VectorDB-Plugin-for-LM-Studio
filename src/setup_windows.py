@@ -5,7 +5,6 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from replace_sourcecode import replace_pdf_file, replace_instructor_file, replace_sentence_transformer_file
-import time
 
 # ctranslate2==4.5.0 now requires cudnn 9+, which works with CUDA 12.3+; however, torch 2.3.1 only supports up to CUDA 12.1
 # SUPPORTS Phi3.5 and Mistral Nemo...AWQ support was added in 4.4.0.  FA was added in 4.3.1 but removed in 4.4.0
@@ -66,7 +65,7 @@ def check_python_version_and_confirm():
 
 def is_nvidia_gpu_installed():
     try:
-        output = subprocess.check_output(["nvidia-smi"])
+        subprocess.check_output(["nvidia-smi"])
         return True
     except (FileNotFoundError, subprocess.CalledProcessError):
         return False
@@ -148,7 +147,7 @@ def pip_install_with_retry(library, max_retries=5, delay=3):
         for attempt in range(max_retries):
             try:
                 print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {pip_args[3]}")
-                result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=240)
+                subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=240)
                 print(f"\033[92mSuccessfully installed {pip_args[3]}\033[0m")
                 break
             except subprocess.CalledProcessError as e:
@@ -422,7 +421,7 @@ def pip_install_with_deps(library, max_retries=5, delay=3):
     for attempt in range(max_retries):
         try:
             print(f"\nAttempt {attempt + 1} of {max_retries}: Installing {library} with dependencies")
-            result = subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=300)
+            subprocess.run(pip_args, check=True, capture_output=True, text=True, timeout=300)
             print(f"\033[92mSuccessfully installed {library} with dependencies\033[0m")
             return attempt + 1
         except subprocess.CalledProcessError as e:
@@ -474,19 +473,19 @@ all_failed = priority_failed + other_failed + full_install_failed
 all_multiple = priority_multiple + other_multiple + full_install_multiple
 
 if all_failed:
-    print(f"\033[91m\nThe following libraries failed to install:\033[0m")
+    print("\033[91m\nThe following libraries failed to install:\033[0m")
     for lib in all_failed:
         print(f"\033[91m- {lib}\033[0m")
 
 if all_multiple:
-    print(f"\033[93m\nThe following libraries required multiple attempts to install:\033[0m")
+    print("\033[93m\nThe following libraries required multiple attempts to install:\033[0m")
     for lib, attempts in all_multiple:
         print(f"\033[93m- {lib} (took {attempts} attempts)\033[0m")
 
 if not all_failed and not all_multiple:
-    print(f"\033[92mAll libraries installed successfully on the first attempt.\033[0m")
+    print("\033[92mAll libraries installed successfully on the first attempt.\033[0m")
 elif not all_failed:
-    print(f"\033[92mAll libraries were eventually installed successfully.\033[0m")
+    print("\033[92mAll libraries were eventually installed successfully.\033[0m")
 
 if all_failed:
     sys.exit(1)
@@ -519,8 +518,6 @@ def download_kobold():
     import platform
     import requests
     import os
-
-    system = platform.system()
 
     file_name = "koboldcpp_nocuda.exe"
     url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.76/{file_name}"

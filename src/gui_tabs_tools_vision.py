@@ -1,16 +1,16 @@
-import json
+import sys
 import textwrap
-import multiprocessing
+import subprocess
 from pathlib import Path
 import logging
 import yaml
 import os
 import traceback
-from PySide6.QtCore import Qt, QUrl, QThread, Signal as pyqtSignal
+from PySide6.QtCore import QUrl, QThread, Signal as pyqtSignal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog, QHBoxLayout, QMessageBox
+from PySide6.QtWebEngineCore import QWebEnginePage
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QMessageBox
 
 from module_process_images import choose_image_loader
 

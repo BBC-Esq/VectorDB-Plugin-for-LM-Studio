@@ -1564,12 +1564,7 @@ GPUS_NVIDIA = {
         "Size (GB)": 6,
         "CUDA Cores": 1920
     },
-    "GeForce RTX 3050": {
-        "Brand": "NVIDIA",
-        "Size (GB)": 4,
-        "CUDA Cores": 2048
-    },
-    "GeForce RTX 3050 Mobile/Laptop": {
+    "GeForce RTX 3050 Mobile (4GB)": {
         "Brand": "NVIDIA",
         "Size (GB)": 4,
         "CUDA Cores": 2048
@@ -1594,10 +1589,20 @@ GPUS_NVIDIA = {
         "Size (GB)": 8,
         "CUDA Cores": 2304
     },
-    "GeForce RTX 3050": {
+    "GeForce RTX 3050 (GA107-325)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 6,
+        "CUDA Cores": 2304
+    },
+    "GeForce RTX 3050 (GA106-150)": {
         "Brand": "NVIDIA",
         "Size (GB)": 8,
         "CUDA Cores": 2304
+    },
+    "GeForce RTX 3050 (GA107-150-A1)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 8,
+        "CUDA Cores": 2560
     },
     "GeForce RTX 4050 Mobile/Laptop": {
         "Brand": "NVIDIA",
@@ -1607,6 +1612,11 @@ GPUS_NVIDIA = {
     "GeForce RTX 3050 Ti Mobile/Laptop": {
         "Brand": "NVIDIA",
         "Size (GB)": 4,
+        "CUDA Cores": 2560
+    },
+    "GeForce RTX 3050 Mobile (6GB)": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 6,
         "CUDA Cores": 2560
     },
     "GeForce RTX 2070 Super": {
@@ -1714,7 +1724,7 @@ GPUS_NVIDIA = {
         "Size (GB)": 12,
         "CUDA Cores": 7680
     },
-    "GeForce RTX 4080": {
+    "GeForce RTX 4080 (AD104-400)": {
         "Brand": "NVIDIA",
         "Size (GB)": 12,
         "CUDA Cores": 7680
@@ -1734,7 +1744,7 @@ GPUS_NVIDIA = {
         "Size (GB)": 12,
         "CUDA Cores": 8960
     },
-    "GeForce RTX 4080": {
+    "GeForce RTX 4080 (AD103-300)": {
         "Brand": "NVIDIA",
         "Size (GB)": 16,
         "CUDA Cores": 9728

@@ -1,7 +1,6 @@
 import yaml
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QIntValidator
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QSizePolicy, QComboBox, QCheckBox, QMessageBox
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QComboBox, QCheckBox, QMessageBox
 
 from constants import TOOLTIPS
 
@@ -105,7 +104,7 @@ class ChunkSettingsTab(QWidget):
                 if new_chunk_size <= 0:
                     raise ValueError("Chunk size must be a positive integer.")
             except ValueError as ve:
-                errors.append("Chunk size must be a positive integer.")
+                errors.append(f"Chunk size must be a positive integer: {str(ve)}")
         else:
             new_chunk_size = self.database_config.get('chunk_size', 0)
 
@@ -116,7 +115,7 @@ class ChunkSettingsTab(QWidget):
                 if new_chunk_overlap < 0:
                     raise ValueError("Chunk overlap cannot be negative.")
             except ValueError as ve:
-                errors.append("Chunk overlap must be a non-negative integer.")
+                errors.append(f"Chunk overlap must be a non-negative integer: {str(ve)}")
         else:
             new_chunk_overlap = self.database_config.get('chunk_overlap', 0)
 

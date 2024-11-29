@@ -1,8 +1,6 @@
-import subprocess
 from pathlib import Path
 import yaml
-from PySide6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QMessageBox
-import torch
+from PySide6.QtWidgets import QFileDialog, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout
 
 # Constants
 ALLOWED_EXTENSIONS = {'.pdf', '.docx', '.epub', '.txt', '.enex', '.eml', '.msg', '.csv', '.xls', '.xlsx', 

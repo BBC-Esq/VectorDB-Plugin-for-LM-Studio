@@ -1,6 +1,3 @@
-import os
-import pickle
-import subprocess
 from multiprocessing import Process
 from pathlib import Path
 import warnings
@@ -106,16 +103,16 @@ class WhisperTranscriber:
 
     def convert_to_wav(self, audio_file):
         if self.is_correct_format(audio_file):
-            print(f"File is already in the correct format.  No pre-processing is necessary.")
+            print("File is already in the correct format.  No pre-processing is necessary.")
             return str(audio_file)
         
         ffmpeg_available = shutil.which('ffmpeg') is not None
         
         if ffmpeg_available:
-            print(f"FFmpeg detected. Sending the audio file to WhisperS2T for pre-processing and transcription.")
+            print("FFmpeg detected. Sending the audio file to WhisperS2T for pre-processing and transcription.")
             return str(audio_file)
         else:
-            print(f"FFmpeg not detected. Pre-processing with the av library then sending to WhisperS2T for transcription.")
+            print("FFmpeg not detected. Pre-processing with the av library then sending to WhisperS2T for transcription.")
             output_file = f"{Path(audio_file).stem}_temp_converted.wav"
             output_path = Path(__file__).parent / output_file
             return self.convert_with_av(audio_file, output_path)
@@ -154,7 +151,7 @@ class WhisperTranscriber:
                 
                 output_container.close()
             
-            print(f"Conversion using av complete.")
+            print("Conversion using av complete.")
             return str(output_path)
         except Exception as e:
             print(f"Error converting file with av library {audio_file}: {e}")

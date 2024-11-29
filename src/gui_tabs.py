@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QTabWidget, QVBoxLayout, QWidget
-from pathlib import Path
+from PySide6.QtWidgets import QTabWidget
 from gui_tabs_settings import GuiSettingsTab
 from gui_tabs_tools import GuiSettingsTab as ToolsSettingsTab
 from gui_tabs_databases import DatabasesTab

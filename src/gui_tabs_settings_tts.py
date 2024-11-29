@@ -1,7 +1,7 @@
 import yaml
 from pathlib import Path
 
-from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QGridLayout, QRadioButton, QButtonGroup
+from PySide6.QtWidgets import QLabel, QComboBox, QWidget, QGridLayout, QRadioButton, QButtonGroup, QMessageBox
 
 from constants import WHISPER_SPEECH_MODELS
 
@@ -86,6 +86,11 @@ class BarkModelSettingsTab(QWidget):
                 with open(config_file_path, 'r') as f:
                     config = yaml.safe_load(f)
             except Exception as e:
+                QMessageBox.warning(
+                    self,
+                    "Configuration Error",
+                    f"Error loading configuration file: {e}"
+                )
                 config = None
         else:
             config = None
@@ -146,6 +151,11 @@ class BarkModelSettingsTab(QWidget):
                 with open(config_file_path, 'r') as f:
                     config = yaml.safe_load(f)
             except Exception as e:
+                QMessageBox.warning(
+                    self,
+                    "Configuration Error",
+                    f"Error updating configuration: {e}"
+                )
                 config = {}
         else:
             config = {}
@@ -177,6 +187,11 @@ class BarkModelSettingsTab(QWidget):
                 with open(config_file_path, 'r') as f:
                     config = yaml.safe_load(f)
             except Exception as e:
+                QMessageBox.warning(
+                    self,
+                    "Configuration Error",
+                    f"Error updating TTS model settings: {e}"
+                )
                 config = {}
         else:
             config = {}
@@ -202,6 +217,11 @@ class BarkModelSettingsTab(QWidget):
                 with open(config_file_path, 'r') as f:
                     config = yaml.safe_load(f)
             except Exception as e:
+                QMessageBox.warning(
+                    self,
+                    "Configuration Error",
+                    f"Error updating WhisperSpeech settings: {e}"
+                )
                 config = {}
         else:
             config = {}

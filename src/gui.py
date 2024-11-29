@@ -33,7 +33,7 @@ set_cuda_paths()
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget,
-    QStyleFactory, QMenuBar, QHBoxLayout, QMessageBox
+    QMenuBar, QHBoxLayout, QMessageBox
 )
 from initialize import main as initialize_system
 from metrics_bar import MetricsWidget as MetricsBar

@@ -1,9 +1,7 @@
 import time
 import logging
-import gc
 
 import torch
-from pathlib import Path
 from multiprocessing import Process, Pipe
 from multiprocessing.connection import PipeConnection
 from PySide6.QtCore import QObject, Signal

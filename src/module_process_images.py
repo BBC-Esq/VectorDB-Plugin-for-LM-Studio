@@ -1,7 +1,4 @@
-import datetime
-import gc
 import traceback
-import platform
 import time
 import warnings
 from concurrent.futures import ProcessPoolExecutor
@@ -12,8 +9,8 @@ import yaml
 from PIL import Image
 from tqdm import tqdm
 from transformers import (
-    AutoModelForCausalLM, AutoModel, AutoTokenizer, AutoProcessor, BlipForConditionalGeneration, BlipProcessor,
-    LlamaTokenizer, LlavaForConditionalGeneration, LlavaNextForConditionalGeneration, LlavaNextProcessor, BitsAndBytesConfig, GenerationConfig
+    AutoModelForCausalLM, AutoModel, AutoTokenizer, AutoProcessor,
+    LlavaNextForConditionalGeneration, LlavaNextProcessor, BitsAndBytesConfig, GenerationConfig
 )
 
 from langchain_community.docstore.document import Document
@@ -153,7 +150,6 @@ class loader_llava_next(BaseLoader):
         
         model_info = VISION_MODELS[chosen_model]
         model_id = model_info['repo_id']
-        precision = model_info['precision']
         save_dir = model_info["cache_dir"]
         cache_dir = CACHE_DIR / save_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
@@ -216,7 +212,7 @@ class loader_moondream(BaseLoader):
         ).to(self.device)
         model.eval()
 
-        my_cprint(f"Moondream2 vision model loaded into memory...", "green")
+        my_cprint("Moondream2 vision model loaded into memory...", "green")
 
         tokenizer = AutoTokenizer.from_pretrained(
             model_id, 
@@ -333,7 +329,7 @@ class loader_minicpm_V_2_6(BaseLoader):
         )
         model.eval()
         
-        my_cprint(f"MiniCPM_V_2_6 vision model loaded into memory...", "green")
+        my_cprint("MiniCPM_V_2_6 vision model loaded into memory...", "green")
         
         return model, tokenizer, None
 
@@ -366,7 +362,6 @@ class loader_glmv4(BaseLoader):
         chosen_model = self.config['vision']['chosen_model']
         model_info = VISION_MODELS[chosen_model]
         model_id = model_info['repo_id']
-        precision = model_info['precision']
         save_dir = model_info["cache_dir"]
         cache_dir = CACHE_DIR / save_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
@@ -393,7 +388,7 @@ class loader_glmv4(BaseLoader):
             cache_dir=cache_dir
         )
 
-        my_cprint(f"GLM4V-9B vision model loaded into memory...", "green")
+        my_cprint("GLM4V-9B vision model loaded into memory...", "green")
 
         return model, tokenizer, None
 

@@ -1,8 +1,7 @@
-import os
 from pathlib import Path
 from huggingface_hub import snapshot_download, HfApi
 from huggingface_hub.utils import disable_progress_bars, RepositoryNotFoundError, GatedRepoError
-from huggingface_hub.hf_api import RepoFile, RepoFolder
+from huggingface_hub.hf_api import RepoFile
 from PySide6.QtCore import QObject, Signal
 import fnmatch
 import humanfriendly

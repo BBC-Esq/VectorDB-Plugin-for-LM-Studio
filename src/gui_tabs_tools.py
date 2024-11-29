@@ -1,16 +1,14 @@
-from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QWidget, QPushButton, QMessageBox, QHBoxLayout
+from PySide6.QtWidgets import QVBoxLayout, QGroupBox, QWidget
 from PySide6.QtCore import QThread, Signal
-from PySide6.QtGui import QColor
 from gui_tabs_tools_transcribe import TranscriberToolSettingsTab
 from gui_tabs_tools_vision import VisionToolSettingsTab
 from gui_tabs_tools_scrape import ScrapeDocumentationTab
-# from gui_tabs_tools_ocr import OcrToolSettingsTab
-# from gui_tabs_tools_keybert import KeywordExtractorTab
 from gui_tabs_tools_misc import MiscTab
 from initialize import restore_vector_db_backup
 from utilities import backup_database
-from pathlib import Path
-import shutil
+# from gui_tabs_tools_ocr import OcrToolSettingsTab
+# from gui_tabs_tools_keybert import KeywordExtractorTab
+
 
 class RestoreBackupThread(QThread):
     finished = Signal(bool)

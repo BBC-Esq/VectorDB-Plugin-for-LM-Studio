@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 from matplotlib.colors import LinearSegmentedColormap
 import pandas as pd
-import numpy as np
 
 from constants import CHAT_MODELS
 

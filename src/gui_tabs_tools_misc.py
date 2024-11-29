@@ -1,6 +1,4 @@
-from PySide6.QtWidgets import (
-   QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QWidget, QMessageBox, QComboBox
-)
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QMessageBox, QComboBox
 from PySide6.QtCore import QThread, Signal, QTimer
 from initialize import restore_vector_db_backup
 from utilities import backup_database

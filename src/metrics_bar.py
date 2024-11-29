@@ -1,10 +1,8 @@
-import platform
 import subprocess
 from collections import deque
 import psutil
 from PySide6.QtCore import (
     Qt,
-    QTimer,
     QObject,
     Signal,
     QPointF,
@@ -13,12 +11,10 @@ from PySide6.QtCore import (
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
-    QComboBox,
     QGridLayout,
     QLabel,
     QProgressBar,
     QMenu,
-    QToolTip,
 )
 from PySide6.QtGui import (
     QPainter,
@@ -34,7 +30,7 @@ from typing import Optional
 
 def is_nvidia_gpu_available():
     try:
-        output = subprocess.check_output(["nvidia-smi"], stderr=subprocess.STDOUT)
+        subprocess.check_output(["nvidia-smi"], stderr=subprocess.STDOUT)
         return True
     except (FileNotFoundError, subprocess.CalledProcessError):
         return False
