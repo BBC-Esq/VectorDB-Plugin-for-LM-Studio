@@ -479,6 +479,15 @@ VISION_MODELS = {
         'requires_cuda': True,
         'vram': '9.1 GB',
     },
+    'Ovis1.6-Llama3.2 - 3b': {
+        'precision': 'autoselect',
+        'quant': 'n/a',
+        'size': '3b',
+        'repo_id': 'AIDC-AI/Ovis1.6-Llama3.2-3B',
+        'cache_dir': 'AIDC-AI--Ovis1.6-Llama3.2-3B',
+        'requires_cuda': True,
+        'vram': '9.6 GB',
+    },
     'THUDM glm4v - 9b': {
         'precision': 'bfloat16',
         'quant': '4-bit',

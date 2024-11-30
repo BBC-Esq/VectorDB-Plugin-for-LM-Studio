@@ -71,6 +71,8 @@ def choose_image_loader():
         loader_func = loader_molmo(config).process_images
     elif chosen_model == 'Mississippi - 2b':
         loader_func = loader_mississippi(config).process_images
+    elif chosen_model == 'Ovis1.6-Llama3.2 - 3b':
+        loader_func = loader_ovis(config).process_images
     else:
         my_cprint("No valid image model specified in config.yaml", "red")
         return []
@@ -570,3 +572,76 @@ class loader_mississippi(BaseLoader):
         )
         
         return response
+
+
+class loader_ovis(BaseLoader):
+    def __init__(self, config):
+        super().__init__(config)
+        from utilities import my_cprint, get_device_and_precision
+        self.my_cprint = my_cprint
+        self.get_device_and_precision = get_device_and_precision
+
+    def initialize_model_and_tokenizer(self):
+        _, precision_type = self.get_device_and_precision()
+        
+        chosen_model = self.config['vision']['chosen_model']
+        model_info = VISION_MODELS[chosen_model]
+        repo_id = model_info['repo_id']
+        save_dir = model_info["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        config = AutoConfig.from_pretrained(
+            repo_id, 
+            trust_remote_code=True,
+            cache_dir=cache_dir
+        )
+
+        model = AutoModelForCausalLM.from_pretrained(
+            repo_id,
+            config=config,
+            torch_dtype=torch.bfloat16 if precision_type == "bfloat16" else torch.float16,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+            multimodal_max_length=8192,
+            cache_dir=cache_dir
+        ).eval().cuda()
+        
+        text_tokenizer = model.get_text_tokenizer()
+        visual_tokenizer = model.get_visual_tokenizer()
+        
+        return model, text_tokenizer, visual_tokenizer
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        text = "Describe this image in detail as possible but do not repeate identifying the same things."
+        query = f'<image>\n{text}'
+        
+        prompt, input_ids, pixel_values = self.model.preprocess_inputs(query, [raw_image])
+        attention_mask = torch.ne(input_ids, self.tokenizer.pad_token_id)
+        
+        input_ids = input_ids.unsqueeze(0).to(device=self.model.device)
+        attention_mask = attention_mask.unsqueeze(0).to(device=self.model.device)
+        pixel_values = [pixel_values.to(dtype=self.processor.dtype, device=self.processor.device)]
+        
+        gen_kwargs = {
+            'max_new_tokens': 1024,
+            'do_sample': False,
+            'top_p': None,
+            'top_k': None,
+            'temperature': None,
+            'repetition_penalty': 1.0,
+            'eos_token_id': self.model.generation_config.eos_token_id,
+            'pad_token_id': self.tokenizer.pad_token_id,
+            'use_cache': True
+        }
+        
+        output_ids = self.model.generate(
+            input_ids, 
+            pixel_values=pixel_values, 
+            attention_mask=attention_mask, 
+            **gen_kwargs
+        )[0]
+        
+        output = self.tokenizer.decode(output_ids, skip_special_tokens=True)
+        return output

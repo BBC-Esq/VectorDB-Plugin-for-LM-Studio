@@ -21,6 +21,7 @@ def create_vision_models_comparison_plot():
         {"model": "Florence2-Large - 772m", "cps": 564.86, "memory": 5284.24},
         {"model": "Florence2-Base - 223m", "cps": 766.49, "memory": 2631.49},
         {"model": "Mississippi - 2b", "cps": 320.00, "memory": 5300.00},
+        {"model": "Ovis1.6-Llama3.2 - 3b", "cps": 321.79, "memory": 9956.18},
         {"model": "GLM4v - 14b", "cps": 140.65, "memory": 10350.07},
         {"model": "Molmo-D-0924 - 8b", "cps": 146.60, "memory": 12321.12},
         {"model": "llava-v1.6-vicuna - 7b", "cps": 146.18, "memory": 6845.81},
