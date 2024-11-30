@@ -9,7 +9,7 @@ import yaml
 from PIL import Image
 from tqdm import tqdm
 from transformers import (
-    AutoModelForCausalLM, AutoModel, AutoTokenizer, AutoProcessor,
+    AutoModelForCausalLM, AutoModel, AutoTokenizer, AutoProcessor, AutoConfig,
     LlavaNextForConditionalGeneration, LlavaNextProcessor, BitsAndBytesConfig, GenerationConfig
 )
 
@@ -69,6 +69,8 @@ def choose_image_loader():
         loader_func = loader_glmv4(config).process_images
     elif chosen_model == 'Molmo-D-0924 - 8b':
         loader_func = loader_molmo(config).process_images
+    elif chosen_model == 'Mississippi - 2b':
+        loader_func = loader_mississippi(config).process_images
     else:
         my_cprint("No valid image model specified in config.yaml", "red")
         return []
@@ -180,24 +182,25 @@ class loader_llava_next(BaseLoader):
 
     @ torch.inference_mode()
     def process_single_image(self, raw_image):
-        user_prompt = "Describe this image in detail as possible but be succinct and don't repeat yourself."
+        user_prompt = "Describe this image in detail as possible."
         prompt = f"USER: <image>\n{user_prompt} ASSISTANT:"
         inputs = self.processor(text=prompt, images=raw_image, return_tensors="pt").to(self.device)
         
         output = self.model.generate(**inputs, max_new_tokens=512, do_sample=False)
         
-        response = self.processor.decode(output[0], skip_special_tokens=True) # possibly adjust to "full_response = self.processor.decode(output[0][2:], skip_special_tokens=True)" or something similar if output is preceded by special tokens inexplicatly
+        # possibly adjust to "full_response = self.processor.decode(output[0][2:], skip_special_tokens=True)" or something similar if output is preceded by special tokens inexplicatly
+        response = self.processor.decode(output[0], skip_special_tokens=True)
         model_response = response.split("ASSISTANT:")[-1].strip()
         
         return model_response
 
 
 class loader_moondream(BaseLoader):
-    """ Cache directory handling: Most classes use CACHE_DIR consistently, but there's a slight inconsistency in the
+    """Most classes use CACHE_DIR consistently, but there's a slight inconsistency in the
     loader_moondream class, which uses VISION_DIR instead of CACHE_DIR.
     """
     def initialize_model_and_tokenizer(self):
-        # moondream's approach uses the "vision" directory and does not create a nested folder like all other sub-classes; use
+        # moondream's approach uses the "vision" directory and does not create a nested folder like all other sub-classes
         chosen_model = self.config['vision']['chosen_model']
         model_id = VISION_MODELS[chosen_model]['repo_id']
         cache_dir=VISION_DIR
@@ -493,3 +496,77 @@ class loader_molmo(BaseLoader):
             return ""
 
         return generated_text
+
+
+class loader_mississippi(BaseLoader):
+    def __init__(self, config):
+        super().__init__(config)
+        from utilities import my_cprint, get_device_and_precision
+        self.my_cprint = my_cprint
+        self.get_device_and_precision = get_device_and_precision
+
+    def initialize_model_and_tokenizer(self):
+        _, precision_type = self.get_device_and_precision()
+        
+        chosen_model = self.config['vision']['chosen_model']
+        model_info = VISION_MODELS[chosen_model]
+        repo_id = model_info['repo_id']
+        save_dir = model_info["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        config = AutoConfig.from_pretrained(
+            repo_id, 
+            trust_remote_code=True,
+            cache_dir=cache_dir
+        )
+        config.hidden_act = "gelu"
+        config.patch_size = 14
+        config.image_size = 672
+        config.min_dynamic_patch = 1
+        config.max_dynamic_patch = 6
+        
+        model = AutoModel.from_pretrained(
+            repo_id,
+            config=config,
+            torch_dtype=torch.bfloat16 if precision_type == "bfloat16" else torch.float16,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+            cache_dir=cache_dir
+        ).eval().cuda()
+        
+        tokenizer = AutoTokenizer.from_pretrained(
+            repo_id, 
+            trust_remote_code=True, 
+            use_fast=False,
+            cache_dir=cache_dir
+        )
+        
+        self.my_cprint(f"H2OVL vision model loaded with {precision_type}.", color="green")
+        
+        return model, tokenizer, None
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        image_path = raw_image.filename
+        
+        generation_config = dict(
+            max_new_tokens=512,
+            do_sample=False,
+            temperature=None,
+            top_p=None,
+            repetition_penalty=1.1,
+            eos_token_id=self.tokenizer.eos_token_id,
+        )
+        
+        question = '<image>\nDescribe this image in detail as possible but be succinct and do not repeat yourself.'
+        response, _ = self.model.chat(
+            self.tokenizer, 
+            image_path,
+            question, 
+            generation_config, 
+            history=None, 
+            return_history=True
+        )
+        
+        return response

@@ -427,7 +427,7 @@ VECTOR_MODELS = {
 VISION_MODELS = {
     'Florence-2-base': {
         'precision': 'autoselect',
-        'quant': 'autoselect',
+        'quant': 'n/a',
         'size': '232m',
         'repo_id': 'microsoft/Florence-2-base',
         'cache_dir': 'microsoft--Florence-2-base',
@@ -436,7 +436,7 @@ VISION_MODELS = {
     },
     'Moondream2 - 1.9b': {
         'precision': 'float16',
-        'quant': 'none',
+        'quant': 'n/a',
         'size': '2b',
         'repo_id': 'vikhyatk/moondream2',
         'cache_dir': 'vikhyatk--moondream2',
@@ -445,11 +445,20 @@ VISION_MODELS = {
     },
     'Florence-2-large': {
         'precision': 'autoselect',
-        'quant': 'autoselect',
+        'quant': 'n/a',
         'size': '770m',
         'repo_id': 'microsoft/Florence-2-large',
         'cache_dir': 'microsoft--Florence-2-large',
         'requires_cuda': False,
+        'vram': '5.3 GB',
+    },
+    'Mississippi - 2b': {
+        'precision': 'autoselect',
+        'quant': 'n/a',
+        'size': '2b',
+        'repo_id': 'h2oai/h2ovl-mississippi-2b',
+        'cache_dir': 'h2oai--h2ovl-mississippi-2b',
+        'requires_cuda': True,
         'vram': '5.3 GB',
     },
     'Llava 1.6 Vicuna - 7b': {

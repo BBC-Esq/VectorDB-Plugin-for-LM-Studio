@@ -407,6 +407,8 @@ other_libraries = [
     "pathspec==0.12.1",
     "referencing==0.35.1",
     "rpds-py==0.21.0",
+    # the following are only required by mississippi vision model
+    "peft==0.13.2",
 ]
 
 full_install_libraries = [
