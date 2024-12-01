@@ -111,7 +111,7 @@ class BarkAudio(BaseAudio):
             repository_id,
             torch_dtype=torch.float16,
             cache_dir=CACHE_DIR,
-            attn_implementation="flash_attention_2"
+            # attn_implementation="flash_attention_2"
         ).to(self.device)
         
         my_cprint("Bark model loaded (float16)", "green")
