@@ -83,9 +83,20 @@ class ModelDownloader:
             
             safetensors_files = [file for file in repo_files if file.path.endswith('.safetensors')]
             bin_files = [file for file in repo_files if file.path.endswith('.bin')]
-            
-            ignore_patterns = [".gitattributes", "*.ckpt", "*.gguf", "*.h5", "*.ot", "*.md", "README*", "onnx/**", "coreml/**"]
-            
+
+            ignore_patterns = [
+                ".gitattributes",
+                "*.ckpt",
+                "*.gguf",
+                "*.h5",
+                "*.ot",
+                "*.md",
+                "README*",
+                "onnx/**",
+                "coreml/**",
+                "openvino/**"
+            ]
+
             if safetensors_files and bin_files:
                 ignore_patterns.append("*.bin")
             
