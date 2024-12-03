@@ -19,6 +19,7 @@ from langchain_core.load import dumps # DEBUG
 from document_processor import load_documents, split_documents
 from module_process_images import choose_image_loader
 from utilities import my_cprint
+from constants import VECTOR_MODELS
 
 # DEBUG
 # def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
@@ -53,33 +54,52 @@ class CreateVectorDB:
         with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
             return yaml.safe_load(stream)
 
-    def get_appropriate_dtype(self, compute_device, use_half):
-        if compute_device.lower() == 'cpu' or not use_half:
-            return None
-        
-        # checks for nvidia gpu + cuda + bfloat16 support
-        if torch.cuda.is_available() and torch.version.cuda:
-            cuda_capability = torch.cuda.get_device_capability()
-            if cuda_capability[0] >= 8 and cuda_capability[1] >= 6:
-                return torch.bfloat16
+    def get_model_native_precision(self, embedding_model_name):
+        for group_models in VECTOR_MODELS.values():
+            for model in group_models:
+                if model['repo_id'] == embedding_model_name or model['name'] in embedding_model_name:
+                    return model['precision']
+        return 'float32'
+
+    def get_appropriate_dtype(self, compute_device, use_half, model_native_precision):
+        if compute_device.lower() == 'cpu':
+            return torch.float32
+            
+        if model_native_precision == 'float16':
+            return torch.float16
+        elif model_native_precision == 'float32':
+            if not use_half:
+                return torch.float32
             else:
-                return torch.float16
+                if torch.cuda.is_available() and torch.version.cuda:
+                    cuda_capability = torch.cuda.get_device_capability()
+                    if cuda_capability[0] >= 8 and cuda_capability[1] >= 6:
+                        return torch.bfloat16
+                    else:
+                        return torch.float16
+                else:
+                    return torch.float32
         else:
-            return None
+            return torch.float32
 
     @torch.inference_mode()
     def initialize_vector_model(self, embedding_model_name, config_data):
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
-        
+
         use_half = config_data.get("database", {}).get("half", False)
-        
+
+        model_native_precision = self.get_model_native_precision(EMBEDDING_MODEL_NAME)
+
+        torch_dtype = self.get_appropriate_dtype(compute_device, use_half, model_native_precision)
+
         model_kwargs = {
-            "device": compute_device, 
+            "device": compute_device,
             "trust_remote_code": True
         }
-        
-        torch_dtype = self.get_appropriate_dtype(compute_device, use_half)
+
+        if torch_dtype is not None and "instructor" not in embedding_model_name:
+            model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
 
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 8}
 
@@ -87,15 +107,15 @@ class CreateVectorDB:
             encode_kwargs['batch_size'] = 2
         else:
             batch_size_mapping = {
-                't5-xl': 1,
-                't5-large': 2,
+                't5-xl': 2,
+                't5-large': 4,
                 'instructor-xl': 2,
-                't5-base': 3,
-                'bge-large': 3,
-                'instructor-large': 3,
-                'e5-large': 3,
-                'gte-large': 3,
-                'instructor-base': 6,
+                't5-base': 6,
+                'bge-large': 4,
+                'instructor-large': 4,
+                'e5-large': 4,
+                'gte-large': 4,
+                'instructor-base': 8,
                 'mpnet': 8,
                 'e5-base': 8,
                 'bge-base': 8,
@@ -125,15 +145,16 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs,
             )
 
-            # must use torch.amp. only for instructor
             if torch_dtype is not None:
+                # Move the model to the desired dtype
                 model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
 
         elif "bge" in embedding_model_name:
-            query_instruction = config_data['embedding-models']['bge'].get('query_instruction')
+            query_instruction = config_data['embedding-models']['bge'].get('query_instruction', '')
+            encode_kwargs['show_progress_bar'] = True
+
             if torch_dtype is not None:
                 model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
-            encode_kwargs['show_progress_bar'] = True
 
             model = HuggingFaceBgeEmbeddings(
                 model_name=embedding_model_name,
@@ -169,10 +190,11 @@ class CreateVectorDB:
 
         model_name = os.path.basename(EMBEDDING_MODEL_NAME)
         precision = "float32" if torch_dtype is None else str(torch_dtype).split('.')[-1]
-    
+
         my_cprint(f"{model_name} ({precision}) loaded using a batch size of {encode_kwargs['batch_size']}.", "green")
-        
+
         return model, encode_kwargs
+
 
     @torch.inference_mode()
     def create_database(self, texts, embeddings):

@@ -246,7 +246,8 @@ VECTOR_MODELS = {
             'size_mb': 547,
             'repo_id': 'Alibaba-NLP/gte-base-en-v1.5',
             'cache_dir': 'Alibaba-NLP--gte-base-en-v1.5',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'Alibaba-gte-large',
@@ -255,7 +256,8 @@ VECTOR_MODELS = {
             'size_mb': 1740,
             'repo_id': 'Alibaba-NLP/gte-large-en-v1.5',
             'cache_dir': 'Alibaba-NLP--gte-large-en-v1.5',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
     ],
     'BAAI': [
@@ -266,7 +268,8 @@ VECTOR_MODELS = {
             'size_mb': 134,
             'repo_id': 'BAAI/bge-small-en-v1.5',
             'cache_dir': 'BAAI--bge-small-en-v1.5',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'bge-base-en-v1.5',
@@ -275,7 +278,8 @@ VECTOR_MODELS = {
             'size_mb': 438,
             'repo_id': 'BAAI/bge-base-en-v1.5',
             'cache_dir': 'BAAI--bge-base-en-v1.5',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'bge-large-en-v1.5',
@@ -284,7 +288,8 @@ VECTOR_MODELS = {
             'size_mb': 1340,
             'repo_id': 'BAAI/bge-large-en-v1.5',
             'cache_dir': 'BAAI--bge-large-en-v1.5',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
     ],
     'hkunlp': [
@@ -295,7 +300,8 @@ VECTOR_MODELS = {
             'size_mb': 439,
             'repo_id': 'hkunlp/instructor-base',
             'cache_dir': 'hkunlp--instructor-base',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'instructor-large',
@@ -304,7 +310,8 @@ VECTOR_MODELS = {
             'size_mb': 1340,
             'repo_id': 'hkunlp/instructor-large',
             'cache_dir': 'hkunlp--instructor-large',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'instructor-xl',
@@ -313,7 +320,8 @@ VECTOR_MODELS = {
             'size_mb': 4960,
             'repo_id': 'hkunlp/instructor-xl',
             'cache_dir': 'hkunlp--instructor-xl',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
     ],
     'intfloat': [
@@ -324,7 +332,8 @@ VECTOR_MODELS = {
             'size_mb': 134,
             'repo_id': 'intfloat/e5-small-v2',
             'cache_dir': 'intfloat--e5-small-v2',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'e5-base-v2',
@@ -333,7 +342,8 @@ VECTOR_MODELS = {
             'size_mb': 438,
             'repo_id': 'intfloat/e5-base-v2',
             'cache_dir': 'intfloat--e5-base-v2',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'e5-large-v2',
@@ -342,7 +352,8 @@ VECTOR_MODELS = {
             'size_mb': 1340,
             'repo_id': 'intfloat/e5-large-v2',
             'cache_dir': 'intfloat--e5-large-v2',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
     ],
     'sentence-transformers': [
@@ -353,7 +364,8 @@ VECTOR_MODELS = {
             'size_mb': 120,
             'repo_id': 'sentence-transformers/all-MiniLM-L12-v2',
             'cache_dir': 'sentence-transformers--all-MiniLM-L12-v2',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'all-mpnet-base-v2',
@@ -362,7 +374,8 @@ VECTOR_MODELS = {
             'size_mb': 438,
             'repo_id': 'sentence-transformers/all-mpnet-base-v2',
             'cache_dir': 'sentence-transformers--all-mpnet-base-v2',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float32'
         },
         {
             'name': 'sentence-t5-base',
@@ -371,7 +384,8 @@ VECTOR_MODELS = {
             'size_mb': 219,
             'repo_id': 'sentence-transformers/sentence-t5-base',
             'cache_dir': 'sentence-transformers--sentence-t5-base',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float16'
         },
         {
             'name': 'sentence-t5-large',
@@ -380,7 +394,8 @@ VECTOR_MODELS = {
             'size_mb': 670,
             'repo_id': 'sentence-transformers/sentence-t5-large',
             'cache_dir': 'sentence-transformers--sentence-t5-large',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float16'
         },
         {
             'name': 'sentence-t5-xl',
@@ -389,7 +404,8 @@ VECTOR_MODELS = {
             'size_mb': 2480,
             'repo_id': 'sentence-transformers/sentence-t5-xl',
             'cache_dir': 'sentence-transformers--sentence-t5-xl',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float16'
         },
     ],
     'thenlper': [
@@ -400,7 +416,8 @@ VECTOR_MODELS = {
             'size_mb': 67,
             'repo_id': 'thenlper/gte-small',
             'cache_dir': 'thenlper--gte-small',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float16'
         },
         {
             'name': 'gte-base',
@@ -409,7 +426,8 @@ VECTOR_MODELS = {
             'size_mb': 219,
             'repo_id': 'thenlper/gte-base',
             'cache_dir': 'thenlper--gte-base',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float16'
         },
         {
             'name': 'gte-large',
@@ -418,7 +436,8 @@ VECTOR_MODELS = {
             'size_mb': 670,
             'repo_id': 'thenlper/gte-large',
             'cache_dir': 'thenlper--gte-large',
-            'type': 'vector'
+            'type': 'vector',
+            'precision': 'float16'
         },
     ],
 
@@ -829,50 +848,97 @@ PROMPT_FORMATS = {
 }
 
 TOOLTIPS = {
-    "PORT": "Must match the port used in LM Studio.",
-    "MAX_TOKENS": "Maximum tokens for LLM response. -1 for unlimited.",
-    "TEMPERATURE": "Controls LLM creativity. 0-1, higher is more creative.",
-    "PREFIX_SUFFIX": "Prompt format for LLM. Use preset or custom for different models.",
-    "DISABLE_PROMPT_FORMATTING": "Disables built-in prompt formatting. Use LM Studio settings instead.",
-    "CREATE_DEVICE_DB": "Choose 'cpu' or 'cuda' based on hardware. Prefer 'cuda' if available.",
-    "CHUNK_SIZE": "Text chunk max characters. Make sure it falls within the Max Sequence of the vector model.  3-4 characters = 1 token.",
+    "AUDIO_FILE_SELECT": "Select an audio file. Supports various audio formats.",
+    "CHOOSE_FILES": "Select documents to add to the database. Remember to transcribe audio files in the Tools tab first.",
     "CHUNK_OVERLAP": "Characters shared between chunks. Set to 25-50% of chunk size.",
-    "HALF_PRECISION": "Uses bfloat16/float16 for 2x speedup. GPU only.",
-    "CREATE_DEVICE_QUERY": "Choose 'cpu' or 'cuda'. 'cpu' recommended to conserve VRAM.",
+    "CHUNK_SIZE": "Text chunk max characters. Make sure it falls within the Max Sequence of the vector model.  3-4 characters = 1 token.",
+    "CHUNKS_ONLY": "Only return relevant chunks without connecting to the LLM. Extremely useful to test the chunk size/overlap settings.",
     "CONTEXTS": "Maximum number of chunks/contexts to return.",
-    "SIMILARITY": "Relevance threshold for chunks. 0-1, higher returns more. Don't use 1.",
-    "SEARCH_TERM_FILTER": "Removes chunks without exact term. Case-insensitive.",
+    "COPY_RESPONSE": "Copy the model's response to the clipboard.",
+    "CREATE_DEVICE_DB": "Choose 'cpu' or 'cuda' based on hardware. Prefer 'cuda' if available.",
+    "CREATE_DEVICE_QUERY": "Choose 'cpu' or 'cuda'. 'cpu' recommended to conserve VRAM.",
+    "CREATE_VECTOR_DB": "Create a new vector database.",
+    "DATABASE_NAME_INPUT": "Enter a unique database name. Use only lowercase letters, numbers, underscores, and hyphens.",
+    "DATABASE_SELECT": "Select the vector database to query for relevant information.",
+    "DISABLE_PROMPT_FORMATTING": "Disables built-in prompt formatting. Use LM Studio settings instead.",
+    "DOWNLOAD_MODEL": "Download the selected vector model.",
+    "EJECT_LOCAL_MODEL": "Unload the current local model from memory.",
     "FILE_TYPE_FILTER": "Filters chunks by document type (images, audio, documents, all).",
-    "TTS_MODEL": "Choose TTS model. Bark offers customization, Google requires internet.",
-    "VISION_MODEL": "Select vision model for image processing. Test before bulk processing.",
-    "RESTORE_DATABASE": "Restores backed-up databases. Use with caution.",
+    "HALF_PRECISION": "Uses bfloat16/float16 for 2x speedup. GPU only.",
+    "LOCAL_MODEL_SELECT": "Select a local model for generating responses.",
+    "MAX_TOKENS": "Maximum tokens for LLM response. -1 for unlimited.",
+    "MODEL_BACKEND_SELECT": "Choose the backend for the large language model response.",
+    "PORT": "Must match the port used in LM Studio.",
+    "PREFIX_SUFFIX": "Prompt format for LLM. Use preset or custom for different models.",
+    "QUESTION_INPUT": "Type your question here or use the voice recorder.",
     "RESTORE_CONFIG": "Restores original config.yaml. May require manual database cleanup.",
-    "VECTOR_MODEL_SELECT": "Choose a vector model to download.",
-    "VECTOR_MODEL_NAME": "The name of the vector model.",
+    "RESTORE_DATABASE": "Restores backed-up databases. Use with caution.",
+    "SEARCH_TERM_FILTER": "Removes chunks without exact term. Case-insensitive.",
+    "SELECT_VECTOR_MODEL": "Choose the vector model for text embedding.",
+    "SIMILARITY": "Relevance threshold for chunks. 0-1, higher returns more. Don't use 1.",
+    "SPEAK_RESPONSE": "Speak the response from the large language model using text-to-speech.",
+    "TEMPERATURE": "Controls LLM creativity. 0-1, higher is more creative.",
+    "TRANSCRIBE_BUTTON": "Start transcription.",
+    "TTS_MODEL": "Choose TTS model. Bark offers customization, Google requires internet.",
     "VECTOR_MODEL_DIMENSIONS": "Higher dimensions captures more nuance but requires more processing time.",
-    "VECTOR_MODEL_MAX_SEQUENCE": "Number of tokens the model can process at once. Different from the Chunk Size setting, which is in characters.",
-    "VECTOR_MODEL_SIZE": "Size on disk.",
     "VECTOR_MODEL_DOWNLOADED": "Whether the model has been downloaded.",
     "VECTOR_MODEL_LINK": "Huggingface link.",
-    "DOWNLOAD_MODEL": "Download the selected vector model.",
-    "WHISPER_MODEL_SELECT": "Distil models use ~ 70% VRAM of their non-Distil equivalents with little quality loss.",
-    "WHISPER_BATCH_SIZE": "Batch size for transcription. See the User Guid for optimal values.",
-    "AUDIO_FILE_SELECT": "Select an audio file. Supports various audio formats.",
-    "TRANSCRIBE_BUTTON": "Start transcription.",
-    "CHOOSE_FILES": "Select documents to add to the database. Remember to transcribe audio files in the Tools tab first.",
-    "SELECT_VECTOR_MODEL": "Choose the vector model for text embedding.",
-    "DATABASE_NAME_INPUT": "Enter a unique database name. Use only lowercase letters, numbers, underscores, and hyphens.",
-    "CREATE_VECTOR_DB": "Create a new vector database.",
-    "DATABASE_SELECT": "Select the vector database to query for relevant information.",
-    "MODEL_BACKEND_SELECT": "Choose the backend for the large language model response.",
-    "LOCAL_MODEL_SELECT": "Select a local model for generating responses.",
-    "EJECT_LOCAL_MODEL": "Unload the current local model from memory.",
-    "QUESTION_INPUT": "Type your question here or use the voice recorder.",
+    "VECTOR_MODEL_MAX_SEQUENCE": "Number of tokens the model can process at once. Different from the Chunk Size setting, which is in characters.",
+    "VECTOR_MODEL_NAME": "The name of the vector model.",
+    "VECTOR_MODEL_PRECISION": (
+    "<html>"
+    "<body>"
+    "<p style='font-size: 14px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-bottom: 10px;'><b>The precision ultimately used depends on your setup:</b></p>"
+    "<table style='border-collapse: collapse; width: 100%; font-size: 12px; color: #34495e;'>"
+    "<thead>"
+    "<tr style='background-color: #ecf0f1; text-align: left;'>"
+    "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Compute Device</th>"
+    "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Native Precision</th>"
+    "<th style='border: 1px solid #bdc3c7; padding: 8px;'>'Half' Checked?</th>"
+    "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Precision Used</th>"
+    "</tr>"
+    "</thead>"
+    "<tbody>"
+    "<tr>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CPU</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Any</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>torch.float32</code></td>"
+    "</tr>"
+    "<tr style='background-color: #f9f9f9;'>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float16</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>torch.float16</code></td>"
+    "</tr>"
+    "<tr>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float32</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>No</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>torch.float32</code></td>"
+    "</tr>"
+    "<tr style='background-color: #f9f9f9;'>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float32</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Yes</td>"
+    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>"
+    "<code>torch.bfloat16</code> (if CUDA capability &ge; 8.6) or <code>torch.float16</code> otherwise"
+    "</td>"
+    "</tr>"
+    "</tbody>"
+    "</table>"
+    "</body>"
+    "</html>"
+),
+    "VECTOR_MODEL_SELECT": "Choose a vector model to download.",
+    "VECTOR_MODEL_SIZE": "Size on disk.",
+    "VISION_MODEL": "Select vision model for image processing. Test before bulk processing.",
     "VOICE_RECORDER": "Click to start recording, speak your question, then click again to stop recording.",
-    "SPEAK_RESPONSE": "Speak the response from the large language model using text-to-speech.",
-    "COPY_RESPONSE": "Copy the model's response to the clipboard.",
-    "CHUNKS_ONLY": "Only return relevant chunks without connecting to the LLM. Extremely useful to test the chunk size/overlap settings."
+    "WHISPER_BATCH_SIZE": "Batch size for transcription. See the User Guid for optimal values.",
+    "WHISPER_MODEL_SELECT": "Distil models use ~ 70% VRAM of their non-Distil equivalents with little quality loss."
 }
+
+
 
 scrape_documentation = {
     "Accelerate 0.34.2": {
