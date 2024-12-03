@@ -17,6 +17,34 @@ from packaging import version
 from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
 
+def get_model_native_precision(embedding_model_name, vector_models):
+    for group_models in vector_models.values():
+        for model in group_models:
+            if model['repo_id'] == embedding_model_name or model['name'] in embedding_model_name:
+                return model['precision']
+    return 'float32'
+
+def get_appropriate_dtype(compute_device, use_half, model_native_precision):
+    if compute_device.lower() == 'cpu':
+        return torch.float32
+        
+    if model_native_precision == 'float16':
+        return torch.float16
+    elif model_native_precision == 'float32':
+        if not use_half:
+            return torch.float32
+        else:
+            if torch.cuda.is_available() and torch.version.cuda:
+                cuda_capability = torch.cuda.get_device_capability()
+                if cuda_capability[0] >= 8 and cuda_capability[1] >= 6:
+                    return torch.bfloat16
+                else:
+                    return torch.float16
+            else:
+                return torch.float32
+    else:
+        return torch.float32
+
 # IMPLEMENT THIS IF/WHEN A USER TRIES TO CREATE A DB WITH A CPU WITH AN INCOMPATIBLE VISION MODEL
 def cpu_db_creation_vision_model_compatibility(directory, image_extensions, config_path):
     has_images = False

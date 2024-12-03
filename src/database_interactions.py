@@ -17,7 +17,7 @@ from langchain_community.vectorstores import TileDB
 
 from document_processor import load_documents, split_documents
 from module_process_images import choose_image_loader
-from utilities import my_cprint
+from utilities import my_cprint, get_model_native_precision, get_appropriate_dtype
 from constants import VECTOR_MODELS
           
 def create_vector_db_in_process(database_name):
@@ -34,44 +34,14 @@ class CreateVectorDB:
         with open(root_directory / "config.yaml", 'r', encoding='utf-8') as stream:
             return yaml.safe_load(stream)
 
-    def get_model_native_precision(self, embedding_model_name):
-        for group_models in VECTOR_MODELS.values():
-            for model in group_models:
-                if model['repo_id'] == embedding_model_name or model['name'] in embedding_model_name:
-                    return model['precision']
-        return 'float32'
-
-    def get_appropriate_dtype(self, compute_device, use_half, model_native_precision):
-        if compute_device.lower() == 'cpu':
-            return torch.float32
-            
-        if model_native_precision == 'float16':
-            return torch.float16
-        elif model_native_precision == 'float32':
-            if not use_half:
-                return torch.float32
-            else:
-                if torch.cuda.is_available() and torch.version.cuda:
-                    cuda_capability = torch.cuda.get_device_capability()
-                    if cuda_capability[0] >= 8 and cuda_capability[1] >= 6:
-                        return torch.bfloat16
-                    else:
-                        return torch.float16
-                else:
-                    return torch.float32
-        else:
-            return torch.float32
-
     @torch.inference_mode()
     def initialize_vector_model(self, embedding_model_name, config_data):
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
-
         use_half = config_data.get("database", {}).get("half", False)
 
-        model_native_precision = self.get_model_native_precision(EMBEDDING_MODEL_NAME)
-
-        torch_dtype = self.get_appropriate_dtype(compute_device, use_half, model_native_precision)
+        model_native_precision = get_model_native_precision(EMBEDDING_MODEL_NAME, VECTOR_MODELS)
+        torch_dtype = get_appropriate_dtype(compute_device, use_half, model_native_precision)
 
         model_kwargs = {
             "device": compute_device,
