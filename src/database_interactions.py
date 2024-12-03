@@ -14,31 +14,11 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.docstore.document import Document
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
 from langchain_community.vectorstores import TileDB
-from langchain_core.load import dumps # DEBUG
 
 from document_processor import load_documents, split_documents
 from module_process_images import choose_image_loader
 from utilities import my_cprint
 from constants import VECTOR_MODELS
-
-# DEBUG
-# def serialize_documents_to_json(documents, file_name="split_document_objects.json"):
-    # """
-    # "dumps" is a JSON string, which is a text-based representation that's good for saving to a file or sending over the
-    # network.  "dumpd" is a dictionary that Python can use immediately without any further parsing.  The distinction is
-    # most important when interacting with systems that expect a string versus working with Python objects directly.
-    
-    # Example string:
-    # "{\n  \"key\": \"value\",\n  \"serializable\": true\n}"    
-    
-    # Example dictionary:
-    # {'key': 'value', 'serializable': True}
-    # """
-    # print("Saving to JSON...")
-    # json_string = dumps(documents, pretty=True)
-
-    # with open(file_name, "w") as json_file:
-        # json_file.write(json_string)
           
 def create_vector_db_in_process(database_name):
     create_vector_db = CreateVectorDB(database_name=database_name)
