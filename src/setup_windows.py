@@ -10,33 +10,131 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 # SUPPORTS Phi3.5 and Mistral Nemo...AWQ support was added in 4.4.0.  FA was added in 4.3.1 but removed in 4.4.0
 # Therefore, torch 2.4.0+ is required to use cuDNN 9+ with ctranslate2 4.5.0+.
 """
-# torch 2.5.0 - supports CUDA 11.8, 12.1, and 12.4
-# torch 2.4.1 - supports CUDA 11.8, 12.1, and 12.4
-# torch 2.4.0 - supports CUDA 11.8, 12.1, and 12.4
-# torch 2.3.1 - supports CUDA 11.8 and 12.1
+******************************************
+* PyTorch Wheel Names and Version Support
+******************************************
 
-# cuDNN 8.9.7 supports CUDA 11 through 12.2
-# cuDNN 9.0.0 - " " through 12.3
-# cuDNN 9.1.0 - " " through 12.4
-# cuDNN 9.2.0 - " " through 12.5
-# cuDNN 9.2.1 - " " through 12.5
-# cuDNN 9.3.0 - " " through 12.6
-# cuDNN 9.4.0 - " " through 12.6
-# cuDNN 9.5.0 - " " through 12.6
+# modern torch wheels contain either "cu121" or "cu124" in their name and there are prebuilt wheels for the following versions
++-----------------------+---------------------------------------------------------+
+| Pytorch Wheel Moniker | PyTorch Versions Supported                              |
++-----------------------+---------------------------------------------------------+
+| cu124                 | 2.5.1, 2.5.0, 2.4.1, 2.4.0                              |
+| cu121                 | 2.5.1, 2.5.0, 2.4.1, 2.4.0, 2.3.1, 2.3.0, 2.2.2...2.1.0 |
++--------------+------------------------------------------------------------------+
+* Per the next table, "cu124" and "cu121" refer to compatibility with CUDA release 12.4.1 and 12.1.1 specifically.
 
-# Flash-attn 2.6.3 is currently the only build that supports torch 2.4.0, but it only supports up to CUDA 12.3 (released 7/25/2024)
-# The repo owner says that it's forward compatible with both torch and cuda, but this isn't true in my experience.
 
-# xformers==0.0.25.post1 - requires torch 2.2.2
-# xformers 0.0.26.post1 - requires torch 2.3.0
-# xformers 0.0.27 - requires torch 2.3.0 but also states "some operation might require torch 2.4".
-# xformers 0.0.27.post1 - requires torch 2.4.0
-# xformers 0.0.27.post2 - requires torch 2.4.0
-# xformers 0.0.28.post1 (non-post1 release was not successfully uploaded to pypi) - requires torch 2.4.1
-# xformers 0.0.28.post2 - requires torch 2.5.0
-# xformers 0.0.28.post3 - requires torch 2.5.1
+*************************************************
+* PyTorch Dependencies and Version Requirements
+*************************************************
 
-# new repo for windows triton wheels: https://github.com/woct0rdho/triton-windows/releases
+# dependencies scraped from pypi
+# technically, only for linux builds...but useful info for running Windows and pip-installing CUDA dependencies
++-------+------------------------+-------------------------+-------------------+------------------+--------+------------+--------+
+| Torch | nvidia-cuda-nvrtc-cu12 | nvidia-cuda-runtime-cu12| nvidia-cublas-cu12| nvidia-cudnn-cu12| triton | mkl        | sympy  |
++-------+------------------------+-------------------------+-------------------+------------------+--------+------------+--------+
+| 2.5.1 | 12.4.127               | 12.4.127                | 12.4.5.8          | 9.1.0.70         | 3.1.0  | -          | 1.13.1 |
+| 2.5.0 | 12.4.127               | 12.4.127                | 12.4.5.8          | 9.1.0.70         | 3.1.0  | -          | 1.13.1 |
+| 2.4.1 | 12.1.105               | 12.1.105                | 12.1.3.1          | 9.1.0.70         | 3.0.0  | -          | -      |
+| 2.4.0 | 12.1.105               | 12.1.105                | 12.1.3.1          | 9.1.0.70         | 3.0.0  | -          | -      |
+| 2.3.1 | 12.1.105               | 12.1.105                | 12.1.3.1          | 8.9.2.26         | 2.3.1  | <=2021.4.0 | -      |
+| 2.3.0 | 12.1.105               | 12.1.105                | 12.1.3.1          | 8.9.2.26         | 2.3.0  | <=2021.4.0 | -      |
+| 2.2.2 | 12.1.105               | 12.1.105                | 12.1.3.1          | 8.9.2.26         | 2.2.0  | -          | -      |
++-------+------------------------+-------------------------+-------------------+------------------+--------+------------+--------+
+* 12.1.105 and 12.1.3.1 stem from CUDA release 12.1.1 specifically
+* 12.4.127 and 12.4.5.8 stem from CUDA release 12.4.1 specifically
+* In other words, torch is not 100% compatible with CUDA 12.1.0 or 12.4.0, for example, or any other version.
+
+
+********************************************
+* cuDNN and CUDA Compatibility Matrix
+********************************************
+
+# cuDNN is different...
+# First, according to Nvidia, cuDNN 8.9.2.26 is only compatible up to CUDA 12.2
+# Second, for cuDNN 9+ Nvidia promises compatibility for all 12.x releases, but the cuDNN + CUDA combination still controls static linking:
+
++---------------+-----------------+-------------------------+
+| cuDNN Version | Static Linking  | No Static Linking       |
++---------------+-----------------+-------------------------+
+| 8.9.2         | 12.1, 11.8      | 12.0, ≤11.7             |
+| 8.9.3         | 12.1, 11.8      | 12.0, ≤11.7             |
+| 8.9.4         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
+| 8.9.5         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
+| 8.9.6         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
+| 8.9.7         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
+| 9.0.0         | 12.3, 11.8      | 12.2, 12.1, 12.0, ≤11.7 |
+| 9.1.0         | 12.4-12.0, 11.8 | ≤11.7                   |
+| 9.1.1         | 12.5-12.0, 11.8 | ≤11.7                   |
++---------------+-----------------+-------------------------+
+* 9.2+ continues the same trend
+
+
+*********************************************
+* PyTorch Official Release Compatibility
+*********************************************
+
+# Pytorch summarizes their compatibility as follows:
+# https://github.com/pytorch/pytorch/blob/main/RELEASE.md#release-compatibility-matrix
++------------------+----------------------------+------------------------------------------------+---------------------------+
+| PyTorch Version | Python                     | Stable                                          | Experimental              |
++-----------------+----------------------------+-------------------------------------------------+---------------------------+
+| 2.5             | >=3.9, <=3.12, (3.13 exp.) | CUDA 11.8, CUDA 12.1, CUDA 12.4, CUDNN 9.1.0.70 | None                      |
++-----------------+----------------------------+-------------------------------------------------+---------------------------+
+| 2.4             | >=3.8, <=3.12              | CUDA 11.8, CUDA 12.1, CUDNN 9.1.0.70            | CUDA 12.4, CUDNN 9.1.0.70 |
++-----------------+----------------------------+-------------------------------------------------+---------------------------+
+| 2.3             | >=3.8, <=3.11, (3.12 exp.) | CUDA 11.8, CUDNN 8.7.0.84                       | CUDA 12.1, CUDNN 8.9.2.26 |
++-----------------+----------------------------+-------------------------------------------------+---------------------------+
+| 2.2             | >=3.8, <=3.11, (3.12 exp.) | CUDA 11.8, CUDNN 8.7.0.84                       | CUDA 12.1, CUDNN 8.9.2.26 |
++-----------------+----------------------------+-------------------------------------------------+---------------------------+
+
+
+*********************************
+* Xformers Version Compatibility
+*********************************
+
+# xformers is strictly tied to a specific version of torch
++------------------+---------------+
+| Xformers Version | Torch Version |
++------------------+---------------+
+| v0.0.28.post3    | 2.5.1         |
+| v0.0.28.post2    | 2.5.0         |
+| v0.0.28.post1    | 2.4.1         |
+| v0.0.27.post2    | 2.4.0         |
+| v0.0.27.post1    | 2.4.0         |
+| v0.0.27          | 2.3.0         | # release notes confusingly say "some operation might require torch 2.4"
+| v0.0.26.post1    | 2.3.0         |
+| v0.0.25.post1    | 2.2.2         |
++------------------+---------------+
+
+# old repo for windows triton: https://github.com/jakaline-dev/Triton_win/releases
+# new repo for windows triton: https://github.com/woct0rdho/triton-windows/releases
+
+
+*****************************************
+* Flash Attention 2 (FA2) Compatibility
+*****************************************
+
+# this table represents the version of Torch and CUDA that FA2 is compatible with
+# based on flash-attention/.github/workflows/publish.yml
++-----------------------+---------------------------------------+----------------+
+| FA2 Version  | Torch Versions Supported                      | CUDA Versions  |
++--------------+-----------------------------------------------+----------------+
+| v2.7.1.post4 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post3 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post2 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241010 | 11.8.0, 12.4.1 |
+| v2.7.1       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241010 | 11.8.0, 12.4.1 |
+| v2.7.0.post2 | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
+| v2.7.0.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
+| v2.7.0       | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.3.2 |
+| v2.6.3       | 2.2.2, 2.3.1, 2.4.0                           | 11.8.0, 12.3.2 |
+| v2.6.2       | 2.2.2, 2.3.1, 2.4.0.dev20240527               | 11.8.0, 12.3.2 |
+| v2.6.1       | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.3.2 |
+| v2.6.0.post1 | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.2.2 |
+| v2.6.0       | 2.2.2, 2.3.1, 2.4.0.dev20240512               | 11.8.0, 12.2.2 |
+| v2.5.9.post1 | 2.2.2, 2.3.0, 2.4.0.dev20240407               | 11.8.0, 12.2.2 |
++--------------+-----------------------------------------------+----------------+
 """
 
 start_time = time.time()
@@ -228,7 +326,7 @@ other_libraries = [
     "encodec==0.1.1",
     "et-xmlfile==1.1.0", # openpyxl requires; hesitate to upgrade since openpyxl's most recent version pre-dates et-xmlfile 2+
     "fastcore==1.7.20",
-    "fastprogress==1.0.3",
+    "fastprogress==1.0.3", # only required by whisperspeech
     "filetype==1.2.0",
     "filelock==3.16.1",
     "frozendict==2.4.6",
