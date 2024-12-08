@@ -151,8 +151,7 @@ class BaseModel(ABC):
 
     def create_inputs(self, prompt):
         inputs = self.tokenizer(prompt, return_tensors="pt", return_attention_mask=True)
-        if self.device == "cpu":
-            inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
         return inputs
 
     def generate_response(self, inputs):
@@ -207,7 +206,6 @@ class Zephyr_1_6B(BaseModel):
 <|assistant|>
 """
 
-
 class Zephyr_3B(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Zephyr - 3b']
@@ -221,7 +219,6 @@ class Zephyr_3B(BaseModel):
 <|assistant|>
 """
 
-
 class Qwen2_5_1_5b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen 2.5 - 1.5b']
@@ -234,7 +231,6 @@ class Qwen2_5_1_5b(BaseModel):
 {augmented_query}<|im_end|>
 <|im_start|>assistant
 """
-
 
 class QwenCoder_1_5b(BaseModel):
     def __init__(self, generation_settings):
@@ -280,7 +276,6 @@ class Qwen2_5_3b(BaseModel):
 <|im_start|>assistant
 """
 
-
 class QwenCoder_3b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen 2.5 Coder - 3b']
@@ -310,6 +305,7 @@ class QwenCoder_3b(BaseModel):
             yield partial_response
 
         generation_thread.join()
+
 
 class Llama_3_2_3b(BaseModel):
     def __init__(self, generation_settings):
