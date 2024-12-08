@@ -6,6 +6,7 @@ from pathlib import Path
 import io
 import numpy as np
 import sounddevice as sd
+# print(sd.query_devices()) # DEBUG
 import torch
 import yaml
 from tqdm import tqdm
@@ -116,27 +117,30 @@ class BarkAudio(BaseAudio):
         
         my_cprint("Bark model loaded (float16)", "green")
         
-        self.model = self.model.to_bettertransformer()
+        # self.model = self.model.to_bettertransformer()
 
     @torch.inference_mode()
     def process_text_to_audio(self, sentences):
         for sentence in tqdm(sentences, desc="Processing Sentences"):
             if sentence.strip():
-                inputs = self.processor(text=sentence, voice_preset=self.config['speaker'], return_tensors="pt")
+                print(f"Processing sentence: {sentence}")
                 try:
+                    inputs = self.processor(text=sentence, voice_preset=self.config['speaker'], return_tensors="pt")
+                    inputs = {k: v.to(self.device) if hasattr(v, 'to') else v 
+                            for k, v in inputs.items()}
+                    
                     speech_output = self.model.generate(
-                        **inputs.to(self.device),
+                        **inputs,
                         use_cache=True,
                         do_sample=True,
-                        # temperature=0.2,
-                        # top_k=50,
-                        # top_p=0.95,
                         pad_token_id=0,
                     )
+                    
                     audio_array = speech_output[0].cpu().numpy()
                     audio_array = np.int16(audio_array / np.max(np.abs(audio_array)) * 32767)
                     self.audio_queue.put((audio_array, self.model.generation_config.sample_rate))
-                except Exception:
+                except Exception as e:
+                    print(f"Exception during audio generation: {str(e)}")
                     continue
         self.audio_queue.put(None)
 
@@ -203,6 +207,8 @@ class ChatTTSAudio:
             device=device,
             compile=False
         )
+        
+        self.chat.pretrain_models["tokenizer"].pad_token = '[PAD]'
 
         # consistent seeds are 194, 42, 11, 20 (female), 81 (female), 84 (female), 194
         self.rand_spk = self.chat.sample_random_speaker(seed=11)
