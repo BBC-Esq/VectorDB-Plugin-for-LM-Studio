@@ -199,8 +199,8 @@ class BarkModelSettingsTab(QWidget):
         tts_config = config.get('tts', {})
         if self.use_bark_radio.isChecked():
             tts_config['model'] = 'bark'
-        elif self.use_chattts_radio.isChecked():
-            tts_config['model'] = 'chattts'
+        # elif self.use_chattts_radio.isChecked():
+            # tts_config['model'] = 'chattts'
         elif self.use_googletts_radio.isChecked():
             tts_config['model'] = 'googletts'
         else:
