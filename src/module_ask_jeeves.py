@@ -1,6 +1,5 @@
 import json
 import subprocess
-import sys
 import platform
 import signal
 import os
@@ -12,8 +11,8 @@ import requests
 import sseclient
 from huggingface_hub import snapshot_download
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QTextEdit, QLineEdit, QCommandLinkButton, QMessageBox,
+    QMainWindow, QWidget, QVBoxLayout,
+    QTextEdit, QLineEdit, QMessageBox,
     QLabel, QApplication, QProgressDialog
 )
 from PySide6.QtCore import QThread, Signal, QObject, Qt

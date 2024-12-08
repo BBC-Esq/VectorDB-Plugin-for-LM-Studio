@@ -56,6 +56,7 @@ class ManageDatabasesTab(QWidget):
 
         self.database_info_layout = QHBoxLayout()
         self.database_info_label = QLabel("No database selected.")
+        self.database_info_label.setTextFormat(Qt.RichText)
         self.database_info_layout.addWidget(self.database_info_label)
         self.layout.addLayout(self.database_info_layout)
 
@@ -122,7 +123,11 @@ class ManageDatabasesTab(QWidget):
                         model_name = Path(model_path).name
                         chunk_size = db_config.get('chunk_size', '')
                         chunk_overlap = db_config.get('chunk_overlap', '')
-                        info_text = f"DB name:  \"{selected_database}\"   |   Created with \"{model_name}\"   |   Chunk  size/overlap = {chunk_size} / {chunk_overlap}."
+                        info_text = (f'<span style="color: #4CAF50;"><b>Name:</b></span> "{selected_database}" '
+                                     f'<span style="color: #888;">|</span> '
+                                     f'<span style="color: #2196F3;"><b>Model:</b></span> "{model_name}" '
+                                     f'<span style="color: #888;">|</span> '
+                                     f'<span style="color: #FF9800;"><b>Chunk size/overlap:</b></span> {chunk_size} / {chunk_overlap}')
                         self.database_info_label.setText(info_text)
                 else:
                     self.database_info_label.setText("Configuration missing.")

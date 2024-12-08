@@ -407,6 +407,16 @@ VECTOR_MODELS = {
             'type': 'vector',
             'precision': 'float16'
         },
+        {
+            'name': 'sentence-t5-xxl',
+            'dimensions': 768,
+            'max_sequence': 256,
+            'size_mb': 9230,
+            'repo_id': 'sentence-transformers/sentence-t5-xxl',
+            'cache_dir': 'sentence-transformers--sentence-t5-xxl',
+            'type': 'vector',
+            'precision': 'float16'
+        },
     ],
     'thenlper': [
         {
@@ -929,7 +939,7 @@ TOOLTIPS = {
     "</table>"
     "</body>"
     "</html>"
-),
+    ),
     "VECTOR_MODEL_SELECT": "Choose a vector model to download.",
     "VECTOR_MODEL_SIZE": "Size on disk.",
     "VISION_MODEL": "Select vision model for image processing. Test before bulk processing.",
@@ -937,8 +947,6 @@ TOOLTIPS = {
     "WHISPER_BATCH_SIZE": "Batch size for transcription. See the User Guid for optimal values.",
     "WHISPER_MODEL_SELECT": "Distil models use ~ 70% VRAM of their non-Distil equivalents with little quality loss."
 }
-
-
 
 scrape_documentation = {
     "Accelerate 0.34.2": {

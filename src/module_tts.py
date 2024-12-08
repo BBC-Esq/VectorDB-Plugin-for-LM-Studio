@@ -104,10 +104,8 @@ class BarkAudio(BaseAudio):
     def initialize_model_and_processor(self):
         repository_id = "suno/bark" if self.config['size'] == 'normal' else f"suno/bark-{self.config['size']}"
         
-        # processor
         self.processor = AutoProcessor.from_pretrained(repository_id, cache_dir=CACHE_DIR)
         
-        # model
         self.model = BarkModel.from_pretrained(
             repository_id,
             torch_dtype=torch.float16,
@@ -133,6 +131,9 @@ class BarkAudio(BaseAudio):
                         **inputs,
                         use_cache=True,
                         do_sample=True,
+                        # temperature=0.2,
+                        # top_k=50,
+                        # top_p=0.95,
                         pad_token_id=0,
                     )
                     

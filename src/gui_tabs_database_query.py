@@ -15,41 +15,45 @@ from constants import CHAT_MODELS
 from module_voice_recorder import VoiceRecorder
 from utilities import check_preconditions_for_submit_question, my_cprint
 from constants import TOOLTIPS
-from database_interactions import QueryVectorDB
+from database_interactions import QueryVectorDB, process_chunks_only_query
 
 current_dir = Path(__file__).resolve().parent
 input_text_file = str(current_dir / 'chat_history.txt')
 
 
-class DatabaseQueryThread(QThread):
+class ChunksOnlyThread(QThread):
     chunks_ready = Signal(str)
 
     def __init__(self, query, database_name):
         super().__init__()
         self.query = query
         self.database_name = database_name
+        self.process = None
 
     def run(self):
         try:
-            query_db = QueryVectorDB(self.database_name)
-            contexts, metadata_list = query_db.search(self.query)
-            formatted_chunks = self.format_chunks(contexts, metadata_list)
-            self.chunks_ready.emit(formatted_chunks)
+            result_queue = multiprocessing.Queue()
+            
+            self.process = multiprocessing.Process(
+                target=process_chunks_only_query,
+                args=(self.database_name, self.query, result_queue)
+            )
+            self.process.start()
+            
+            result = result_queue.get()
+            self.chunks_ready.emit(result)
+            
+            self.process.join()
+            self.process = None
+            
         except Exception as e:
-            logging.exception(f"Error in database query thread: {e}")
+            logging.exception(f"Error in chunks only thread: {e}")
             self.chunks_ready.emit(f"Error querying database: {str(e)}")
 
-    @staticmethod
-    def format_chunks(contexts, metadata_list):
-        formatted_contexts = []
-        for index, (context, metadata) in enumerate(zip(contexts, metadata_list), start=1):
-            file_name = metadata.get('file_name', 'Unknown')
-            formatted_context = (
-                f"---------- Context {index} | From File: {file_name} ----------\n"
-                f"{context}\n"
-            )
-            formatted_contexts.append(formatted_context)
-        return "\n".join(formatted_contexts)
+    def stop(self):
+        if self.process and self.process.is_alive():
+            self.process.terminate()
+            self.process.join()
 
 def run_tts_in_process(config_path, input_text_file):
     from module_tts import run_tts  # Import here to avoid potential circular imports
@@ -250,9 +254,8 @@ class DatabaseQueryTab(QWidget):
         chunks_only = self.chunks_only_checkbox.isChecked()
         
         selected_database = self.database_pulldown.currentText()
-
         if chunks_only: # only get chunks
-            self.database_query_thread = DatabaseQueryThread(user_question, selected_database)
+            self.database_query_thread = ChunksOnlyThread(user_question, selected_database)
             self.database_query_thread.chunks_ready.connect(self.display_chunks)
             self.database_query_thread.finished.connect(self.on_database_query_finished)
             self.database_query_thread.start()

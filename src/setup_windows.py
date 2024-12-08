@@ -23,7 +23,6 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 +--------------+------------------------------------------------------------------+
 * Per the next table, "cu124" and "cu121" refer to compatibility with CUDA release 12.4.1 and 12.1.1 specifically.
 
-
 *************************************************
 * PyTorch Dependencies and Version Requirements
 *************************************************
@@ -45,7 +44,6 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 * 12.4.127 and 12.4.5.8 stem from CUDA release 12.4.1 specifically
 * In other words, torch is not 100% compatible with CUDA 12.1.0 or 12.4.0, for example, or any other version.
 
-
 ********************************************
 * cuDNN and CUDA Compatibility Matrix
 ********************************************
@@ -53,7 +51,6 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 # cuDNN is different...
 # First, according to Nvidia, cuDNN 8.9.2.26 is only compatible up to CUDA 12.2
 # Second, for cuDNN 9+ Nvidia promises compatibility for all 12.x releases, but the cuDNN + CUDA combination still controls static linking:
-
 +---------------+-----------------+-------------------------+
 | cuDNN Version | Static Linking  | No Static Linking       |
 +---------------+-----------------+-------------------------+
@@ -68,7 +65,6 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 | 9.1.1         | 12.5-12.0, 11.8 | ≤11.7                   |
 +---------------+-----------------+-------------------------+
 * 9.2+ continues the same trend
-
 
 *********************************************
 * PyTorch Official Release Compatibility
@@ -87,7 +83,6 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 +-----------------+----------------------------+-------------------------------------------------+---------------------------+
 | 2.2             | >=3.8, <=3.11, (3.12 exp.) | CUDA 11.8, CUDNN 8.7.0.84                       | CUDA 12.1, CUDNN 8.9.2.26 |
 +-----------------+----------------------------+-------------------------------------------------+---------------------------+
-
 
 *********************************
 * Xformers Version Compatibility
@@ -109,7 +104,8 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 
 # old repo for windows triton: https://github.com/jakaline-dev/Triton_win/releases
 # new repo for windows triton: https://github.com/woct0rdho/triton-windows/releases
-
+# "Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x."
+# "The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x."
 
 *****************************************
 * Flash Attention 2 (FA2) Compatibility
@@ -117,24 +113,29 @@ from replace_sourcecode import replace_pdf_file, replace_instructor_file, replac
 
 # this table represents the version of Torch and CUDA that FA2 is compatible with
 # based on flash-attention/.github/workflows/publish.yml
-+-----------------------+---------------------------------------+----------------+
-| FA2 Version  | Torch Versions Supported                      | CUDA Versions  |
-+--------------+-----------------------------------------------+----------------+
-| v2.7.1.post4 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
-| v2.7.1.post3 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
-| v2.7.1.post2 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
-| v2.7.1.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241010 | 11.8.0, 12.4.1 |
-| v2.7.1       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241010 | 11.8.0, 12.4.1 |
-| v2.7.0.post2 | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
-| v2.7.0.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
-| v2.7.0       | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.3.2 |
-| v2.6.3       | 2.2.2, 2.3.1, 2.4.0                           | 11.8.0, 12.3.2 |
-| v2.6.2       | 2.2.2, 2.3.1, 2.4.0.dev20240527               | 11.8.0, 12.3.2 |
-| v2.6.1       | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.3.2 |
-| v2.6.0.post1 | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.2.2 |
-| v2.6.0       | 2.2.2, 2.3.1, 2.4.0.dev20240512               | 11.8.0, 12.2.2 |
-| v2.5.9.post1 | 2.2.2, 2.3.0, 2.4.0.dev20240407               | 11.8.0, 12.2.2 |
-+--------------+-----------------------------------------------+----------------+
++---------------+-----------------------------------------------+----------------+
+| FA2 Version   | Torch Versions Supported                      | CUDA Versions  |
++---------------+-----------------------------------------------+----------------+
+| v2.7.1.post4  | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post3  | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post2  | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post1* | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241010 | 11.8.0, 12.4.1 |
+| v2.7.1        | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241010 | 11.8.0, 12.4.1 |
+| v2.7.0.post2* | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
+| v2.7.0.post1  | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
+| v2.7.0        | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.3.2 |
+| v2.6.3*       | 2.2.2, 2.3.1, 2.4.0                           | 11.8.0, 12.3.2 |
+| v2.6.2        | 2.2.2, 2.3.1, 2.4.0.dev20240527               | 11.8.0, 12.3.2 |
+| v2.6.1*       | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.3.2 |
+| v2.6.0.post1  | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.2.2 |
+| v2.6.0        | 2.2.2, 2.3.1, 2.4.0.dev20240512               | 11.8.0, 12.2.2 |
+| v2.5.9.post1* | 2.2.2, 2.3.0, 2.4.0.dev20240407               | 11.8.0, 12.2.2 |
++---------------+-----------------------------------------------+----------------+
+* has a corresponding Windows build
+* https://github.com/bdashore3/flash-attention/releases/
+
+Adding support for Python 3.12 will be a huge effort.
+Suspect libraries sare langchain, pydantic, aiohttp, and possibly more.
 """
 
 start_time = time.time()
@@ -286,21 +287,23 @@ priority_libraries = [
 ]
 
 other_libraries = [
-    "accelerate==1.1.1",
+    "accelerate==1.2.0",
     "aiofiles==24.1.0",
-    "aiohappyeyeballs==2.4.3",
-    "aiohttp==3.10.10",
+    "aiohappyeyeballs==2.4.4",
+    "aiohttp==3.11.10",
     "aiosignal==1.3.1",
     "anndata==0.11.1",
     "annotated-types==0.7.0",
     "antlr4-python3-runtime==4.9.3", # omegaconf 2.3.0 requires 4.9.*
-    "anyio==4.6.2.post1",
+    "anyio==4.7.0",
+    "argcomplete==3.5.2", # required by minicpm3 chat, datamodel-code-generator 0.26.2 requires >=1.10,<4.0
     "array_api_compat==1.9.1",
     "attrs==24.2.0",
-    "av==13.1.0",
+    "av==14.0.1",
     "backoff==2.2.1",
     "beautifulsoup4==4.12.3",
-    "bitsandbytes==0.44.1",
+    "bitsandbytes==0.45.0",
+    "black==24.10.0", # required by minicpm3 chat, datamodel-code-generator requires >=19.10b0
     "braceexpand==0.1.7",
     "certifi==2024.8.30",
     "cffi==1.17.1",
@@ -308,49 +311,56 @@ other_libraries = [
     "charset-normalizer==3.4.0",
     "chattts-fork==0.0.8",
     "click==8.1.7",
-    "cloudpickle==2.2.1", # tiledb-cloud 0.12.29 requires less than 3.0.0
+    "cloudpickle==2.2.1", # tiledb-cloud 0.12.31 requires >=1.4.1,<3
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "ctranslate2==4.5.0",
     "cycler==0.12.1",
     "dataclasses-json==0.6.7",
     "datasets==3.1.0",
-    "datamodel-code-generator==0.26.3",
+    "datamodel-code-generator==0.26.2", # required by minicpm3 chat
     "deepdiff==8.0.1",
-    "dill==0.3.8", # datasets 3.1.0 requires less than 0.3.9
+    "dill==0.3.8", # datasets 3.1.0 requires >=0.3.0,<0.3.9
     "distro==1.9.0",
+    "dnspython==2.7.0", # required by minicpm3 chat
     "docx2txt==0.8",
     "einops==0.8.0",
     "einx==0.3.0",
+    "email-validator==2.2.0", # required by minicpm3 chat
     "emoji==2.14.0",
     "encodec==0.1.1",
-    "et-xmlfile==1.1.0", # openpyxl requires; hesitate to upgrade since openpyxl's most recent version pre-dates et-xmlfile 2+
-    "fastcore==1.7.20",
+    "et-xmlfile==1.1.0", # openpyxl requires; caution...openpyxl 3.1.5 (6/28/2024) predates et-xmlfile 2.0.0 (10/25/2024)
+    "fastcore==1.7.24",
     "fastprogress==1.0.3", # only required by whisperspeech
     "filetype==1.2.0",
     "filelock==3.16.1",
     "frozendict==2.4.6",
     "frozenlist==1.5.0",
-    "fsspec==2024.5.0", # datasets 3.1.0 requires less than or equal to <=2024.9.0,>=2023.1.0
+    "fsspec==2024.9.0", # datasets 3.1.0 requires >=2023.1.0,<=2024.9.0
+    "genson==1.3.0", # required by minicpm3 chat; datamodel-code-generator requires >=1.2.1,<2.0
     "greenlet==3.1.1",
     "gTTS==2.5.3",
     "h11==0.14.0",
     "h5py==3.12.1",
     "httpcore==1.0.7",
-    "httpx==0.27.2",
+    "httpx==0.28.1",
     "httpx-sse==0.4.0",
-    "huggingface-hub==0.26.2",
+    "huggingface-hub==0.26.5", # tokenizers 0.20.3 requires >=0.16.4,<1.0
     "humanfriendly==10.0",
     "HyperPyYAML==1.2.2",
     "idna==3.10",
     "importlib_metadata==8.5.0",
+    "inflect==5.6.2", # required by minicpm3 chat; datamodel-code-generator 0.26.2 requires >=4.1.0,<6.0
+    "isort==5.13.2", # required by minicpm3 chat; datamodel-code-generator requires >=4.3.21,<6.0
     "InstructorEmbedding==1.0.1",
-    "Jinja2==3.1.4", # datamodel-code-generator 0.26.2 requires less than 4.0
-    "jiter==0.7.1", # required by openai newer versions
+    "Jinja2==3.1.4", # datamodel-code-generator 0.26.2 requires >=2.10.1,<4.0
+    "jiter==0.8.0", # required by openai newer versions
     "joblib==1.4.2",
     "jsonpatch==1.33",
     "jsonpath-python==1.0.6",
     "jsonpointer==3.0.0",
+    "jsonschema==4.23.0", # required by minicpm3 chat
+    "jsonschema-specifications==2024.10.1", # required by minicpm3 chat; jsonschema 4.23.0 requires >=2023.03.6
     "kiwisolver==1.4.7",
     "langchain-community==0.2.17",
     "langchain-core==0.2.43",
@@ -373,13 +383,13 @@ other_libraries = [
     "markdown-it-py==3.0.0",
     "MarkupSafe==3.0.2",
     "marshmallow==3.23.1", # dataclasses-json 0.6.7 requires less than 4.0
-    "matplotlib==3.9.2", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
+    "matplotlib==3.9.3", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
     "mdurl==0.1.2",
     "more-itertools==10.5.0",
     "mpmath==1.3.0", # sympy 1.12.1 requires less than 1.4
     "msg-parser==1.2.0",
     "multidict==6.1.0",
-    "multiprocess==0.70.16", # datasets 3.1.0 requires multiprocess less than 0.70.17
+    "multiprocess==0.70.16", # datasets 3.1.0 requires <0.70.17
     "mypy-extensions==1.0.0",
     "natsort==8.4.0",
     "nest-asyncio==1.6.0",
@@ -408,24 +418,26 @@ other_libraries = [
     "nvidia-ml-py==12.560.30",
     "olefile==0.47",
     "omegaconf==2.3.0",
-    "openai==1.55.0", # only required by chat_lm_studio.py script
+    "openai==1.57.0", # only required by chat_lm_studio.py script
     "openai-whisper==20231117", # only required by whisper_s2t if using openai vanilla backend
     "openpyxl==3.1.5",
     "optimum==1.23.3",
     "ordered-set==4.1.0",
     "orderly-set==5.2.2", # deepdiff 8.0.1 requires 5.2.2
     "orjson==3.10.12",
-    "packaging==24.1",
+    "packaging==24.2",
     "pandas==2.2.3",
+    "pathspec==0.12.1", # required by minicpm3 chat
+    "peft==0.14.0", # only required by mississippi model
     "pillow==11.0.0",
     "platformdirs==4.3.6",
-    "propcache==0.2.0",
-    "protobuf==5.28.3",
+    "propcache==0.2.1",
+    "protobuf==5.29.1",
     "psutil==6.1.0",
-    "pyarrow==18.0.0",
+    "pyarrow==18.1.0",
     "pyarrow-hotfix==0.6",
     "pycparser==2.22",
-    "pydantic==2.9.2",
+    "pydantic==2.9.2", # datamodel-code-generator requires >=1.10.0,<3.0,!=2.4.0
     "pydantic_core==2.23.4", # pydantic 2.9.2 requires 2.23.4
     # "pydantic-settings==2.6.1", # not sure if required...
     "Pygments==2.18.0",
@@ -436,15 +448,17 @@ other_libraries = [
     "python-dateutil==2.9.0.post0",
     "python-docx==1.1.2",
     # "python-dotenv==1.0.1", # only required by pydantic-settings
-    "python-iso639==2024.4.27",
+    "python-iso639==2024.10.22",
     "python-magic==0.4.27",
     "pytz==2024.2",
     "PyYAML==6.0.2",
     "rapidfuzz==3.10.1",
+    "referencing==0.35.1", # required by minicpm3 chat
     "regex==2024.9.11", # 2024.11.6 is the newest version but pypi gives an error for some reason
     "requests==2.32.3",
     "requests-toolbelt==1.0.0",
     "rich==13.9.4",
+    "rpds-py==0.22.3", # required by minicpm3 chat
     "ruamel.yaml==0.18.6",
     "ruamel.yaml.clib==0.2.12",
     "safetensors==0.4.5",
@@ -452,7 +466,7 @@ other_libraries = [
     "scipy==1.14.1",
     "sentence-transformers==3.0.1",
     "sentencepiece==0.2.0",
-    "six==1.16.0",
+    "six==1.17.0",
     "sniffio==1.3.1",
     "sounddevice==0.5.1",
     "soundfile==0.12.1",
@@ -462,56 +476,41 @@ other_libraries = [
     "sseclient-py==1.8.0",
     "sympy==1.12.1", # anything above is not compatible with llava-next-vicuna vision models
     "tabulate==0.9.0",
-    "tblib==1.7.0",
-    "tenacity==8.5.0", # langchain requires less than 9.0.0
+    "tblib==1.7.0", # tiledb-cloud requires >=1.7.0, <2.0.0
+    "tenacity==8.5.0", # langchain requires >=8.1.0,<9.0.0,!=8.4.0
     "termcolor==2.5.0",
     "threadpoolctl==3.5.0",
     "tiktoken==0.8.0",
     "tiledb==0.32.5",
-    "tiledb-cloud==0.12.29",
+    "tiledb-cloud==0.12.31",
     "tiledb-vector-search==0.10.3",
-    "timm==1.0.11",
-    "tokenizers==0.20.3",
-    "tqdm==4.66.6",
-    "transformers==4.46.3",
+    "timm==1.0.12",
+    "tokenizers==0.21.0",
+    "tqdm==4.67.1",
+    "transformers==4.47.0",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
     "unstructured-client==0.24.1",
     "tzdata==2024.2",
     "urllib3==2.2.3",
-    "vector-quantize-pytorch==1.15.3",
+    "vector-quantize-pytorch==1.20.11",
     "vocos==0.1.0",
     "watchdog==6.0.0",
-    "webdataset==0.2.86",
+    # "webdataset==0.2.86",
+    "webdataset==0.2.100",
     "wrapt==1.17.0",
     "xformers==0.0.25.post1", # highly-specific to torch version
-    # "xformers==0.0.27.post2", # requires torch 2.4.0
+    # "xformers==0.0.28.post1", # requires torch 2.4.1
     "xlrd==2.0.1",
     "xxhash==3.5.0",
     # "yarl==1.12.0", # langchain-related libraries and optimum require less than 2.0
-    "yarl==1.18.0", # langchain-related libraries and optimum require less than 2.0
+    "yarl==1.18.3", # langchain-related libraries and optimum require less than 2.0
     "zipp==3.21.0",
-    # the following are only required by minicpm3 chat model
-    "argcomplete==3.5.1", # datamodel-code-generator 0.26.2 requires >=1.10,<4.0
-    "black==24.10.0",
-    "datamodel-code-generator==0.26.2",
-    "dnspython==2.7.0",
-    "email-validator==2.2.0",
-    "genson==1.3.0", # datamodel-code-generator requires less than 2.0
-    "inflect==5.6.2", # datamodel-code-generator 0.26.2 requires >=4.1.0,<6.0
-    "isort==5.13.2", # datamodel-code-generator requires less than 6.0
-    "jsonschema==4.23.0",
-    "jsonschema-specifications==2024.10.1", # jsonschema 4.23.0 requires >=2023.03.6
-    "pathspec==0.12.1",
-    "referencing==0.35.1",
-    "rpds-py==0.21.0",
-    # the following are only required by mississippi vision model
-    "peft==0.13.2",
 ]
 
 full_install_libraries = [
-    "PySide6==6.8.0.2",
-    "pymupdf==1.24.14",
+    "PySide6==6.8.1",
+    "pymupdf==1.25.0",
     "unstructured==0.13.4"
 ]
 
