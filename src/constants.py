@@ -979,14 +979,9 @@ scrape_documentation = {
         "URL": "https://beautiful-soup-4.readthedocs.io/en/latest/",
         "folder": "beautiful_soup_4"
     },
-    "bitsandbytes 0.43.3": {
-        "URL": "https://huggingface.co/docs/bitsandbytes/v0.43.3/en/",
-        "folder": "bitsandbytes_0433",
-        "scraper_class": "HuggingfaceScraper"
-    },
-    "bitsandbytes 0.44.1": {
-        "URL": "https://huggingface.co/docs/bitsandbytes/v0.44.1/en/",
-        "folder": "bitsandbytes_0441",
+    "bitsandbytes 0.45.0": {
+        "URL": "https://huggingface.co/docs/bitsandbytes/v0.45.0/en/",
+        "folder": "bitsandbytes_0450",
         "scraper_class": "HuggingfaceScraper"
     },
     "Black": {
@@ -1049,9 +1044,9 @@ scrape_documentation = {
         "URL": "https://gtts.readthedocs.io/en/latest/",
         "folder": "gtts"
     },
-    "Huggingface Hub 0.26.2": {
-        "URL": "https://huggingface.co/docs/huggingface_hub/v0.26.2/en/",
-        "folder": "huggingface_hub_0262",
+    "Huggingface Hub 0.26.5": {
+        "URL": "https://huggingface.co/docs/huggingface_hub/v0.26.5/en/",
+        "folder": "huggingface_hub_0265",
         "scraper_class": "HuggingfaceScraper"
     },
     "isort": {
@@ -1166,6 +1161,10 @@ scrape_documentation = {
         "URL": "https://numpy.org/doc/1.26/",
         "folder": "numpy_126"
     },
+    "NumPy 2.1": {
+        "URL": "https://numpy.org/doc/2.1/",
+        "folder": "numpy_21"
+    },
     "OmegaConf 2.2": {
         "URL": "https://omegaconf.readthedocs.io/en/2.2_branch/",
         "folder": "omegaconf_22"
@@ -1181,11 +1180,6 @@ scrape_documentation = {
     "openpyxl": {
         "URL": "https://openpyxl.readthedocs.io/en/stable/",
         "folder": "openpyxl"
-    },
-    "Optimum 1.22.0": {
-        "URL": "https://huggingface.co/docs/optimum/v1.22.0/en/",
-        "folder": "optimum_1220",
-        "scraper_class": "HuggingfaceScraper"
     },
     "Optimum 1.23.3": {
         "URL": "https://huggingface.co/docs/optimum/v1.23.3/en/",
@@ -1240,14 +1234,9 @@ scrape_documentation = {
         "URL": "https://pymupdf.readthedocs.io/en/latest/",
         "folder": "pymupdf"
     },
-    "PyPDF 4.3.1": {
-        "URL": "https://pypdf.readthedocs.io/en/4.3.1/",
-        "folder": "pypdf_431",
-        "scraper_class": "ReadthedocsScraper"
-    },
-    "PyPDF 5.0.1": {
-        "URL": "https://pypdf.readthedocs.io/en/5.0.1/",
-        "folder": "pypdf_501",
+    "PyPDF 5.1.0": {
+        "URL": "https://pypdf.readthedocs.io/en/5.1.0/",
+        "folder": "pypdf_510",
         "scraper_class": "ReadthedocsScraper"
     },
     "PyTorch Lightning": {
@@ -1374,73 +1363,29 @@ scrape_documentation = {
         "folder": "timm_1011",
         "scraper_class": "HuggingfaceScraper"
     },
-    "torch 2.2": {
-        "URL": "https://pytorch.org/docs/2.2/",
-        "folder": "torch_22"
+    "torch 2.5": {
+        "URL": "https://pytorch.org/docs/2.5/",
+        "folder": "torch_25"
     },
-    "torch 2.3": {
-        "URL": "https://pytorch.org/docs/2.3/",
-        "folder": "torch_23"
-    },
-    "torch 2.4": {
-        "URL": "https://pytorch.org/docs/2.4/",
-        "folder": "torch_24"
-    },
-    "Torchaudio 2.2": {
-        "URL": "https://pytorch.org/audio/2.2.0/",
-        "folder": "torchaudio_22"
-    },
-    "Torchaudio 2.3": {
-        "URL": "https://pytorch.org/audio/2.3.0/",
-        "folder": "torchaudio_23"
-    },
-    "Torchaudio 2.4": {
-        "URL": "https://pytorch.org/audio/2.4.0/",
-        "folder": "torchaudio_24"
+    "Torchaudio 2.5": {
+        "URL": "https://pytorch.org/audio/2.5.0/",
+        "folder": "torchaudio_25"
     },
     "Torchmetrics": {
         "URL": "https://lightning.ai/docs/torchmetrics/stable/",
         "folder": "torchmetrics"
     },
-    "Torchvision 0.17": {
-        "URL": "https://pytorch.org/vision/0.17/",
-        "folder": "torchvision_017"
-    },
-    "Torchvision 0.18": {
-        "URL": "https://pytorch.org/vision/0.18/",
-        "folder": "torchvision_018"
-    },
-    "Torchvision 0.19": {
-        "URL": "https://pytorch.org/vision/0.19/",
-        "folder": "torchvision_019"
+    "Torchvision 0.20": {
+        "URL": "https://pytorch.org/vision/0.20/",
+        "folder": "torchvision_020"
     },
     "tqdm": {
         "URL": "https://tqdm.github.io",
         "folder": "tqdm"
     },
-    "Transformers 4.43.4": {
-        "URL": "https://huggingface.co/docs/transformers/v4.43.4/en/",
-        "folder": "transformers_4434",
-        "scraper_class": "HuggingfaceScraper"
-    },
-    "Transformers 4.44.2": {
-        "URL": "https://huggingface.co/docs/transformers/v4.44.2/en/",
-        "folder": "transformers_4442",
-        "scraper_class": "HuggingfaceScraper"
-    },
-    "Transformers 4.45.2": {
-        "URL": "https://huggingface.co/docs/transformers/v4.45.2/en/",
-        "folder": "transformers_4452",
-        "scraper_class": "HuggingfaceScraper"
-    },
-    "Transformers 4.46.2": {
-        "URL": "https://huggingface.co/docs/transformers/v4.46.2/en/",
-        "folder": "transformers_4462",
-        "scraper_class": "HuggingfaceScraper"
-    },
-    "Transformers 4.46.3": {
-        "URL": "https://huggingface.co/docs/transformers/v4.46.3/en",
-        "folder": "transformers_4463",
+    "Transformers 4.47.1": {
+        "URL": "https://huggingface.co/docs/transformers/v4.47.1/en",
+        "folder": "transformers_4471",
         "scraper_class": "HuggingfaceScraper"
     },
     "Transformers.js 3.0.0": {
@@ -2166,6 +2111,16 @@ GPUS_INTEL = {
         "Brand": "Intel",
         "Size (GB)": 6,
         "Shading Cores": 1024
+    },
+    "Intel Arc B570": {
+        "Brand": "Intel",
+        "Size (GB)": 10,
+        "Shading Cores": 2304
+    },
+    "Intel Arc B580": {
+        "Brand": "Intel",
+        "Size (GB)": 12,
+        "Shading Cores": 2560
     },
     "Intel Arc A580": {
         "Brand": "Intel",
