@@ -181,9 +181,30 @@ class ScraperWorker(QObject):
 
     def sanitize_filename(self, url):
         url = url.split('#')[0]
-        filename = url.replace("https://", "").replace("http://", "").replace("/", "_").replace("?", "_")
-        if filename.endswith('.html'):
-            filename = filename[:-5]
+        
+        while '[' in url and ']' in url:
+            start = url.find('[')
+            end = url.find(']')
+            if start < end:
+                url = url[:start] + url[end+1:]
+                
+        while '(' in url and ')' in url:
+            start = url.find('(')
+            end = url.find(')')
+            if start < end:
+                url = url[:start] + url[end+1:]
+        
+        filename = url.replace("https://", "").replace("http://", "")
+        
+        unsafe_chars = '<>:"/\\|?*'
+        for char in unsafe_chars:
+            filename = filename.replace(char, '_')
+            
+        if len(filename) > 200:
+            filename = filename[:200]
+            
+        filename = filename.rstrip('. ')
+        
         return filename
 
     async def log_failed_url(self, url, log_file):
