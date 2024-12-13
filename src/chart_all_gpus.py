@@ -25,7 +25,6 @@ def create_gpu_comparison_plot(min_vram_threshold=6, max_vram_threshold=8):
     shading_cores_intel = [item[1]["Shading Cores"] for item in sorted_intel]
     sizes_intel = [item[1]["Size (GB)"] for item in sorted_intel]
 
-    # Combine data
     names = names_amd + names_nvidia + names_intel
     sizes = sizes_amd + sizes_nvidia + sizes_intel
     compute_units = shaders_amd + cuda_cores_nvidia + shading_cores_intel
@@ -91,7 +90,6 @@ def create_gpu_comparison_plot(min_vram_threshold=6, max_vram_threshold=8):
         plt.Line2D([0], [0], color='orange', marker='o', linestyle='-', label='VRAM (GB)')
     ]
 
-    # Add combined legend to ax2
     ax2.legend(handles=legend_elements, loc='upper right', facecolor='#4A4A4A', edgecolor='white', labelcolor='white')
 
     # Set spine colors
@@ -109,7 +107,6 @@ def create_gpu_comparison_plot(min_vram_threshold=6, max_vram_threshold=8):
     ax2.set_xticks(vram_lines)
     ax2.set_xlim(0, 25)
 
-    # Adjust layout
     plt.subplots_adjust(left=0.25, right=0.9, top=0.9, bottom=0.1)
     
     return fig
