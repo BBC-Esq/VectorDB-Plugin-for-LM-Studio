@@ -21,7 +21,8 @@ def create_chat_models_comparison_plot():
                 "Exaone - 2.4b",
                 "Exaone - 7.8b",
                 "Qwen 2.5 - 14b",
-                "Mistral Small - 22b",
+                "Mistral Small - 22b"
+                "Exaone - 32b",
             ],
             "color": "#2E8B57",
             "label": "8k Context"
