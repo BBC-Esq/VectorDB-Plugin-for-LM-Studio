@@ -6,31 +6,21 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 MODEL_MAX_TOKENS = {
     'Qwen 2.5 - 1.5b': 4096,
     'Qwen 2.5 Coder - 1.5b': 4096,
-    'Zephyr - 1.6b': 4096,
-    'Zephyr - 3b': 4096,
-    'Qwen 2.5 - 3b': 4096,
-    'Llama 3.2 - 3b': 4096,
     'Qwen 2.5 Coder - 3b': 4096,
-    # 'MiniCPM3 - 4b': 4096 # anomaly; good with lots of contexts but poor with long responses
 }
 
 # overrides max_new_tokens parameter of 1024
 MODEL_MAX_NEW_TOKENS = {
     'Qwen 2.5 - 1.5b': 512,
     'Qwen 2.5 Coder - 1.5b': 512,
-    'Zephyr - 1.6b': 512,
-    'Zephyr - 3b': 512,
-    'Qwen 2.5 - 3b': 512,
     'Qwen 2.5 Coder - 3b': 512,
-    'MiniCPM3 - 4b': 512,
-    'Marco-o1 - 7b': 4096
 }
 
 CHAT_MODELS = {
-    'Qwen 2.5 - 1.5b': {
+    'Qwen 2.5 - 1.5b': { # dictionary key
         'model': 'Qwen 2.5 - 1.5b', # what's displayed in the combobox
-        'repo_id': 'Qwen/Qwen2.5-1.5B-Instruct', # hf repo
-        'cache_dir': 'Qwen--Qwen2.5-1.5B-Instruct', # folder to save
+        'repo_id': 'Qwen/Qwen2.5-1.5B-Instruct', # hf repo id
+        'cache_dir': 'Qwen--Qwen2.5-1.5B-Instruct', # save folder
         'cps': 261.31,
         'context_length': 32768, # not currently used
         'vram': 1749.97,
@@ -48,36 +38,25 @@ CHAT_MODELS = {
         'precision': 'bfloat16',
         'gated': False,
     },
-    'Zephyr - 1.6b': {
-        'model': 'Zephyr - 1.6b',
-        'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
-        'cache_dir': 'stabilityai--stablelm-2-zephyr-1_6b',
-        'cps': 375.77,
-        'context_length': 4096,
-        'vram': 2233.45,
-        'function': 'Zephyr_1_6B',
-        'precision': 'float16',
-        'gated': False,
-    },
-    'Zephyr - 3b': {
-        'model': 'Zephyr - 3b',
-        'repo_id': 'stabilityai/stablelm-zephyr-3b',
-        'cache_dir': 'stabilityai--stablelm-zephyr-3b',
-        'cps': 293.68,
-        'context_length': 4096,
-        'vram': 2733.85,
-        'function': 'Zephyr_3B',
-        'precision': 'bfloat16',
-        'gated': False,
-    },
-    'Qwen 2.5 - 3b': {
-        'model': 'Qwen 2.5 - 3b',
-        'repo_id': 'Qwen/Qwen2.5-3B-Instruct',
-        'cache_dir': 'Qwen--Qwen2.5-3B-Instruct',
-        'cps': 213.40,
+    # 'Zephyr - 1.6b': {
+        # 'model': 'Zephyr - 1.6b',
+        # 'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
+        # 'cache_dir': 'stabilityai--stablelm-2-zephyr-1_6b',
+        # 'cps': 375.77,
+        # 'context_length': 4096,
+        # 'vram': 2233.45,
+        # 'function': 'Zephyr_1_6B',
+        # 'precision': 'float16',
+        # 'gated': False,
+    # },
+    'Exaone - 2.4b': {
+        'model': 'Exaone - 2.4b',
+        'repo_id': 'LGAI-EXAONE/EXAONE-3.5-2.4B-Instruct',
+        'cache_dir': 'LGAI-EXAONE--EXAONE-3.5-2.4B-Instruct',
+        'cps': 224.08,
         'context_length': 32768,
-        'vram': 2864.89,
-        'function': 'QwenCoder_3b',
+        'vram': 2821.06,
+        'function': 'Exaone_2_4b',
         'gated': False,
     },
     'Qwen 2.5 Coder - 3b': {
@@ -90,46 +69,14 @@ CHAT_MODELS = {
         'function': 'QwenCoder_3b',
         'gated': False,
     },
-    'Llama 3.2 - 3b': {
-        'model': 'Llama 3.2 - 3b',
-        'repo_id': 'meta-llama/Llama-3.2-3B-Instruct',
-        'cache_dir': 'meta-llama--Llama-3.2-3B-Instruct',
-        'cps': 265.09,
+    'Exaone - 7.8b': {
+        'model': 'Exaone - 7.8b',
+        'repo_id': 'LGAI-EXAONE/EXAONE-3.5-7.8B-Instruct',
+        'cache_dir': 'LGAI-EXAONE--EXAONE-3.5-7.8B-Instruct',
+        'cps': 187.24,
         'context_length': 32768,
-        'vram': 3003.67,
-        'function': 'Llama_3_2_3b',
-        'gated': True,
-    },
-    'Phi 3.5 Mini - 4b': {
-        'model': 'Phi 3.5 Mini - 4b',
-        'repo_id': 'microsoft/Phi-3.5-mini-instruct',
-        'cache_dir': 'microsoft--Phi-3.5-mini-instruct',
-        'cps': 139.05,
-        'context_length': 8192,
-        'vram': 3957.12,
-        'function': 'Phi3_5_mini_4b',
-        'precision': 'bfloat16',
-        'gated': False,
-    },
-    'MiniCPM3 - 4b': {
-        'model': 'MiniCPM3 - 4b',
-        'repo_id': 'openbmb/MiniCPM3-4B',
-        'cache_dir': 'openbmb--MiniCPM3-4B',
-        'cps': 80.67,
-        'context_length': 8192,
-        'vram': 4998.10,
-        'function': 'MiniCPM3_4b',
-        'precision': 'bfloat16',
-        'gated': False,
-    },
-    'Qwen 2.5 - 7b': {
-        'model': 'Qwen 2.5 - 7b',
-        'repo_id': 'Qwen/Qwen2.5-7B-Instruct',
-        'cache_dir': 'Qwen--Qwen2.5-7B-Instruct',
-        'cps': 226.22,
-        'context_length': 32768,
-        'vram': 6766.57,
-        'function': 'Qwen2_5_7b',
+        'vram': 6281.91,
+        'function': 'Exaone_7_8b',
         'gated': False,
     },
     'Qwen 2.5 Coder - 7b': {
@@ -141,26 +88,6 @@ CHAT_MODELS = {
         'vram': 6760.18,
         'function': 'QwenCoder_7b',
         'precision': 'bfloat16',
-        'gated': False,
-    },
-    'Dolphin-Llama 3.1 - 8b': {
-        'model': 'Dolphin-Llama 3.1 - 8b',
-        'repo_id': 'cognitivecomputations/dolphin-2.9.4-llama3.1-8b',
-        'cache_dir': 'cognitivecomputations--dolphin-2.9.4-llama3.1-8b',
-        'cps': 228.31,
-        'context_length': 8192,
-        'vram': 6598.98,
-        'function': 'Dolphin_Llama3_1_8B',
-        'gated': False,
-    },
-    'Marco-o1 - 7b': {
-        'model': 'Marco-o1 - 7b',
-        'repo_id': 'AIDC-AI/Marco-o1',
-        'cache_dir': 'AIDC-AI--Marco-o1',
-        'cps': 42.51,
-        'context_length': 8192,
-        'vram': 7181.19,
-        'function': 'Marco_o1_7b',
         'gated': False,
     },
     'Qwen 2.5 Coder - 14b': {
@@ -205,15 +132,14 @@ CHAT_MODELS = {
         'function': 'QwenCoder_32b',
         'gated': False,
     },
-    'Qwen 2.5 - 32b': {
-        'model': 'Qwen 2.5 - 32b',
-        'repo_id': 'Qwen/Qwen2.5-32B-Instruct',
-        'cache_dir': 'Qwen--Qwen2.5-32B-Instruct',
+    'Exaone - 32b': {
+        'model': 'Exaone - 32b',
+        'repo_id': 'LGAI-EXAONE/EXAONE-3.5-32B-Instruct',
+        'cache_dir': 'LGAI-EXAONE--EXAONE-3.5-32B-Instruct',
         'cps': 101.51,
-        'context_length': 8192,
+        'context_length': 32768,
         'vram': 21128.30,
-        'function': 'Qwen_2_5_32b',
-        'precision': 'bfloat16',
+        'function': 'Exaone_32b',
         'gated': False,
     },
 }
@@ -454,6 +380,15 @@ VECTOR_MODELS = {
 }
 
 VISION_MODELS = {
+    'InternVL2.5 - 1b': {
+        'precision': 'bfloat16',
+        'quant': 'n/a',
+        'size': '1b',
+        'repo_id': 'OpenGVLab/InternVL2_5-1B',
+        'cache_dir': 'OpenGVLab--InternVL2_5-1B',
+        'requires_cuda': True,
+        'vram': '2.4 GB',
+    },
     'Florence-2-base': {
         'precision': 'autoselect',
         'quant': 'n/a',
@@ -462,6 +397,15 @@ VISION_MODELS = {
         'cache_dir': 'microsoft--Florence-2-base',
         'requires_cuda': False,
         'vram': '2.6 GB',
+    },
+    'InternVL2.5 - 4b': {
+        'precision': 'bfloat16',
+        'quant': '4-bit',
+        'size': '4b',
+        'repo_id': 'OpenGVLab/InternVL2_5-4B',
+        'cache_dir': 'OpenGVLab--InternVL2_5-4B',
+        'requires_cuda': True,
+        'vram': '3.2 GB',
     },
     'Moondream2 - 1.9b': {
         'precision': 'float16',
@@ -490,26 +434,17 @@ VISION_MODELS = {
         'requires_cuda': True,
         'vram': '5.3 GB',
     },
-    'Llava 1.6 Vicuna - 7b': {
-        'precision': 'float16',
-        'quant': '4-bit',
-        'size': '7b',
-        'repo_id': 'llava-hf/llava-v1.6-vicuna-7b-hf',
-        'cache_dir': 'llava-hf--llava-v1.6-vicuna-7b-hf',
-        'requires_cuda': True,
-        'vram': '7.9 GB',
-    },
-    'MiniCPM-V-2_6 - 8b': {
-        'precision': 'bfloat16',
-        'quant': '4-bit',
-        'size': '8b',
-        'repo_id': 'openbmb/MiniCPM-V-2_6-int4',
-        'cache_dir': 'openbmb--MiniCPM-V-2_6-int4',
-        'requires_cuda': True,
-        'vram': '9.1 GB',
-    },
+    # 'MiniCPM-V-2_6 - 8b': {
+        # 'precision': 'bfloat16',
+        # 'quant': '4-bit',
+        # 'size': '8b',
+        # 'repo_id': 'openbmb/MiniCPM-V-2_6-int4',
+        # 'cache_dir': 'openbmb--MiniCPM-V-2_6-int4',
+        # 'requires_cuda': True,
+        # 'vram': '9.1 GB',
+    # },
     'Ovis1.6-Llama3.2 - 3b': {
-        'precision': 'autoselect',
+        'precision': 'bfloat16',
         'quant': 'n/a',
         'size': '3b',
         'repo_id': 'AIDC-AI/Ovis1.6-Llama3.2-3B',
@@ -527,7 +462,7 @@ VISION_MODELS = {
         'vram': '10.5 GB',
     },
     'Molmo-D-0924 - 8b': {
-        'precision': 'float32',
+        'precision': 'autoselect',
         'quant': '4-bit',
         'size': '8b',
         'repo_id': 'ctranslate2-4you/molmo-7B-O-bnb-4bit',

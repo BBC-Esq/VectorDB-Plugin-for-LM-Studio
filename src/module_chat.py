@@ -191,33 +191,34 @@ class BaseModel(ABC):
         torch.cuda.empty_cache()
         gc.collect()
 
-class Zephyr_1_6B(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Zephyr - 1.6b']
-        settings = bnb_float16_settings if torch.cuda.is_available() else {}
-        attn_implementation="eager" if torch.cuda.is_available() else {}
-        super().__init__(model_info, settings, generation_settings, attn_implementation=attn_implementation)
 
-    def create_prompt(self, augmented_query):
-        return f"""<|system|>
-{system_message}<|endoftext|>
-<|user|>
-{augmented_query}<|endoftext|>
-<|assistant|>
-"""
+# class Zephyr_1_6B(BaseModel):
+    # def __init__(self, generation_settings):
+        # model_info = CHAT_MODELS['Zephyr - 1.6b']
+        # settings = bnb_float16_settings if torch.cuda.is_available() else {}
+        # attn_implementation="eager" if torch.cuda.is_available() else {}
+        # super().__init__(model_info, settings, generation_settings, attn_implementation=attn_implementation)
 
-class Zephyr_3B(BaseModel):
+    # def create_prompt(self, augmented_query):
+        # return f"""<|system|>
+# {system_message}<|endoftext|>
+# <|user|>
+# {augmented_query}<|endoftext|>
+# <|assistant|>
+# """
+
+
+class Exaone_2_4b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Zephyr - 3b']
+        model_info = CHAT_MODELS['Exaone - 2.4b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<|system|>
-{system_message}<|endoftext|>
-<|user|>
-{augmented_query}<|endoftext|>
-<|assistant|>
-"""
+        return f"""[|system|]{system_message}[|endofturn|]
+[|user|]{augmented_query}
+[|endofturn|]
+[|assistant|]"""
+
 
 class Qwen2_5_1_5b(BaseModel):
     def __init__(self, generation_settings):
@@ -231,6 +232,7 @@ class Qwen2_5_1_5b(BaseModel):
 {augmented_query}<|im_end|>
 <|im_start|>assistant
 """
+
 
 class QwenCoder_1_5b(BaseModel):
     def __init__(self, generation_settings):
@@ -263,19 +265,6 @@ class QwenCoder_1_5b(BaseModel):
         generation_thread.join()
 
 
-class Qwen2_5_3b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 - 3b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|im_start|>system
-{system_message}<|im_end|>
-<|im_start|>user
-{augmented_query}<|im_end|>
-<|im_start|>assistant
-"""
-
 class QwenCoder_3b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen 2.5 Coder - 3b']
@@ -307,68 +296,16 @@ class QwenCoder_3b(BaseModel):
         generation_thread.join()
 
 
-class Llama_3_2_3b(BaseModel):
+class Exaone_7_8b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Llama 3.2 - 3b']
+        model_info = CHAT_MODELS['Exaone - 7.8b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-Cutting Knowledge Date: December 2023
-
-{system_message}<|eot_id|>
-<|start_header_id|>user<|end_header_id|>
-
-{augmented_query}<|eot_id|>
-<|start_header_id|>assistant<|end_header_id|>
-
-"""
-
-
-class Phi3_5_mini_4b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Phi 3.5 Mini - 4b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings, attn_implementation="flash_attention_2")
-
-    def create_prompt(self, augmented_query):
-        return f"""<|system|>
-{system_message}<|end|>
-<|user|>
-{augmented_query}<|end|>
-<|assistant|>
-"""
-
-
-class MiniCPM3_4b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['MiniCPM3 - 4b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<s><|im_start|>user
-{augmented_query}<|im_end|>
-<|im_start|>assistant
-"""
-
-    def create_inputs(self, prompt):
-        inputs = super().create_inputs(prompt)
-        inputs['pad_token_id'] = self.tokenizer.pad_token_id
-        return inputs
-
-
-class Qwen2_5_7b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 - 7b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|im_start|>system
-{system_message}<|im_end|>
-<|im_start|>user
-{augmented_query}<|im_end|>
-<|im_start|>assistant
-"""
+        return f"""[|system|]{system_message}[|endofturn|]
+[|user|]{augmented_query}
+[|endofturn|]
+[|assistant|]"""
 
 
 class QwenCoder_7b(BaseModel):
@@ -402,73 +339,6 @@ class QwenCoder_7b(BaseModel):
         generation_thread.join()
 
 
-class Dolphin_Llama3_1_8B(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Dolphin-Llama 3.1 - 8b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|im_start|>system
-{system_message}<|im_end|>
-<|im_start|>user
-{augmented_query}<|im_end|>
-<|im_start|>assistant
-"""
-
-
-class Marco_o1_7b(BaseModel):
-    def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Marco-o1 - 7b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
-
-    def create_prompt(self, augmented_query):
-        return f"""<|im_start|>system
-
-你是一个经过良好训练的AI助手，你的名字是Marco-o1.由阿里国际数字商业集团的AI Business创造.
-
-## 重要！！！！！
-当你回答问题时，你的思考应该在<Thought>内完成，<Output>内输出你的结果。
-<Thought>应该尽可能是英文，但是有2个特例，一个是对原文中的引用，另一个是是数学应该使用markdown格式，<Output>内的输出需要遵循用户输入的语言。
-<|im_end|>
-
-<|im_start|>user
-{augmented_query}<|im_end|>
-
-<|im_start|>assistant
-"""
-
-    def generate_response(self, inputs):
-        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
-        eos_token_id = self.tokenizer.eos_token_id
-        
-        all_settings = {**inputs, **self.generation_settings, 'streamer': streamer, 'eos_token_id': eos_token_id}
-        
-        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
-        generation_thread.start()
-
-        # Buffer to accumulate text until we find <Output>
-        buffer = ""
-        output_started = False
-        
-        for partial_response in streamer:
-            if not output_started:
-                buffer += partial_response
-                output_idx = buffer.find('<Output>')
-                if output_idx != -1:
-                    # Found the <Output> tag
-                    output_started = True
-                    # Yield everything after <Output>
-                    remaining_text = buffer[output_idx + len('<Output>'):]
-                    if remaining_text:
-                        yield remaining_text
-                    buffer = ""  # Clear the buffer
-            else:
-                # We're past <Output>, yield directly
-                yield partial_response
-
-        generation_thread.join()
-
-
 class QwenCoder_14b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen 2.5 Coder - 14b']
@@ -498,6 +368,7 @@ class QwenCoder_14b(BaseModel):
             yield partial_response
 
         generation_thread.join()
+
 
 class Qwen_2_5_14b(BaseModel):
     def __init__(self, generation_settings):
@@ -556,18 +427,16 @@ class QwenCoder_32b(BaseModel):
         generation_thread.join()
 
 
-class Qwen_2_5_32b(BaseModel):
+class Exaone_32b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 - 32b']
+        model_info = CHAT_MODELS['Exaone - 32b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
-        return f"""<|im_start|>system
-{system_message}<|im_end|>
-<|im_start|>user
-{augmented_query}<|im_end|>
-<|im_start|>assistant
-"""
+        return f"""[|system|]{system_message}[|endofturn|]
+[|user|]{augmented_query}
+[|endofturn|]
+[|assistant|]"""
 
 
 @torch.inference_mode()
@@ -582,16 +451,16 @@ def choose_model(model_name):
         model_class_name = CHAT_MODELS[model_name]['function']
         model_class = globals()[model_class_name]
         
-        # Get the relevant max_length
+        # get relevant "max_length"
         max_length = get_max_length(model_name)
 
-        # Get the relevant max_new_tokens
+        # get relevant "max_new_tokens"
         max_new_tokens = get_max_new_tokens(model_name)
 
-        # Generate the settings based on max_length and max_new_tokens
+        # define "generation_settings" based on "max_length" and "max_new_tokens"
         generation_settings = get_generation_settings(max_length, max_new_tokens)
         
-        # Pass the generation settings to the model constructor
+        # pass "generation_settings" to the model constructor
         return model_class(generation_settings)
     else:
         raise ValueError(f"Unknown model: {model_name}")

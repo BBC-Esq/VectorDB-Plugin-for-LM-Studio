@@ -18,14 +18,10 @@ def create_chat_models_comparison_plot():
         },
         "long_context": {
             "models": [
-                "Phi 3.5 Mini - 4b",
-                "MiniCPM3 - 4b",
-                "Qwen 2.5 - 7b",
-                "Dolphin-Llama 3.1 - 8b",
-                "Marco-o1 - 7b",
+                "Exaone - 2.4b",
+                "Exaone - 7.8b",
                 "Qwen 2.5 - 14b",
                 "Mistral Small - 22b",
-                "Qwen 2.5 - 32b",
             ],
             "color": "#2E8B57",
             "label": "8k Context"
