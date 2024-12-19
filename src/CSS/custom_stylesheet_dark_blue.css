@@ -192,3 +192,70 @@ QAbstractItemView::item:hover {
     background-color: #39424e; /* Added general item hover background color */
     color: white; /* Ensured text remains white on hover */
 }
+QInputDialog {
+    background-color: #1a1d29;
+}
+
+QInputDialog QLabel {
+    color: white;
+}
+
+QInputDialog QComboBox {
+    background-color: #323842;
+    color: white;
+    border: 1px solid #39424e;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+QInputDialog QComboBox:hover {
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
+}
+
+QInputDialog QPushButton {
+    background-color: #6c757d;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
+    border: none;
+}
+
+QInputDialog QPushButton:hover {
+    background-color: #2f343f;
+}
+
+QDialog {
+    background-color: #1a1d29;
+}
+
+QDialog QLabel {
+    color: white;
+}
+
+QDialog QLineEdit {
+    background-color: #1a1d29;
+    color: white;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+QDialog QLineEdit:hover,
+QDialog QLineEdit:focus {
+    border: 1px solid #6c757d;
+}
+
+QDialog QDialogButtonBox QPushButton {
+    background-color: #6c757d;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
+    border: none;
+}
+
+QDialog QDialogButtonBox QPushButton:hover {
+    background-color: #2f343f;
+}

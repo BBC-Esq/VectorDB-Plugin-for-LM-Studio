@@ -211,3 +211,74 @@ QAbstractItemView::item:hover {
     background-color: #39424e;
     color: white;
 }
+/* QInputDialog Styles */
+QInputDialog {
+    background-color: #161b22;
+}
+
+QInputDialog QLabel {
+    color: #bf8589;
+}
+
+QInputDialog QComboBox {
+    background-color: #856d88;
+    color: white;
+    border: 1px solid #39424e;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+QInputDialog QComboBox:hover {
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
+}
+
+QInputDialog QPushButton {
+    background-color: #856d88;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
+    border: none;
+}
+
+QInputDialog QPushButton:hover {
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
+}
+
+/* QDialog Styles */
+QDialog {
+    background-color: #161b22;
+}
+
+QDialog QLabel {
+    color: #bf8589;
+}
+
+QDialog QLineEdit {
+    background-color: #161b22;
+    color: #7a6469;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+QDialog QLineEdit:hover,
+QDialog QLineEdit:focus {
+    border: 1px solid #6c757d;
+}
+
+QDialog QDialogButtonBox QPushButton {
+    background-color: #856d88;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
+    border: none;
+}
+
+QDialog QDialogButtonBox QPushButton:hover {
+    background-color: #2f343f;
+    border: 1px solid #6c757d;
+}

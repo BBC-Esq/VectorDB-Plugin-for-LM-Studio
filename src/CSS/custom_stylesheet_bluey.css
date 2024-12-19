@@ -156,3 +156,72 @@ QMessageBox QPushButton {
 QMessageBox QPushButton:hover, QMessageBox QPushButton:pressed {
     background-color: #2C3E50;
 }
+QInputDialog {
+    background-color: #1E2A3A;
+}
+
+QInputDialog QLabel {
+    color: #ECF0F1;
+}
+
+QInputDialog QComboBox {
+    background-color: #34495E;
+    color: #ECF0F1;
+    border: 1px solid #2C3E50;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+QInputDialog QComboBox:hover {
+    background-color: #2C3E50;
+    border: 1px solid #7F8C8D;
+}
+
+QInputDialog QPushButton {
+    background-color: #34495E;
+    color: #ECF0F1;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
+    border: none;
+}
+
+QInputDialog QPushButton:hover {
+    background-color: #2C3E50;
+    border: 1px solid #7F8C8D;
+}
+
+QDialog {
+    background-color: #1E2A3A;
+}
+
+QDialog QLabel {
+    color: #ECF0F1;
+}
+
+QDialog QLineEdit {
+    background-color: #1E2A3A;
+    color: #ECF0F1;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+QDialog QLineEdit:hover,
+QDialog QLineEdit:focus {
+    border: 1px solid #7F8C8D;
+}
+
+QDialog QDialogButtonBox QPushButton {
+    background-color: #34495E;
+    color: #ECF0F1;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 60px;
+    border: none;
+}
+
+QDialog QDialogButtonBox QPushButton:hover {
+    background-color: #2C3E50;
+    border: 1px solid #7F8C8D;
+}
