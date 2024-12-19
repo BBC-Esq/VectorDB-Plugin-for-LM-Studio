@@ -741,6 +741,49 @@ WHISPER_MODELS = {
     },
 }
 
+JEEVES_MODELS = {
+    "EXAONE - 2.4b": {
+        "filename": "EXAONE-3.5-2.4B-Instruct-Q8_0.gguf",
+        "repo_id": "bartowski/EXAONE-3.5-2.4B-Instruct-GGUF",
+        "allow_patterns": ["EXAONE-3.5-2.4B-Instruct-Q8_0.gguf"],
+        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
+[|user|]{user_message}
+[|endofturn|]
+[|assistant|]"""
+    },
+    "Llama - 3b": {
+        "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+        "repo_id": "lmstudio-community/Llama-3.2-3B-Instruct-GGUF",
+        "allow_patterns": ["Llama-3.2-3B-Instruct-Q8_0.gguf"],
+        "prompt_template": """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+Cutting Knowledge Date: December 2023
+{jeeves_system_message}<|eot_id|>
+<|start_header_id|>user<|end_header_id|>
+{user_message}<|eot_id|>
+<|start_header_id|>assistant<|end_header_id|>"""
+    },
+    "Granite - 2b": {
+        "filename": "granite-3.1-2b-instruct-Q8_0.gguf",
+        "repo_id": "bartowski/granite-3.1-2b-instruct-GGUF",
+        "allow_patterns": ["granite-3.1-2b-instruct-Q8_0.gguf"],
+        "prompt_template": """<|start_of_role|>system<|end_of_role|>{jeeves_system_message}<|end_of_text|>
+<|start_of_role|>user<|end_of_role|>{user_message}<|end_of_text|>
+<|start_of_role|>assistant<|end_of_role|>"""
+    },
+    "Zephyr - 3b": {
+        "filename": "stablelm-zephyr-3b-q8_0.gguf",
+        "repo_id": "ysn-rfd/stablelm-zephyr-3b-Q8_0-GGUF",
+        "allow_patterns": ["stablelm-zephyr-3b-q8_0.gguf"],
+        "prompt_template": """<|system|>
+{jeeves_system_message}<|endoftext|>
+<|user|>
+{user_message}<|endoftext|>
+<|assistant|>
+"""
+    }
+}
+
+
 kobold_config = {
   "benchmark": None,
   "blasbatchsize": 512,

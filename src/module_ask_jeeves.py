@@ -18,8 +18,13 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QThread, Signal, QObject, Qt
 from PySide6.QtGui import QTextCursor, QPixmap
 
-from constants import kobold_config, jeeves_system_message, rag_string
 from database_interactions import QueryVectorDB
+from constants import (
+    kobold_config, 
+    jeeves_system_message, 
+    rag_string,
+    JEEVES_MODELS
+)
 
 
 def has_discrete_vulkan_gpu():
@@ -260,11 +265,11 @@ class ServerStartupWorker(QThread):
 
 
 class ChatWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, selected_model=None):
         super().__init__(parent)
+        self.selected_model = selected_model or "EXAONE 3.5"  # default if none specified
         self.setWindowTitle("Ask Jeeves (Welcome back Jeeves!)")
         self.setGeometry(100, 100, 750, 850)
-        self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.chat_signals = ChatSignals()
         self.chat_signals.response_signal.connect(self.update_response)
@@ -306,7 +311,9 @@ class ChatWindow(QMainWindow):
         current_dir = Path(__file__).parent.resolve()
         assets_dir = current_dir / "Assets"
         assets_dir.mkdir(exist_ok=True)
-        self.model_filename = "Llama-3.2-3B-Instruct-Q8_0.gguf"
+        
+        model_config = JEEVES_MODELS[self.selected_model]
+        self.model_filename = model_config["filename"]
         self.model_path = assets_dir / self.model_filename
 
         self.input_field.setDisabled(True)
@@ -356,8 +363,9 @@ class ChatWindow(QMainWindow):
         self.progress_dialog.setCancelButton(None)
         self.progress_dialog.show()
 
-        repo_id = "lmstudio-community/Llama-3.2-3B-Instruct-GGUF"
-        allow_patterns = ["Llama-3.2-3B-Instruct-Q8_0.gguf"]
+        model_config = JEEVES_MODELS[self.selected_model]
+        repo_id = model_config["repo_id"]
+        allow_patterns = model_config["allow_patterns"]
 
         self.download_worker = DownloadWorker(repo_id, allow_patterns, download_dir)
         self.download_worker.download_finished.connect(self.on_download_finished)
@@ -407,17 +415,11 @@ class ChatWindow(QMainWindow):
         contexts_text = "\n\n".join(contexts)
         full_context = f"{rag_string}\n\n{contexts_text}"
 
-        new_prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-Cutting Knowledge Date: December 2023
-
-{jeeves_system_message}<|eot_id|>
-<|start_header_id|>user<|end_header_id|>
-
-{user_message}<|eot_id|>
-<|start_header_id|>assistant<|end_header_id|>
-
-"""
+        model_config = JEEVES_MODELS[self.selected_model]
+        new_prompt = model_config["prompt_template"].format(
+            jeeves_system_message=jeeves_system_message,
+            user_message=user_message
+        )
 
         combined_prompt = f"{full_context}\n\n{new_prompt}"
 
