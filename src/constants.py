@@ -4,31 +4,36 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 
 # overrides default max_length parameter of 8192
 MODEL_MAX_TOKENS = {
-    'Qwen 2.5 - 1.5b': 4096,
-    'Qwen 2.5 Coder - 1.5b': 4096,
-    'Qwen 2.5 Coder - 3b': 4096,
+    'Qwen - 1.5b': 4096,
+    'Zephyr - 1.6b': 4096,
+    'Granite - 2b': 4096,
+    'Qwen Coder - 1.5b': 4096,
+    'Zephyr - 3b': 4096,
+    'Qwen Coder - 3b': 4096,
 }
 
 # overrides max_new_tokens parameter of 1024
 MODEL_MAX_NEW_TOKENS = {
-    'Qwen 2.5 - 1.5b': 512,
-    'Qwen 2.5 Coder - 1.5b': 512,
-    'Qwen 2.5 Coder - 3b': 512,
+    'Qwen - 1.5b': 512,
+    'Zephyr - 1.6b': 512,
+    'Qwen Coder - 1.5b': 512,
+    # 'Zephyr - 3b': 512,
+    # 'Qwen Coder - 3b': 512,
 }
 
 CHAT_MODELS = {
-    'Qwen 2.5 - 1.5b': { # dictionary key
-        'model': 'Qwen 2.5 - 1.5b', # what's displayed in the combobox
-        'repo_id': 'Qwen/Qwen2.5-1.5B-Instruct', # hf repo id
-        'cache_dir': 'Qwen--Qwen2.5-1.5B-Instruct', # save folder
+    'Qwen - 1.5b': {
+        'model': 'Qwen - 1.5b',
+        'repo_id': 'Qwen/Qwen2.5-1.5B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-1.5B-Instruct',
         'cps': 261.31,
-        'context_length': 32768, # not currently used
+        'context_length': 32768,
         'vram': 1749.97,
-        'function': 'Qwen2_5_1_5b', # function in module_chat.py
+        'function': 'Qwen_1_5b',
         'gated': False,
     },
-    'Qwen 2.5 Coder - 1.5b': {
-        'model': 'Qwen 2.5 Coder - 1.5b',
+    'Qwen Coder - 1.5b': {
+        'model': 'Qwen Coder - 1.5b',
         'repo_id': 'Qwen/Qwen2.5-Coder-1.5B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-Coder-1.5B-Instruct',
         'cps': 236.32,
@@ -38,17 +43,39 @@ CHAT_MODELS = {
         'precision': 'bfloat16',
         'gated': False,
     },
-    # 'Zephyr - 1.6b': {
-        # 'model': 'Zephyr - 1.6b',
-        # 'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
-        # 'cache_dir': 'stabilityai--stablelm-2-zephyr-1_6b',
-        # 'cps': 375.77,
-        # 'context_length': 4096,
-        # 'vram': 2233.45,
-        # 'function': 'Zephyr_1_6B',
-        # 'precision': 'float16',
-        # 'gated': False,
-    # },
+    'Granite - 2b': {
+        'model': 'Granite - 2b',
+        'repo_id': 'ibm-granite/granite-3.1-2b-instruct',
+        'cache_dir': 'ibm-granite--granite-3.1-2b-instruct',
+        'cps': 128.11,
+        'context_length': 8192,
+        'vram': 2292.18,
+        'function': 'Granite_2b',
+        'precision': 'bfloat16',
+        'gated': False,
+    },
+    'Zephyr - 1.6b': {
+        'model': 'Zephyr - 1.6b',
+        'repo_id': 'stabilityai/stablelm-2-zephyr-1_6b',
+        'cache_dir': 'stabilityai--stablelm-2-zephyr-1_6b',
+        'cps': 375.77,
+        'context_length': 4096,
+        'vram': 2233.45,
+        'function': 'Zephyr_1_6B',
+        'precision': 'float16',
+        'gated': False,
+    },
+    'Zephyr - 3b': {
+        'model': 'Zephyr - 3b',
+        'repo_id': 'stabilityai/stablelm-zephyr-3b',
+        'cache_dir': 'stabilityai--stablelm-zephyr-3b',
+        'cps': 293.68,
+        'context_length': 4096,
+        'vram': 2733.85,
+        'function': 'Zephyr_3B',
+        'precision': 'bfloat16',
+        'gated': False,
+    },
     'Exaone - 2.4b': {
         'model': 'Exaone - 2.4b',
         'repo_id': 'LGAI-EXAONE/EXAONE-3.5-2.4B-Instruct',
@@ -59,14 +86,25 @@ CHAT_MODELS = {
         'function': 'Exaone_2_4b',
         'gated': False,
     },
-    'Qwen 2.5 Coder - 3b': {
-        'model': 'Qwen 2.5 Coder - 3b',
+    'Qwen Coder - 3b': {
+        'model': 'Qwen Coder - 3b',
         'repo_id': 'Qwen/Qwen2.5-Coder-3B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-Coder-3B-Instruct',
         'cps': 198.99,
         'context_length': 32768,
         'vram': 2860.01,
         'function': 'QwenCoder_3b',
+        'gated': False,
+    },
+    'Granite - 8b': {
+        'model': 'Granite - 8b',
+        'repo_id': 'ibm-granite/granite-3.1-8b-instruct',
+        'cache_dir': 'ibm-granite--granite-3.1-8b-instruct',
+        'cps': 137.73,
+        'context_length': 8192,
+        'vram': 5291.93,
+        'function': 'Granite_8b',
+        'precision': 'bfloat16',
         'gated': False,
     },
     'Exaone - 7.8b': {
@@ -79,8 +117,8 @@ CHAT_MODELS = {
         'function': 'Exaone_7_8b',
         'gated': False,
     },
-    'Qwen 2.5 Coder - 7b': {
-        'model': 'Qwen 2.5 Coder - 7b',
+    'Qwen Coder - 7b': {
+        'model': 'Qwen Coder - 7b',
         'repo_id': 'Qwen/Qwen2.5-Coder-7B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-Coder-7B-Instruct',
         'cps': 219.55,
@@ -90,8 +128,8 @@ CHAT_MODELS = {
         'precision': 'bfloat16',
         'gated': False,
     },
-    'Qwen 2.5 Coder - 14b': {
-        'model': 'Qwen 2.5 Coder - 14b',
+    'Qwen Coder - 14b': {
+        'model': 'Qwen Coder - 14b',
         'repo_id': 'Qwen/Qwen2.5-Coder-14B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-Coder-14B-Instruct',
         'cps': 144.76,
@@ -100,14 +138,14 @@ CHAT_MODELS = {
         'function': 'QwenCoder_14b',
         'gated': False,
     },
-    'Qwen 2.5 - 14b': {
-        'model': 'Qwen 2.5 - 14b',
+    'Qwen - 14b': {
+        'model': 'Qwen - 14b',
         'repo_id': 'Qwen/Qwen2.5-14B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-14B-Instruct',
         'cps': 139.26,
         'context_length': 8192,
         'vram': 11168.49,
-        'function': 'Qwen_2_5_14b',
+        'function': 'Qwen_14b',
         'precision': 'bfloat16',
         'gated': False,
     },
@@ -122,8 +160,8 @@ CHAT_MODELS = {
         'precision': 'bfloat16',
         'gated': True,
     },
-    'Qwen 2.5 Coder - 32b': {
-        'model': 'Qwen 2.5 Coder - 32b',
+    'Qwen Coder - 32b': {
+        'model': 'Qwen Coder - 32b',
         'repo_id': 'Qwen/Qwen2.5-Coder-32B-Instruct',
         'cache_dir': 'Qwen--Qwen2.5-Coder-32B-Instruct',
         'cps': 97.47,
@@ -248,6 +286,28 @@ VECTOR_MODELS = {
             'cache_dir': 'hkunlp--instructor-xl',
             'type': 'vector',
             'precision': 'float32'
+        },
+    ],
+    'IBM': [
+        {
+            'name': 'Granite-125m-English',
+            'dimensions': 768,
+            'max_sequence': 512,
+            'size_mb': 249,
+            'repo_id': 'ibm-granite/granite-embedding-125m-english',
+            'cache_dir': 'ibm-granite--granite-embedding-125m-english',
+            'type': 'vector',
+            'precision': 'bfloat16'
+        },
+        {
+            'name': 'Granite-30m-English',
+            'dimensions': 384,
+            'max_sequence': 512,
+            'size_mb': 61,
+            'repo_id': 'ibm-granite/granite-embedding-30m-english',
+            'cache_dir': 'ibm-granite--granite-embedding-30m-english',
+            'type': 'vector',
+            'precision': 'bfloat16'
         },
     ],
     'intfloat': [
@@ -963,10 +1023,10 @@ scrape_documentation = {
         "URL": "https://docs.dask.org/en/stable/",
         "folder": "dask"
     },
-    "Datamodel-code-generator": {
-        "URL": "https://koxudaxi.github.io/datamodel-code-generator/",
-        "folder": "datamodel_code_generator"
-    },
+    # "Datamodel-code-generator": {
+        # "URL": "https://koxudaxi.github.io/datamodel-code-generator/",
+        # "folder": "datamodel_code_generator"
+    # },
     "dill": {
         "URL": "https://dill.readthedocs.io/en/latest/",
         "folder": "dill"
@@ -1194,6 +1254,10 @@ scrape_documentation = {
         "URL": "https://mhammond.github.io/pywin32/",
         "folder": "pywin32"
     },
+    "Pyside 6": {
+        "URL": "https://doc.qt.io/",
+        "folder": "pyside6"
+    },
     "RapidFuzz": {
         "URL": "https://rapidfuzz.github.io/RapidFuzz/",
         "folder": "rapidfuzz"
@@ -1331,6 +1395,10 @@ scrape_documentation = {
     "urllib3": {
         "URL": "https://urllib3.readthedocs.io/en/stable/",
         "folder": "urllib3"
+    },
+    "Watchdog": {
+        "URL": "https://pythonhosted.org/watchdog/",
+        "folder": "watchdog",
     },
     "webdataset": {
         "URL": "https://webdataset.github.io/webdataset/",
