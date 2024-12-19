@@ -96,9 +96,11 @@ class CreateVectorDB:
                 'mpnet': 8,
                 'e5-base': 8,
                 'bge-base': 8,
+                'Granite-125m-English': 8,
                 'gte-base': 8,
                 'e5-small': 10,
                 'bge-small': 10,
+                'Granite-30m-English': 10,
                 'gte-small': 10,
                 'MiniLM': 30,
             }
