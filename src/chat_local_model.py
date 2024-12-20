@@ -1,3 +1,5 @@
+# chat_local_model.py
+
 import time
 import logging
 
@@ -143,8 +145,6 @@ class LocalModelChat:
         self.model_pipe = None
         self.model_process = None
         self.current_model = None
-        # 11. signals"on_model_unloaded"
-        self.signals.model_unloaded_signal.emit()
 
     @staticmethod
     def _local_model_process(conn, model_name): # child process for local model's generation

@@ -140,7 +140,12 @@ class DatabaseQueryTab(QWidget):
         self.model_combo_box.setToolTip(TOOLTIPS["LOCAL_MODEL_SELECT"])
 
         if torch.cuda.is_available():
-            self.model_combo_box.addItems([model_info['model'] for model_info in CHAT_MODELS.values()])
+            for model_info in CHAT_MODELS.values():
+                index = self.model_combo_box.count()
+                self.model_combo_box.addItem(model_info['model'])
+                gb_value = round(model_info['vram'] / 1024, 1)
+                tooltip = f"Uses ~{gb_value} GB memory"
+                self.model_combo_box.setItemData(index, tooltip, Qt.ToolTipRole)
             self.model_combo_box.setEnabled(True)
         else:
             self.model_combo_box.addItem(CHAT_MODELS['Zephyr - 1.6b']['model'])
@@ -298,12 +303,14 @@ class DatabaseQueryTab(QWidget):
         else:
             logging.warning("No model is currently loaded.")
 
-    def on_model_unloaded(self):
-        self.eject_button.setEnabled(False)
-        self.model_combo_box.setEnabled(True)
-
     def on_model_loaded(self):
         self.eject_button.setEnabled(True)
+        self.eject_button.setText(f"Eject {self.local_model_chat.current_model}")
+
+    def on_model_unloaded(self):
+        self.eject_button.setEnabled(False)
+        self.eject_button.setText("Eject Local Model")
+
 
     def display_citations_in_widget(self, citations):
         if citations:
