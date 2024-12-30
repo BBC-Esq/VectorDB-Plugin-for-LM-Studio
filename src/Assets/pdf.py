@@ -1,11 +1,15 @@
-"""Module contains common parsers for PDFs."""
+"""
+Module contains common parsers for PDFs.
+MODIFIED VERSION BASED OFF OF langchain-community version 0.3.13
+"""
+
 from __future__ import annotations
 
-import os
 import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
+    Dict,
     Iterable,
     Iterator,
     Mapping,
@@ -27,6 +31,7 @@ if TYPE_CHECKING:
     import pdfplumber.page
     import pypdf._page
     import pypdfium2._helpers.page
+    from pypdf import PageObject
     from textractor.data.text_linearization_config import TextLinearizationConfig
 
 
@@ -83,29 +88,55 @@ class PyPDFParser(BaseBlobParser):
     """Load `PDF` using `pypdf`"""
 
     def __init__(
-        self, password: Optional[Union[str, bytes]] = None, extract_images: bool = False
+        self,
+        password: Optional[Union[str, bytes]] = None,
+        extract_images: bool = False,
+        *,
+        extraction_mode: str = "plain",
+        extraction_kwargs: Optional[Dict[str, Any]] = None,
     ):
         self.password = password
         self.extract_images = extract_images
+        self.extraction_mode = extraction_mode
+        self.extraction_kwargs = extraction_kwargs or {}
 
-    def lazy_parse(self, blob: Blob) -> Iterator[Document]:
+    def lazy_parse(self, blob: Blob) -> Iterator[Document]:  # type: ignore[valid-type]
         """Lazily parse the blob."""
-        import pypdf
+        try:
+            import pypdf
+        except ImportError:
+            raise ImportError(
+                "`pypdf` package not found, please install it with "
+                "`pip install pypdf`"
+            )
 
-        with blob.as_bytes_io() as pdf_file_obj:
+        def _extract_text_from_page(page: "PageObject") -> str:
+            """
+            Extract text from image given the version of pypdf.
+            """
+            if pypdf.__version__.startswith("3"):
+                return page.extract_text()
+            else:
+                return page.extract_text(
+                    extraction_mode=self.extraction_mode,  # type: ignore[arg-type]
+                    **self.extraction_kwargs,  # type: ignore[arg-type]
+                )
+
+        with blob.as_bytes_io() as pdf_file_obj:  # type: ignore[attr-defined]
             pdf_reader = pypdf.PdfReader(pdf_file_obj, password=self.password)
+
             yield from [
                 Document(
-                    page_content=page.extract_text()
+                    page_content=_extract_text_from_page(page=page)
                     + self._extract_images_from_page(page),
-                    metadata={"source": blob.source, "page": page_number},
+                    metadata={"source": blob.source, "page": page_number},  # type: ignore[attr-defined]
                 )
                 for page_number, page in enumerate(pdf_reader.pages)
             ]
 
     def _extract_images_from_page(self, page: pypdf._page.PageObject) -> str:
         """Extract images from page and get the text with RapidOCR."""
-        if not self.extract_images or "/XObject" not in page["/Resources"].keys():
+        if not self.extract_images or "/XObject" not in page["/Resources"].keys():  # type: ignore[attr-defined]
             return ""
 
         xObject = page["/Resources"]["/XObject"].get_object()  # type: ignore
@@ -141,16 +172,22 @@ class PDFMinerParser(BaseBlobParser):
         self.extract_images = extract_images
         self.concatenate_pages = concatenate_pages
 
-    def lazy_parse(self, blob: Blob) -> Iterator[Document]:
+    def lazy_parse(self, blob: Blob) -> Iterator[Document]:  # type: ignore[valid-type]
         """Lazily parse the blob."""
 
         if not self.extract_images:
-            from pdfminer.high_level import extract_text
+            try:
+                from pdfminer.high_level import extract_text
+            except ImportError:
+                raise ImportError(
+                    "`pdfminer` package not found, please install it with "
+                    "`pip install pdfminer.six`"
+                )
 
-            with blob.as_bytes_io() as pdf_file_obj:
+            with blob.as_bytes_io() as pdf_file_obj:  # type: ignore[attr-defined]
                 if self.concatenate_pages:
                     text = extract_text(pdf_file_obj)
-                    metadata = {"source": blob.source}
+                    metadata = {"source": blob.source}  # type: ignore[attr-defined]
                     yield Document(page_content=text, metadata=metadata)
                 else:
                     from pdfminer.pdfpage import PDFPage
@@ -158,7 +195,7 @@ class PDFMinerParser(BaseBlobParser):
                     pages = PDFPage.get_pages(pdf_file_obj)
                     for i, _ in enumerate(pages):
                         text = extract_text(pdf_file_obj, page_numbers=[i])
-                        metadata = {"source": blob.source, "page": str(i)}
+                        metadata = {"source": blob.source, "page": str(i)}  # type: ignore[attr-defined]
                         yield Document(page_content=text, metadata=metadata)
         else:
             import io
@@ -169,7 +206,7 @@ class PDFMinerParser(BaseBlobParser):
             from pdfminer.pdfpage import PDFPage
 
             text_io = io.StringIO()
-            with blob.as_bytes_io() as pdf_file_obj:
+            with blob.as_bytes_io() as pdf_file_obj:  # type: ignore[attr-defined]
                 pages = PDFPage.get_pages(pdf_file_obj)
                 rsrcmgr = PDFResourceManager()
                 device_for_text = TextConverter(rsrcmgr, text_io, laparams=LAParams())
@@ -184,7 +221,7 @@ class PDFMinerParser(BaseBlobParser):
                     )
                     text_io.truncate(0)
                     text_io.seek(0)
-                    metadata = {"source": blob.source, "page": str(i)}
+                    metadata = {"source": blob.source, "page": str(i)}  # type: ignore[attr-defined]
                     yield Document(page_content=content, metadata=metadata)
 
     def _extract_images_from_page(self, page: pdfminer.layout.LTPage) -> str:
@@ -202,68 +239,124 @@ class PDFMinerParser(BaseBlobParser):
 
         images = []
 
-        for img in list(filter(bool, map(get_image, page))):
-            if img.stream["Filter"].name in _PDF_FILTER_WITHOUT_LOSS:
+        for img in filter(bool, map(get_image, page)):
+            img_filter = img.stream["Filter"]
+            if isinstance(img_filter, list):
+                filter_names = [f.name for f in img_filter]
+            else:
+                filter_names = [img_filter.name]
+
+            without_loss = any(
+                name in _PDF_FILTER_WITHOUT_LOSS for name in filter_names
+            )
+            with_loss = any(name in _PDF_FILTER_WITH_LOSS for name in filter_names)
+            non_matching = {name for name in filter_names} - {
+                *_PDF_FILTER_WITHOUT_LOSS,
+                *_PDF_FILTER_WITH_LOSS,
+            }
+
+            if without_loss and with_loss:
+                warnings.warn(
+                    "Image has both lossy and lossless filters. Defaulting to lossless"
+                )
+
+            if non_matching:
+                warnings.warn(f"Unknown PDF Filter(s): {non_matching}")
+
+            if without_loss:
                 images.append(
                     np.frombuffer(img.stream.get_data(), dtype=np.uint8).reshape(
                         img.stream["Height"], img.stream["Width"], -1
                     )
                 )
-            elif img.stream["Filter"].name in _PDF_FILTER_WITH_LOSS:
+            elif with_loss:
                 images.append(img.stream.get_data())
-            else:
-                warnings.warn("Unknown PDF Filter!")
+
         return extract_from_images_with_rapidocr(images)
 
 
 class PyMuPDFParser(BaseBlobParser):
     """Parse `PDF` using `PyMuPDF`."""
-
     def __init__(
         self,
         text_kwargs: Optional[Mapping[str, Any]] = None,
         extract_images: bool = False,
     ) -> None:
         """Initialize the parser.
-
         Args:
             text_kwargs: Keyword arguments to pass to ``fitz.Page.get_text()``.
-            extract_images: Flag to extract images (not used in this implementation).
         """
         self.text_kwargs = text_kwargs or {}
-        self.extract_images = extract_images  # We keep this, but won't use it
+        self.extract_images = extract_images
 
-    def lazy_parse(self, blob: Blob) -> Iterator[Document]:
+    def lazy_parse(self, blob: Blob) -> Iterator[Document]:  # type: ignore[valid-type]
         """Lazily parse the blob."""
         import fitz
-        import json  # To convert the dictionary to a JSON string for saving
-
-        with blob.as_bytes_io() as file_path:
-            doc = fitz.open(file_path)  # open document
-            text = ""
-
+        with blob.as_bytes_io() as file_path:  # type: ignore[attr-defined]
+            if blob.data is None:  # type: ignore[attr-defined]
+                doc = fitz.open(file_path)
+            else:
+                doc = fitz.open(stream=file_path, filetype="pdf")
+            
+            # Combine all pages into one text string with page markers
+            combined_content = ""
             for page in doc:
-                # Add page marker without a newline
-                text += f"[[page{page.number + 1}]]"
-                # Concatenate text from the current page without adding a newline
-                text += page.get_text(**self.text_kwargs)
+                combined_content += f"[[page{page.number + 1}]]"
+                combined_content += self._get_page_content(doc, page, blob)
+            
+            # Create metadata for the combined document
+            metadata = dict(
+                {
+                    "source": blob.source,  # type: ignore[attr-defined]
+                    "file_path": blob.source,  # type: ignore[attr-defined]
+                    "total_pages": len(doc),
+                },
+                **{
+                    k: doc.metadata[k]
+                    for k in doc.metadata
+                    if isinstance(doc.metadata[k], (str, int))
+                },
+            )
+            
+            yield Document(
+                page_content=combined_content,
+                metadata=metadata,
+            )
 
-            # debugging
-            # with open("PyMuPDFParser.txt", "w", encoding="utf-8") as file:
-                # file.write(text)
+    def _get_page_content(
+        self, doc: fitz.fitz.Document, page: fitz.fitz.Page, blob: Blob
+    ) -> str:
+        """
+        Get the text of the page using PyMuPDF and RapidOCR and issue a warning
+        if it is empty.
+        """
+        content = page.get_text(**self.text_kwargs) + self._extract_images_from_page(
+            doc, page
+        )
+        if not content:
+            warnings.warn(
+                f"Warning: Empty content on page "
+                f"{page.number} of document {blob.source}"
+            )
+        return content
 
-            # Prepare metadata
-            metadata = {
-                "source": blob.source,
-                "file_path": blob.source,
+    def _extract_metadata(
+        self, doc: fitz.fitz.Document, page: fitz.fitz.Page, blob: Blob
+    ) -> dict:
+        """Extract metadata from the document and page."""
+        return dict(
+            {
+                "source": blob.source,  # type: ignore[attr-defined]
+                "file_path": blob.source,  # type: ignore[attr-defined]
+                "page": page.number,
                 "total_pages": len(doc),
-            }
-
-            # debugging
-            # with open("PyMuPDFParser_dictionary.txt", "w", encoding="utf-8") as dict_file:
-                # dict_file.write(json.dumps(metadata, indent=4))
-
-            yield Document(page_content=text, metadata=metadata)
+            },
+            **{
+                k: doc.metadata[k]
+                for k in doc.metadata
+                if isinstance(doc.metadata[k], (str, int))
+            },
+        )
 
     def _extract_images_from_page(
         self, doc: fitz.fitz.Document, page: fitz.fitz.Page
@@ -272,7 +365,6 @@ class PyMuPDFParser(BaseBlobParser):
         if not self.extract_images:
             return ""
         import fitz
-
         img_list = page.get_images()
         imgs = []
         for img in img_list:
@@ -284,6 +376,7 @@ class PyMuPDFParser(BaseBlobParser):
                 )
             )
         return extract_from_images_with_rapidocr(imgs)
+
 
 class PyPDFium2Parser(BaseBlobParser):
     """Parse `PDF` with `PyPDFium2`."""
@@ -299,13 +392,13 @@ class PyPDFium2Parser(BaseBlobParser):
             )
         self.extract_images = extract_images
 
-    def lazy_parse(self, blob: Blob) -> Iterator[Document]:
+    def lazy_parse(self, blob: Blob) -> Iterator[Document]:  # type: ignore[valid-type]
         """Lazily parse the blob."""
         import pypdfium2
 
         # pypdfium2 is really finicky with respect to closing things,
         # if done incorrectly creates seg faults.
-        with blob.as_bytes_io() as file_path:
+        with blob.as_bytes_io() as file_path:  # type: ignore[attr-defined]
             pdf_reader = pypdfium2.PdfDocument(file_path, autoclose=True)
             try:
                 for page_number, page in enumerate(pdf_reader):
@@ -314,7 +407,7 @@ class PyPDFium2Parser(BaseBlobParser):
                     text_page.close()
                     content += "\n" + self._extract_images_from_page(page)
                     page.close()
-                    metadata = {"source": blob.source, "page": page_number}
+                    metadata = {"source": blob.source, "page": page_number}  # type: ignore[attr-defined]
                     yield Document(page_content=content, metadata=metadata)
             finally:
                 pdf_reader.close()
@@ -347,15 +440,22 @@ class PDFPlumberParser(BaseBlobParser):
             text_kwargs: Keyword arguments to pass to ``pdfplumber.Page.extract_text()``
             dedupe: Avoiding the error of duplicate characters if `dedupe=True`.
         """
+        try:
+            import PIL  # noqa:F401
+        except ImportError:
+            raise ImportError(
+                "pillow package not found, please install it with"
+                " `pip install pillow`"
+            )
         self.text_kwargs = text_kwargs or {}
         self.dedupe = dedupe
         self.extract_images = extract_images
 
-    def lazy_parse(self, blob: Blob) -> Iterator[Document]:
+    def lazy_parse(self, blob: Blob) -> Iterator[Document]:  # type: ignore[valid-type]
         """Lazily parse the blob."""
         import pdfplumber
 
-        with blob.as_bytes_io() as file_path:
+        with blob.as_bytes_io() as file_path:  # type: ignore[attr-defined]
             doc = pdfplumber.open(file_path)  # open document
 
             yield from [
@@ -365,8 +465,8 @@ class PDFPlumberParser(BaseBlobParser):
                     + self._extract_images_from_page(page),
                     metadata=dict(
                         {
-                            "source": blob.source,
-                            "file_path": blob.source,
+                            "source": blob.source,  # type: ignore[attr-defined]
+                            "file_path": blob.source,  # type: ignore[attr-defined]
                             "page": page.page_number - 1,
                             "total_pages": len(doc.pages),
                         },
@@ -388,17 +488,30 @@ class PDFPlumberParser(BaseBlobParser):
 
     def _extract_images_from_page(self, page: pdfplumber.page.Page) -> str:
         """Extract images from page and get the text with RapidOCR."""
+        from PIL import Image
+
         if not self.extract_images:
             return ""
 
         images = []
         for img in page.images:
             if img["stream"]["Filter"].name in _PDF_FILTER_WITHOUT_LOSS:
-                images.append(
-                    np.frombuffer(img["stream"].get_data(), dtype=np.uint8).reshape(
-                        img["stream"]["Height"], img["stream"]["Width"], -1
+                if img["stream"]["BitsPerComponent"] == 1:
+                    images.append(
+                        np.array(
+                            Image.frombytes(
+                                "1",
+                                (img["stream"]["Width"], img["stream"]["Height"]),
+                                img["stream"].get_data(),
+                            ).convert("L")
+                        )
                     )
-                )
+                else:
+                    images.append(
+                        np.frombuffer(img["stream"].get_data(), dtype=np.uint8).reshape(
+                            img["stream"]["Height"], img["stream"]["Width"], -1
+                        )
+                    )
             elif img["stream"]["Filter"].name in _PDF_FILTER_WITH_LOSS:
                 images.append(img["stream"].get_data())
             else:
@@ -516,14 +629,14 @@ class AmazonTextractPDFParser(BaseBlobParser):
         else:
             self.boto3_textract_client = client
 
-    def lazy_parse(self, blob: Blob) -> Iterator[Document]:
+    def lazy_parse(self, blob: Blob) -> Iterator[Document]:  # type: ignore[valid-type]
         """Iterates over the Blob pages and returns an Iterator with a Document
         for each page, like the other parsers If multi-page document, blob.path
         has to be set to the S3 URI and for single page docs
         the blob.data is taken
         """
 
-        url_parse_result = urlparse(str(blob.path)) if blob.path else None
+        url_parse_result = urlparse(str(blob.path)) if blob.path else None  # type: ignore[attr-defined]
         # Either call with S3 path (multi-page) or with bytes (single-page)
         if (
             url_parse_result
@@ -531,13 +644,13 @@ class AmazonTextractPDFParser(BaseBlobParser):
             and url_parse_result.netloc
         ):
             textract_response_json = self.tc.call_textract(
-                input_document=str(blob.path),
+                input_document=str(blob.path),  # type: ignore[attr-defined]
                 features=self.textract_features,
                 boto3_textract_client=self.boto3_textract_client,
             )
         else:
             textract_response_json = self.tc.call_textract(
-                input_document=blob.as_bytes(),
+                input_document=blob.as_bytes(),  # type: ignore[attr-defined]
                 features=self.textract_features,
                 call_mode=self.tc.Textract_Call_Mode.FORCE_SYNC,
                 boto3_textract_client=self.boto3_textract_client,
@@ -548,7 +661,7 @@ class AmazonTextractPDFParser(BaseBlobParser):
         for idx, page in enumerate(document.pages):
             yield Document(
                 page_content=page.get_text(config=self.linearization_config),
-                metadata={"source": blob.source, "page": idx + 1},
+                metadata={"source": blob.source, "page": idx + 1},  # type: ignore[attr-defined]
             )
 
 
@@ -568,23 +681,23 @@ class DocumentIntelligenceParser(BaseBlobParser):
         self.client = client
         self.model = model
 
-    def _generate_docs(self, blob: Blob, result: Any) -> Iterator[Document]:
+    def _generate_docs(self, blob: Blob, result: Any) -> Iterator[Document]:  # type: ignore[valid-type]
         for p in result.pages:
             content = " ".join([line.content for line in p.lines])
 
             d = Document(
                 page_content=content,
                 metadata={
-                    "source": blob.source,
+                    "source": blob.source,  # type: ignore[attr-defined]
                     "page": p.page_number,
                 },
             )
             yield d
 
-    def lazy_parse(self, blob: Blob) -> Iterator[Document]:
+    def lazy_parse(self, blob: Blob) -> Iterator[Document]:  # type: ignore[valid-type]
         """Lazily parse the blob."""
 
-        with blob.as_bytes_io() as file_obj:
+        with blob.as_bytes_io() as file_obj:  # type: ignore[attr-defined]
             poller = self.client.begin_analyze_document(self.model, file_obj)
             result = poller.result()
 
