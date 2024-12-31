@@ -112,9 +112,30 @@ def add_cuda_files():
         zip_ref.extractall(target_path)
     print(f"Successfully extracted cuda_runtime.zip to {target_path}")
 
+def setup_vector_db():
+    zip_path = Path(__file__).parent / "Assets" / "user_manual_db.zip"
+    if not zip_path.exists():
+        print("user_manual_db.zip not found in Assets folder.")
+        return
+
+    vector_db_path = Path(__file__).parent / "Vector_DB"
+    vector_db_backup_path = Path(__file__).parent / "Vector_DB_Backup"
+
+    vector_db_path.mkdir(exist_ok=True)
+    vector_db_backup_path.mkdir(exist_ok=True)
+
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(vector_db_path)
+            zip_ref.extractall(vector_db_backup_path)
+        print(f"Successfully extracted user_manual_db.zip to {vector_db_path} and {vector_db_backup_path}")
+    except Exception as e:
+        print(f"Error extracting zip file: {str(e)}")
+
 if __name__ == "__main__":
     replace_pdf_file()
     replace_instructor_file()
     replace_sentence_transformer_file()
     replace_chattts_file()
     add_cuda_files()
+    setup_vector_db()

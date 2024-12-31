@@ -10,6 +10,7 @@ from replace_sourcecode import (
     replace_sentence_transformer_file,
     replace_chattts_file,
     add_cuda_files,
+    setup_vector_db,
 )
 
 
@@ -436,6 +437,7 @@ replace_instructor_file()
 replace_sentence_transformer_file()
 replace_chattts_file()
 add_cuda_files()
+setup_vector_db()
 
 # 7. Create directores if needed
 def create_directory_structure():
