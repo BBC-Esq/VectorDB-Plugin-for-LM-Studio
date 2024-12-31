@@ -2,7 +2,7 @@ DocQA_GUI {
   background-color: #1e1e1e;
 }
 QWidget {
-  border: 2px solid #1e1e1e;
+  /* border: 2px solid #1e1e1e; */
   border: none;
 }
 QPushButton {
