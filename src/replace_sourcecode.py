@@ -121,8 +121,15 @@ def setup_vector_db():
     vector_db_path = Path(__file__).parent / "Vector_DB"
     vector_db_backup_path = Path(__file__).parent / "Vector_DB_Backup"
 
-    vector_db_path.mkdir(exist_ok=True)
-    vector_db_backup_path.mkdir(exist_ok=True)
+    try:
+        vector_db_path.mkdir(exist_ok=True)
+        vector_db_backup_path.mkdir(exist_ok=True)
+    except PermissionError:
+        print("Error: Insufficient permissions to create directories.")
+        return
+    except Exception as e:
+        print(f"Error creating directories: {str(e)}")
+        return
 
     user_manual_paths = [
         vector_db_path / "user_manual",
@@ -132,16 +139,25 @@ def setup_vector_db():
     for path in user_manual_paths:
         if path.exists():
             try:
-                shutil.rmtree(path)
+                shutil.rmtree(path, ignore_errors=False)
                 print(f"Removed existing user_manual folder from {path.parent}")
+            except PermissionError:
+                print(f"Error: Permission denied when trying to remove {path}")
+                return
             except Exception as e:
                 print(f"Error removing {path}: {str(e)}")
+                return
 
     try:
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            if zip_ref.testzip() is not None:
+                print("Error: Zip file is corrupted")
+                return
             zip_ref.extractall(vector_db_path)
             zip_ref.extractall(vector_db_backup_path)
         print(f"Successfully extracted user_manual_db.zip to {vector_db_path} and {vector_db_backup_path}")
+    except PermissionError:
+        print("Error: Permission denied when extracting zip file")
     except Exception as e:
         print(f"Error extracting zip file: {str(e)}")
 
