@@ -124,6 +124,19 @@ def setup_vector_db():
     vector_db_path.mkdir(exist_ok=True)
     vector_db_backup_path.mkdir(exist_ok=True)
 
+    user_manual_paths = [
+        vector_db_path / "user_manual",
+        vector_db_backup_path / "user_manual"
+    ]
+
+    for path in user_manual_paths:
+        if path.exists():
+            try:
+                shutil.rmtree(path)
+                print(f"Removed existing user_manual folder from {path.parent}")
+            except Exception as e:
+                print(f"Error removing {path}: {str(e)}")
+
     try:
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(vector_db_path)
