@@ -65,7 +65,7 @@ class ScrapeDocumentationTab(QWidget):
             item = QStandardItem(doc)
 
             if os.path.exists(folder_path):
-                item.setForeground(QColor('#4B0F0F'))
+                item.setForeground(QColor('#e75959'))
 
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
 

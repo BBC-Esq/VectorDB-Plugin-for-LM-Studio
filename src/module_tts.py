@@ -94,6 +94,7 @@ class BaseAudio:
         self.stop_event.set()
         self.audio_queue.put(None)
 
+
 class BarkAudio(BaseAudio):
     def __init__(self):
         super().__init__()
@@ -112,6 +113,8 @@ class BarkAudio(BaseAudio):
             cache_dir=CACHE_DIR,
             # attn_implementation="flash_attention_2"
         ).to(self.device)
+        
+        self.model.eval()
         
         my_cprint("Bark model loaded (float16)", "green")
         
@@ -144,6 +147,7 @@ class BarkAudio(BaseAudio):
                     print(f"Exception during audio generation: {str(e)}")
                     continue
         self.audio_queue.put(None)
+
 
 class WhisperSpeechAudio(BaseAudio):
     def __init__(self):
@@ -196,94 +200,116 @@ class WhisperSpeechAudio(BaseAudio):
         super().run(input_text_file)
 
 
-class ChatTTSAudio:
+class ChatTTSAudio(BaseAudio):
+    """
+    +----------------+------------------+------------------------+---------------+--------------+
+    | Source         | Parameters       | Behavior             | Repo Structure? | Verify Hash? |
+    +----------------+------------------+------------------------+---------------+--------------+
+    | "huggingface"  | (default)        | ~/.cache/huggingface | No              | Yes          |
+    | "huggingface"  | cache_dir="path" | Downloads to path    | No              | Yes          |
+    | "huggingface"  | local_dir="path" | Downloads to path    | Yes             | No           |
+    +----------------+------------------+----------------------+-----------------+--------------+
+    | "local"        | (default)        | Current directory    | No              | Yes          |
+    | "local"        | cache_dir="path" | Downloads to path    | No              | Yes          |
+    | "local"        | local_dir="path" | Downloads to path    | Yes             | No           |
+    +----------------+------------------+----------------------+-----------------+--------------+
+    | "custom"       | custom_path      | Uses existing files  | n/a             | Yes          |
+    | "custom"       | +cache_dir       | cache_dir ignored    | n/a             | Yes          |
+    | "custom"       | +local_dir       | local_dir ignored    | n/a             | Yes          |
+    +----------------+------------------+----------------------+-----------------+--------------+
+
+    1. `local_dir` takes precedence over everything else:
+    ```python
+    chat.load(source="huggingface", local_dir="path/to/dir", cache_dir="path/to/cache")  # local_dir wins
+    ```
+
+    2. If `local_dir` is not specified but `cache_dir` is, cache_dir is used:
+    ```python
+    chat.load(source="huggingface", cache_dir="path/to/cache")  # cache_dir used
+    ```
+
+    3. If neither is specified, the default location is used:
+    ```python
+    chat.load(source="huggingface")  # Uses ~/.cache/huggingface
+    chat.load(source="local")        # Uses current directory
+    ```
+    """
     def __init__(self):
-
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-
+        super().__init__()
+        
+        print("Initializing ChatTTSAudio...")
+        
+        self.initialize_device()
         self.chat = ChatTTS.Chat()
-        self.chat.load_models(
-            source="huggingface",  # local or huggingface
-            # local_path=r"[PATH ONLY IF USING PATH]",
-            device=device,
-            compile=False
+
+        chattts_dir = CACHE_DIR / "2Noise--ChatTTS"
+        chattts_dir.mkdir(parents=True, exist_ok=True)
+
+        self.chat.load(
+            source="huggingface",
+            device=self.device,
+            compile=False,
+            use_flash_attn=False,
+            local_dir=str(chattts_dir)
         )
-        
-        self.chat.pretrain_models["tokenizer"].pad_token = '[PAD]'
 
-        # consistent seeds are 194, 42, 11, 20 (female), 81 (female), 84 (female), 194
-        self.rand_spk = self.chat.sample_random_speaker(seed=11)
-        self.params_infer_code = {
-            'spk_emb': self.rand_spk,
-            'temperature': 0.7,  # more emotion/emphasis
-            'top_P': 1,  # top percentage
-            'top_K': 40,  # top candidates
-            'prompt': '[speed_5]'
-        }
-        self.params_refine_text = {
-            'prompt': '[oral_0][laugh_0][break_0]'
-        }
-        '''
-        Oral and Break are 0-9 while Laugh is 0-2
-        Oral = more casual and less verbatim.
-        Break = Silences a portion of the beginning of a text segment processed.
-        '''
+        torch.manual_seed(11)
+        self.rand_spk = self.chat.sample_random_speaker()
 
-        self.audio_queue = queue.Queue()
+        self.params_infer_code = ChatTTS.Chat.InferCodeParams(
+            spk_emb=self.rand_spk,
+            temperature=0.7,
+            top_P=1,
+            top_K=40,
+            prompt='[speed_5]'
+        )
 
-    def run(self, input_text_file):
-        try:
-            with open(input_text_file, 'r', encoding='utf-8') as file:
-                text = file.read()
-        except FileNotFoundError:
-            print(f"Error: File not found at {input_text_file}")
-            return
-        except IOError:
-            print(f"Error: Unable to read file at {input_text_file}")
-            return
+        self.params_refine_text = ChatTTS.Chat.RefineTextParams(
+            prompt='[oral_0][laugh_0][break_0]',
+            temperature=0.7,
+            top_P=0.7,
+            top_K=20
+        )
 
-        sentences = text.split('. ')
-        
-        processing_thread = threading.Thread(target=self._process_sentences, args=(sentences,))
-        processing_thread.start()
-
-        playback_thread = threading.Thread(target=self._play_audio)
-        playback_thread.start()
-
-        processing_thread.join()
-        self.audio_queue.join()
-        playback_thread.join(timeout=1)
-
-        if playback_thread.is_alive():
-            print("Audio playback is still in progress...")
-        else:
-            print("Audio playback completed.")
-
-    def _process_sentences(self, sentences):
+    @torch.inference_mode()
+    def process_text_to_audio(self, sentences):
+        print(f"Starting text processing... ({len(sentences)} sentences)")
         for sentence in sentences:
+            if not sentence or not sentence.strip():
+                continue
+                
             print(f"Processing sentence: {sentence}")
-            wavs = self.chat.infer([sentence], params_refine_text=self.params_refine_text, params_infer_code=self.params_infer_code)
-            audio_data = wavs[0]
-            audio_data = audio_data.squeeze()
-            self.audio_queue.put(audio_data)
-        self.audio_queue.put(None)
-
-    def _play_audio(self):
-        while True:
             try:
-                audio_data = self.audio_queue.get(timeout=10)  # 10-second timeout
-                if audio_data is None:
-                    self.audio_queue.task_done()
-                    break
-                sd.play(audio_data, samplerate=24000)
-                sd.wait()  # Wait for playback to finish
-                self.audio_queue.task_done()
-            except queue.Empty:
-                print("Timeout waiting for audio data. Ending playback.")
-                break
+                wavs = self.chat.infer(
+                    sentence,
+                    params_refine_text=self.params_refine_text,
+                    params_infer_code=self.params_infer_code
+                )
+                
+                # Handle the output without checking array truth value
+                if wavs is not None and len(wavs) > 0:
+                    audio_data = wavs[0]
+                    if isinstance(audio_data, torch.Tensor):
+                        audio_data = audio_data.cpu().numpy()
+                    audio_data = audio_data.squeeze()
+                    
+                    # Check array size using numpy methods
+                    if np.prod(audio_data.shape) > 0:
+                        print(f"Audio data shape: {audio_data.shape}")
+                        # Normalize if needed
+                        if np.abs(audio_data).max() > 1.0:
+                            audio_data = audio_data / np.abs(audio_data).max()
+                        print(f"Audio range: [{audio_data.min():.3f}, {audio_data.max():.3f}]")
+                        self.audio_queue.put((audio_data, 24000))
+                        print("Audio data queued")
             except Exception as e:
-                print(f"Error during audio playback: {e}")
-                self.audio_queue.task_done()
+                print(f"Error processing sentence: {str(e)}\n{type(e)}")
+                import traceback
+                print(traceback.format_exc())
+                continue
+        
+        print("Text processing complete, sending end signal")
+        self.audio_queue.put(None)
 
 
 class GoogleTTSAudio:

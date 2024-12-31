@@ -22,6 +22,18 @@ def get_compute_device_info():
     return {'available': available_devices, 'gpu_brand': gpu_brand}
 
 def get_platform_info():
+    """
+    Key Differences between `platform.system()` and `sysconfig.get_platform()`
+    ------------------------------|---------------------------------------------------------------------|
+    | Feature                     | `platform.system()`                  | `sysconfig.get_platform(     |
+    |-----------------------------|-----------------------------------|---------------------------------|
+    | Primary Purpose             | Identify the operating system.    | Provide detailed platform tags. |
+    | Output Granularity          | Broad (e.g., `windows`, `linux`). | Specific (e.g., `win-amd64`).   |
+    | Includes CPU Architecture?  | No                                | Yes                             |
+    | Includes Build Information? | No                                | Yes (e.g., macOS version).      |
+    | Use Case                    | Simple OS detection.              | Detailed compatibility checks.  |
+    ------------------------------------------------------------------|---------------------------------|
+    """
     return {'os': platform.system().lower()}
 
 def get_supported_quantizations(device_type):

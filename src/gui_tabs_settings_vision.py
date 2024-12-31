@@ -10,7 +10,7 @@ def is_cuda_available():
 
 def get_cuda_capability():
     if is_cuda_available():
-        return torch.cuda.get_device_capability(0)  # Get capability of the first CUDA device
+        return torch.cuda.get_device_capability(0)
     return (0, 0)
 
 class VisionSettingsTab(QWidget):

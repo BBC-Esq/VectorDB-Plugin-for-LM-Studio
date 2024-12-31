@@ -5,6 +5,8 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import torch
+import torchvision.transforms as T
+from torchvision.transforms.functional import InterpolationMode
 import yaml
 from PIL import Image
 from tqdm import tqdm
@@ -18,6 +20,23 @@ from langchain_community.docstore.document import Document
 from extract_metadata import extract_image_metadata
 from utilities import my_cprint
 from constants import VISION_MODELS
+
+"""
++----------------------+-----------------------------------------+-----------+----------------+----------+
+| Sub-Class            | Config Details                          | Attention | Precision      | Device   |
++----------------------+-----------------------------------------+-----------+----------------+----------+
+| loader_llava_next    | do_sample=False, no temperature control | SDPA      | float16 4-bit  | CUDA     |
+| loader_moondream     | No generation config (uses answer_      | SDPA      | float16        | CUDA     |
+|                      | question method)                        |           |                |          |
+| loader_florence2     | Comprehensive beam settings, no         | SDPA      | autoselect     | CPU/CUDA |
+|                      | sampling                                |           |                |          |
+| loader_minicpm_V_2_6 | sampling=False, no temperature          | FA2       | bfloat16 4-bit | CUDA     |
+| loader_glmv4         | do_sample=False, no temperature         | SDPA      | bfloat16 4-bit | CUDA     |
+| loader_molmo         | Uses GenerationConfig class             | SDPA      | float32 4-bit  | CUDA     |
+| loader_mississippi   | Uses repetition_penalty=1.1             | SDPA      | autoselect     | CUDA     |
+| loader_ovis          | repetition_penalty=1.0, use_cache=True  | SDPA      | autoselect     | CUDA     |
++----------------------+-----------------------------------------+-----------+----------------+----------+
+"""
 
 warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
 
@@ -73,6 +92,8 @@ def choose_image_loader():
         loader_func = loader_mississippi(config).process_images
     elif chosen_model == 'Ovis1.6-Llama3.2 - 3b':
         loader_func = loader_ovis(config).process_images
+    elif chosen_model in ['InternVL2.5 - 1b', 'InternVL2.5 - 4b']:
+        loader_func = loader_internvl2_5(config).process_images
     else:
         my_cprint("No valid image model specified in config.yaml", "red")
         return []
@@ -184,7 +205,7 @@ class loader_llava_next(BaseLoader):
 
     @ torch.inference_mode()
     def process_single_image(self, raw_image):
-        user_prompt = "Describe this image in detail as possible."
+        user_prompt = "Describe this image in as much detail as possible but do not repeat yourself."
         prompt = f"USER: <image>\n{user_prompt} ASSISTANT:"
         inputs = self.processor(text=prompt, images=raw_image, return_tensors="pt").to(self.device)
         
@@ -332,7 +353,7 @@ class loader_minicpm_V_2_6(BaseLoader):
             trust_remote_code=True,
             cache_dir=cache_dir
         )
-        model.eval()
+        model.eval() # this pre-quantized bnb model is automatically moved to cuda
         
         my_cprint("MiniCPM_V_2_6 vision model loaded into memory...", "green")
         
@@ -340,7 +361,7 @@ class loader_minicpm_V_2_6(BaseLoader):
 
     @torch.inference_mode()
     def process_single_image(self, raw_image):
-        question = 'Describe this image in as much detail as possible and do not repeat yourself.'
+        question = 'Describe this image in as much detail as possible but do not repeat yourself.'
         msgs = [{'role': 'user', 'content': question}]
         
         response = self.model.chat(
@@ -399,7 +420,7 @@ class loader_glmv4(BaseLoader):
 
     @torch.inference_mode()
     def process_single_image(self, raw_image):
-        query = "Describe this image in detail as possible but be succinct and don't repeat yourself."
+        query = "Describe this image in as much detail as possible but do not repeat yourself."
         
         inputs = self.tokenizer.apply_chat_template(
             [{"role": "user", "image": raw_image, "content": query}],
@@ -467,7 +488,6 @@ class loader_molmo(BaseLoader):
             my_cprint(f"Error loading {chosen_model} model: {str(e)}", "red")
             raise
 
-        # Return model and processor
         return self.model, None, self.processor
 
     @torch.inference_mode()
@@ -480,7 +500,6 @@ class loader_molmo(BaseLoader):
         inputs = {k: v.to(self.device).unsqueeze(0) for k, v in inputs.items()}
 
         try:
-            # Use GenerationConfig as in the working script
             generation_config = GenerationConfig(
                 max_new_tokens=500,
                 stop_strings=["<|endoftext|>"]
@@ -561,7 +580,7 @@ class loader_mississippi(BaseLoader):
             eos_token_id=self.tokenizer.eos_token_id,
         )
         
-        question = '<image>\nDescribe this image in detail as possible but be succinct and do not repeat yourself.'
+        question = '<image>\nDescribe this image in as much detail as possible but do not repeat yourself.'
         response, _ = self.model.chat(
             self.tokenizer, 
             image_path,
@@ -577,13 +596,10 @@ class loader_mississippi(BaseLoader):
 class loader_ovis(BaseLoader):
     def __init__(self, config):
         super().__init__(config)
-        from utilities import my_cprint, get_device_and_precision
+        from utilities import my_cprint
         self.my_cprint = my_cprint
-        self.get_device_and_precision = get_device_and_precision
 
     def initialize_model_and_tokenizer(self):
-        _, precision_type = self.get_device_and_precision()
-        
         chosen_model = self.config['vision']['chosen_model']
         model_info = VISION_MODELS[chosen_model]
         repo_id = model_info['repo_id']
@@ -600,10 +616,10 @@ class loader_ovis(BaseLoader):
         model = AutoModelForCausalLM.from_pretrained(
             repo_id,
             config=config,
-            torch_dtype=torch.bfloat16 if precision_type == "bfloat16" else torch.float16,
+            torch_dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
             trust_remote_code=True,
-            multimodal_max_length=8192,
+            multimodal_max_length=4096,
             cache_dir=cache_dir
         ).eval().cuda()
         
@@ -614,7 +630,7 @@ class loader_ovis(BaseLoader):
 
     @torch.inference_mode()
     def process_single_image(self, raw_image):
-        text = "Describe this image in detail as possible but do not repeate identifying the same things."
+        text = "Describe this image in as much detail as possible but do not repeat yourself."
         query = f'<image>\n{text}'
         
         prompt, input_ids, pixel_values = self.model.preprocess_inputs(query, [raw_image])
@@ -645,3 +661,90 @@ class loader_ovis(BaseLoader):
         
         output = self.tokenizer.decode(output_ids, skip_special_tokens=True)
         return output
+
+
+class loader_internvl2_5(BaseLoader):
+    def initialize_model_and_tokenizer(self):
+        chosen_model = self.config['vision']['chosen_model']
+        model_info = VISION_MODELS[chosen_model]
+        model_id = model_info['repo_id']
+        save_dir = model_info["cache_dir"]
+        cache_dir = CACHE_DIR / save_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # use bnb with 4 model but run 1b model in native bfloat16
+        if model_info['size'] == '4b':
+            quantization_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.bfloat16,
+            )
+            model = AutoModel.from_pretrained(
+                model_id,
+                quantization_config=quantization_config,
+                torch_dtype=torch.bfloat16,
+                low_cpu_mem_usage=True,
+                trust_remote_code=True,
+                cache_dir=cache_dir
+            )
+            model.eval() # bnb automatically places model on cuda
+        else:
+            model = AutoModel.from_pretrained(
+                model_id,
+                torch_dtype=torch.bfloat16,
+                low_cpu_mem_usage=True,
+                trust_remote_code=True,
+                cache_dir=cache_dir
+            )
+            model.eval().cuda()  # no bnb; must explicitly place model on cuda
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_id,
+            trust_remote_code=True,
+            cache_dir=cache_dir
+        )
+
+        my_cprint(f"InternVL2.5 {model_info['size']} vision model loaded into memory...", "green")
+
+        return model, tokenizer, None
+
+    def _build_transform(self, input_size):
+        IMAGENET_MEAN = (0.485, 0.456, 0.406)
+        IMAGENET_STD = (0.229, 0.224, 0.225)
+        transform = T.Compose([
+            T.Lambda(lambda img: img.convert('RGB') if img.mode != 'RGB' else img),
+            T.Resize((input_size, input_size), interpolation=InterpolationMode.BICUBIC),
+            T.ToTensor(),
+            T.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+        ])
+        return transform
+
+    def _prepare_image(self, raw_image, input_size=448):
+        transform = self._build_transform(input_size=input_size)
+        pixel_values = transform(raw_image).unsqueeze(0)
+        return pixel_values
+
+    @torch.inference_mode()
+    def process_single_image(self, raw_image):
+        pixel_values = self._prepare_image(raw_image).to(torch.bfloat16).to(self.device)
+        
+        question = "Describe this image in as much detail as possible but do not repeat yourself."
+        
+        generation_config = dict(
+            num_beams=1,
+            max_new_tokens=1024,
+            do_sample=False,
+            top_p=None,
+            top_k=None,
+            temperature=None,
+            pad_token_id=self.tokenizer.pad_token_id,
+        )
+
+        response = self.model.chat(
+            self.tokenizer,
+            pixel_values,
+            question,
+            generation_config
+        )
+        
+        return response

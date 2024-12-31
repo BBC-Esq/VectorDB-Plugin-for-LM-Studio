@@ -26,8 +26,8 @@ class BarkModelSettingsTab(QWidget):
         self.use_whisper_radio.setChecked(True)
         self.radio_button_group.addButton(self.use_whisper_radio)
 
-        # self.use_chattts_radio = QRadioButton("ChatTTS - (CPU/CPU)")
-        # self.radio_button_group.addButton(self.use_chattts_radio)
+        self.use_chattts_radio = QRadioButton("ChatTTS - (CPU/CPU)")
+        self.radio_button_group.addButton(self.use_chattts_radio)
 
         self.use_googletts_radio = QRadioButton("Google TTS - (CPU)")
         self.radio_button_group.addButton(self.use_googletts_radio)
@@ -74,7 +74,7 @@ class BarkModelSettingsTab(QWidget):
         self.t2s_combo.setMinimumWidth(100)
         main_layout.addWidget(self.t2s_combo, 1, 5)
 
-        # main_layout.addWidget(self.use_chattts_radio, 2, 0, 1, 2)
+        main_layout.addWidget(self.use_chattts_radio, 2, 0, 1, 2)
         main_layout.addWidget(self.use_googletts_radio, 3, 0, 1, 2)
 
         self.setLayout(main_layout)
@@ -104,8 +104,8 @@ class BarkModelSettingsTab(QWidget):
         tts_model = tts_config.get('model', 'whisperspeech')
         if tts_model == 'bark':
             self.use_bark_radio.setChecked(True)
-        # elif tts_model == 'chattts':
-            # self.use_chattts_radio.setChecked(True)
+        elif tts_model == 'chattts':
+            self.use_chattts_radio.setChecked(True)
         elif tts_model == 'googletts':
             self.use_googletts_radio.setChecked(True)
         else:
@@ -135,11 +135,11 @@ class BarkModelSettingsTab(QWidget):
         self.speaker_combo.currentTextChanged.connect(self.update_config)
         self.use_bark_radio.toggled.connect(self.update_widgets_state)
         self.use_whisper_radio.toggled.connect(self.update_widgets_state)
-        # self.use_chattts_radio.toggled.connect(self.update_widgets_state)
+        self.use_chattts_radio.toggled.connect(self.update_widgets_state)
         self.use_googletts_radio.toggled.connect(self.update_widgets_state)
         self.use_bark_radio.toggled.connect(self.update_tts_model)
         self.use_whisper_radio.toggled.connect(self.update_tts_model)
-        # self.use_chattts_radio.toggled.connect(self.update_tts_model)
+        self.use_chattts_radio.toggled.connect(self.update_tts_model)
         self.use_googletts_radio.toggled.connect(self.update_tts_model)
         self.s2a_combo.currentTextChanged.connect(self.update_whisperspeech_config)
         self.t2s_combo.currentTextChanged.connect(self.update_whisperspeech_config)
@@ -199,8 +199,8 @@ class BarkModelSettingsTab(QWidget):
         tts_config = config.get('tts', {})
         if self.use_bark_radio.isChecked():
             tts_config['model'] = 'bark'
-        # elif self.use_chattts_radio.isChecked():
-            # tts_config['model'] = 'chattts'
+        elif self.use_chattts_radio.isChecked():
+            tts_config['model'] = 'chattts'
         elif self.use_googletts_radio.isChecked():
             tts_config['model'] = 'googletts'
         else:

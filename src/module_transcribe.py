@@ -2,6 +2,7 @@ from multiprocessing import Process
 from pathlib import Path
 import warnings
 import shutil
+import json
 
 import torch
 import av
@@ -183,4 +184,9 @@ class WhisperTranscriber:
         audio_file_name = Path(audio_file_path).stem
         json_file_path = docs_dir / f"{audio_file_name}.json"
         
-        json_file_path.write_text(doc.json(indent=4), encoding='utf-8')
+        doc_dict = {
+            "page_content": transcription_text,
+            "metadata": metadata
+        }
+        
+        json_file_path.write_text(json.dumps(doc_dict, indent=4), encoding='utf-8')

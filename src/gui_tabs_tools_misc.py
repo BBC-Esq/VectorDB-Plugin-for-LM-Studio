@@ -51,7 +51,7 @@ class MiscTab(QWidget):
        self.chart_vision_models_button.setToolTip("Compare various vision models.")
 
        self.gpu_count_combo = QComboBox()
-       self.gpu_count_combo.addItems(["4", "6", "8", "10-12", "16-24"])
+       self.gpu_count_combo.addItems(["4-6", "8", "10-12", "16-24"])
        self.gpu_count_combo.setCurrentIndex(0)
        self.gpu_count_combo.setToolTip("Select GPU V-RAM (in GB)")
        
@@ -144,8 +144,8 @@ class MiscTab(QWidget):
        selected_range = self.gpu_count_combo.currentText()
 
        range_mapping = {
-           "4": (4, 4),
-           "6": (6, 6),
+           "4-6": (4, 6),
+           # "6": (6, 6),
            "8": (8, 8),
            "10-12": (10, 12),
            "16-24": (16, 24)

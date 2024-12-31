@@ -1,3 +1,5 @@
+# compatible with langchain 0.3+
+
 import os
 import logging
 import warnings

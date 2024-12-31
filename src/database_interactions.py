@@ -1,3 +1,21 @@
+"""
+Based on the LangChain v0.3 update guide, I can identify several items that need updating in this script:
+
+1. Definite changes needed:
+- The commented-out import from `langchain_huggingface` should now be used instead of the current import from
+`langchain_community.embeddings`
+- The `show_progress_bar` parameter in the encode_kwargs is listed as invalid after langchain 0.2.2+
+- The commented `show_progress=True` parameter should now be used instead of show_progress_bar
+
+2. Questionable changes that may need verification:
+- The use of HuggingFaceEmbeddings class is not shown in your imports but is used in the code. You may need to check
+if this should also come from `langchain_huggingface` in v0.3
+- The `parse_raw` method used with Document class may need verification for compatibility with Pydantic 2 changes
+
+Please make sure to test these changes when implementing them, particularly the migration from Pydantic 1 to
+Pydantic 2 related functionality.
+"""
+
 import gc
 import logging
 import os
@@ -11,16 +29,17 @@ import re
 import sqlite3
 import torch
 import yaml
+# use in langchain 0.2.2+
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings # invalid after langchain 0.2.2+
 from langchain_community.docstore.document import Document
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
 from langchain_community.vectorstores import TileDB
 
 from document_processor import load_documents, split_documents
 from module_process_images import choose_image_loader
 from utilities import my_cprint, get_model_native_precision, get_appropriate_dtype
 from constants import VECTOR_MODELS
-          
+
 def create_vector_db_in_process(database_name):
     create_vector_db = CreateVectorDB(database_name=database_name)
     create_vector_db.run()
@@ -91,18 +110,15 @@ class CreateVectorDB:
                 'bge-large': 4,
                 'instructor-large': 4,
                 'e5-large': 4,
-                'gte-large': 4,
+                'arctic-embed-l': 4,
+                'arctic-embed-m': 6,
                 'instructor-base': 8,
-                'mpnet': 8,
                 'e5-base': 8,
                 'bge-base': 8,
                 'Granite-125m-English': 8,
-                'gte-base': 8,
                 'e5-small': 10,
                 'bge-small': 10,
                 'Granite-30m-English': 10,
-                'gte-small': 10,
-                'MiniLM': 30,
             }
 
             for key, value in batch_size_mapping.items():
@@ -115,22 +131,26 @@ class CreateVectorDB:
                         encode_kwargs['batch_size'] = value
                         break
 
-        if "instructor" in embedding_model_name:
-            encode_kwargs['show_progress_bar'] = True
+        if "instructor" in embedding_model_name.lower():
+            # encode_kwargs['show_progress_bar'] = True  # invalid after langchain 0.2.2+
+
+            if torch_dtype is not None:
+                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
 
             model = HuggingFaceInstructEmbeddings(
                 model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
+                show_progress=True, # use in langchain 0.2.2+
             )
 
-            if torch_dtype is not None:
-                # Move the model to the desired dtype
-                model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
+            # if torch_dtype is not None:
+                # # Move the model to the desired dtype
+                # model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
 
-        elif "bge" in embedding_model_name:
+        elif "bge" in embedding_model_name.lower():
             query_instruction = config_data['embedding-models']['bge'].get('query_instruction', '')
-            encode_kwargs['show_progress_bar'] = True
+            # encode_kwargs['show_progress_bar'] = True # invalid after langchain 0.2.2+
 
             if torch_dtype is not None:
                 model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
@@ -139,10 +159,40 @@ class CreateVectorDB:
                 model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
                 query_instruction=query_instruction,
-                encode_kwargs=encode_kwargs
+                encode_kwargs=encode_kwargs,
+                show_progress=True, # use in langchain 0.2.2+
             )
 
-        elif "Alibaba" in embedding_model_name:
+        elif "snowflake" in embedding_model_name.lower():
+            if torch_dtype is not None:
+                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
+
+            if "large" in embedding_model_name.lower():
+                # XLMRobertaModel (large) uses standard configuration
+                model = HuggingFaceEmbeddings(
+                    model_name=embedding_model_name,
+                    show_progress=True,
+                    model_kwargs=model_kwargs,
+                    encode_kwargs=encode_kwargs
+                )
+            else:
+                # GteModel (medium) requires special config
+                snow_kwargs = model_kwargs.copy()
+                if "model_kwargs" not in snow_kwargs:
+                    snow_kwargs["model_kwargs"] = {}
+                snow_kwargs["config_kwargs"] = {
+                    "use_memory_efficient_attention": True,
+                    "attn_implementation": "eager"
+                }
+                
+                model = HuggingFaceEmbeddings(
+                    model_name=embedding_model_name,
+                    show_progress=True,
+                    model_kwargs=snow_kwargs,
+                    encode_kwargs=encode_kwargs
+                )
+
+        elif "Alibaba" in embedding_model_name.lower():
             if torch_dtype is not None:
                 model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
             model_kwargs["tokenizer_kwargs"] = {
@@ -317,9 +367,6 @@ class CreateVectorDB:
         # separate lists for pdf and non-pdf document objects
         text_documents_pdf = [doc for doc in documents if doc.metadata.get("file_type") == ".pdf"]
         documents = [doc for doc in documents if doc.metadata.get("file_type") != ".pdf"]
-
-        # debugging
-        # serialize_documents_to_json(text_documents_pdf)
         
         # load image document objects
         print("Loading any images...")
@@ -345,9 +392,6 @@ class CreateVectorDB:
         if (isinstance(documents, list) and documents) or (isinstance(text_documents_pdf, list) and text_documents_pdf):
             texts = split_documents(documents, text_documents_pdf)
             print(f"Documents split into {len(texts)} chunks.")
-
-        # debugging
-        # serialize_documents_to_json(texts, file_name="split_document_objects.json")
 
         # pickle
         if isinstance(texts, list) and texts:
@@ -423,7 +467,7 @@ class QueryVectorDB:
                 model_name=model_path,
                 model_kwargs={"device": compute_device, "trust_remote_code": True},
                 query_instruction=query_instruction,
-                encode_kwargs=encode_kwargs
+                encode_kwargs=encode_kwargs,
             )
         elif "Alibaba" in model_path:
             embeddings = HuggingFaceEmbeddings(
@@ -443,7 +487,7 @@ class QueryVectorDB:
             embeddings = HuggingFaceEmbeddings(
                 model_name=model_path,
                 model_kwargs={"device": compute_device, "trust_remote_code": True},
-                encode_kwargs=encode_kwargs
+                encode_kwargs=encode_kwargs,
             )
         # my_cprint(f"{self.model_name} loaded.", "green")
         

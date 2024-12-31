@@ -17,6 +17,29 @@ from packaging import version
 from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
 
+def check_cuda_re_triton():
+    """
+    Checks whether the files required by Triton 3.1.0 are present in the relative paths.
+    This mirrors where the windows_utils.py script within the Triton library will look for them.
+    """
+    venv_base = Path(sys.executable).parent.parent
+    nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
+    cuda_runtime = nvidia_base_path / 'cuda_runtime'
+    
+    files_to_check = [
+        cuda_runtime / "bin" / "cudart64_12.dll",
+        cuda_runtime / "bin" / "ptxas.exe",
+        cuda_runtime / "include" / "cuda.h",
+        cuda_runtime / "lib" / "x64" / "cuda.lib"
+    ]
+    
+    print("Checking CUDA files:")
+    for file_path in files_to_check:
+        exists = file_path.exists()
+        status = "✓ Found" if exists else "✗ Missing"
+        print(f"{status}: {file_path}")
+    print()
+
 def get_model_native_precision(embedding_model_name, vector_models):
     for group_models in vector_models.values():
         for model in group_models:

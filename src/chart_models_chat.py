@@ -9,19 +9,21 @@ def create_chat_models_comparison_plot():
     model_categories = {
         "coding": {
             "models": [
-                "Qwen 2.5 Coder - 7b",
-                "Qwen 2.5 Coder - 14b",
-                "Qwen 2.5 Coder - 32b"
+                "Qwen Coder - 7b",
+                "Qwen Coder - 14b",
+                "Qwen Coder - 32b"
             ],
             "color": "#DAA520",
             "label": "Coding Focused (8k context)"
         },
         "long_context": {
             "models": [
+                # "Granite - 2b",
                 "Exaone - 2.4b",
+                "Granite - 8b",
                 "Exaone - 7.8b",
-                "Qwen 2.5 - 14b",
-                "Mistral Small - 22b"
+                "Qwen - 14b",
+                "Mistral Small - 22b",
                 "Exaone - 32b",
             ],
             "color": "#2E8B57",
@@ -29,8 +31,8 @@ def create_chat_models_comparison_plot():
         },
         "coding_standard_context": {
             "models": [
-                "Qwen 2.5 Coder - 1.5b",
-                "Qwen 2.5 Coder - 3b",
+                "Qwen Coder - 1.5b",
+                "Qwen Coder - 3b",
             ],
             "color": "#4682B4",
             "label": "Coding Focused (4k context)"
@@ -38,7 +40,7 @@ def create_chat_models_comparison_plot():
     }
 
     df = pd.DataFrame([
-        {"model": model, "cps": data["cps"], "vram": data["vram"]}
+        {"model": model, "cps": data["cps"], "vram": data["vram"] / 1024}  # Convert MB to GB
         for model, data in CHAT_MODELS.items()
     ])
     df = df.sort_values(by="vram")
@@ -72,7 +74,7 @@ def create_chat_models_comparison_plot():
     ax1.bar(0, 0, color='none', label="VRAM Usage")
 
     ax1.set_xlabel("Model", color="white")
-    ax1.set_ylabel("Average VRAM Usage (MB)", color="white")
+    ax1.set_ylabel("Average VRAM Usage (GB)", color="white", fontsize=14)
     ax1.tick_params(axis="y", labelcolor="white", colors="white")
     ax1.tick_params(axis="x", labelcolor="white", colors="white", rotation=45)
 
@@ -85,10 +87,11 @@ def create_chat_models_comparison_plot():
 
     for bar in bars:
         yval = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width() / 2, yval, f'{yval:.2f}', verticalalignment='bottom', color='white', ha='center')
+        ax1.text(bar.get_x() + bar.get_width() / 2, yval, f'{yval:.2f}', 
+                 verticalalignment='bottom', color='white', ha='center')
 
     line = ax2.plot(range(len(df)), df["cps"], color="#6699CC", marker="D", markersize=6, linewidth=2, label="Characters per Second")
-    ax2.set_ylabel("Characters per Second", color="white")
+    ax2.set_ylabel("Characters per Second", color="white", fontsize=14)
     ax2.tick_params(axis="y", labelcolor="white")
 
     for i, cps in enumerate(df["cps"]):

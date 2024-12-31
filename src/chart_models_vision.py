@@ -24,13 +24,14 @@ def create_vision_models_comparison_plot():
         {"model": "Ovis1.6-Llama3.2 - 3b", "cps": 321.79, "memory": 9956.18},
         {"model": "GLM4v - 14b", "cps": 140.65, "memory": 10350.07},
         {"model": "Molmo-D-0924 - 8b", "cps": 146.60, "memory": 12321.12},
-        {"model": "llava-v1.6-vicuna - 7b", "cps": 146.18, "memory": 6845.81},
         {"model": "llava-v1.6-vicuna - 13b", "cps": 120.98, "memory": 11173.46},
-        {"model": "MiniCPM-V-2_6-int4 - 8b", "cps": 99.28, "memory": 7639.24},
         {"model": "Moondream2 - 2b", "cps": 344.97, "memory": 4461.80},
+        {"model": "InternVL2.5 - 4b", "cps": 173.57, "memory": 3151.93},
+        {"model": "InternVL2.5 - 1b", "cps": 291.18, "memory": 2385.93},
     ]
 
     df = pd.DataFrame(data)
+    df["memory"] = df["memory"] / 1024
     df = df.sort_values(by="memory")
 
     fig, ax1 = plt.subplots(figsize=(10, 5))
@@ -59,7 +60,7 @@ def create_vision_models_comparison_plot():
     ax1.bar(0, 0, color=gradient(0.5), alpha=0.7, label="Memory Usage")
 
     ax1.set_xlabel("Model", color="white")
-    ax1.set_ylabel("Memory Usage (MB)", color="white")
+    ax1.set_ylabel("Memory Usage (GB)", color="white", fontsize=14)
     ax1.tick_params(axis="y", labelcolor="white", colors="white")
     ax1.tick_params(axis="x", labelcolor="white", colors="white", rotation=45)
 
@@ -73,7 +74,7 @@ def create_vision_models_comparison_plot():
     ax1.grid(True, linestyle='--', alpha=0.1, color='white')
 
     line = ax2.plot(range(len(df)), df["cps"], color="#5F9EA0", marker="o", label='Characters per Second (cps)')
-    ax2.set_ylabel("Characters per Second", color="white")
+    ax2.set_ylabel("Characters per Second", color="white", fontsize=14)
     ax2.tick_params(axis="y", labelcolor="white")
 
     for i, cps in enumerate(df["cps"]):

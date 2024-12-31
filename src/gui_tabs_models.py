@@ -11,7 +11,7 @@ from download_model import ModelDownloader, model_downloaded_signal
 import webbrowser
 
 class VectorModelsTab(QWidget):
-   def __init__(self, parent=None):
+    def __init__(self, parent=None):
        super().__init__(parent)
        self.main_layout = QVBoxLayout()
        self.setLayout(self.main_layout)
@@ -23,11 +23,12 @@ class VectorModelsTab(QWidget):
        self.stretch_factors = {
            'BAAI': 4,
            'hkunlp': 4,
-           'sentence-transformers': 7,
-           'thenlper': 4,
+           'sentence-transformers': 5,
+           # 'thenlper': 4,
            'intfloat': 4,
            'Alibaba-NLP': 3,
            'IBM': 3,
+           'Snowflake': 3,
        }
 
        models_dir = Path('Models')
@@ -38,8 +39,9 @@ class VectorModelsTab(QWidget):
 
        existing_vector_directories = {d.name for d in vector_models_dir.iterdir() if d.is_dir()}
 
-       headers = ["Select", "Model Name", "Native Precision", "Dimensions", "Max Sequence", "Size (MB)", "Downloaded"]
-       column_stretch_factors = [1, 3, 2, 2, 2, 2, 2]
+       headers = ["Select", "Model Name", "Precision", "Parameters", "Dimensions", "Max Sequence", "Size (MB)", "Downloaded"]
+       column_stretch_factors = [1, 3, 2, 2, 2, 2, 2, 2]
+
 
        def add_centered_widget(grid, widget, row, col):
            grid.addWidget(widget, row, col, alignment=Qt.AlignCenter)
@@ -51,6 +53,11 @@ class VectorModelsTab(QWidget):
            group_layout.setVerticalSpacing(0)
            group_layout.setHorizontalSpacing(0)
            group_box.setLayout(group_layout)
+           
+           size_policy = group_box.sizePolicy()
+           size_policy.setVerticalStretch(self.stretch_factors.get(vendor, 1))
+           group_box.setSizePolicy(size_policy)
+           
            self.group_boxes[vendor] = group_box
 
            for col, header in enumerate(headers):
@@ -81,27 +88,31 @@ class VectorModelsTab(QWidget):
                model_name_label.setToolTip(TOOLTIPS["VECTOR_MODEL_NAME"])
                add_centered_widget(grid, model_name_label, row, 1)
 
-               precision_label = QLabel(str(model['precision']))
-               precision_label.setToolTip(TOOLTIPS.get("VECTOR_MODEL_PRECISION", ""))
+               precision_label = QLabel(str(model.get('precision', 'N/A')))
+               precision_label.setToolTip(TOOLTIPS["VECTOR_MODEL_PRECISION"])
                add_centered_widget(grid, precision_label, row, 2)
+
+               parameters_label = QLabel(str(model.get('parameters', 'N/A')))
+               parameters_label.setToolTip(TOOLTIPS.get("VECTOR_MODEL_PARAMETERS", ""))
+               add_centered_widget(grid, parameters_label, row, 3)
 
                dimensions_label = QLabel(str(model['dimensions']))
                dimensions_label.setToolTip(TOOLTIPS["VECTOR_MODEL_DIMENSIONS"])
-               add_centered_widget(grid, dimensions_label, row, 3)
+               add_centered_widget(grid, dimensions_label, row, 4)
 
                max_sequence_label = QLabel(str(model['max_sequence']))
                max_sequence_label.setToolTip(TOOLTIPS["VECTOR_MODEL_MAX_SEQUENCE"])
-               add_centered_widget(grid, max_sequence_label, row, 4)
+               add_centered_widget(grid, max_sequence_label, row, 5)
 
                size_label = QLabel(str(model['size_mb']))
                size_label.setToolTip(TOOLTIPS["VECTOR_MODEL_SIZE"])
-               add_centered_widget(grid, size_label, row, 5)
+               add_centered_widget(grid, size_label, row, 6)
 
                expected_dir_name = ModelDownloader(model_info, model['type']).get_model_directory_name()
                is_downloaded = expected_dir_name in existing_vector_directories
                downloaded_label = QLabel('Yes' if is_downloaded else 'No')
                downloaded_label.setToolTip(TOOLTIPS["VECTOR_MODEL_DOWNLOADED"])
-               add_centered_widget(grid, downloaded_label, row, 6)
+               add_centered_widget(grid, downloaded_label, row, 7)
                radiobutton.setEnabled(not is_downloaded)
 
                self.downloaded_labels[f"{vendor}/{model['name']}"] = (downloaded_label, model_info)
@@ -109,8 +120,7 @@ class VectorModelsTab(QWidget):
                row_counter += 1
 
        for vendor, group_box in self.group_boxes.items():
-           stretch_factor = self.stretch_factors.get(vendor, 1)
-           self.main_layout.addWidget(group_box, stretch_factor)
+           self.main_layout.addWidget(group_box)
 
        self.download_button = QPushButton('Download Selected Model')
        self.download_button.setToolTip(TOOLTIPS["DOWNLOAD_MODEL"])
@@ -119,7 +129,7 @@ class VectorModelsTab(QWidget):
 
        model_downloaded_signal.downloaded.connect(self.update_model_downloaded_status)
 
-   def initiate_model_download(self):
+    def initiate_model_download(self):
        selected_id = self.model_radiobuttons.checkedId()
        if selected_id != -1:
            _, (_, model_info) = list(self.downloaded_labels.items())[selected_id - 1]
@@ -128,7 +138,7 @@ class VectorModelsTab(QWidget):
            download_thread = threading.Thread(target=lambda: model_downloader.download_model())
            download_thread.start()
 
-   def update_model_downloaded_status(self, model_name, model_type):
+    def update_model_downloaded_status(self, model_name, model_type):
        models_dir = Path('Models')
        vector_models_dir = models_dir / "Vector"
 
@@ -149,17 +159,17 @@ class VectorModelsTab(QWidget):
        
        print(f"Model {model_name} not found in VECTOR_MODELS")
 
-   def refresh_gui(self):
+    def refresh_gui(self):
        for group_box in self.group_boxes.values():
            group_box.repaint()
        self.repaint()
 
-   def open_link(self, url):
+    def open_link(self, url):
        webbrowser.open(url)
 
 if __name__ == "__main__":
-   from PySide6.QtWidgets import QApplication
-   app = QApplication([])
-   window = VectorModelsTab()
-   window.show()
-   app.exec()
+    from PySide6.QtWidgets import QApplication
+    app = QApplication([])
+    window = VectorModelsTab()
+    window.show()
+    app.exec()

@@ -6,16 +6,22 @@ import os
 import time
 import atexit
 from pathlib import Path
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from functools import partial
+
+from ctypes import windll, c_int, byref, sizeof
+from ctypes.wintypes import BOOL
 
 import requests
 import sseclient
 from huggingface_hub import snapshot_download
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout,
-    QTextEdit, QLineEdit, QMessageBox,
-    QLabel, QApplication, QProgressDialog
+    QMainWindow, QWidget, QVBoxLayout, QSizePolicy,
+    QTextEdit, QLineEdit, QMessageBox, QVBoxLayout, QPushButton,
+    QLabel, QCommandLinkButton, QHBoxLayout, QApplication, QProgressDialog
 )
-from PySide6.QtCore import QThread, Signal, QObject, Qt
+from PySide6.QtCore import QThread, Signal, QObject, Qt, QTimer
 from PySide6.QtGui import QTextCursor, QPixmap
 
 from database_interactions import QueryVectorDB
@@ -23,7 +29,9 @@ from constants import (
     kobold_config, 
     jeeves_system_message, 
     rag_string,
-    JEEVES_MODELS
+    JEEVES_MODELS,
+    master_questions,
+    CustomButtonStyles,
 )
 
 
@@ -37,7 +45,6 @@ def has_discrete_vulkan_gpu():
         return False
 
 def wait_for_server(timeout=30, process=None):
-    """Wait for server to become responsive while monitoring process output."""
     start_time = time.time()
     attempt_count = 0
     
@@ -71,22 +78,17 @@ def wait_for_server(timeout=30, process=None):
 
 def create_kcppt_file(file_path, usecpu, model_param, **kwargs):
     config = kobold_config.copy()
-
     invalid_keys = []
-
     for key, value in kwargs.items():
         if key in config:
             config[key] = value
         else:
             invalid_keys.append(key)
-
     config['usecpu'] = usecpu
     config['model_param'] = Path(model_param).as_posix()
-
     try:
         with open(file_path, 'w') as file:
             json.dump(config, file, indent=2)
-
         if invalid_keys:
             print("Warning: The following keys are not valid and were not updated:")
             for key in invalid_keys:
@@ -95,16 +97,13 @@ def create_kcppt_file(file_path, usecpu, model_param, **kwargs):
         print(f"Failed to write KCPPT file: {e}")
         raise
 
-
 def format_path(path: Path) -> str:
     return path.as_posix()
-
 
 class ChatSignals(QObject):
     response_signal = Signal(str)
     error_signal = Signal(str)
     finished_signal = Signal()
-
 
 class ChatAPIWorker(QThread):
     def __init__(self, url, payload):
@@ -154,7 +153,6 @@ class ChatAPIWorker(QThread):
         if self.response:
             self.response.close()
 
-
 class DownloadWorker(QThread):
     download_finished = Signal(bool, str)
 
@@ -172,7 +170,6 @@ class DownloadWorker(QThread):
             self.download_finished.emit(True, "Download completed successfully.")
         except Exception as e:
             self.download_finished.emit(False, str(e))
-
 
 class ServerStartupWorker(QThread):
     server_started = Signal(object)
@@ -202,8 +199,6 @@ class ServerStartupWorker(QThread):
                     config_path,
                     usecpu=usecpu,
                     model_param=format_path(self.model_path),
-                    # Add any other default settings you want to enforce here
-                    # threads=8,  # Example additional parameter
                 )
             except Exception as e:
                 self.server_failed.emit(f"Failed to create KCPPT file: {e}")
@@ -245,7 +240,7 @@ class ServerStartupWorker(QThread):
 
     def terminate_subprocess(self):
         if self.process and self.process.poll() is None:
-            print("Terminating Kobold subprocess...")
+            print("Firing Jeeves...poor guy...")
             try:
                 if platform.system() == 'Windows':
                     self.process.send_signal(signal.CTRL_BREAK_EVENT)
@@ -261,16 +256,19 @@ class ServerStartupWorker(QThread):
                     stdout, stderr = self.process.communicate()
                     print("Subprocess terminated")
             except Exception as e:
-                print(f"Error terminating subprocess: {e}")
-
+                print(f"Error firing Jeeves...looks like he'll be around for awhile...: {e}")
 
 class ChatWindow(QMainWindow):
     def __init__(self, parent=None, selected_model=None):
         super().__init__(parent)
-        self.selected_model = selected_model or "EXAONE 3.5"  # default if none specified
+        self.selected_model = selected_model or "EXAONE 3.5"
         self.setWindowTitle("Ask Jeeves (Welcome back Jeeves!)")
-        self.setGeometry(100, 100, 750, 850)
+        self.setGeometry(100, 100, 850, 950)
 
+        self.model = SentenceTransformer('ibm-granite/granite-embedding-30m-english')
+        self.question_embeddings = self.model.encode(master_questions)
+        self.suggestion_cache = {}
+        
         self.chat_signals = ChatSignals()
         self.chat_signals.response_signal.connect(self.update_response)
         self.chat_signals.error_signal.connect(self.show_error_message)
@@ -278,6 +276,8 @@ class ChatWindow(QMainWindow):
 
         central_widget = QWidget()
         self.layout = QVBoxLayout(central_widget)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(1)
 
         image_path = Path(__file__).parent / "Assets" / "ask_jeeves_transparent.jpg"
         pixmap = self.load_image(image_path)
@@ -292,20 +292,139 @@ class ChatWindow(QMainWindow):
         self.chat_display.setPlainText("Hello, my name is Jeeves. Thank you for the job opportunity! Ask me how to use this program.")
         self.layout.addWidget(self.chat_display, 4)
 
+        # Setup input field
         self.input_field = QLineEdit()
+        self.input_field.setFixedHeight(40)
         self.input_field.setPlaceholderText("Type your message here...")
         self.input_field.returnPressed.connect(self.send_message)
+        self.input_field.textChanged.connect(self.debounce_update)
         self.layout.addWidget(self.input_field)
+
+        # Replace the suggestion buttons section with this:
+        self.suggestion_widget = QWidget()
+        self.suggestion_widget.setMinimumHeight(100)
+        self.suggestion_layout = QVBoxLayout(self.suggestion_widget)
+        self.suggestion_layout.setContentsMargins(0, 0, 0, 0)
+        self.suggestion_layout.setSpacing(1)
+
+        self.suggestion_buttons = []
+        for _ in range(3):
+            btn = QPushButton()
+            btn.setVisible(True)
+            btn.setStyleSheet(CustomButtonStyles.TEAL_BUTTON_STYLE)
+
+            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            btn.setMinimumSize(200, 35)  # Set minimum size explicitly
+
+            btn.clicked.connect(self.on_suggestion_clicked)
+            btn.setStyleSheet("text-align: left; padding: 1px 14px;")
+
+            self.suggestion_buttons.append(btn)
+            self.suggestion_layout.addWidget(btn)
+
+        self.suggestion_layout.addStretch()
+        self.layout.addWidget(self.suggestion_widget)
+        self.layout.addWidget(self.suggestion_widget)
+
+        # Timer setup for debounce
+        self.timer = QTimer()
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self._delayed_update)
 
         self.setCentralWidget(central_widget)
 
         self.worker = None
         self.llm_is_active = False
         self.api_url = "http://localhost:5001/api/extra/generate/stream"
-
         self.vector_db = QueryVectorDB(selected_database="user_manual")
-
         self.initialize()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.apply_dark_mode_settings()
+
+    def apply_dark_mode_settings(self):
+        import platform
+        if platform.system() != 'Windows':
+            return
+
+        # 1) Enable dark title bar
+        DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+        set_window_attribute = windll.dwmapi.DwmSetWindowAttribute
+        hwnd = self.winId()
+
+        true_bool = BOOL(True)
+        set_window_attribute(
+            c_int(hwnd),
+            DWMWA_USE_IMMERSIVE_DARK_MODE,
+            byref(true_bool),
+            sizeof(true_bool)
+        )
+
+        # 2) Make window border black (Windows 11+)
+        #    This attribute may be ignored on earlier Windows versions.
+        DWMWA_BORDER_COLOR = 34
+        black_color = c_int(0xFF000000)  # ABGR = 0xAARRGGBB => FF 00 00 00 = fully opaque black
+        set_window_attribute(
+            c_int(hwnd),
+            DWMWA_BORDER_COLOR,
+            byref(black_color),
+            sizeof(black_color)
+        )
+
+    def find_top_similar(self, input_text, top_k=3):
+        if not input_text.strip() or len(input_text) < 3:
+            return []
+            
+        input_embedding = self.model.encode([input_text])[0]
+        similarities = np.dot(self.question_embeddings, input_embedding) / (
+            np.linalg.norm(self.question_embeddings, axis=1) * np.linalg.norm(input_embedding)
+        )
+        
+        # Get indices of top_k similar questions
+        top_indices = similarities.argsort()[-top_k:][::-1]
+        top_similarities = similarities[top_indices]
+        
+        # Filter out questions with low similarity
+        threshold = 0.6
+        top_questions = [
+            master_questions[idx] for idx, sim in zip(top_indices, top_similarities) if sim > threshold
+        ]
+        
+        return top_questions
+
+    def debounce_update(self, text):
+        self.current_text = text
+        self.timer.start(300)
+
+    def _delayed_update(self):
+        text = self.current_text
+        if len(text) >= 3:
+            suggestions = self.find_top_similar(text, top_k=3)
+            self.update_suggestions(suggestions)
+        else:
+            self.clear_suggestions()
+
+    def update_suggestions(self, suggestions):
+        for i, btn in enumerate(self.suggestion_buttons):
+            if i < len(suggestions):
+                btn.setText(suggestions[i])
+                btn.setEnabled(True)
+            else:
+                btn.setText("")
+                btn.setEnabled(False)
+
+    def clear_suggestions(self):
+        for btn in self.suggestion_buttons:
+            btn.setText("")
+            btn.setEnabled(False)
+
+    def on_suggestion_clicked(self):
+        sender = self.sender()
+        if sender and isinstance(sender, QPushButton):
+            suggestion = sender.text()
+            self.input_field.setText(suggestion)
+            self.send_message()
 
     def initialize(self):
         current_dir = Path(__file__).parent.resolve()
@@ -320,10 +439,8 @@ class ChatWindow(QMainWindow):
 
         if not self.model_path.exists():
             image_path = current_dir / "Assets" / "ask_jeeves_transparent.jpg"
-            pixmap = QPixmap(str(image_path))
-            if pixmap.isNull():
-                print(f"Failed to load image: {image_path}")
-            else:
+            pixmap = self.load_image(image_path)
+            if pixmap:
                 pixmap = pixmap.scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
             msg_box = QMessageBox(self)
@@ -402,7 +519,7 @@ class ChatWindow(QMainWindow):
         self.input_field.setDisabled(True)
 
         try:
-            contexts, metadata = self.vector_db.search(user_message, k=8, score_threshold=0.9)
+            contexts, metadata = self.vector_db.search(user_message, k=7, score_threshold=0.9)
             if not contexts:
                 QMessageBox.warning(self, "No Contexts Found", "No relevant contexts were found for your query.")
                 self.input_field.setDisabled(False)
@@ -425,18 +542,9 @@ class ChatWindow(QMainWindow):
 
         payload = {
             "prompt": combined_prompt,
-            "max_length": 512,
+            "max_length":1024,
             "temperature": 0.0,
-            # "top_p": 0.9,
             "stream": True,
-            # "max_context_length": 4096,
-            # "rep_pen": 1.0,
-            # "rep_pen_range": 2048,
-            # "rep_pen_slope": 0.7,
-            # "tfs": 0.97,
-            # "top_a": 0.8,
-            # "top_k": 0,
-            # "typical": 0.19,
         }
 
         self.worker = ChatAPIWorker(self.api_url, payload)
@@ -475,7 +583,7 @@ class ChatWindow(QMainWindow):
 
     def terminate_subprocess(self):
         if hasattr(self, 'process') and self.process.poll() is None:
-            print("Terminating Kobold subprocess...")
+            print("Terminating Jeeves subprocess...")
             try:
                 if platform.system() == 'Windows':
                     self.process.send_signal(signal.CTRL_BREAK_EVENT)

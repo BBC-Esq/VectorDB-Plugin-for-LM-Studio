@@ -192,20 +192,31 @@ class BaseModel(ABC):
         gc.collect()
 
 
-# class Zephyr_1_6B(BaseModel):
-    # def __init__(self, generation_settings):
-        # model_info = CHAT_MODELS['Zephyr - 1.6b']
-        # settings = bnb_float16_settings if torch.cuda.is_available() else {}
-        # attn_implementation="eager" if torch.cuda.is_available() else {}
-        # super().__init__(model_info, settings, generation_settings, attn_implementation=attn_implementation)
+class Zephyr_1_6B(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Zephyr - 1.6b']
+        settings = bnb_float16_settings if torch.cuda.is_available() else {}
+        attn_implementation="eager" if torch.cuda.is_available() else {}
+        super().__init__(model_info, settings, generation_settings, attn_implementation=attn_implementation)
 
-    # def create_prompt(self, augmented_query):
-        # return f"""<|system|>
-# {system_message}<|endoftext|>
-# <|user|>
-# {augmented_query}<|endoftext|>
-# <|assistant|>
-# """
+    def create_prompt(self, augmented_query):
+        return f"""<|system|>
+{system_message}<|endoftext|>
+<|user|>
+{augmented_query}<|endoftext|>
+<|assistant|>
+"""
+
+
+class Granite_2b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Granite - 2b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|start_of_role|>system<|end_of_role|>{system_message}<|end_of_text|>
+<|start_of_role|>user<|end_of_role|>{augmented_query}<|end_of_text|>
+<|start_of_role|>assistant<|end_of_role|>"""
 
 
 class Exaone_2_4b(BaseModel):
@@ -220,9 +231,9 @@ class Exaone_2_4b(BaseModel):
 [|assistant|]"""
 
 
-class Qwen2_5_1_5b(BaseModel):
+class Qwen_1_5b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 - 1.5b']
+        model_info = CHAT_MODELS['Qwen - 1.5b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
@@ -236,7 +247,7 @@ class Qwen2_5_1_5b(BaseModel):
 
 class QwenCoder_1_5b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 Coder - 1.5b']
+        model_info = CHAT_MODELS['Qwen Coder - 1.5b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
@@ -263,11 +274,25 @@ class QwenCoder_1_5b(BaseModel):
             yield partial_response
 
         generation_thread.join()
+
+
+class Zephyr_3B(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Zephyr - 3b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|system|>
+{system_message}<|endoftext|>
+<|user|>
+{augmented_query}<|endoftext|>
+<|assistant|>
+"""
 
 
 class QwenCoder_3b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 Coder - 3b']
+        model_info = CHAT_MODELS['Qwen Coder - 3b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
@@ -294,6 +319,17 @@ class QwenCoder_3b(BaseModel):
             yield partial_response
 
         generation_thread.join()
+
+
+class Granite_8b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Granite - 8b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|start_of_role|>system<|end_of_role|>{system_message}<|end_of_text|>
+<|start_of_role|>user<|end_of_role|>{augmented_query}<|end_of_text|>
+<|start_of_role|>assistant<|end_of_role|>"""
 
 
 class Exaone_7_8b(BaseModel):
@@ -310,7 +346,7 @@ class Exaone_7_8b(BaseModel):
 
 class QwenCoder_7b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 Coder - 7b']
+        model_info = CHAT_MODELS['Qwen Coder - 7b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
@@ -341,7 +377,7 @@ class QwenCoder_7b(BaseModel):
 
 class QwenCoder_14b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 Coder - 14b']
+        model_info = CHAT_MODELS['Qwen Coder - 14b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
@@ -370,9 +406,9 @@ class QwenCoder_14b(BaseModel):
         generation_thread.join()
 
 
-class Qwen_2_5_14b(BaseModel):
+class Qwen_14b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 - 14b']
+        model_info = CHAT_MODELS['Qwen - 14b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):
@@ -398,7 +434,7 @@ class Mistral_Small_22b(BaseModel):
 
 class QwenCoder_32b(BaseModel):
     def __init__(self, generation_settings):
-        model_info = CHAT_MODELS['Qwen 2.5 Coder - 32b']
+        model_info = CHAT_MODELS['Qwen Coder - 32b']
         super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
 
     def create_prompt(self, augmented_query):

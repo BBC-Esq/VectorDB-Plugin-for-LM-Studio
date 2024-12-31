@@ -6,21 +6,6 @@ import os
 from pathlib import Path
 
 def set_cuda_paths():
-    """
-    Specifically, this function:
-    - Adds the following paths to the `PATH` environment variable:
-      - `cuda_runtime/bin` (CUDA runtime binaries)
-      - `cuda_runtime/bin/lib/x64` (runtime libraries)
-      - `cuda_runtime/include` (runtime headers)
-      - `cublas/bin` (cuBLAS binaries)
-      - `cudnn/bin` (cuDNN binaries)
-      - `cuda_nvrtc/bin` (NVRTC binaries)
-      - `cuda_nvcc/bin` (NVCC binaries)
-    - Sets the `CUDA_PATH` environment variable to point to the base `cuda_runtime` directory,
-      ensuring compatibility with tools and frameworks that depend on this specific path.
-
-    Existing values in the `PATH` variable are preserved, and new paths are appended as needed.
-    """
     venv_base = Path(sys.executable).parent.parent
     nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
     cuda_path_runtime = nvidia_base_path / 'cuda_runtime' / 'bin'
@@ -45,59 +30,14 @@ def set_cuda_paths():
     new_value = os.pathsep.join(paths_to_add + [current_value] if current_value else paths_to_add)
     os.environ['PATH'] = new_value
     
-    # because of triton
+    # i blame triton
     triton_cuda_path = nvidia_base_path / 'cuda_runtime'
     os.environ['CUDA_PATH'] = str(triton_cuda_path)
 
 set_cuda_paths()
 
-"""
-# DEBUG VERSION
-def set_cuda_paths():
-    venv_base = Path(sys.executable).parent.parent
-    nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
-    cuda_path_runtime = nvidia_base_path / 'cuda_runtime'
-    
-    # Set CUDA_PATH first
-    os.environ['CUDA_PATH'] = str(cuda_path_runtime)
-    
-    # Debug prints to check if files exist in expected locations
-    expected_files = [
-        cuda_path_runtime / 'bin' / 'cudart64_12.dll',
-        cuda_path_runtime / 'bin' / 'ptxas.exe',
-        cuda_path_runtime / 'include' / 'cuda.h',
-        cuda_path_runtime / 'lib' / 'x64' / 'cuda.lib'
-    ]
-    
-    print(f"\nCUDA_PATH is set to: {os.environ['CUDA_PATH']}")
-    print("\nChecking for required files:")
-    for file in expected_files:
-        print(f"File {file} exists: {file.exists()}")
-    
-    # Rest of your path setup
-    cuda_path_runtime_lib = cuda_path_runtime / 'bin' / 'lib' / 'x64'
-    cuda_path_runtime_include = cuda_path_runtime / 'include'
-    cublas_path = nvidia_base_path / 'cublas' / 'bin'
-    cudnn_path = nvidia_base_path / 'cudnn' / 'bin'
-    nvrtc_path = nvidia_base_path / 'cuda_nvrtc' / 'bin'
-    nvcc_path = nvidia_base_path / 'cuda_nvcc' / 'bin'
-    
-    paths_to_add = [
-        str(cuda_path_runtime / 'bin'),
-        str(cuda_path_runtime_lib),
-        str(cuda_path_runtime_include),
-        str(cublas_path),
-        str(cudnn_path),
-        str(nvrtc_path),
-        str(nvcc_path),
-    ]
-    
-    current_path = os.environ.get('PATH', '')
-    new_path = os.pathsep.join(paths_to_add + [current_path] if current_path else paths_to_add)
-    os.environ['PATH'] = new_path
-
-set_cuda_paths()
-"""
+from ctypes import windll, c_int, byref, sizeof
+from ctypes.wintypes import BOOL
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget,
@@ -122,6 +62,15 @@ class DocQA_GUI(QWidget):
         self.init_ui()
         self.init_menu()
         self.chat_window = None
+        self.set_dark_titlebar()
+
+    def set_dark_titlebar(self):
+        DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+        set_window_attribute = windll.dwmapi.DwmSetWindowAttribute
+        hwnd = self.winId()
+        rendering_policy = BOOL(True)
+        set_window_attribute(c_int(hwnd), DWMWA_USE_IMMERSIVE_DARK_MODE,
+                           byref(rendering_policy), sizeof(rendering_policy))
 
     def init_ui(self):
         self.setWindowTitle('VectorDB Plugin (Kobold and LM Studio Edition)')
@@ -156,20 +105,20 @@ class DocQA_GUI(QWidget):
         self.jeeves_action.triggered.connect(self.open_chat_window)
 
     def open_chat_window(self):
-        required_folder = script_dir / 'Models' / 'vector' / 'thenlper--gte-base'
-        
+        required_folder = script_dir / 'Models' / 'vector' / 'ibm-granite--granite-embedding-30m-english'
+
         if not required_folder.exists() or not required_folder.is_dir():
             QMessageBox.warning(
                 self,
                 "Ask Jeeves",
-                "Before using Jeeves you must download the gte-base embedding model, which you can do from the Models tab. Jeeves is waiting."
+                "Before using Jeeves you must download the granite-30m embedding model, which you can do from the Models tab. Jeeves is waiting."
             )
             return
                 
         model_choice, ok = QInputDialog.getItem(
             self,
             "Select Chat Model",
-            "Choose which model you'd like Jeeves to use:",
+            "Choose Jeeves' Brain:",
             list(JEEVES_MODELS.keys()),
             0,
             False
@@ -207,11 +156,29 @@ class DocQA_GUI(QWidget):
         super().closeEvent(event)
 
 def main():
+    from PySide6.QtCore import Qt
+
+    # Enable High DPI scaling and high-resolution pixmaps
+    if hasattr(QApplication, 'setHighDpiScaleFactorRoundingPolicy'):
+        QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+
+    # Initialize the QApplication
     app = QApplication(sys.argv)
+
+    # Optionally, set the application font size based on DPI (recommended)
+    # font = app.font()
+    # font.setPointSize(10)  # Adjust as necessary
+    # app.setFont(font)
+
     app.setStyleSheet(load_stylesheet('custom_stylesheet_default.css'))
+
     ex = DocQA_GUI()
     ex.show()
+
     sys.exit(app.exec())
+
 
 if __name__ == '__main__':
     main()

@@ -1,3 +1,5 @@
+# works with langchain 0.3+
+
 import os
 import datetime
 import hashlib

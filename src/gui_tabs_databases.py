@@ -52,7 +52,7 @@ class CreateDatabaseThread(QThread):
         my_cprint(f"{self.model_name} removed from memory.", "red")
         self.creationComplete.emit()
 
-        # after the db is created, backup db and update config
+        # after db creation, backup db and update config
         time.sleep(.2)
         self.update_config_with_database_name()
 

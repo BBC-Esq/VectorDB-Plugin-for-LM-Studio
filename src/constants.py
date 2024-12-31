@@ -1,4 +1,4 @@
-jeeves_system_message = "You are a helpful British butler who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address a question you answer based on what the contexts say and then briefly summarize the parts of the question that the contexts didn't provide an answer to.  Also, you should be very respectful to the person asking the question and frequently offer traditional butler services like various fancy drinks, snacks, various butler services like shining of shoes, pressing of suites, and stuff like that. Also, if you can't answer the question at all based on the provided contexts, you should apologize profusely and beg to keep your job."
+jeeves_system_message = "You are a helpful British butler who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address a question you answer based on what the contexts say and then briefly summarize the parts of the question that the contexts didn't provide an answer to.  Also, you should be very respectful to the person asking the question and frequently offer traditional butler services like various fancy drinks, snacks, various butler services like shining of shoes, pressing of suites, and stuff like that. Also, if you can't answer the question at all based on the provided contexts, you should apologize profusely and beg to keep your job.  Lastly, it is essential that if there are no contexts actually provided it means that a user's question wasn't relevant and you should state that you can't answer based off of the contexts because there are none.  And it goes without saying you should refuse to answer any questions that are not directly answerable by the provided contexts.  Moreover, some of the contexts might not have relevant information and you shoud simply ignore them and focus on only answering a user's question.  I cannot emphasize enought that you must gear your answer towards using this program and based your response off of the contexts you receive."
 system_message = "You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."
 rag_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
 
@@ -211,6 +211,7 @@ VECTOR_MODELS = {
             'repo_id': 'Alibaba-NLP/gte-base-en-v1.5',
             'cache_dir': 'Alibaba-NLP--gte-base-en-v1.5',
             'type': 'vector',
+            'parameters': '137m',
             'precision': 'float32'
         },
         {
@@ -221,6 +222,7 @@ VECTOR_MODELS = {
             'repo_id': 'Alibaba-NLP/gte-large-en-v1.5',
             'cache_dir': 'Alibaba-NLP--gte-large-en-v1.5',
             'type': 'vector',
+            'parameters': '434m',
             'precision': 'float32'
         },
     ],
@@ -233,6 +235,7 @@ VECTOR_MODELS = {
             'repo_id': 'BAAI/bge-small-en-v1.5',
             'cache_dir': 'BAAI--bge-small-en-v1.5',
             'type': 'vector',
+            'parameters': '33.4m',
             'precision': 'float32'
         },
         {
@@ -243,6 +246,7 @@ VECTOR_MODELS = {
             'repo_id': 'BAAI/bge-base-en-v1.5',
             'cache_dir': 'BAAI--bge-base-en-v1.5',
             'type': 'vector',
+            'parameters': '109m',
             'precision': 'float32'
         },
         {
@@ -253,6 +257,7 @@ VECTOR_MODELS = {
             'repo_id': 'BAAI/bge-large-en-v1.5',
             'cache_dir': 'BAAI--bge-large-en-v1.5',
             'type': 'vector',
+            'parameters': '335m',
             'precision': 'float32'
         },
     ],
@@ -265,6 +270,7 @@ VECTOR_MODELS = {
             'repo_id': 'hkunlp/instructor-base',
             'cache_dir': 'hkunlp--instructor-base',
             'type': 'vector',
+            'parameters': '110m',
             'precision': 'float32'
         },
         {
@@ -275,6 +281,7 @@ VECTOR_MODELS = {
             'repo_id': 'hkunlp/instructor-large',
             'cache_dir': 'hkunlp--instructor-large',
             'type': 'vector',
+            'parameters': '335m',
             'precision': 'float32'
         },
         {
@@ -285,20 +292,11 @@ VECTOR_MODELS = {
             'repo_id': 'hkunlp/instructor-xl',
             'cache_dir': 'hkunlp--instructor-xl',
             'type': 'vector',
+            'parameters': '1.5b',
             'precision': 'float32'
         },
     ],
     'IBM': [
-        {
-            'name': 'Granite-125m-English',
-            'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 249,
-            'repo_id': 'ibm-granite/granite-embedding-125m-english',
-            'cache_dir': 'ibm-granite--granite-embedding-125m-english',
-            'type': 'vector',
-            'precision': 'bfloat16'
-        },
         {
             'name': 'Granite-30m-English',
             'dimensions': 384,
@@ -307,6 +305,18 @@ VECTOR_MODELS = {
             'repo_id': 'ibm-granite/granite-embedding-30m-english',
             'cache_dir': 'ibm-granite--granite-embedding-30m-english',
             'type': 'vector',
+            'parameters': '30.3m',
+            'precision': 'bfloat16'
+        },
+        {
+            'name': 'Granite-125m-English',
+            'dimensions': 768,
+            'max_sequence': 512,
+            'size_mb': 249,
+            'repo_id': 'ibm-granite/granite-embedding-125m-english',
+            'cache_dir': 'ibm-granite--granite-embedding-125m-english',
+            'type': 'vector',
+            'parameters': '125m',
             'precision': 'bfloat16'
         },
     ],
@@ -319,6 +329,7 @@ VECTOR_MODELS = {
             'repo_id': 'intfloat/e5-small-v2',
             'cache_dir': 'intfloat--e5-small-v2',
             'type': 'vector',
+            'parameters': '33.4m',
             'precision': 'float32'
         },
         {
@@ -329,6 +340,7 @@ VECTOR_MODELS = {
             'repo_id': 'intfloat/e5-base-v2',
             'cache_dir': 'intfloat--e5-base-v2',
             'type': 'vector',
+            'parameters': '109m',
             'precision': 'float32'
         },
         {
@@ -339,30 +351,11 @@ VECTOR_MODELS = {
             'repo_id': 'intfloat/e5-large-v2',
             'cache_dir': 'intfloat--e5-large-v2',
             'type': 'vector',
+            'parameters': '335m',
             'precision': 'float32'
         },
     ],
     'sentence-transformers': [
-        {
-            'name': 'all-MiniLM-L12-v2',
-            'dimensions': 384,
-            'max_sequence': 256,
-            'size_mb': 120,
-            'repo_id': 'sentence-transformers/all-MiniLM-L12-v2',
-            'cache_dir': 'sentence-transformers--all-MiniLM-L12-v2',
-            'type': 'vector',
-            'precision': 'float32'
-        },
-        {
-            'name': 'all-mpnet-base-v2',
-            'dimensions': 768,
-            'max_sequence': 384,
-            'size_mb': 438,
-            'repo_id': 'sentence-transformers/all-mpnet-base-v2',
-            'cache_dir': 'sentence-transformers--all-mpnet-base-v2',
-            'type': 'vector',
-            'precision': 'float32'
-        },
         {
             'name': 'sentence-t5-base',
             'dimensions': 768,
@@ -371,6 +364,7 @@ VECTOR_MODELS = {
             'repo_id': 'sentence-transformers/sentence-t5-base',
             'cache_dir': 'sentence-transformers--sentence-t5-base',
             'type': 'vector',
+            'parameters': '110m',
             'precision': 'float16'
         },
         {
@@ -381,6 +375,7 @@ VECTOR_MODELS = {
             'repo_id': 'sentence-transformers/sentence-t5-large',
             'cache_dir': 'sentence-transformers--sentence-t5-large',
             'type': 'vector',
+            'parameters': '335m',
             'precision': 'float16'
         },
         {
@@ -391,6 +386,7 @@ VECTOR_MODELS = {
             'repo_id': 'sentence-transformers/sentence-t5-xl',
             'cache_dir': 'sentence-transformers--sentence-t5-xl',
             'type': 'vector',
+            'parameters': '1.24b',
             'precision': 'float16'
         },
         {
@@ -401,42 +397,34 @@ VECTOR_MODELS = {
             'repo_id': 'sentence-transformers/sentence-t5-xxl',
             'cache_dir': 'sentence-transformers--sentence-t5-xxl',
             'type': 'vector',
+            'parameters': '4.86b',
             'precision': 'float16'
         },
     ],
-    'thenlper': [
+    'Snowflake': [
         {
-            'name': 'gte-small',
-            'dimensions': 384,
-            'max_sequence': 512,
-            'size_mb': 67,
-            'repo_id': 'thenlper/gte-small',
-            'cache_dir': 'thenlper--gte-small',
-            'type': 'vector',
-            'precision': 'float16'
-        },
-        {
-            'name': 'gte-base',
+            'name': 'arctic-embed-m-v2.0',
             'dimensions': 768,
-            'max_sequence': 512,
-            'size_mb': 219,
-            'repo_id': 'thenlper/gte-base',
-            'cache_dir': 'thenlper--gte-base',
+            'max_sequence': 8192,
+            'size_mb': 1220,
+            'repo_id': 'Snowflake/snowflake-arctic-embed-m-v2.0',
+            'cache_dir': 'Snowflake--snowflake-arctic-embed-m-v2.0',
             'type': 'vector',
-            'precision': 'float16'
+            'parameters': '305m',
+            'precision': 'float32'
         },
         {
-            'name': 'gte-large',
+            'name': 'arctic-embed-l-v2.0',
             'dimensions': 1024,
-            'max_sequence': 512,
-            'size_mb': 670,
-            'repo_id': 'thenlper/gte-large',
-            'cache_dir': 'thenlper--gte-large',
+            'max_sequence': 8192,
+            'size_mb': 2270,
+            'repo_id': 'Snowflake/snowflake-arctic-embed-l-v2.0',
+            'cache_dir': 'Snowflake--snowflake-arctic-embed-l-v2.0',
             'type': 'vector',
-            'precision': 'float16'
+            'parameters': '568m',
+            'precision': 'float32'
         },
     ],
-
 }
 
 VISION_MODELS = {
@@ -742,7 +730,7 @@ WHISPER_MODELS = {
 }
 
 JEEVES_MODELS = {
-    "EXAONE - 2.4b": {
+    "EXAONE - 2.4b Q8_0": {
         "filename": "EXAONE-3.5-2.4B-Instruct-Q8_0.gguf",
         "repo_id": "bartowski/EXAONE-3.5-2.4B-Instruct-GGUF",
         "allow_patterns": ["EXAONE-3.5-2.4B-Instruct-Q8_0.gguf"],
@@ -751,7 +739,16 @@ JEEVES_MODELS = {
 [|endofturn|]
 [|assistant|]"""
     },
-    "Llama - 3b": {
+    "EXAONE - 7.8b Q4_K_M": {
+        "filename": "EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf",
+        "repo_id": "bartowski/EXAONE-3.5-7.8B-Instruct-GGUF",
+        "allow_patterns": ["EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf"],
+        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
+[|user|]{user_message}
+[|endofturn|]
+[|assistant|]"""
+    },
+    "Llama - 3b Q8_0": {
         "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
         "repo_id": "lmstudio-community/Llama-3.2-3B-Instruct-GGUF",
         "allow_patterns": ["Llama-3.2-3B-Instruct-Q8_0.gguf"],
@@ -762,15 +759,26 @@ Cutting Knowledge Date: December 2023
 {user_message}<|eot_id|>
 <|start_header_id|>assistant<|end_header_id|>"""
     },
-    "Granite - 2b": {
-        "filename": "granite-3.1-2b-instruct-Q8_0.gguf",
-        "repo_id": "bartowski/granite-3.1-2b-instruct-GGUF",
-        "allow_patterns": ["granite-3.1-2b-instruct-Q8_0.gguf"],
-        "prompt_template": """<|start_of_role|>system<|end_of_role|>{jeeves_system_message}<|end_of_text|>
-<|start_of_role|>user<|end_of_role|>{user_message}<|end_of_text|>
-<|start_of_role|>assistant<|end_of_role|>"""
+    # "Granite - 2b": {
+        # "filename": "granite-3.1-2b-instruct-Q8_0.gguf",
+        # "repo_id": "bartowski/granite-3.1-2b-instruct-GGUF",
+        # "allow_patterns": ["granite-3.1-2b-instruct-Q8_0.gguf"],
+        # "prompt_template": """<|start_of_role|>system<|end_of_role|>{jeeves_system_message}<|end_of_text|>
+# <|start_of_role|>user<|end_of_role|>{user_message}<|end_of_text|>
+# <|start_of_role|>assistant<|end_of_role|>"""
+    # },
+    "Qwen - 3b Q8_0": {
+        "filename": "Qwen2.5-3B-Instruct-Q8_0.gguf",
+        "repo_id": "bartowski/Qwen2.5-3B-Instruct-GGUF",
+        "allow_patterns": ["Qwen2.5-3B-Instruct-Q8_0.gguf"],
+        "prompt_template": """<|im_start|>system
+{jeeves_system_message}<|im_end|>
+<|im_start|>user
+{user_message}<|im_end|>
+<|im_start|>assistant
+"""
     },
-    "Zephyr - 3b": {
+    "Zephyr - 3b Q8_0": {
         "filename": "stablelm-zephyr-3b-q8_0.gguf",
         "repo_id": "ysn-rfd/stablelm-zephyr-3b-Q8_0-GGUF",
         "allow_patterns": ["stablelm-zephyr-3b-q8_0.gguf"],
@@ -782,7 +790,6 @@ Cutting Knowledge Date: December 2023
 """
     }
 }
-
 
 kobold_config = {
   "benchmark": None,
@@ -899,20 +906,26 @@ TOOLTIPS = {
     "AUDIO_FILE_SELECT": "Select an audio file. Supports various audio formats.",
     "CHOOSE_FILES": "Select documents to add to the database. Remember to transcribe audio files in the Tools tab first.",
     "CHUNK_OVERLAP": "Characters shared between chunks. Set to 25-50% of chunk size.",
-    "CHUNK_SIZE": "Text chunk max characters. Make sure it falls within the Max Sequence of the vector model.  3-4 characters = 1 token.",
-    "CHUNKS_ONLY": "Only return relevant chunks without connecting to the LLM. Extremely useful to test the chunk size/overlap settings.",
-    "CONTEXTS": "Maximum number of chunks/contexts to return.",
-    "COPY_RESPONSE": "Copy the model's response to the clipboard.",
-    "CREATE_DEVICE_DB": "Choose 'cpu' or 'cuda' based on hardware. Prefer 'cuda' if available.",
+    "CHUNK_SIZE": (
+        "<html><body>"
+        "Upper limit (in characters, not tokens) that a chunk can be after being split.  Make sure that it falls within"
+        "the Max Sequence of the embedding model being used, which is measured in tokens (not characters), remembering that"
+        "approximately 3-4 characters = 1 token."
+        "</body></html>"
+    ),
+    "CHUNKS_ONLY": "Solely query the vector database and get relevant chunks. Very useful to test the chunk size/overlap settings.",
+    "CONTEXTS": "Maximum number of chunks (aka contexts) to return.",
+    "COPY_RESPONSE": "Copy the chunks (if chunks only is checked) or model's response to the clipboard.",
+    "CREATE_DEVICE_DB": "Choose 'cpu' or 'cuda'. Use 'cuda' if available.",
     "CREATE_DEVICE_QUERY": "Choose 'cpu' or 'cuda'. 'cpu' recommended to conserve VRAM.",
-    "CREATE_VECTOR_DB": "Create a new vector database.",
+    "CREATE_VECTOR_DB": "Creates a new vector database.",
     "DATABASE_NAME_INPUT": "Enter a unique database name. Use only lowercase letters, numbers, underscores, and hyphens.",
-    "DATABASE_SELECT": "Select the vector database to query for relevant information.",
-    "DISABLE_PROMPT_FORMATTING": "Disables built-in prompt formatting. Use LM Studio settings instead.",
+    "DATABASE_SELECT": "Vector database that will be queried.",
+    "DISABLE_PROMPT_FORMATTING": "Disables built-in prompt formatting, using LM Studio's settings instead.",
     "DOWNLOAD_MODEL": "Download the selected vector model.",
     "EJECT_LOCAL_MODEL": "Unload the current local model from memory.",
-    "FILE_TYPE_FILTER": "Filters chunks by document type (images, audio, documents, all).",
-    "HALF_PRECISION": "Uses bfloat16/float16 for 2x speedup. GPU only.",
+    "FILE_TYPE_FILTER": "Only allows chunks that originate from certain file types.",
+    "HALF_PRECISION": "Uses bfloat16/float16 for 2x speedup. Requires a GPU.",
     "LOCAL_MODEL_SELECT": "Select a local model for generating responses.",
     "MAX_TOKENS": "Maximum tokens for LLM response. -1 for unlimited.",
     "MODEL_BACKEND_SELECT": "Choose the backend for the large language model response.",
@@ -933,50 +946,59 @@ TOOLTIPS = {
     "VECTOR_MODEL_LINK": "Huggingface link.",
     "VECTOR_MODEL_MAX_SEQUENCE": "Number of tokens the model can process at once. Different from the Chunk Size setting, which is in characters.",
     "VECTOR_MODEL_NAME": "The name of the vector model.",
+    "VECTOR_MODEL_PARAMETERS": "The number of internal weights and biases that the model learns and adjusts during training.",
     "VECTOR_MODEL_PRECISION": (
-    "<html>"
-    "<body>"
-    "<p style='font-size: 14px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-bottom: 10px;'><b>The precision ultimately used depends on your setup:</b></p>"
-    "<table style='border-collapse: collapse; width: 100%; font-size: 12px; color: #34495e;'>"
-    "<thead>"
-    "<tr style='background-color: #ecf0f1; text-align: left;'>"
-    "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Compute Device</th>"
-    "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Native Precision</th>"
-    "<th style='border: 1px solid #bdc3c7; padding: 8px;'>'Half' Checked?</th>"
-    "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Precision Used</th>"
-    "</tr>"
-    "</thead>"
-    "<tbody>"
-    "<tr>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CPU</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Any</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>torch.float32</code></td>"
-    "</tr>"
-    "<tr style='background-color: #f9f9f9;'>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float16</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>torch.float16</code></td>"
-    "</tr>"
-    "<tr>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float32</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>No</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>torch.float32</code></td>"
-    "</tr>"
-    "<tr style='background-color: #f9f9f9;'>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float32</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Yes</td>"
-    "<td style='border: 1px solid #bdc3c7; padding: 8px;'>"
-    "<code>torch.bfloat16</code> (if CUDA capability &ge; 8.6) or <code>torch.float16</code> otherwise"
-    "</td>"
-    "</tr>"
-    "</tbody>"
-    "</table>"
-    "</body>"
-    "</html>"
+        "<html>"
+        "<body>"
+        "<p style='font-size: 14px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-bottom: 10px;'>"
+        "<b>The precision ultimately used depends on your setup:</b></p>"
+        "<table style='border-collapse: collapse; width: 100%; font-size: 12px; color: #34495e;'>"
+        "<thead>"
+        "<tr style='background-color: #ecf0f1; text-align: left;'>"
+        "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Compute Device</th>"
+        "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Embedding Model Precision</th>"
+        "<th style='border: 1px solid #bdc3c7; padding: 8px;'>'Half' Checked?</th>"
+        "<th style='border: 1px solid #bdc3c7; padding: 8px;'>Precision Ultimately Used</th>"
+        "</tr>"
+        "</thead>"
+        "<tbody>"
+        "<tr>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CPU</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Any</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>float32</code></td>"
+        "</tr>"
+        "<tr style='background-color: #ecf0f1;'>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float16</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>float16</code></td>"
+        "</tr>"
+        "<tr>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>bfloat16</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>"
+        "<code>bfloat16</code> (if CUDA capability &ge; 8.6) or <code>float16</code></td>"
+        "</tr>"
+        "<tr style='background-color: #ecf0f1;'>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float32</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>No</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>float32</code></td>"
+        "</tr>"
+        "<tr>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float32</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Yes</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>"
+        "<code>bfloat16</code> (if CUDA capability &ge; 8.6) or <code>float16</code>"
+        "</td>"
+        "</tr>"
+        "</tbody>"
+        "</table>"
+        "</body>"
+        "</html>"
     ),
     "VECTOR_MODEL_SELECT": "Choose a vector model to download.",
     "VECTOR_MODEL_SIZE": "Size on disk.",
@@ -1066,10 +1088,6 @@ scrape_documentation = {
         "URL": "https://docs.dask.org/en/stable/",
         "folder": "dask"
     },
-    # "Datamodel-code-generator": {
-        # "URL": "https://koxudaxi.github.io/datamodel-code-generator/",
-        # "folder": "datamodel_code_generator"
-    # },
     "dill": {
         "URL": "https://dill.readthedocs.io/en/latest/",
         "folder": "dill"
@@ -1107,25 +1125,15 @@ scrape_documentation = {
         "URL": "https://jsonschema-specifications.readthedocs.io/en/stable/",
         "folder": "jsonschema_specifications"
     },
-    # "Langchain": {
-        # "URL": "https://api.python.langchain.com/en/latest/",
-        # "folder": "langchain"
-    # },
-    "Langchain 0.2.x": {
-        "URL": "https://python.langchain.com/v0.2/api_reference/langchain/",
-        "folder": "langchain_02x"
+    "Langchain (0.2)": {
+        "URL": "https://python.langchain.com/v0.2/api_reference/",
+        "folder": "langchain_02",
+        "scraper_class": "LangchainScraper"
     },
-    "Langchain Community 0.2.x": {
-        "URL": "https://python.langchain.com/v0.2/api_reference/community/",
-        "folder": "langchain_community_02x"
-    },
-    "Langchain Core 0.2.x": {
-        "URL": "https://python.langchain.com/v0.2/api_reference/core/",
-        "folder": "langchain_core_02x"
-    },
-    "Langchain Text Splitters 0.2.x": {
-        "URL": "https://python.langchain.com/v0.2/api_reference/text_splitters/",
-        "folder": "langchain_text_splitters_02x"
+    "Langchain (0.3)": {
+        "URL": "https://python.langchain.com/api_reference/",
+        "folder": "langchain_03",
+        "scraper_class": "LangchainScraper"
     },
     "Librosa": {
         "URL": "https://librosa.org/doc/latest/",
@@ -1264,6 +1272,10 @@ scrape_documentation = {
         "URL": "https://docs.pydantic.dev/latest/",
         "folder": "pydantic"
     },
+    "Pygments": {
+        "URL": "https://pygments.org/docs/",
+        "folder": "pygments"
+    },
     "PyInstaller 6.10.0": {
         "URL": "https://pyinstaller.org/en/v6.10.0/",
         "folder": "pyinstaller_6100"
@@ -1288,10 +1300,6 @@ scrape_documentation = {
     "PyYAML": {
         "URL": "https://pyyaml.org/wiki/PyYAMLDocumentation",
         "folder": "pyyaml"
-    },
-    "Pygments": {
-        "URL": "https://pygments.org/docs/",
-        "folder": "pygments"
     },
     "Pywin32": {
         "URL": "https://mhammond.github.io/pywin32/",
@@ -2189,3 +2197,87 @@ GPUS_INTEL = {
         "Shading Cores": 4096
     }
 }
+
+master_questions = [
+    # Original questions from my first two lists remain valuable and unique
+    "What are the main features and capabilities of this program?",
+    "How does LM Studio integrate with this program?",
+    "What are local models and how can I access them through Huggingface?",
+    "How do I obtain and use a Huggingface access token?",
+    "What is the relationship between context limits and chunk sizes?", 
+    "How do token limits affect the performance of vector and chat models?",
+    "What is the optimal number of contexts to retrieve when querying the vector database?",
+    "What purpose does the 'chunks only' checkbox serve?",
+    "How do embedding models convert text into vectors for database storage?",
+    "What are the main differences between Sentence Retrieval Models and Generalist Models?",
+    "What factors should I consider when choosing an embedding model?",
+    "How does the dimension size of a vector model affect its performance?",
+    "What is the purpose of the half-precision checkbox setting?",
+    "What vision models are available in the program and how do they differ?",
+    "What are the key differences between Florence2, Moondream2, and Llava vision models?",
+    "How does the program utilize Whisper for voice recording and audio transcription?",
+    "What are the differences between distil variants and regular Whisper models?",
+    "How do floating point formats affect model performance and accuracy?",
+    "What are the main differences between float32, float16, and bfloat16 formats?",
+    "How does quantization impact model size and performance?",
+    "What LM Studio settings are available and how do they affect responses?",
+    "How does the temperature setting influence LM Studio's output?",
+    "What role do prefix and suffix settings play in prompt formatting?",
+    "How do the device, similarity, and contexts settings interact when querying the database?",
+    "What is the optimal chunk size for different types of documents?",
+    "How does the chunk overlap setting affect context continuity?",
+    "What purpose does the similarity threshold serve when querying the database?",
+    "How does the search term filter affect context retrieval?",
+    "What are the differences between the available text-to-speech backends?",
+    "How can I choose between Bark and WhisperSpeech for text-to-speech conversion?",
+    "What backup and restoration features are available for databases?",
+    "How can I restore a default configuration if the config.yaml file is lost?",
+    "What strategies are effective for searching the vector database?",
+    "How can I manage VRAM efficiently when using the program?",
+    "What is the relationship between maximum context length and maximum sequence length?",
+    "How does the documentation scraping feature work?",
+    "What vector models are available and how do I download them?",
+    "What functionality does the Manage Databases tab provide?",
+    "How do I create a new vector database with multiple file types?",
+    "What is the purpose of the File Type setting when querying?",
+    "How does the program handle audio file transcription?",
+    "What happens when processing files with special characters?",
+    "How can I optimize search results for technical documentation?",
+    "What's the best way to handle code snippets in the database?",
+    "How does the program maintain document structure in searches?",
+    "What are the limitations of the free Google TTS API?",
+    "How does the program handle embedded images in documents?",
+    "What determines the speed of database creation?",
+    "How can I optimize searches for specific programming languages?",
+    "What happens when processing encrypted documents?",
+    
+    # Adding unique questions from the new list
+    "What role do LM Studio's prompt templates play in shaping the final query sent to the model?",
+    "Why is it advisable to use a GPU during database creation and a CPU during querying?",
+    "How can I prevent sending too many tokens when retrieving multiple contexts from the database?",
+    "What practical signs indicate that my chosen chunk size is mismatched for my text content?",
+    "How does token truncation by the embedding model affect the semantic integrity of the output?",
+    "What experimentation can I do in the Tools tab to compare different vision or transcription models?",
+    "Why might creating dedicated databases for images and text improve the relevance of search results?",
+    "How do I determine when to transition from a sentence retrieval model to a more versatile generalist model?",
+    "What adjustments can I make if my GPU struggles to run a particularly large vision model?",
+    "What considerations arise when mixing images, audio transcriptions, and documents in one vector database?",
+    "How can I leverage audio transcriptions for more effective information retrieval within the database?",
+    "In what scenarios should I modify the Whisper batch size to balance speed and GPU memory usage?",
+    "What subtle effects can quantization have on the semantic relationships stored within vector embeddings?",
+    "When should I try post-training quantization versus quantization-aware training?",
+    "When might disabling automatic prompt formatting in LM Studio lead to better query results?",
+    "What steps should I take if I suspect my similarity threshold is either too lenient or too strict?",
+    "When dealing with small documents, how can I adjust chunking strategies for optimal retrieval?",
+    "Is it possible to switch between LM Studio and local models mid-process to refine query responses?",
+    "How can I mix different embedding models to tailor the vector database for specialized queries?",
+    "What actions can I take if the chat model returns errors due to insufficient available token space?",
+    "What features does the Manage Databases tab provide to reorganize or inspect existing vector databases?",
+    "How can testing different audio file formats improve transcription accuracy in the vector database?",
+    "What are the pros and cons of running vision models entirely on a CPU instead of a GPU?",
+    "What practical performance differences might I see when using sentence-t5 versus other generalist models?",
+    "What quick experiments can I run to ensure that the vector database retrieval aligns with my search needs?",
+    "How does blending image summaries with textual data affect the semantic similarity search results?",
+    "Is there a way to continuously update the vector database with newly scraped or added documentation?",
+    "How can changes in chunk size, overlap, and similarity influence the final set of returned contexts?"
+]
