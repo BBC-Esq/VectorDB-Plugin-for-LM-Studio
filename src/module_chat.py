@@ -16,7 +16,7 @@ logging.getLogger("transformers").setLevel(logging.ERROR)
 
 def get_model_settings(base_settings, attn_implementation):
     settings = copy.deepcopy(base_settings)
-    settings['model_settings']['attn_implementation'] = attn_implementation
+    # settings['model_settings']['attn_implementation'] = attn_implementation
     return settings
     
 def get_max_length(model_name):
