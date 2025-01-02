@@ -331,58 +331,6 @@ class loader_florence2(BaseLoader):
         return parsed_answer['<MORE_DETAILED_CAPTION>']
 
 
-class loader_minicpm_V_2_6(BaseLoader):
-    def initialize_model_and_tokenizer(self):
-        chosen_model = self.config['vision']['chosen_model']
-        repo_id = VISION_MODELS[chosen_model]["repo_id"]
-        save_dir = VISION_MODELS[chosen_model]["cache_dir"]
-        cache_dir = CACHE_DIR / save_dir
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        
-        warnings.filterwarnings("ignore", category=UserWarning)
-        
-        model = AutoModel.from_pretrained(
-            repo_id,
-            trust_remote_code=True,
-            low_cpu_mem_usage=True,
-            cache_dir=cache_dir,
-            attn_implementation="flash_attention_2",
-        )
-        tokenizer = AutoTokenizer.from_pretrained(
-            repo_id,
-            trust_remote_code=True,
-            cache_dir=cache_dir
-        )
-        model.eval() # this pre-quantized bnb model is automatically moved to cuda
-        
-        my_cprint("MiniCPM_V_2_6 vision model loaded into memory...", "green")
-        
-        return model, tokenizer, None
-
-    @torch.inference_mode()
-    def process_single_image(self, raw_image):
-        question = 'Describe this image in as much detail as possible but do not repeat yourself.'
-        msgs = [{'role': 'user', 'content': question}]
-        
-        response = self.model.chat(
-            image=raw_image,
-            msgs=msgs,
-            context=None,
-            tokenizer=self.tokenizer,
-            sampling=False,
-            temperature=None,
-            top_p=None,
-            top_k=None,
-        )
-        
-        if isinstance(response, tuple) and len(response) == 3:
-            res, context, _ = response
-        else:
-            res = response
-        
-        return res
-
-
 class loader_glmv4(BaseLoader):
     def initialize_model_and_tokenizer(self):
         chosen_model = self.config['vision']['chosen_model']

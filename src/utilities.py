@@ -59,7 +59,7 @@ def get_appropriate_dtype(compute_device, use_half, model_native_precision):
         else:
             if torch.cuda.is_available() and torch.version.cuda:
                 cuda_capability = torch.cuda.get_device_capability()
-                if cuda_capability[0] >= 8 and cuda_capability[1] >= 6:
+                if cuda_capability[0] >= 8 and cuda_capability[1] >= 0:
                     return torch.bfloat16
                 else:
                     return torch.float16
@@ -370,14 +370,14 @@ def has_bfloat16_support():
         return False
     
     capability = torch.cuda.get_device_capability()
-    return capability >= (8, 6)
+    return capability >= (8, 0)
 
 def get_precision():
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is not available. This function requires a CUDA-enabled GPU.")
 
     capability = torch.cuda.get_device_capability()
-    if capability >= (8, 6):
+    if capability >= (8, 0):
         precision = torch.bfloat16
     else:
         precision = torch.float16
@@ -388,7 +388,7 @@ def get_device_and_precision():
     if torch.cuda.is_available():
         device = "cuda"
         capability = torch.cuda.get_device_capability()
-        if capability >= (8, 6):
+        if capability >= (8, 0):
             precision = "bfloat16"
         else:
             precision = "float16"
@@ -398,14 +398,18 @@ def get_device_and_precision():
     return device, precision
 
 class FlashAttentionUtils:
+    """
+    Flash Attention 2 is only supported on Ampere and newer GPUs
+    https://github.com/Dao-AILab/flash-attention/blob/0dfb28174333d9eefb7c1dd4292690a8458d1e89/csrc/flash_attn/flash_api.cpp#L370
+    """
     @staticmethod
     def check_package_availability():
-        # Check if flash_attn is installed
+        # check if flash_attn is installed
         return importlib.util.find_spec("flash_attn") is not None
 
     @staticmethod
     def check_version_compatibility():
-        # Check flash_attn version
+        # check flash_attn version
         if not FlashAttentionUtils.check_package_availability():
             return False
         flash_attention_version = version.parse(importlib.metadata.version("flash_attn"))
@@ -417,17 +421,17 @@ class FlashAttentionUtils:
 
     @staticmethod
     def check_dtype_compatibility(dtype):
-        # Check if dtype is compatible
+        # check if dtype is compatible
         return dtype in [torch.float16, torch.bfloat16]
 
     @staticmethod
     def check_gpu_initialization():
-        # Check if CUDA is available and default device is CUDA
+        # check if CUDA is available and default device is CUDA
         return torch.cuda.is_available() and torch.cuda.current_device() >= 0
 
     @staticmethod
     def check_device_map(device_map):
-        # Check if device_map is compatible
+        # check if device_map is compatible
         if device_map is None:
             return True
         if isinstance(device_map, dict):
@@ -436,7 +440,7 @@ class FlashAttentionUtils:
 
     @classmethod
     def is_flash_attention_compatible(cls, dtype=None, device_map=None):
-        # Run all checks
+        # run all checks
         checks = [
             cls.check_package_availability(),
             cls.check_version_compatibility(),

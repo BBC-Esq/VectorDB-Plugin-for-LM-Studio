@@ -523,9 +523,9 @@ minutes, seconds = divmod(rem, 60)
 print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{seconds:05.2f}\033[0m")
 
 """
-******************************************
-* Torch Wheel Names and Version Support
-******************************************
+****************
+**Torch Wheels**
+****************
 
 # modern torch wheels contain either "cu121" or "cu124" in their name and are prebuilt for the following versions
 +---------------+---------------------------------------------------------+
@@ -536,9 +536,9 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
 +---------------+---------------------------------------------------------+
 * "cu121" and "cu124" wheels include libraries from CUDA releases 12.1.1 and 12.4.1, respectively (see next table)
 
-******************************************
-* Torch requirements
-******************************************
+*********
+**Torch**
+*********
 
 # dependencies scraped from pypi for linux builds
 # useful to determine windows compatibility when pip installing CUDA libraries rather than relying on a systemwide installation
@@ -557,9 +557,9 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
 * 12.4.127 and 12.4.5.8 come from CUDA release 12.4.1
 * In other words, torch is not 100% compatible with CUDA 12.1.0 or 12.4.0, for example, or any other version.
 
-****************************************
-* cuDNN and CUDA Compatibility
-****************************************
+**************
+**cuDNN/CUDA**
+**************
 
 # According to Nvidia, cuDNN 8.9.2.26 is only compatible up to CUDA 12.2
 # For cuDNN 9+, Nvidia promises compatibility for all CUDA 12.x releases, but static linking fluctuates
@@ -578,9 +578,9 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
 +---------------+-----------------+-------------------------+
 * 9.2+ continues the same trend
 
-*********************************************
-* PyTorch Official Compatibility Matrix
-*********************************************
+***************************
+**PyTorch Official Matrix**
+***************************
 
 # https://github.com/pytorch/pytorch/blob/main/RELEASE.md#release-compatibility-matrix
 +-------+----------------------------+----------------------------------------+----------------------------+
@@ -598,16 +598,16 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
 | 2.2   | >=3.8, <=3.11, (3.12 exp.) | CUDA 11.8 + CUDNN 8.7.0.84             | CUDA 12.1 + CUDNN 8.9.2.26 |
 +-------+----------------------------+----------------------------------------+----------------------------+
 
-*********************************
-* Xformers
-*********************************
+************
+**Xformers**
+************
 
 # strictly tied to a specific torch version per "metadata" in each whl file
 +------------------+---------------+
 | Xformers Version | Torch Version |
 +------------------+---------------+
 | v0.0.29.post1    | 2.5.1         |
-| v0.0.29          | 2.5.1         |
+| v0.0.29          | 2.5.1         | # BUG, don't use
 | v0.0.28.post3    | 2.5.1         |
 | v0.0.28.post2    | 2.5.0         |
 | v0.0.28.post1    | 2.4.1         |
@@ -622,9 +622,9 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
   * e.g. pip install https://download.pytorch.org/whl/cu124/xformers-0.0.28.post3-cp311-cp311-win_amd64.whl
 
 
-*********************************
-* Triton
-*********************************
+**********
+**Triton**
+**********
 
 # 3.0.0 and earlier wheels are located here: https://github.com/jakaline-dev/Triton_win/releases
   * E.g., https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl
@@ -637,9 +637,9 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
  * supports Python 3.12
 
 
-*****************************************
-* LINUX Flash Attention 2 Compatibility
-*****************************************
+*************
+**LINUX FA2**
+*************
 
 # According to flash-attention/.github/workflows/publish.yml
 +--------------+-----------------------------------------------+----------------+
@@ -663,9 +663,9 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
 * 2.5.8 is the first to support torch 2.2.2
 * no prebuilt wheels simultaneously support torch 2.2.2 and CUDA prior to 12.2.2
 
-*****************************************
-* WINDOWS Flash Attention 2 Compatibility
-*****************************************
+***************
+**WINDOWS FA2**
+***************
 
 # per https://github.com/bdashore3/flash-attention/releases/
 +--------------+---------------------+----------------+
@@ -682,18 +682,18 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
 | v2.5.2       | 2.1.2, 2.2.0        | 12.2.2        |
 | v2.4.2       | 2.1.2, 2.2.0        | 12.2.2        |
 +--------------+---------------------+---------------+
+Supported model architectures: https://huggingface.co/docs/transformers/v4.47.1/en/perf_infer_gpu_one
 
-
-*********************************
-* Xformers Compatibility with FA 2
-*********************************
+****************
+**Xformers/FA2**
+****************
 https://github.com/facebookresearch/xformers/blob/46a02df62a6192bf11456e712ae072bfd9c83e71/xformers/ops/fmha/flash.py#L66
 https://github.com/facebookresearch/xformers/commit/839c4ec4b928f1f02f83d25a7d111bde819e6bce
 
 
-***************************************************************
-* CUDA, Torch, cuDNN, Triton, FA2, Xformers, one big mess
-***************************************************************
+****************
+**One Big Mess**
+****************
 
 PER CTRANSLATE2...
 
@@ -723,9 +723,9 @@ Update: it's compatible with torch==2.*+cu124 so it's only incompatible with 12.
   * but his fix didn't work: https://github.com/OpenNMT/CTranslate2/pull/1807
 
 
-**************************************
-* CTRANSLATE2 Compatibility
-**************************************
+***************
+**CTRANSLATE2**
+***************
 
 Ctranslate2 3.24.0 - last to use cuDNN 8.1.1 with CUDA 11.2.2 by default
 Ctranslate2 4.0.0 - first to use cuDNN 8.8.0 with CUDA 12.2 by default

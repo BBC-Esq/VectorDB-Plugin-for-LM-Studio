@@ -17,8 +17,6 @@ MODEL_MAX_NEW_TOKENS = {
     'Qwen - 1.5b': 512,
     'Zephyr - 1.6b': 512,
     'Qwen Coder - 1.5b': 512,
-    # 'Zephyr - 3b': 512,
-    # 'Qwen Coder - 3b': 512,
 }
 
 CHAT_MODELS = {
@@ -30,6 +28,7 @@ CHAT_MODELS = {
         'context_length': 32768,
         'vram': 1749.97,
         'function': 'Qwen_1_5b',
+        'precision': 'bfloat16',
         'gated': False,
     },
     'Qwen Coder - 1.5b': {
@@ -51,7 +50,7 @@ CHAT_MODELS = {
         'context_length': 8192,
         'vram': 2292.18,
         'function': 'Granite_2b',
-        'precision': 'bfloat16',
+        'precision': 'bfloat16', # have float32 version
         'gated': False,
     },
     'Zephyr - 1.6b': {
@@ -62,7 +61,7 @@ CHAT_MODELS = {
         'context_length': 4096,
         'vram': 2233.45,
         'function': 'Zephyr_1_6B',
-        'precision': 'float16',
+        'precision': 'float16', # doesn't have a float32 version
         'gated': False,
     },
     'Zephyr - 3b': {
@@ -73,7 +72,7 @@ CHAT_MODELS = {
         'context_length': 4096,
         'vram': 2733.85,
         'function': 'Zephyr_3B',
-        'precision': 'bfloat16',
+        'precision': 'bfloat16', # have float32 version
         'gated': False,
     },
     'Exaone - 2.4b': {
@@ -84,6 +83,7 @@ CHAT_MODELS = {
         'context_length': 32768,
         'vram': 2821.06,
         'function': 'Exaone_2_4b',
+        # 'precision': 'float32',
         'gated': False,
     },
     'Qwen Coder - 3b': {
@@ -94,6 +94,7 @@ CHAT_MODELS = {
         'context_length': 32768,
         'vram': 2860.01,
         'function': 'QwenCoder_3b',
+        'precision': 'bfloat16',
         'gated': False,
     },
     'Granite - 8b': {
@@ -104,7 +105,7 @@ CHAT_MODELS = {
         'context_length': 8192,
         'vram': 5291.93,
         'function': 'Granite_8b',
-        'precision': 'bfloat16',
+        'precision': 'bfloat16', # have float32 version
         'gated': False,
     },
     'Exaone - 7.8b': {
@@ -115,6 +116,7 @@ CHAT_MODELS = {
         'context_length': 32768,
         'vram': 6281.91,
         'function': 'Exaone_7_8b',
+        # 'precision': 'float32',
         'gated': False,
     },
     'Qwen Coder - 7b': {
@@ -136,6 +138,7 @@ CHAT_MODELS = {
         'context_length': 32768,
         'vram': 11029.87,
         'function': 'QwenCoder_14b',
+        'precision': 'bfloat16',
         'gated': False,
     },
     'Qwen - 14b': {
@@ -168,16 +171,29 @@ CHAT_MODELS = {
         'context_length': 32768,
         'vram': 21120.81,
         'function': 'QwenCoder_32b',
+        'precision': 'bfloat16',
+        'gated': False,
+    },
+    'Qwen - 32b': {
+        'model': 'Qwen - 32b',
+        'repo_id': 'Qwen/Qwen2.5-32B-Instruct',
+        'cache_dir': 'Qwen--Qwen2.5-32B-Instruct',
+        'cps': 101.51,
+        'context_length': 8192,
+        'vram': 21128.30,
+        'function': 'Qwen_32b',
+        'precision': 'bfloat16',
         'gated': False,
     },
     'Exaone - 32b': {
         'model': 'Exaone - 32b',
         'repo_id': 'LGAI-EXAONE/EXAONE-3.5-32B-Instruct',
         'cache_dir': 'LGAI-EXAONE--EXAONE-3.5-32B-Instruct',
-        'cps': 101.51,
+        'cps': 100.54,
         'context_length': 32768,
-        'vram': 21128.30,
+        'vram': 21982.30,
         'function': 'Exaone_32b',
+        # 'precision': 'float32',
         'gated': False,
     },
 }
@@ -482,15 +498,6 @@ VISION_MODELS = {
         'requires_cuda': True,
         'vram': '5.3 GB',
     },
-    # 'MiniCPM-V-2_6 - 8b': {
-        # 'precision': 'bfloat16',
-        # 'quant': '4-bit',
-        # 'size': '8b',
-        # 'repo_id': 'openbmb/MiniCPM-V-2_6-int4',
-        # 'cache_dir': 'openbmb--MiniCPM-V-2_6-int4',
-        # 'requires_cuda': True,
-        # 'vram': '9.1 GB',
-    # },
     'Ovis1.6-Llama3.2 - 3b': {
         'precision': 'bfloat16',
         'quant': 'n/a',

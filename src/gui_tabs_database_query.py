@@ -148,8 +148,11 @@ class DatabaseQueryTab(QWidget):
                 self.model_combo_box.setItemData(index, tooltip, Qt.ToolTipRole)
             self.model_combo_box.setEnabled(True)
         else:
+            self.model_combo_box.addItem(CHAT_MODELS['Qwen - 1.5b']['model'])
             self.model_combo_box.addItem(CHAT_MODELS['Zephyr - 1.6b']['model'])
-            self.model_combo_box.setToolTip("The Local Model option requires GPU-acceleration.")
+            self.model_combo_box.addItem(CHAT_MODELS['Granite - 2b']['model'])
+            self.model_combo_box.addItem(CHAT_MODELS['Qwen Coder - 1.5b']['model'])
+            self.model_combo_box.setToolTip("Choose the local model you want to use. It will be automatically downloaded.")
 
         if self.model_combo_box.count() > 0:
             self.model_combo_box.setCurrentIndex(0)
