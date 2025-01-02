@@ -205,7 +205,7 @@ other_libraries = [
     "fastprogress==1.0.3", # only required by whisperspeech
     "filetype==1.2.0",
     "filelock==3.16.1",
-    "fonttools==4.55.3" # only required by matplotlib
+    "fonttools==4.55.3", # only required by matplotlib
     "frozendict==2.4.6",
     "frozenlist==1.5.0",
     "fsspec==2024.9.0", # datasets 3.2.0 requires <=2024.9.0
