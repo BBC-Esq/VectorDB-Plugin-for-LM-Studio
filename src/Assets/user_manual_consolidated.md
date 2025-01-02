@@ -1,5 +1,4 @@
 ## Overview of Program
-
 This program provides a comprehensive suite of tools for working with different machine learning models.  You can:
 - Create a vector database out of image summaries, audio transcriptions, and a host of other file extensions.
 - Query the vector database and get a response from a chat model.
@@ -225,7 +224,7 @@ to always specify GPU when creating the database (if one is available) and CPU w
 
 ### What is the chunk size setting?
 The "Chunk Size" setting defines the maximum length of text chunks (in characters) for the vector database. Optimal sizes are around
-1000-1200 characters for books and 200-400 characters for shorter texts like tweets. Ensure that the chunk size is less
+600-1200 characters for books and 200-400 characters for shorter texts like tweets. Ensure that the chunk size is less
 than the model's max sequence length in tokens, with 1 token approximately equaling 3-4 characters.
 
 ### What is the chunk overlap setting?
@@ -256,9 +255,9 @@ program creates the vector database is stores as metadata the type of document t
 have no filter, "Images Only" for only image descriptions, "Audio Only" for only audio transcriptions, and "Documents Only" to only
 receive chunks that originate from a file that is not an audio transcription or image summary.
 
-### What are text to speech models and how are they used in this program?
+### What are text to speech models (aks TTS models) and how are they used in this program?
 This program uses text to speech models to speak the response from the LLM after querying the vector database.
-The "Bark" text to speech backend has two models: "Normal," which provides slightly better quality, and "Small," which is faster and
+The "Bark" model has two versions: "Normal" which provides slightly better quality, and "Small," which is faster and
 uses fewer resources.  You can select from various "speakers" such as `v2/en_speaker_6` (high-quality) and `v2/en_speaker_9`
 (the only female voice).  Using Bark requires a GPU.
 The WhisperSpeech text to speech backend consists of a Speech to Acoustics (S2A) model, which converts speech into acoustic features,
@@ -281,9 +280,8 @@ to the "Tools" tab and click the Backup All Databases button.  Likewise, you can
 ### What happens if I lose a configuration file and can I restore it?
 The program cannot function without the config.yaml file.  If you lose it accidentally or it gets corrupted for some reason, you can
 restore a default version by:
-1. Try restoring database backups first.  
-2. If necessary, copy the original `config.yaml` from the User Guide folder to the main directory.  
-3. Delete old files and folders in "Vector_DB" and "Vector_DB_Backup" to prevent conflicts.
+1. If necessary, copy the original `config.yaml` from the Assets folder to the main directory.  
+2. Delete old files and folders in "Vector_DB" and "Vector_DB_Backup" to prevent conflicts.
 
 ### What are some good tips for searching a vector database?
 Understanding the interaction between `contexts`, `similarity`, and `search filter` is key to performing efficient searches.
