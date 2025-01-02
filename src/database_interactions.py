@@ -1,37 +1,21 @@
-"""
-Based on the LangChain v0.3 update guide, I can identify several items that need updating in this script:
-
-1. Definite changes needed:
-- The commented-out import from `langchain_huggingface` should now be used instead of the current import from
-`langchain_community.embeddings`
-- The `show_progress_bar` parameter in the encode_kwargs is listed as invalid after langchain 0.2.2+
-- The commented `show_progress=True` parameter should now be used instead of show_progress_bar
-
-2. Questionable changes that may need verification:
-- The use of HuggingFaceEmbeddings class is not shown in your imports but is used in the code. You may need to check
-if this should also come from `langchain_huggingface` in v0.3
-- The `parse_raw` method used with Document class may need verification for compatibility with Pydantic 2 changes
-
-Please make sure to test these changes when implementing them, particularly the migration from Pydantic 1 to
-Pydantic 2 related functionality.
-"""
+# database_interactions.py
 
 import gc
 import logging
 import os
 import pickle
 import time
+from copy import deepcopy
 from pathlib import Path
 from typing import Optional
 import threading
 import re
-
 import sqlite3
 import torch
 import yaml
-# use in langchain 0.2.2+
+
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings # invalid after langchain 0.2.2+
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
 from langchain_community.docstore.document import Document
 from langchain_community.vectorstores import TileDB
 
@@ -84,17 +68,17 @@ class CreateVectorDB:
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
         use_half = config_data.get("database", {}).get("half", False)
-
         model_native_precision = get_model_native_precision(EMBEDDING_MODEL_NAME, VECTOR_MODELS)
+        
+        # determine the dtype based on the compute device, whether "half" is checked, and the model's native precision
         torch_dtype = get_appropriate_dtype(compute_device, use_half, model_native_precision)
 
-        model_kwargs = {
-            "device": compute_device,
-            "trust_remote_code": True
-        }
+        model_kwargs = {"device": compute_device, "trust_remote_code": True,}
 
-        if torch_dtype is not None and "instructor" not in embedding_model_name:
-            model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
+        if (torch_dtype is not None 
+           and "instructor" not in embedding_model_name 
+           and "bge" not in embedding_model_name):
+           model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
 
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 8}
 
@@ -111,11 +95,6 @@ class CreateVectorDB:
                 'instructor-large': 4,
                 'e5-large': 4,
                 'arctic-embed-l': 4,
-                'arctic-embed-m': 6,
-                'instructor-base': 8,
-                'e5-base': 8,
-                'bge-base': 8,
-                'Granite-125m-English': 8,
                 'e5-small': 10,
                 'bge-small': 10,
                 'Granite-30m-English': 10,
@@ -132,43 +111,27 @@ class CreateVectorDB:
                         break
 
         if "instructor" in embedding_model_name.lower():
-            # encode_kwargs['show_progress_bar'] = True  # invalid after langchain 0.2.2+
-
-            if torch_dtype is not None:
-                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
-
             model = HuggingFaceInstructEmbeddings(
                 model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
-                show_progress=True, # use in langchain 0.2.2+
+                show_progress=True,
             )
-
-            # if torch_dtype is not None:
-                # # Move the model to the desired dtype
-                # model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
+            if torch_dtype is not None:
+                model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
 
         elif "bge" in embedding_model_name.lower():
-            query_instruction = config_data['embedding-models']['bge'].get('query_instruction', '')
-            # encode_kwargs['show_progress_bar'] = True # invalid after langchain 0.2.2+
-
-            if torch_dtype is not None:
-                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
-
             model = HuggingFaceBgeEmbeddings(
                 model_name=embedding_model_name,
                 model_kwargs=model_kwargs,
-                query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs,
-                show_progress=True, # use in langchain 0.2.2+
+                show_progress=True,
             )
+            if torch_dtype is not None:
+                model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
 
         elif "snowflake" in embedding_model_name.lower():
-            if torch_dtype is not None:
-                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
-
             if "large" in embedding_model_name.lower():
-                # XLMRobertaModel (large) uses standard configuration
                 model = HuggingFaceEmbeddings(
                     model_name=embedding_model_name,
                     show_progress=True,
@@ -176,15 +139,26 @@ class CreateVectorDB:
                     encode_kwargs=encode_kwargs
                 )
             else:
-                # GteModel (medium) requires special config
-                snow_kwargs = model_kwargs.copy()
+                # the medium model has custom modeling code not yet accepted by transformers
+                # also, "config_kwargs" be nested within "model_kwargs" pursuant to the custom modeling code
+                snow_kwargs = deepcopy(model_kwargs)
                 if "model_kwargs" not in snow_kwargs:
                     snow_kwargs["model_kwargs"] = {}
-                snow_kwargs["config_kwargs"] = {
-                    "use_memory_efficient_attention": True,
-                    "attn_implementation": "eager"
-                }
-                
+
+                # cuda settings
+                if compute_device.lower() == 'cuda':
+                    snow_kwargs["config_kwargs"] = {
+                        "use_memory_efficient_attention": True, # to use xformers
+                        "unpad_inputs": True, # to use xformers
+                        "attn_implementation": "eager", # to use xformers
+                    }
+                # cpu settings
+                else:
+                    snow_kwargs["config_kwargs"] = {
+                        "use_memory_efficient_attention": False, # no xformers
+                        "attn_implementation": "sdpa" # best when not using xformers
+                    }
+
                 model = HuggingFaceEmbeddings(
                     model_name=embedding_model_name,
                     show_progress=True,
@@ -193,17 +167,35 @@ class CreateVectorDB:
                 )
 
         elif "Alibaba" in embedding_model_name.lower():
+            ali_kwargs = deepcopy(model_kwargs)
+            if "model_kwargs" not in ali_kwargs:
+                ali_kwargs["model_kwargs"] = {}
+
+            if compute_device.lower() == 'cuda':
+                ali_kwargs["config_kwargs"] = {
+                    "use_memory_efficient_attention": True,
+                    "unpad_inputs": True,
+                    "attn_implementation": "eager",
+                }
+            else:
+                ali_kwargs["config_kwargs"] = {
+                    "use_memory_efficient_attention": False, 
+                    "attn_implementation": "sdpa"
+                }
+
             if torch_dtype is not None:
-                model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
-            model_kwargs["tokenizer_kwargs"] = {
+                ali_kwargs["model_kwargs"]["torch_dtype"] = torch_dtype
+               
+            ali_kwargs["tokenizer_kwargs"] = {
                 "max_length": 8192,
                 "padding": True,
                 "truncation": True
             }
+
             model = HuggingFaceEmbeddings(
                 model_name=embedding_model_name,
                 show_progress=True,
-                model_kwargs=model_kwargs,
+                model_kwargs=ali_kwargs,
                 encode_kwargs=encode_kwargs
             )
 
@@ -279,7 +271,7 @@ class CreateVectorDB:
         conn = sqlite3.connect(sqlite_db_path)
         cursor = conn.cursor()
 
-        # updated schema
+        # schema
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS document_metadata (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -449,26 +441,62 @@ class QueryVectorDB:
 
     def initialize_vector_model(self):    
         model_path = self.config['created_databases'][self.selected_database]['model']
-        
         self.model_name = os.path.basename(model_path)
-        
         compute_device = self.config['Compute_Device']['database_query']
+
+        model_kwargs = {"device": compute_device, "trust_remote_code": True}
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
         
         if "instructor" in model_path:
             embeddings = HuggingFaceInstructEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
             )
         elif "bge" in model_path:
             query_instruction = self.config['embedding-models']['bge']['query_instruction']
             embeddings = HuggingFaceBgeEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                model_kwargs=model_kwargs,
                 query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs,
             )
+
+        elif "snowflake" in model_path.lower():
+            if "large" in model_path.lower():
+                embeddings = HuggingFaceEmbeddings(
+                    model_name=model_path,
+                    model_kwargs=model_kwargs,
+                    encode_kwargs=encode_kwargs
+                )
+            # medium model requires a special config
+            # note that the custom modeling code requires that "config_kwargs" be nested within "model_kwargs"
+            else:
+
+                snow_kwargs = deepcopy(model_kwargs)
+                if "model_kwargs" not in snow_kwargs:
+                    snow_kwargs["model_kwargs"] = {}
+                
+                # required for cuda
+                if compute_device.lower() == 'cuda':
+                    snow_kwargs["config_kwargs"] = {
+                        "use_memory_efficient_attention": True, # to use xformers
+                        "unpad_inputs": True, # to use xformers
+                        "attn_implementation": "eager" # to use xformers
+                    }
+                # required for cpu
+                else:
+                    snow_kwargs["config_kwargs"] = {
+                        "use_memory_efficient_attention": False, # no xformers
+                        "attn_implementation": "sdpa" # best when not using xformers (FA2 NOT supported)
+                    }
+
+                embeddings = HuggingFaceEmbeddings(
+                    model_name=model_path,
+                    model_kwargs=snow_kwargs,
+                    encode_kwargs=encode_kwargs
+                )
+
         elif "Alibaba" in model_path:
             embeddings = HuggingFaceEmbeddings(
                 model_name=model_path,
@@ -486,10 +514,9 @@ class QueryVectorDB:
         else:
             embeddings = HuggingFaceEmbeddings(
                 model_name=model_path,
-                model_kwargs={"device": compute_device, "trust_remote_code": True},
+                model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
             )
-        # my_cprint(f"{self.model_name} loaded.", "green")
         
         return embeddings
 
@@ -498,9 +525,9 @@ class QueryVectorDB:
         
         return TileDB.load(index_uri=str(persist_directory), embedding=self.embeddings, allow_dangerous_deserialization=True)
 
-    def is_intfloat_model(self):
+    def is_special_prefix_model(self):
         model_path = self.config['created_databases'][self.selected_database]['model']
-        return "intfloat" in model_path.lower()
+        return "intfloat" in model_path.lower() or "snowflake" in model_path.lower()
 
     def search(self, query, k: Optional[int] = None, score_threshold: Optional[float] = None):
         if not self.embeddings:
@@ -518,7 +545,7 @@ class QueryVectorDB:
         k = k if k is not None else int(self.config['database']['contexts'])
         score_threshold = score_threshold if score_threshold is not None else float(self.config['database']['similarity'])
         
-        if self.is_intfloat_model():
+        if self.is_special_prefix_model():
             query = f"query: {query}"
         
         relevant_contexts = self.db.similarity_search_with_score(
