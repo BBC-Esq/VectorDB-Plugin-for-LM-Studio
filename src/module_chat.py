@@ -40,7 +40,6 @@ def get_generation_settings(max_length, max_new_tokens):
 bnb_bfloat16_settings = {
     'tokenizer_settings': {
         'torch_dtype': torch.bfloat16,
-        'trust_remote_code': True,
     },
     'model_settings': {
         'torch_dtype': torch.bfloat16,
@@ -50,15 +49,13 @@ bnb_bfloat16_settings = {
             bnb_4bit_quant_type="nf4",
         ),
         'low_cpu_mem_usage': True,
-        'trust_remote_code': True,
-        'attn_implementation': "sdpa"
+        # 'attn_implementation': "sdpa"
     }
 }
 
 bnb_float16_settings = {
     'tokenizer_settings': {
         'torch_dtype': torch.float16,
-        'trust_remote_code': True,
     },
     'model_settings': {
         'torch_dtype': torch.float16,
@@ -68,8 +65,7 @@ bnb_float16_settings = {
             bnb_4bit_quant_type="nf4",
         ),
         'low_cpu_mem_usage': True,
-        'trust_remote_code': True,
-        'attn_implementation': "sdpa"
+        # 'attn_implementation': "sdpa"
     }
 }
 
@@ -96,7 +92,7 @@ class BaseModel(ABC):
         script_dir = Path(__file__).resolve().parent
         cache_dir = script_dir / "Models" / "chat" / model_info['cache_dir']
 
-        # rewrite bfloat dictionary to float16 if cuda compute 8.6 not supported
+        # rewrite bfloat dictionary to float16 if bfloat16 not supported
         if self.device == "cuda" and not has_bfloat16_support():
             if 'bnb_bfloat16_settings' in settings:
                 settings['bnb_float16_settings'] = settings.pop('bnb_bfloat16_settings')
@@ -131,7 +127,7 @@ class BaseModel(ABC):
         # only applies to Zephyr 1.6b because all other models are not populated in combobox if cuda isn't available
         if self.device == "cpu":
             model_settings.pop('quantization_config', None)
-            model_settings.pop('attn_implementation', None)
+            # model_settings.pop('attn_implementation', None)
             model_settings['device_map'] = "cpu"
 
         if hf_token:
@@ -139,8 +135,10 @@ class BaseModel(ABC):
 
         self.model = AutoModelForCausalLM.from_pretrained(model_info['repo_id'], **model_settings)
         self.model.eval()
-        
-        my_cprint(f"Loaded {model_info['model']} on {self.device}", "green")
+
+        config = self.model.config
+        model_dtype = next(self.model.parameters()).dtype
+        my_cprint(f"Loaded {model_info['model']} ({model_dtype}) on {self.device} using {config._attn_implementation}", "green")
 
     def get_model_name(self):
         return self.model_name
@@ -196,8 +194,7 @@ class Zephyr_1_6B(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Zephyr - 1.6b']
         settings = bnb_float16_settings if torch.cuda.is_available() else {}
-        attn_implementation="eager" if torch.cuda.is_available() else {}
-        super().__init__(model_info, settings, generation_settings, attn_implementation=attn_implementation)
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""<|system|>
@@ -211,7 +208,8 @@ class Zephyr_1_6B(BaseModel):
 class Granite_2b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Granite - 2b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        settings = bnb_bfloat16_settings if torch.cuda.is_available() else {}
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""<|start_of_role|>system<|end_of_role|>{system_message}<|end_of_text|>
@@ -222,7 +220,10 @@ class Granite_2b(BaseModel):
 class Exaone_2_4b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Exaone - 2.4b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        settings = copy.deepcopy(bnb_bfloat16_settings)
+        settings['tokenizer_settings']['trust_remote_code'] = True
+        settings['model_settings']['trust_remote_code'] = True
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""[|system|]{system_message}[|endofturn|]
@@ -234,7 +235,8 @@ class Exaone_2_4b(BaseModel):
 class Qwen_1_5b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen - 1.5b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        settings = bnb_bfloat16_settings if torch.cuda.is_available() else {}
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""<|im_start|>system
@@ -248,7 +250,8 @@ class Qwen_1_5b(BaseModel):
 class QwenCoder_1_5b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen Coder - 1.5b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        settings = bnb_bfloat16_settings if torch.cuda.is_available() else {}
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""<|im_start|>system
@@ -335,7 +338,10 @@ class Granite_8b(BaseModel):
 class Exaone_7_8b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Exaone - 7.8b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        settings = copy.deepcopy(bnb_bfloat16_settings)
+        settings['tokenizer_settings']['trust_remote_code'] = True
+        settings['model_settings']['trust_remote_code'] = True
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""[|system|]{system_message}[|endofturn|]
@@ -435,7 +441,9 @@ class Mistral_Small_22b(BaseModel):
 class QwenCoder_32b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen Coder - 32b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        settings = copy.deepcopy(bnb_bfloat16_settings)
+        settings['model_settings']['quantization_config'].bnb_4bit_use_double_quant = True
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""<|im_start|>system
@@ -463,10 +471,28 @@ class QwenCoder_32b(BaseModel):
         generation_thread.join()
 
 
+class Qwen_32b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Qwen - 32b']
+        settings = copy.deepcopy(bnb_bfloat16_settings)
+        settings['model_settings']['quantization_config'].bnb_4bit_use_double_quant = True
+        super().__init__(model_info, settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
+
 class Exaone_32b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Exaone - 32b']
-        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+        settings = copy.deepcopy(bnb_bfloat16_settings)
+        settings['model_settings']['quantization_config'].bnb_4bit_use_double_quant = True
+        super().__init__(model_info, settings, generation_settings)
 
     def create_prompt(self, augmented_query):
         return f"""[|system|]{system_message}[|endofturn|]
@@ -484,6 +510,14 @@ def generate_response(model_instance, augmented_query):
 
 def choose_model(model_name):
     if model_name in CHAT_MODELS:
+
+        # DEBUG FA2
+        # from transformers.utils import is_flash_attn_2_available, is_flash_attn_greater_or_equal_2_10
+
+        # my_cprint(f"Flash Attention 2 available: {is_flash_attn_2_available()}", "green")
+        # if is_flash_attn_2_available():
+            # my_cprint(f"Flash Attention >= 2.10: {is_flash_attn_greater_or_equal_2_10()}", "green")
+
         model_class_name = CHAT_MODELS[model_name]['function']
         model_class = globals()[model_class_name]
         
