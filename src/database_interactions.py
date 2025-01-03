@@ -70,7 +70,7 @@ class CreateVectorDB:
         use_half = config_data.get("database", {}).get("half", False)
         model_native_precision = get_model_native_precision(EMBEDDING_MODEL_NAME, VECTOR_MODELS)
         
-        # determine the dtype based on the compute device, whether "half" is checked, and the model's native precision
+        # determine dtype based on the compute device, whether "half" is checked, and the model's native precision
         torch_dtype = get_appropriate_dtype(compute_device, use_half, model_native_precision)
 
         model_kwargs = {"device": compute_device, "trust_remote_code": True,}
@@ -88,13 +88,15 @@ class CreateVectorDB:
             batch_size_mapping = {
                 't5-xxl': 2,
                 't5-xl': 2,
-                't5-large': 4,
                 'instructor-xl': 2,
-                't5-base': 6,
+                'stella': 2,
+                'gte-large': 4,
+                't5-large': 4,
                 'bge-large': 4,
                 'instructor-large': 4,
                 'e5-large': 4,
                 'arctic-embed-l': 4,
+                't5-base': 6,
                 'e5-small': 10,
                 'bge-small': 10,
                 'Granite-30m-English': 10,
@@ -116,6 +118,7 @@ class CreateVectorDB:
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
                 show_progress=True,
+                embed_instruction="Represent the document for retrieval:",
             )
             if torch_dtype is not None:
                 model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
@@ -197,6 +200,25 @@ class CreateVectorDB:
                 show_progress=True,
                 model_kwargs=ali_kwargs,
                 encode_kwargs=encode_kwargs
+            )
+
+        elif "stella" in embedding_model_name.lower():
+            stella_kwargs = deepcopy(model_kwargs)
+            if "model_kwargs" not in stella_kwargs:
+                stella_kwargs["model_kwargs"] = {}
+
+            # Add torch dtype if specified
+            if torch_dtype is not None:
+                stella_kwargs["model_kwargs"]["torch_dtype"] = torch_dtype
+            
+            # Add trust_remote_code
+            stella_kwargs["model_kwargs"]["trust_remote_code"] = True
+
+            model = HuggingFaceEmbeddings(
+                model_name=embedding_model_name,
+                model_kwargs=stella_kwargs,
+                encode_kwargs=encode_kwargs,
+                show_progress=True
             )
 
         else:
@@ -447,19 +469,20 @@ class QueryVectorDB:
         model_kwargs = {"device": compute_device, "trust_remote_code": True}
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
         
-        if "instructor" in model_path:
+        if "instructor" in model_path.lower():
             embeddings = HuggingFaceInstructEmbeddings(
                 model_name=model_path,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
+                query_instruction="Represent the question for retrieving supporting documents:"
             )
-        elif "bge" in model_path:
-            query_instruction = self.config['embedding-models']['bge']['query_instruction']
+
+        elif "bge" in model_path.lower():
             embeddings = HuggingFaceBgeEmbeddings(
                 model_name=model_path,
                 model_kwargs=model_kwargs,
-                query_instruction=query_instruction,
                 encode_kwargs=encode_kwargs,
+                query_instruction="Represent this sentence for searching relevant passages:"
             )
 
         elif "snowflake" in model_path.lower():
@@ -497,7 +520,7 @@ class QueryVectorDB:
                     encode_kwargs=encode_kwargs
                 )
 
-        elif "Alibaba" in model_path:
+        elif "Alibaba" in model_path.lower():
             embeddings = HuggingFaceEmbeddings(
                 model_name=model_path,
                 model_kwargs={
@@ -511,13 +534,29 @@ class QueryVectorDB:
                 },
                 encode_kwargs=encode_kwargs
             )
+
+        elif "stella" in model_path.lower():
+            stella_kwargs = deepcopy(model_kwargs)
+            if "model_kwargs" not in stella_kwargs:
+                stella_kwargs["model_kwargs"] = {}
+            
+            stella_kwargs["model_kwargs"]["trust_remote_code"] = True
+            
+            encode_kwargs["prompt_name"] = "s2p_query"
+
+            embeddings = HuggingFaceEmbeddings(
+                model_name=model_path,
+                model_kwargs=stella_kwargs,
+                encode_kwargs=encode_kwargs,
+            )
+
         else:
             embeddings = HuggingFaceEmbeddings(
                 model_name=model_path,
                 model_kwargs=model_kwargs,
                 encode_kwargs=encode_kwargs,
             )
-        
+
         return embeddings
 
     def initialize_database(self):

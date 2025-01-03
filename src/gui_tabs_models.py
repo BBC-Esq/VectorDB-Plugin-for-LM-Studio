@@ -24,7 +24,7 @@ class VectorModelsTab(QWidget):
            'BAAI': 4,
            'hkunlp': 4,
            'sentence-transformers': 5,
-           # 'thenlper': 4,
+           'dunzhang': 2,
            'intfloat': 4,
            'Alibaba-NLP': 3,
            'IBM': 3,
@@ -42,17 +42,27 @@ class VectorModelsTab(QWidget):
        headers = ["Select", "Model Name", "Precision", "Parameters", "Dimensions", "Max Sequence", "Size (MB)", "Downloaded"]
        column_stretch_factors = [1, 3, 2, 2, 2, 2, 2, 2]
 
-
        def add_centered_widget(grid, widget, row, col):
            grid.addWidget(widget, row, col, alignment=Qt.AlignCenter)
 
        row_counter = 1
        for vendor, models in VECTOR_MODELS.items():
            group_box = QGroupBox(vendor)
+
+           group_box.setStyleSheet("""
+               QGroupBox::title {
+                   subcontrol-origin: margin;
+                   padding: 0 5px;
+                   font-weight: bold;
+                   color: #00bf9e;
+               }
+           """)
+
            group_layout = QGridLayout()
            group_layout.setVerticalSpacing(0)
            group_layout.setHorizontalSpacing(0)
            group_box.setLayout(group_layout)
+           group_layout.setContentsMargins(0, 10, 0, 0)  # left, top, right, bottom
            
            size_policy = group_box.sizePolicy()
            size_policy.setVerticalStretch(self.stretch_factors.get(vendor, 1))

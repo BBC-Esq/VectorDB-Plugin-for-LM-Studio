@@ -277,6 +277,19 @@ VECTOR_MODELS = {
             'precision': 'float32'
         },
     ],
+    'dunzhang': [
+        {
+            'name': 'stella_en_1.5B_v5',
+            'dimensions': 1024,
+            'max_sequence': 512,
+            'size_mb': 6170,
+            'repo_id': 'dunzhang/stella_en_1.5B_v5',
+            'cache_dir': 'dunzhang--stella_en_1.5B_v5',
+            'type': 'vector',
+            'parameters': '1540m',
+            'precision': 'float32'
+        },
+    ],
     'hkunlp': [
         {
             'name': 'instructor-base',
@@ -308,7 +321,7 @@ VECTOR_MODELS = {
             'repo_id': 'hkunlp/instructor-xl',
             'cache_dir': 'hkunlp--instructor-xl',
             'type': 'vector',
-            'parameters': '1.5b',
+            'parameters': '1500m',
             'precision': 'float32'
         },
     ],
@@ -402,7 +415,7 @@ VECTOR_MODELS = {
             'repo_id': 'sentence-transformers/sentence-t5-xl',
             'cache_dir': 'sentence-transformers--sentence-t5-xl',
             'type': 'vector',
-            'parameters': '1.24b',
+            'parameters': '1240m',
             'precision': 'float16'
         },
         {
@@ -413,7 +426,7 @@ VECTOR_MODELS = {
             'repo_id': 'sentence-transformers/sentence-t5-xxl',
             'cache_dir': 'sentence-transformers--sentence-t5-xxl',
             'type': 'vector',
-            'parameters': '4.86b',
+            'parameters': '4860m',
             'precision': 'float16'
         },
     ],
