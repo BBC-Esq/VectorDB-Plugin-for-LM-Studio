@@ -746,15 +746,6 @@ JEEVES_MODELS = {
 [|endofturn|]
 [|assistant|]"""
     },
-    "EXAONE - 7.8b Q4_K_M": {
-        "filename": "EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf",
-        "repo_id": "bartowski/EXAONE-3.5-7.8B-Instruct-GGUF",
-        "allow_patterns": ["EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf"],
-        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
-[|user|]{user_message}
-[|endofturn|]
-[|assistant|]"""
-    },
     "Llama - 3b Q8_0": {
         "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
         "repo_id": "lmstudio-community/Llama-3.2-3B-Instruct-GGUF",
@@ -766,14 +757,6 @@ Cutting Knowledge Date: December 2023
 {user_message}<|eot_id|>
 <|start_header_id|>assistant<|end_header_id|>"""
     },
-    # "Granite - 2b": {
-        # "filename": "granite-3.1-2b-instruct-Q8_0.gguf",
-        # "repo_id": "bartowski/granite-3.1-2b-instruct-GGUF",
-        # "allow_patterns": ["granite-3.1-2b-instruct-Q8_0.gguf"],
-        # "prompt_template": """<|start_of_role|>system<|end_of_role|>{jeeves_system_message}<|end_of_text|>
-# <|start_of_role|>user<|end_of_role|>{user_message}<|end_of_text|>
-# <|start_of_role|>assistant<|end_of_role|>"""
-    # },
     "Qwen - 3b Q8_0": {
         "filename": "Qwen2.5-3B-Instruct-Q8_0.gguf",
         "repo_id": "bartowski/Qwen2.5-3B-Instruct-GGUF",
@@ -795,7 +778,16 @@ Cutting Knowledge Date: December 2023
 {user_message}<|endoftext|>
 <|assistant|>
 """
-    }
+    },
+    "EXAONE - 7.8b Q4_K_M": {
+        "filename": "EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf",
+        "repo_id": "bartowski/EXAONE-3.5-7.8B-Instruct-GGUF",
+        "allow_patterns": ["EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf"],
+        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
+[|user|]{user_message}
+[|endofturn|]
+[|assistant|]"""
+    },
 }
 
 kobold_config = {
