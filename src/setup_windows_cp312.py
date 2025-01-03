@@ -256,7 +256,7 @@ other_libraries = [
     "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
     "nvidia-ml-py==12.560.30",
     "olefile==0.47",
-    "openai==1.58.1", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai==1.59.2", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
     "optimum==1.23.3",
@@ -299,7 +299,7 @@ other_libraries = [
     "ruamel.yaml.clib==0.2.12",
     "safetensors==0.5.0",
     "scikit-learn==1.6.0",
-    "scipy==1.14.1",
+    "scipy==1.14.1", # 1.15.0 has possible breaking changes
     "sentence-transformers==3.0.1",
     "sentencepiece==0.2.0",
     "six==1.17.0",
@@ -317,7 +317,7 @@ other_libraries = [
     "termcolor==2.5.0",
     "threadpoolctl==3.5.0",
     "tiktoken==0.8.0",
-    "tiledb==0.33.0",
+    "tiledb==0.33.0", # 0.33.1 has a bug
     "tiledb-cloud==0.13.0",
     "tiledb-vector-search==0.11.0",
     "timm==1.0.12",
@@ -329,7 +329,7 @@ other_libraries = [
     "unstructured-client==0.24.1",
     "tzdata==2024.2",
     "urllib3==2.2.3", # requests 2.32.3 requires <3
-    "vector-quantize-pytorch==1.20.11",
+    "vector-quantize-pytorch==1.21.0",
     "vocos==0.1.0",
     "watchdog==6.0.0",
     "webdataset==0.2.100", # required by all TTS libraries
