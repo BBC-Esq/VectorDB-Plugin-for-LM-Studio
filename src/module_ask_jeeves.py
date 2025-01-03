@@ -34,7 +34,6 @@ from constants import (
     CustomButtonStyles,
 )
 
-
 def has_discrete_vulkan_gpu():
     try:
         output = subprocess.run(['vulkaninfo', '--summary'], capture_output=True, text=True, check=True).stdout
@@ -113,40 +112,60 @@ class ChatAPIWorker(QThread):
         self.signals = ChatSignals()
         self._is_running = True
         self.response = None
+        self._retry_count = 0
+        self._max_retries = 3
 
     def run(self):
-        try:
-            with requests.Session() as session:
-                self.response = session.post(
-                    self.url,
-                    json=self.payload,
-                    stream=True,
-                    timeout=30
-                )
-                self.response.raise_for_status()
-                client = sseclient.SSEClient(self.response)
+        while self._retry_count < self._max_retries and self._is_running:
+            try:
+                with requests.Session() as session:
+                    self.response = session.post(
+                        self.url,
+                        json=self.payload,
+                        stream=True,
+                        timeout=(5, 60)
+                    )
+                    self.response.raise_for_status()
+                    client = sseclient.SSEClient(self.response)
 
-                for event in client.events():
-                    if not self._is_running:
-                        break
-                    if event.event == "message":
-                        try:
-                            data = json.loads(event.data)
-                            if 'token' in data:
-                                token = data['token']
-                                self.signals.response_signal.emit(token)
-                            else:
-                                self.signals.error_signal.emit(f"Unexpected data format: {data}")
-                        except json.JSONDecodeError:
-                            self.signals.error_signal.emit(f"Failed to parse: {event.data}")
-        except Exception as e:
-            print(f"Stream error: {str(e)}")
-            if self._is_running:
-                self.signals.error_signal.emit(str(e))
-        finally:
-            if self.response:
-                self.response.close()
-            self.signals.finished_signal.emit()
+                    for event in client.events():
+                        if not self._is_running:
+                            break
+                        if event.event == "message":
+                            try:
+                                data = json.loads(event.data)
+                                if 'token' in data:
+                                    token = data['token']
+                                    self.signals.response_signal.emit(token)
+                                else:
+                                    self.signals.error_signal.emit(f"Unexpected data format: {data}")
+                            except json.JSONDecodeError:
+                                self.signals.error_signal.emit(f"Failed to parse: {event.data}")
+                break
+
+            except requests.exceptions.ConnectTimeout:
+                self._retry_count += 1
+                if self._retry_count < self._max_retries:
+                    time.sleep(1)
+                    continue
+                self.signals.error_signal.emit("Connection timed out. Server may be busy.")
+                
+            except requests.exceptions.ReadTimeout:
+                self.signals.error_signal.emit("Server took too long to respond. Please try again.")
+                break
+                
+            except requests.exceptions.ConnectionError:
+                self._retry_count += 1
+                if self._retry_count < self._max_retries:
+                    time.sleep(1)
+                    continue
+                self.signals.error_signal.emit("Connection lost to language model. Please try again.")
+                
+            except Exception as e:
+                self.signals.error_signal.emit(f"Error: {str(e)}")
+                break
+        
+        self.signals.finished_signal.emit()
 
     def stop(self):
         self._is_running = False
@@ -513,40 +532,45 @@ class ChatWindow(QMainWindow):
         try:
             contexts, metadata = self.vector_db.search(user_message, k=7, score_threshold=0.9)
             if not contexts:
-                QMessageBox.warning(self, "No Contexts Found", "No relevant contexts were found for your query.")
+                if len(user_message.split()) < 2:
+                    msg = "Your question is too short. Please be more specific."
+                else:
+                    msg = "I couldn't find relevant information about that. Try rephrasing your question or ask about a different topic."
+                QMessageBox.warning(self, "No Relevant Information", msg)
                 self.input_field.setDisabled(False)
                 return
+
+            contexts_text = "\n\n".join(contexts)
+            full_context = f"{rag_string}\n\n{contexts_text}"
+
+            model_config = JEEVES_MODELS[self.selected_model]
+            new_prompt = model_config["prompt_template"].format(
+                jeeves_system_message=jeeves_system_message,
+                user_message=user_message
+            )
+
+            combined_prompt = f"{full_context}\n\n{new_prompt}"
+
+            payload = {
+                "prompt": combined_prompt,
+                "max_length": 1024,
+                "temperature": 0.0,
+                "stream": True,
+            }
+
+            self.worker = ChatAPIWorker(self.api_url, payload)
+            self.worker.signals.response_signal.connect(self.update_response)
+            self.worker.signals.error_signal.connect(self.show_error_message)
+            self.worker.signals.finished_signal.connect(self.on_submission_finished)
+            self.worker.start()
+
+            self.chat_display.append("Jeeves:\n")
+            self.llm_is_active = True
+
         except Exception as e:
             QMessageBox.warning(self, "Database Query Error", f"An error occurred while querying the database: {e}")
             self.input_field.setDisabled(False)
             return
-
-        contexts_text = "\n\n".join(contexts)
-        full_context = f"{rag_string}\n\n{contexts_text}"
-
-        model_config = JEEVES_MODELS[self.selected_model]
-        new_prompt = model_config["prompt_template"].format(
-            jeeves_system_message=jeeves_system_message,
-            user_message=user_message
-        )
-
-        combined_prompt = f"{full_context}\n\n{new_prompt}"
-
-        payload = {
-            "prompt": combined_prompt,
-            "max_length":1024,
-            "temperature": 0.0,
-            "stream": True,
-        }
-
-        self.worker = ChatAPIWorker(self.api_url, payload)
-        self.worker.signals.response_signal.connect(self.update_response)
-        self.worker.signals.error_signal.connect(self.show_error_message)
-        self.worker.signals.finished_signal.connect(self.on_submission_finished)
-        self.worker.start()
-
-        self.chat_display.append("Jeeves:\n")
-        self.llm_is_active = True
 
     def update_response(self, response_chunk):
         if self.llm_is_active:
@@ -595,16 +619,35 @@ class ChatWindow(QMainWindow):
                 QMessageBox.warning(self, "Subprocess Termination Error", f"Error terminating subprocess: {e}")
 
     def closeEvent(self, event):
-        if hasattr(self, 'server_worker') and self.server_worker.isRunning():
-            self.server_worker.wait()
+        try:
+            if hasattr(self, 'server_worker'):
+                if self.server_worker.isRunning():
+                    try:
+                        self.server_worker.terminate_subprocess()
+                        if not self.server_worker.wait(5000):
+                            self.server_worker.terminate()
+                    except Exception as e:
+                        print(f"Error during server_worker termination: {e}")
 
-        self.terminate_subprocess()
+            try:
+                self.terminate_subprocess()
+            except Exception as e:
+                print(f"Error during subprocess termination: {e}")
 
-        if self.worker and self.worker.isRunning():
-            self.worker.stop()
-            self.worker.wait()
+            if hasattr(self, 'worker'):
+                if self.worker and self.worker.isRunning():
+                    try:
+                        self.worker.stop()
+                        if not self.worker.wait(5000):
+                            self.worker.terminate()
+                    except Exception as e:
+                        print(f"Error during worker termination: {e}")
 
-        if hasattr(self, 'vector_db'):
-            self.vector_db.cleanup()
+            if hasattr(self, 'vector_db'):
+                try:
+                    self.vector_db.cleanup()
+                except Exception as e:
+                    print(f"Error during vector_db cleanup: {e}")
 
-        super().closeEvent(event)
+        finally:
+            super().closeEvent(event)
