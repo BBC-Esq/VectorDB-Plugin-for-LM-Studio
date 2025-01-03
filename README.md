@@ -73,9 +73,16 @@ Activate the virtual environment:
 ```
 ### Step 4
 Run the setup script:
-   > Only for ```Windows``` for now.
-```python setup_windows_cp311.py``` if using Python 3.11
-```python setup_windows_cp312.py``` if using Python 3.12
+   > Only ```Windows``` supported for now.
+
+If using Python 3.11
+```
+python setup_windows_cp311.py
+```
+If using Python 3.12
+```
+python setup_windows_cp312.py
+```
 
 ### Step 5 - 🔥IMPORTANT🔥
 In order to use the Ask Jeeves functionality you must:
