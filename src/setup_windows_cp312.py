@@ -495,8 +495,8 @@ def update_config_yaml():
     if 'user_manual' not in config['created_databases']:
         config['created_databases']['user_manual'] = {}
     
-    config['created_databases']['user_manual']['chunk_overlap'] = 349
-    config['created_databases']['user_manual']['chunk_size'] = 700
+    config['created_databases']['user_manual']['chunk_overlap'] = 549
+    config['created_databases']['user_manual']['chunk_size'] = 1100
     config['created_databases']['user_manual']['model'] = vector_model_path
     
     with open(config_path, 'w', encoding='utf-8') as file:
