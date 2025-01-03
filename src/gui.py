@@ -36,8 +36,8 @@ def set_cuda_paths():
 
 set_cuda_paths()
 
-from ctypes import windll, c_int, byref, sizeof
-from ctypes.wintypes import BOOL
+from ctypes import windll, byref, sizeof, c_void_p, c_int
+from ctypes.wintypes import BOOL, HWND, DWORD
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget,
@@ -65,12 +65,26 @@ class DocQA_GUI(QWidget):
         self.set_dark_titlebar()
 
     def set_dark_titlebar(self):
-        DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+        DWMWA_USE_IMMERSIVE_DARK_MODE = DWORD(20)
         set_window_attribute = windll.dwmapi.DwmSetWindowAttribute
-        hwnd = self.winId()
+        hwnd = HWND(int(self.winId()))
         rendering_policy = BOOL(True)
-        set_window_attribute(c_int(hwnd), DWMWA_USE_IMMERSIVE_DARK_MODE,
-                           byref(rendering_policy), sizeof(rendering_policy))
+        set_window_attribute(
+            hwnd,
+            DWMWA_USE_IMMERSIVE_DARK_MODE,
+            byref(rendering_policy), 
+            sizeof(rendering_policy)
+        )
+
+        # Make window border black (Windows 11+)
+        DWMWA_BORDER_COLOR = DWORD(34)
+        black_color = c_int(0xFF000000)  # ABGR = 0xAARRGGBB => FF 00 00 00 = fully opaque black
+        set_window_attribute(
+            hwnd,
+            DWMWA_BORDER_COLOR,
+            byref(black_color),
+            sizeof(black_color)
+        )
 
     def init_ui(self):
         self.setWindowTitle('VectorDB Plugin (Kobold and LM Studio Edition)')

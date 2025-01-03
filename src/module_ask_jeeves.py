@@ -10,8 +10,8 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from functools import partial
 
-from ctypes import windll, c_int, byref, sizeof
-from ctypes.wintypes import BOOL
+from ctypes import windll, byref, sizeof, c_void_p, c_int
+from ctypes.wintypes import BOOL, HWND, DWORD
 
 import requests
 import sseclient
@@ -343,29 +343,22 @@ class ChatWindow(QMainWindow):
         self.apply_dark_mode_settings()
 
     def apply_dark_mode_settings(self):
-        import platform
-        if platform.system() != 'Windows':
-            return
-
-        # 1) Enable dark title bar
-        DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+        DWMWA_USE_IMMERSIVE_DARK_MODE = DWORD(20)
         set_window_attribute = windll.dwmapi.DwmSetWindowAttribute
-        hwnd = self.winId()
-
+        hwnd = HWND(int(self.winId()))
         true_bool = BOOL(True)
         set_window_attribute(
-            c_int(hwnd),
+            hwnd,
             DWMWA_USE_IMMERSIVE_DARK_MODE,
             byref(true_bool),
             sizeof(true_bool)
         )
 
-        # 2) Make window border black (Windows 11+)
-        #    This attribute may be ignored on earlier Windows versions.
-        DWMWA_BORDER_COLOR = 34
+        # Make window border black (Windows 11+)
+        DWMWA_BORDER_COLOR = DWORD(34)
         black_color = c_int(0xFF000000)  # ABGR = 0xAARRGGBB => FF 00 00 00 = fully opaque black
         set_window_attribute(
-            c_int(hwnd),
+            hwnd,
             DWMWA_BORDER_COLOR,
             byref(black_color),
             sizeof(black_color)
