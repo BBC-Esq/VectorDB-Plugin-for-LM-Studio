@@ -324,7 +324,6 @@ class ChatWindow(QMainWindow):
 
         self.suggestion_layout.addStretch()
         self.layout.addWidget(self.suggestion_widget)
-        self.layout.addWidget(self.suggestion_widget)
 
         # Timer setup for debounce
         self.timer = QTimer()
