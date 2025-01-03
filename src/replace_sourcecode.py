@@ -104,13 +104,25 @@ def add_cuda_files():
     # Second part: Extract zip file
     zip_path = Path(__file__).parent / "Assets" / "cudart_lib.zip"
     if not zip_path.exists():
-        print("cuda_runtime.zip not found in Assets folder.")
+        print("cudart_lib.zip not found.")
         return
-
-    # Extract to cuda_runtime directory
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(target_path)
-    print(f"Successfully extracted cuda_runtime.zip to {target_path}")
+    
+    # Ensure that target_bin_path has a parent (which should be cuda_runtime)
+    cuda_lib_runtime_path = target_path.parent
+    if target_path is None or not target_path.exists():
+        print("Parent directory of cuda_runtime/bin not found.")
+        return
+    
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(cuda_lib_runtime_path)
+            print(f"Extracted cudart_lib.zip to {cuda_lib_runtime_path}")
+    except zipfile.BadZipFile:
+        print("Error: cudart_lib.zip is corrupted or not a zip file.")
+    except PermissionError:
+        print("Error: Permission denied when extracting cudart_lib.zip.")
+    except Exception as e:
+        print(f"Unexpected error during extraction: {str(e)}")
 
 def setup_vector_db():
     zip_path = Path(__file__).parent / "Assets" / "user_manual_db.zip"
