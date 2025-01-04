@@ -15,22 +15,59 @@
 This repository allows you to create and search a vector database for relevant context across a wide variety of documents and then get a response from the large language model that's more accurate.  This is commonly referred to as "retrieval augmented generation" (RAG) and it drastically reduces hallucinations from the LLM!  You can watch an introductory [Video](https://www.youtube.com/watch?v=8-ZAYI4MvtA) or read a [Medium article](https://medium.com/@vici0549/search-images-with-vector-database-retrieval-augmented-generation-rag-3d5a48881de5) about the program. <br>
 
 
-
-
-<div align="center">
-  <h3>At a Glance</h3>
-
-| Feature                                             | Details                                                                                                              |
-|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| General text extraction                             | `.pdf` `.docx` `.epub` `.txt` `.html` `.enex` `.eml` `.msg` `.csv` `.xls` `.xlsx` `.rtf` `.odt`          |
-| "Vision" models to create image summaries           | `.png` `.jpg` `.jpeg` `.bmp` `.gif` `.tif` `.tiff`                                                             |
-| Transcribe audio files to text                      | `.mp3` `.wav` `.m4a` `.ogg` `.wma` `.flac` and more...                                                         |
-| Type or speak your query                            | Using a powerful ```WhisperS2T``` voice recorder                                                                     |
-| Get a response from an LLM                          | `LM Studio` `Local Models` `Chat GPT` (coming soon)                                                                |
-| Text to speech playback of the LLM's response       | ```Bark``` ```WhisperSpeech``` ```ChatTTS``` ```Google TTS```                                                     |
-| CPU and ```Nvidia``` GPU support                    | Looking for testers or contributors for ```AMD``` and ```Intel``` GPUs as well as ```Metal/MPS/MLX```                |
-
-</div>
+```mermaid
+graph TD
+    subgraph InputFiles [Input Files]
+        A[Text Files: .pdf, .docx, .txt, .html, .csv, .xls, .xlsx, .rtf, .odt]
+        B[Image Files: .png, .jpg, .jpeg, .bmp, .gif, .tif, .tiff]
+        C[Audio Files: .mp3, .wav, .m4a, .ogg, .wma, .flac]
+    end
+    style InputFiles fill:#263238,stroke:#2ecc71,stroke-width:2px
+    subgraph Processing [Process]
+        D[Text Extraction]
+        E[Image Summarization]
+        F[Audio Transcription]
+    end
+    style Processing fill:#263238,stroke:#e91e63,stroke-width:2px
+    subgraph Output [Save]
+        G[Vector Database]:::minWidth
+    end
+    style Output fill:#263238,stroke:#5bc0de,stroke-width:2px
+    subgraph Search [Query]
+        H[Type a Question]
+        I[Record a Question]
+    end
+    style Search fill:#263238,stroke:#ff9800,stroke-width:2px
+    subgraph LLM [Large Language Model]
+        J[Chunks & Query<br>Sent to LLM]
+        K1[Local Models]
+        K2[LM Studio]
+        K3[OpenAI and others<br/>coming soon]
+        K[Response from LLM]
+        K1 --> K
+        K2 --> K
+        K3 --> K
+    end
+    style LLM fill:#263238,stroke:#9c27b0,stroke-width:2px
+    subgraph TTS [Text-to-Speech]
+        L[Speak the Response<br>via TTS Models]
+    end
+    style TTS fill:#263238,stroke:#3f51b5,stroke-width:2px
+    classDef minWidth width:200px
+    A --> D
+    B --> E
+    C --> F
+    D --> G
+    E --> G
+    F --> G
+    H --> G
+    I --> G
+    G --> J
+    J --> K1
+    J --> K2
+    J --> K3
+    K --> L
+```
 
 <div align="center">
   <h3><u>Requirements</u></h3>
