@@ -98,7 +98,7 @@ The above link downloads Visual Studio as an example.  Make sure to install the 
 ### Step 1
 Download the latest "release," extract its contents, and open the "src" folder:
   * NOTE: If you clone this repository you will get the development version, which may or may not be stable.
-   > The last attempt to support 🐧 Linux and 🍎 MacOS is Release v3.5.2.  Make sure and follow the ```readme.md``` instructions there.
+
 ### Step 2
 Within the ```src``` folder, create a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/):
 ```
