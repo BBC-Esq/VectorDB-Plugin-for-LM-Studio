@@ -111,7 +111,7 @@ Activate the virtual environment:
 ```
 ### Step 4
 Run the setup script:
-   > Only ```Windows``` supported for now.
+   > Only ```Windows``` is supported for now.
 
 If using Python 3.11
 ```
