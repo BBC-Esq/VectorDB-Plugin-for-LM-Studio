@@ -176,7 +176,7 @@ other_libraries = [
     "charset-normalizer==3.4.1", # requests requires <4
     "chattts==0.2.1",
     "click==8.1.8",
-    "cloudpickle==3.1.0", # only required by tiledb-cloud
+    "cloudpickle==3.1.0", # only required by tiledb-cloud and 3+ is only supported by tiledb-cloud 0.13+
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "contourpy==1.3.1", # onlyk required by matplotlib
@@ -317,7 +317,7 @@ other_libraries = [
     "termcolor==2.5.0",
     "threadpoolctl==3.5.0",
     "tiktoken==0.8.0",
-    "tiledb==0.33.0", # 0.33.1 has a bug
+    "tiledb==0.33.2", # 0.33.1 has a bug
     "tiledb-cloud==0.13.0",
     "tiledb-vector-search==0.11.0",
     "timm==1.0.12",

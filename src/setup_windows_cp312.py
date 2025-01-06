@@ -317,7 +317,7 @@ other_libraries = [
     "termcolor==2.5.0",
     "threadpoolctl==3.5.0",
     "tiktoken==0.8.0",
-    "tiledb==0.33.0", # 0.33.1 has a bug
+    "tiledb==0.33.2", # 0.33.1 has a bug
     "tiledb-cloud==0.13.0",
     "tiledb-vector-search==0.11.0",
     "timm==1.0.12",
