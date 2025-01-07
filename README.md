@@ -17,7 +17,7 @@ This repository allows you to create and search a vector database for relevant c
 
 ```mermaid
 graph TD
-    subgraph InputFiles [Input Files]
+    subgraph InputFiles [Files]
         A[.pdf, .docx, .txt, .html, .csv, .xls, .xlsx, .rtf, .odt]
         B[.png, .jpg, .jpeg, .bmp, .gif, .tif, .tiff]
         C[.mp3, .wav, .m4a, .ogg, .wma, .flac]
@@ -38,8 +38,8 @@ graph TD
         I[Record a Question]
     end
     style Search fill:#263238,stroke:#ff9800,stroke-width:2px
-    subgraph LLM [Get Response]
-        J[Chunks & Query<br>Sent to LLM]
+    subgraph LLM [Get Response from LLM]
+        J[Assemble Chunks & Query]
         K1[Local Models]
         K2[LM Studio]
         K3[OpenAI and others<br/>coming soon]
@@ -49,8 +49,8 @@ graph TD
         K3 --> K
     end
     style LLM fill:#263238,stroke:#9c27b0,stroke-width:2px
-    subgraph TTS [Text-to-Speech]
-        L[Speak the Response<br>via TTS Models]
+    subgraph TTS [Speak Response]
+        L[Text-to-Speech Models]
     end
     style TTS fill:#263238,stroke:#3f51b5,stroke-width:2px
     classDef minWidth width:200px
