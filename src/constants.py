@@ -1802,6 +1802,11 @@ GPUS_NVIDIA = {
         "Size (GB)": 8,
         "CUDA Cores": 6144
     },
+    "GeForce RTX 5070": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 12,
+        "CUDA Cores": 6144
+    },
     "GeForce RTX 3070 Ti Mobile/Laptop": {
         "Brand": "NVIDIA",
         "Size (GB)": "8-16",
@@ -1847,6 +1852,11 @@ GPUS_NVIDIA = {
         "Size (GB)": 12,
         "CUDA Cores": 8960
     },
+    "GeForce RTX 5070 Ti": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 16,
+        "CUDA Cores": 8960
+    },
     "GeForce RTX 4080 (AD103-300)": {
         "Brand": "NVIDIA",
         "Size (GB)": 16,
@@ -1872,6 +1882,11 @@ GPUS_NVIDIA = {
         "Size (GB)": 24,
         "CUDA Cores": 10752
     },
+    "GeForce RTX 5080": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 16,
+        "CUDA Cores": 10752
+    },
     "GeForce RTX 4090 D": {
         "Brand": "NVIDIA",
         "Size (GB)": 24,
@@ -1881,6 +1896,11 @@ GPUS_NVIDIA = {
         "Brand": "NVIDIA",
         "Size (GB)": 24,
         "CUDA Cores": 16384
+    },
+    "GeForce RTX 5090": {
+        "Brand": "NVIDIA",
+        "Size (GB)": 32,
+        "CUDA Cores": 21760
     }
 }
 

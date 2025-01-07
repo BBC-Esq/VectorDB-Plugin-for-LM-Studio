@@ -99,13 +99,13 @@ def create_gpu_comparison_plot(min_vram_threshold=6, max_vram_threshold=8):
         spine.set_edgecolor('white')
 
     # Add VRAM lines
-    vram_lines = [2, 4, 6, 8, 10, 11, 12, 16, 20, 24]
+    vram_lines = [2, 4, 6, 8, 10, 11, 12, 16, 20, 24, 32]
     for vram_value in vram_lines:
         if vram_value in sizes:
             ax2.axvline(x=vram_value, color='#A8A8A8', linestyle='--', linewidth=0.5)
 
     ax2.set_xticks(vram_lines)
-    ax2.set_xlim(0, 25)
+    ax2.set_xlim(0, 33)
 
     plt.subplots_adjust(left=0.25, right=0.9, top=0.9, bottom=0.1)
     
