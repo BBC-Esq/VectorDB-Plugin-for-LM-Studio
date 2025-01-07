@@ -38,7 +38,7 @@ graph TD
         I[Record a Question]
     end
     style Search fill:#263238,stroke:#ff9800,stroke-width:2px
-    subgraph LLM [Large Language Model]
+    subgraph LLM [Get Response]
         J[Chunks & Query<br>Sent to LLM]
         K1[Local Models]
         K2[LM Studio]
