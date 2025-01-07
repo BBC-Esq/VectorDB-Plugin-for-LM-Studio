@@ -17,27 +17,45 @@ This repository allows you to create and search a vector database for relevant c
 
 ```mermaid
 graph TD
+    %% Define Classes
+    classDef inputStyle fill:#263238,stroke:#2ecc71,stroke-width:2px;
+    classDef processStyle fill:#263238,stroke:#e91e63,stroke-width:2px;
+    classDef outputStyle fill:#263238,stroke:#5bc0de,stroke-width:2px;
+    classDef searchStyle fill:#263238,stroke:#ff9800,stroke-width:2px;
+    classDef llmStyle fill:#263238,stroke:#9c27b0,stroke-width:2px;
+    classDef ttsStyle fill:#263238,stroke:#3f51b5,stroke-width:2px;
+    classDef minWidth width:200px;
+
+    %% Input Files
     subgraph InputFiles [Files]
         A[.pdf, .docx, .txt, .html, .csv, .xls, .xlsx, .rtf, .odt]
         B[.png, .jpg, .jpeg, .bmp, .gif, .tif, .tiff]
         C[.mp3, .wav, .m4a, .ogg, .wma, .flac]
     end
-    style InputFiles fill:#263238,stroke:#2ecc71,stroke-width:2px
+    class InputFiles inputStyle;
+
+    %% Processing
     subgraph Processing [Process]
         D[Extract Text]
         E[Vision Model Summaries]
         F[Transcribe Audio]
     end
-    style Processing fill:#263238,stroke:#e91e63,stroke-width:2px
+    class Processing processStyle;
+
+    %% Output
     subgraph Output [Save]
         G[Vector Database]:::minWidth
     end
-    style Output fill:#263238,stroke:#5bc0de,stroke-width:2px
+    class Output outputStyle;
+
+    %% Search
     subgraph Search [Query]
         H[Type a Question]
         I[Record a Question]
     end
-    style Search fill:#263238,stroke:#ff9800,stroke-width:2px
+    class Search searchStyle;
+
+    %% LLM
     subgraph LLM [Get Response from LLM]
         J[Assemble Chunks & Query]
         K1[Local Models]
@@ -48,25 +66,32 @@ graph TD
         K2 --> K
         K3 --> K
     end
-    style LLM fill:#263238,stroke:#9c27b0,stroke-width:2px
+    class LLM llmStyle;
+
+    %% TTS
     subgraph TTS [Speak Response]
         L[Text-to-Speech Models]
     end
-    style TTS fill:#263238,stroke:#3f51b5,stroke-width:2px
-    classDef minWidth width:200px
+    class TTS ttsStyle;
+
+    %% Connections
     A --> D
     B --> E
     C --> F
+
     D --> G
     E --> G
     F --> G
+
     H --> G
     I --> G
+
     G --> J
     J --> K1
     J --> K2
     J --> K3
     K --> L
+
 ```
 
 
