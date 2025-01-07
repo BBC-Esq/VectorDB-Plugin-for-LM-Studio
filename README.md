@@ -18,15 +18,15 @@ This repository allows you to create and search a vector database for relevant c
 ```mermaid
 graph TD
     subgraph InputFiles [Input Files]
-        A[Text Files: .pdf, .docx, .txt, .html, .csv, .xls, .xlsx, .rtf, .odt]
-        B[Image Files: .png, .jpg, .jpeg, .bmp, .gif, .tif, .tiff]
-        C[Audio Files: .mp3, .wav, .m4a, .ogg, .wma, .flac]
+        A[.pdf, .docx, .txt, .html, .csv, .xls, .xlsx, .rtf, .odt]
+        B[.png, .jpg, .jpeg, .bmp, .gif, .tif, .tiff]
+        C[.mp3, .wav, .m4a, .ogg, .wma, .flac]
     end
     style InputFiles fill:#263238,stroke:#2ecc71,stroke-width:2px
     subgraph Processing [Process]
-        D[Text Extraction]
-        E[Image Summarization]
-        F[Audio Transcription]
+        D[Extract Text]
+        E[Vision Model Summaries]
+        F[Transcribe Audio]
     end
     style Processing fill:#263238,stroke:#e91e63,stroke-width:2px
     subgraph Output [Save]
