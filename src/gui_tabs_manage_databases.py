@@ -41,16 +41,16 @@ class SQLiteTableModel(QAbstractTableModel):
 class RefreshingComboBox(QComboBox):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.addItem("Select a database...")  # Placeholder item
-        self.setItemData(0, QColor('gray'), Qt.ForegroundRole)  # Style placeholder
+        self.addItem("Select a database...")
+        self.setItemData(0, QColor('gray'), Qt.ForegroundRole)
         self.setCurrentIndex(0)
 
     def showPopup(self):
         current_text = self.currentText()
-        self.blockSignals(True)  # Block signals to prevent currentIndexChanged from being emitted
+        self.blockSignals(True)
         self.clear()
         self.addItem("Select a database...")
-        self.setItemData(0, QColor('gray'), Qt.ForegroundRole)  # Style placeholder
+        self.setItemData(0, QColor('gray'), Qt.ForegroundRole)
         databases = self.parent().load_created_databases()
         self.addItems(databases)
         if current_text and current_text in databases:
@@ -58,10 +58,10 @@ class RefreshingComboBox(QComboBox):
             if index >= 0:
                 self.setCurrentIndex(index)
             else:
-                self.setCurrentIndex(0)  # Reset to placeholder if previous selection no longer exists
+                self.setCurrentIndex(0)
         else:
-            self.setCurrentIndex(0)  # Ensure placeholder is selected
-        self.blockSignals(False)  # Re-enable signals
+            self.setCurrentIndex(0)
+        self.blockSignals(False)
         super().showPopup()
 
 
@@ -244,7 +244,7 @@ class ManageDatabasesTab(QWidget):
 
     def refresh_pull_down_menu(self):
         self.created_databases = self.load_created_databases()
-        self.pull_down_menu.blockSignals(True)  # Block signals while updating
+        self.pull_down_menu.blockSignals(True)
         self.pull_down_menu.clear()
         self.pull_down_menu.addItem("Select a database...")
         self.pull_down_menu.setItemData(0, QColor('gray'), Qt.ForegroundRole)
@@ -253,7 +253,7 @@ class ManageDatabasesTab(QWidget):
             self.pull_down_menu.setCurrentIndex(0)
         else:
             self.display_no_databases_message()
-        self.pull_down_menu.blockSignals(False)  # Re-enable signals
+        self.pull_down_menu.blockSignals(False)
 
     def show_context_menu(self, position):
         context_menu = QMenu(self)
