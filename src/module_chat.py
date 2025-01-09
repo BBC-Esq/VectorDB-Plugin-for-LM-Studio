@@ -491,6 +491,8 @@ class Exaone_32b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Exaone - 32b']
         settings = copy.deepcopy(bnb_bfloat16_settings)
+        settings['tokenizer_settings']['trust_remote_code'] = True
+        settings['model_settings']['trust_remote_code'] = True
         settings['model_settings']['quantization_config'].bnb_4bit_use_double_quant = True
         super().__init__(model_info, settings, generation_settings)
 
