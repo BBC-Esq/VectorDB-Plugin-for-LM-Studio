@@ -290,6 +290,9 @@ class CreateVectorDB:
                 index_type="FLAT",
             )
 
+            del initial_texts, initial_metadatas
+            gc.collect()
+
             # process subsequent chunks of up to 10000
             total_chunks = len(text_content)
             if total_chunks > batch_size:
@@ -303,6 +306,10 @@ class CreateVectorDB:
                             texts=batch_texts,
                             metadatas=batch_metadatas
                         )
+
+                        del batch_texts, batch_metadatas
+                        gc.collect()
+
                     except Exception as batch_error:
                         logging.error(f"Error processing batch {start_idx//batch_size + 1}: {str(batch_error)}")
                         continue
@@ -378,24 +385,6 @@ class CreateVectorDB:
                 except Exception as e:
                     print(f"Failed to delete {item}: {e}")
 
-    def save_documents_to_pickle(self, documents):
-        """
-        Pickle all document objects in case the database creation process terminates early; cleared when program starts.
-        """
-        pickle_directory = self.ROOT_DIRECTORY / "pickle"
-        
-        if not pickle_directory.exists():
-            pickle_directory.mkdir(parents=True, exist_ok=True)
-        
-        for file in pickle_directory.glob("*.pickle"):
-            file.unlink()
-
-        time.sleep(3)
-
-        for i, doc in enumerate(documents):
-            pickle_file_path = pickle_directory / f"document_{i}.pickle"
-            with open(pickle_file_path, 'wb') as pickle_file:
-                pickle.dump(doc, pickle_file)
     
     @torch.inference_mode()
     def run(self):
@@ -440,19 +429,21 @@ class CreateVectorDB:
             texts = split_documents(documents, text_documents_pdf)
             print(f"Documents split into {len(texts)} chunks.")
 
-        # pickle
-        if isinstance(texts, list) and texts:
-            self.save_documents_to_pickle(texts)
+        del documents, text_documents_pdf
+        gc.collect()
 
-            # initialize vector model
+        # create db
+        if isinstance(texts, list) and texts:
             embeddings, encode_kwargs = self.initialize_vector_model(EMBEDDING_MODEL_NAME, config_data)
 
-            # create database
-            if isinstance(texts, list) and texts:
-                # print("Creating vector database...")
-                self.create_database(texts, embeddings)
-            
+            self.create_database(texts, embeddings)
+
+            del texts
+            gc.collect()
+
             self.create_metadata_db(json_docs_to_save)
+            del json_docs_to_save
+            gc.collect()
             self.clear_docs_for_db_folder()
 
 

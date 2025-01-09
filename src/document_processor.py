@@ -52,9 +52,9 @@ def load_single_document(file_path: Path) -> Document:
         print(f"\033[91mFailed---> {file_path.name} (extension: {file_extension})\033[0m")
         logging.error(f"Unsupported file type: {file_path.name} (extension: {file_extension})")
         return None
-    
+
     loader_options = {}
-    
+
     if file_extension in [".epub", ".rtf", ".odt", ".md"]:
         loader_options.update({
             "mode": "single",
@@ -96,28 +96,28 @@ def load_single_document(file_path: Path) -> Document:
             "encoding": "utf-8",
             "autodetect_encoding": True
         })
-    
+
     try:
         if file_extension in [".epub", ".rtf", ".odt", ".md", ".eml", ".msg", ".xlsx", ".xls", ".xlsm"]:
             unstructured_kwargs = loader_options.pop("unstructured_kwargs", {})
             loader = loader_class(str(file_path), mode=loader_options.get("mode", "single"), **unstructured_kwargs)
         else:
             loader = loader_class(str(file_path), **loader_options)
-            
+
         documents = loader.load()
-        
+
         if not documents:
             print(f"\033[91mFailed---> {file_path.name} (No content extracted)\033[0m")
             logging.error(f"No content could be extracted from file: {file_path.name}")
             return None
-            
+
         document = documents[0]
         metadata = extract_document_metadata(file_path)
         document.metadata.update(metadata)
-        
+
         print(f"Loaded---> {file_path.name}")
         return document
-        
+
     except (OSError, UnicodeDecodeError) as e:
         print(f"\033[91mFailed---> {file_path.name} (Access/encoding error)\033[0m")
         logging.error(f"File access/encoding error - File: {file_path.name} - Error: {str(e)}")
@@ -144,7 +144,7 @@ def load_documents(source_dir: Path) -> list:
         
         total_cores = os.cpu_count()
         threads_per_process = 1
-        
+
         with ProcessPoolExecutor(n_workers) as executor:
             chunksize = math.ceil(len(doc_paths) / n_workers)
             futures = []
@@ -155,7 +155,7 @@ def load_documents(source_dir: Path) -> list:
             for future in as_completed(futures):
                 contents, _ = future.result()
                 docs.extend(contents)
-    
+
     return docs
 
 def split_documents(documents=None, text_documents_pdf=None):
@@ -184,9 +184,8 @@ def split_documents(documents=None, text_documents_pdf=None):
             texts = text_splitter.split_documents(documents)
 
         # split PDF document objects
-        
         """
-        PDF files are split using the custom pymupdfparser, which adds custom page markers in the following format:
+        customizes langchain's pymupdfparser to add custom page markers in the following format:
         
         [[page1]]This is the text content of the first page.
         It might contain multiple lines, paragraphs, or sections.
@@ -196,7 +195,7 @@ def split_documents(documents=None, text_documents_pdf=None):
 
         [[page3]]Finally, this is the text content of the third page.
         """
-        
+
         if text_documents_pdf:
             processed_pdf_docs = []
             for doc in text_documents_pdf:
