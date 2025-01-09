@@ -159,9 +159,9 @@ other_libraries = [
     "aiohappyeyeballs==2.4.4",
     "aiohttp==3.11.11", # langchain libraries require <4
     "aiosignal==1.3.2", # only required by aiohttp
-    "anndata==0.11.1",
+    "anndata==0.11.2",
     "annotated-types==0.7.0",
-    "anyio==4.7.0",
+    "anyio==4.8.0",
     "array_api_compat==1.10.0", # only anndata requires
     "async-timeout==5.0.1",
     "attrs==24.3.0",
@@ -176,7 +176,7 @@ other_libraries = [
     "charset-normalizer==3.4.1", # requests requires <4
     "chattts==0.2.1",
     "click==8.1.8",
-    "cloudpickle==3.1.0", # only required by tiledb-cloud
+    "cloudpickle==3.1.0", # only required by tiledb-cloud and 3+ is only supported by tiledb-cloud 0.13+
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "contourpy==1.3.1", # onlyk required by matplotlib
@@ -208,7 +208,7 @@ other_libraries = [
     "httpcore==1.0.7",
     "httpx==0.28.1",
     "httpx-sse==0.4.0",
-    "huggingface-hub==0.27.0", # tokenizers 0.20.3 requires >=0.16.4,<1.0
+    "huggingface-hub==0.27.1", # tokenizers 0.20.3 requires >=0.16.4,<1.0
     "humanfriendly==10.0",
     "HyperPyYAML==1.2.2",
     "idna==3.10",
@@ -221,19 +221,19 @@ other_libraries = [
     "jsonpath-python==1.0.6",
     "jsonpointer==3.0.0",
     "kiwisolver==1.4.8",
-    "langchain==0.3.13",
-    "langchain-community==0.3.13",
-    "langchain-core==0.3.28",
+    "langchain==0.3.14",
+    "langchain-community==0.3.14",
+    "langchain-core==0.3.29",
     "langchain-huggingface==0.1.2",
-    "langchain-text-splitters==0.3.4",
+    "langchain-text-splitters==0.3.5",
     "langdetect==1.0.9",
-    "langsmith==0.2.7",
+    "langsmith==0.2.10",
     "llvmlite==0.43.0", # only required by numba
     "lxml==5.3.0",
     "Markdown==3.7",
     "markdown-it-py==3.0.0",
     "MarkupSafe==3.0.2",
-    "marshmallow==3.23.2",
+    "marshmallow==3.24.2",
     "matplotlib==3.10.0", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
     "mdurl==0.1.2",
     "more-itertools==10.5.0",
@@ -256,30 +256,30 @@ other_libraries = [
     "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
     "nvidia-ml-py==12.560.30",
     "olefile==0.47",
-    "openai==1.59.2", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai==1.59.5", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
     "optimum==1.23.3",
     "ordered-set==4.1.0",
     "orderly-set==5.2.3", # deepdiff 8.1.1 requires 5.2.3
-    "orjson==3.10.13",
+    "orjson==3.10.14",
     "packaging==24.2",
     "pandas==2.2.3",
     "peft==0.14.0", # only required by mississippi model
     "pillow==11.1.0",
     "platformdirs==4.3.6",
     "propcache==0.2.1",
-    "protobuf==5.29.2",
+    "protobuf==5.29.3",
     "psutil==6.1.1",
     "pyarrow==18.1.0",
     "pyarrow-hotfix==0.6",
     "pybase16384==0.3.7", # only required by chattts
     "pycparser==2.22",
-    "pydantic==2.10.4",
+    "pydantic==2.10.5",
     "pydantic_core==2.27.2",
     "pydantic-settings==2.7.1",
-    "Pygments==2.18.0",
-    "pypandoc==1.14",
+    "Pygments==2.19.1",
+    "pypandoc==1.15",
     "pyparsing==3.2.0",
     "pypdf==5.1.0",
     "pyreadline3==3.5.4",
@@ -295,9 +295,9 @@ other_libraries = [
     "requests==2.32.3",
     "requests-toolbelt==1.0.0",
     "rich==13.9.4",
-    "ruamel.yaml==0.18.7",
+    "ruamel.yaml==0.18.10",
     "ruamel.yaml.clib==0.2.12",
-    "safetensors==0.5.0",
+    "safetensors==0.5.2",
     "scikit-learn==1.6.0",
     "scipy==1.14.1", # 1.15.0 has possible breaking changes
     "sentence-transformers==3.0.1",
@@ -328,8 +328,8 @@ other_libraries = [
     "typing_extensions==4.12.2",
     "unstructured-client==0.24.1",
     "tzdata==2024.2",
-    "urllib3==2.2.3", # requests 2.32.3 requires <3
-    "vector-quantize-pytorch==1.21.0",
+    "urllib3==2.3.0", # requests 2.32.3 requires <3
+    "vector-quantize-pytorch==1.21.1",
     "vocos==0.1.0",
     "watchdog==6.0.0",
     "webdataset==0.2.100", # required by all TTS libraries
