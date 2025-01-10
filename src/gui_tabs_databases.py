@@ -1,6 +1,9 @@
+# gui_tabs_databases.py
+
 import time
 import gc
 import pickle
+import json
 from pathlib import Path
 import multiprocessing
 
@@ -202,18 +205,42 @@ class DatabasesTab(QWidget):
         selected_path = self.model_combobox.itemData(index)
         config_path = Path(__file__).resolve().parent / "config.yaml"
         config_data = {}
+
+        # Read the existing config.yaml file
         if config_path.exists():
             with open(config_path, 'r', encoding='utf-8') as file:
                 config_data = yaml.safe_load(file) or {}
-        
+
+        # If a valid model is selected
         if selected_path:
             config_data["EMBEDDING_MODEL_NAME"] = selected_path
+
+            # Locate and parse the config.json file
+            config_json_path = Path(selected_path) / "config.json"
+            if config_json_path.exists():
+                try:
+                    with open(config_json_path, 'r', encoding='utf-8') as json_file:
+                        model_config = json.load(json_file)
+
+                    # Extract "hidden_size" or "d_model"
+                    embedding_dimensions = model_config.get("hidden_size") or model_config.get("d_model")
+                    if embedding_dimensions and isinstance(embedding_dimensions, int):
+                        config_data["EMBEDDING_MODEL_DIMENSIONS"] = embedding_dimensions
+                    else:
+                        print(f"Warning: No valid embedding dimension found in {config_json_path}")
+                except Exception as e:
+                    print(f"Error reading {config_json_path}: {e}")
+            else:
+                print(f"Warning: config.json not found in {selected_path}")
         else:
-            if "EMBEDDING_MODEL_NAME" in config_data:
-                del config_data["EMBEDDING_MODEL_NAME"]
-        
+            # Reset the fields if no valid selection is made
+            config_data.pop("EMBEDDING_MODEL_NAME", None)
+            config_data.pop("EMBEDDING_MODEL_DIMENSIONS", None)
+
+        # Write updated data back to config.yaml
         with open(config_path, 'w', encoding='utf-8') as file:
             yaml.safe_dump(config_data, file, allow_unicode=True)
+
 
     def create_group_box(self, title, directory_name):
         group_box = QGroupBox(title)
