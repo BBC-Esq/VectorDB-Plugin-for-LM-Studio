@@ -3,7 +3,6 @@
 import gc
 import logging
 import os
-import pickle
 import time
 from copy import deepcopy
 from pathlib import Path
@@ -13,6 +12,9 @@ import re
 import sqlite3
 import torch
 import yaml
+import concurrent.futures
+import queue
+from collections import defaultdict
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
@@ -243,10 +245,11 @@ class CreateVectorDB:
 
         return model, encode_kwargs
 
-
     @torch.inference_mode()
     def create_database(self, texts, embeddings):
-        my_cprint("\nThe progress bar relates to computing vectors. Afterwards, it takes a little time to insert them into the database and save to disk.\n", "yellow")
+        from collections import defaultdict
+        
+        my_cprint("\nThe progress bar relates to computing vectors...", "yellow")
         start_time = time.time()
         
         if not self.PERSIST_DIRECTORY.exists():
@@ -256,63 +259,94 @@ class CreateVectorDB:
             logging.warning(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            # separate page_content and metadata
-            text_content = [doc.page_content for doc in texts]
-            metadatas = [doc.metadata for doc in texts]
-            
-            # get EMBEDDING_MODEL_NAME from config
+            # Group chunks by file hash using defaultdict
+            file_batches = defaultdict(lambda: {'texts': [], 'metadatas': []})
+            for doc in texts:
+                file_hash = doc.metadata.get('hash')
+                file_batches[file_hash]['texts'].append(doc.page_content)
+                file_batches[file_hash]['metadatas'].append(doc.metadata)
+
             with open(self.ROOT_DIRECTORY / "config.yaml", 'r', encoding='utf-8') as config_file:
                 config_data = yaml.safe_load(config_file)
             embedding_model_name = config_data.get("EMBEDDING_MODEL_NAME", "")
             
-            # prepend "passage:" to each page_content when using "intfloat"
             if "intfloat" in embedding_model_name.lower():
-                text_content = [f"passage: {content}" for content in text_content]
+                for batch in file_batches.values():
+                    batch['texts'] = [f"passage: {content}" for content in batch['texts']]
 
-            # create database with up to first 10000 chunks
-            batch_size = 10000
-            initial_texts = text_content[:batch_size]
-            initial_metadatas = metadatas[:batch_size]
+            def process_batch(batch_texts, batch_metadatas):
+                try:
+                    db.add_texts(texts=batch_texts, metadatas=batch_metadatas)
+                except Exception as e:
+                    logging.error(f"Error processing batch: {str(e)}")
+                    raise
+                finally:
+                    del batch_texts, batch_metadatas
+                    gc.collect()
 
-            # DEBUG
-            if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
-                sample_embedding = embeddings.embed_documents([initial_texts[0]])
-                print(f"Embeddings dtype: {type(sample_embedding[0][0]).__name__}")
-                print(f"Embeddings shape: (will be {len(initial_texts)}, {len(sample_embedding[0])})")
+            # Create initial database with first optimal batch
+            max_chunks = 10000
+            current_texts = []
+            current_metadatas = []
+            chunks_count = 0
+            
+            # Build initial batch
+            while file_batches and chunks_count < max_chunks:
+                file_hash = next(iter(file_batches))
+                batch = file_batches.pop(file_hash)
+                batch_size = len(batch['texts'])
+                
+                if chunks_count + batch_size <= max_chunks:
+                    current_texts.extend(batch['texts'])
+                    current_metadatas.extend(batch['metadatas'])
+                    chunks_count += batch_size
+                else:
+                    file_batches[file_hash] = batch  # Put it back if it would exceed limit
+                    break
 
+            # Create initial database
             db = TileDB.from_texts(
-                texts=initial_texts,
+                texts=current_texts,
                 embedding=embeddings,
-                metadatas=initial_metadatas,
+                metadatas=current_metadatas,
                 index_uri=str(self.PERSIST_DIRECTORY),
                 allow_dangerous_deserialization=True,
                 metric="euclidean",
                 index_type="FLAT",
             )
 
-            del initial_texts, initial_metadatas
+            del current_texts, current_metadatas
             gc.collect()
 
-            # process subsequent chunks of up to 10000
-            total_chunks = len(text_content)
-            if total_chunks > batch_size:
-                for start_idx in range(batch_size, total_chunks, batch_size):
-                    end_idx = min(start_idx + batch_size, total_chunks)
-                    batch_texts = text_content[start_idx:end_idx]
-                    batch_metadatas = metadatas[start_idx:end_idx]
+            # Process remaining files
+            total_files = len(file_batches)
+            processed_batches = 0
 
-                    try:
-                        db.add_texts(
-                            texts=batch_texts,
-                            metadatas=batch_metadatas
-                        )
-
-                        del batch_texts, batch_metadatas
-                        gc.collect()
-
-                    except Exception as batch_error:
-                        logging.error(f"Error processing batch {start_idx//batch_size + 1}: {str(batch_error)}")
-                        continue
+            while file_batches:
+                current_texts = []
+                current_metadatas = []
+                chunks_count = 0
+                files_in_batch = 0
+                
+                # Build next batch
+                while file_batches and chunks_count < max_chunks:
+                    file_hash = next(iter(file_batches))
+                    batch = file_batches.pop(file_hash)
+                    batch_size = len(batch['texts'])
+                    
+                    if chunks_count + batch_size <= max_chunks:
+                        current_texts.extend(batch['texts'])
+                        current_metadatas.extend(batch['metadatas'])
+                        chunks_count += batch_size
+                        files_in_batch += 1
+                    else:
+                        file_batches[file_hash] = batch  # Put it back if it would exceed limit
+                        break
+                
+                if current_texts:  # Process batch if we have any texts
+                    process_batch(current_texts, current_metadatas)
+                    processed_batches += 1
+                    my_cprint(f"Processed batch {processed_batches} ({files_in_batch} files, {chunks_count} chunks)", "yellow")
 
         except Exception as e:
             logging.error(f"Error creating database: {str(e)}")
@@ -320,8 +354,7 @@ class CreateVectorDB:
 
         end_time = time.time()
         elapsed_time = end_time - start_time
-        my_cprint(f"Database created. Elapsed time: {elapsed_time:.2f} seconds.")
-
+        my_cprint(f"Database created. Elapsed time: {elapsed_time:.2f} seconds.", "green")
 
     def create_metadata_db(self, documents):
         if not self.PERSIST_DIRECTORY.exists():
@@ -385,7 +418,7 @@ class CreateVectorDB:
                 except Exception as e:
                     print(f"Failed to delete {item}: {e}")
 
-    
+
     @torch.inference_mode()
     def run(self):
         config_data = self.load_config(self.ROOT_DIRECTORY)
@@ -395,7 +428,6 @@ class CreateVectorDB:
         documents = []
         
         # load text document objects
-        # print("Loading any general files...")
         text_documents = load_documents(self.SOURCE_DIRECTORY)
         if isinstance(text_documents, list) and text_documents:
             documents.extend(text_documents)
@@ -404,14 +436,14 @@ class CreateVectorDB:
         text_documents_pdf = [doc for doc in documents if doc.metadata.get("file_type") == ".pdf"]
         documents = [doc for doc in documents if doc.metadata.get("file_type") != ".pdf"]
         
-        # load image document objects
+        # load image descriptions
         print("Loading any images...")
         image_documents = choose_image_loader()
         if isinstance(image_documents, list) and image_documents:
             if len(image_documents) > 0:
                 documents.extend(image_documents)
         
-        # load audio document objects
+        # load audio transcriptions
         print("Loading any audio transcripts...")
         audio_documents = self.load_audio_documents()
         if isinstance(audio_documents, list) and audio_documents:
@@ -421,10 +453,10 @@ class CreateVectorDB:
         json_docs_to_save.extend(documents)
         json_docs_to_save.extend(text_documents_pdf)
 
-        # list to hold all split document objects
+        # blank list to hold all split document objects
         texts = []
 
-        # split
+        # split document objects
         if (isinstance(documents, list) and documents) or (isinstance(text_documents_pdf, list) and text_documents_pdf):
             texts = split_documents(documents, text_documents_pdf)
             print(f"Documents split into {len(texts)} chunks.")
