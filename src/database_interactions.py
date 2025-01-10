@@ -16,6 +16,7 @@ import concurrent.futures
 import queue
 from collections import defaultdict
 
+import numpy as np
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
 from langchain_community.docstore.document import Document
@@ -247,11 +248,10 @@ class CreateVectorDB:
 
     @torch.inference_mode()
     def create_database(self, texts, embeddings):
-        from collections import defaultdict
-        
+
         my_cprint("\nThe progress bar relates to computing vectors...", "yellow")
         start_time = time.time()
-        
+
         if not self.PERSIST_DIRECTORY.exists():
             self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {self.PERSIST_DIRECTORY}")
@@ -268,11 +268,30 @@ class CreateVectorDB:
 
             with open(self.ROOT_DIRECTORY / "config.yaml", 'r', encoding='utf-8') as config_file:
                 config_data = yaml.safe_load(config_file)
+            
             embedding_model_name = config_data.get("EMBEDDING_MODEL_NAME", "")
+            embedding_dimensions = config_data.get("EMBEDDING_MODEL_DIMENSIONS")
             
             if "intfloat" in embedding_model_name.lower():
                 for batch in file_batches.values():
                     batch['texts'] = [f"passage: {content}" for content in batch['texts']]
+
+            # create empty database
+            TileDB.create(
+                index_uri=str(self.PERSIST_DIRECTORY),
+                index_type="FLAT",
+                dimensions=embedding_dimensions,
+                vector_type=np.float32,
+                metadatas=True
+            )
+
+            # loac the created database
+            db = TileDB.load(
+                index_uri=str(self.PERSIST_DIRECTORY),
+                embedding=embeddings,
+                metric="euclidean",
+                allow_dangerous_deserialization=True
+            )
 
             def process_batch(batch_texts, batch_metadatas):
                 try:
@@ -284,41 +303,8 @@ class CreateVectorDB:
                     del batch_texts, batch_metadatas
                     gc.collect()
 
-            # Create initial database with first optimal batch
+            # Process all files in batches
             max_chunks = 10000
-            current_texts = []
-            current_metadatas = []
-            chunks_count = 0
-            
-            # Build initial batch
-            while file_batches and chunks_count < max_chunks:
-                file_hash = next(iter(file_batches))
-                batch = file_batches.pop(file_hash)
-                batch_size = len(batch['texts'])
-                
-                if chunks_count + batch_size <= max_chunks:
-                    current_texts.extend(batch['texts'])
-                    current_metadatas.extend(batch['metadatas'])
-                    chunks_count += batch_size
-                else:
-                    file_batches[file_hash] = batch  # Put it back if it would exceed limit
-                    break
-
-            # Create initial database
-            db = TileDB.from_texts(
-                texts=current_texts,
-                embedding=embeddings,
-                metadatas=current_metadatas,
-                index_uri=str(self.PERSIST_DIRECTORY),
-                allow_dangerous_deserialization=True,
-                metric="euclidean",
-                index_type="FLAT",
-            )
-
-            del current_texts, current_metadatas
-            gc.collect()
-
-            # Process remaining files
             total_files = len(file_batches)
             processed_batches = 0
 
