@@ -14,7 +14,8 @@ import torch
 import yaml
 import concurrent.futures
 import queue
-from collections import defaultdict
+from collections import defaultdict, deque
+import shutil
 
 import numpy as np
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -251,7 +252,7 @@ class CreateVectorDB:
 
         my_cprint("\nThe progress bar relates to computing vectors...", "yellow")
         start_time = time.time()
-
+        
         if not self.PERSIST_DIRECTORY.exists():
             self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {self.PERSIST_DIRECTORY}")
@@ -276,6 +277,39 @@ class CreateVectorDB:
                 for batch in file_batches.values():
                     batch['texts'] = [f"passage: {content}" for content in batch['texts']]
 
+            # Prepare all batches upfront
+            prepared_batches = deque()
+            max_chunks = 10000
+            current_texts = []
+            current_metadatas = []
+            chunks_count = 0
+            
+            while file_batches:
+                file_hash = next(iter(file_batches))
+                batch = file_batches.pop(file_hash)
+                batch_size = len(batch['texts'])
+                
+                if chunks_count + batch_size <= max_chunks:
+                    current_texts.extend(batch['texts'])
+                    current_metadatas.extend(batch['metadatas'])
+                    chunks_count += batch_size
+                else:
+                    # store current batch if it has content
+                    if current_texts:
+                        prepared_batches.append((current_texts[:], current_metadatas[:]))
+                    # start new batch with overflow
+                    current_texts = batch['texts'][:]
+                    current_metadatas = batch['metadatas'][:]
+                    chunks_count = batch_size
+
+            # add the last batch if it has content
+            if current_texts:
+                prepared_batches.append((current_texts, current_metadatas))
+
+            # clear original data
+            del file_batches, current_texts, current_metadatas
+            gc.collect()
+
             # create empty database
             TileDB.create(
                 index_uri=str(self.PERSIST_DIRECTORY),
@@ -285,7 +319,7 @@ class CreateVectorDB:
                 metadatas=True
             )
 
-            # loac the created database
+            # load the created database
             db = TileDB.load(
                 index_uri=str(self.PERSIST_DIRECTORY),
                 embedding=embeddings,
@@ -293,49 +327,28 @@ class CreateVectorDB:
                 allow_dangerous_deserialization=True
             )
 
-            def process_batch(batch_texts, batch_metadatas):
+            # process batches
+            total_batches = len(prepared_batches)
+            for batch_num, (batch_texts, batch_metadatas) in enumerate(prepared_batches, 1):
                 try:
                     db.add_texts(texts=batch_texts, metadatas=batch_metadatas)
+                    my_cprint(f"Processed batch {batch_num}/{total_batches} ({len(batch_texts)} chunks)", "yellow")
                 except Exception as e:
                     logging.error(f"Error processing batch: {str(e)}")
                     raise
                 finally:
+                    # remove from memory each batch after it's processed; unnecessary once process terminates but good short-term
                     del batch_texts, batch_metadatas
                     gc.collect()
 
-            # Process all files in batches
-            max_chunks = 10000
-            total_files = len(file_batches)
-            processed_batches = 0
-
-            while file_batches:
-                current_texts = []
-                current_metadatas = []
-                chunks_count = 0
-                files_in_batch = 0
-                
-                # Build next batch
-                while file_batches and chunks_count < max_chunks:
-                    file_hash = next(iter(file_batches))
-                    batch = file_batches.pop(file_hash)
-                    batch_size = len(batch['texts'])
-                    
-                    if chunks_count + batch_size <= max_chunks:
-                        current_texts.extend(batch['texts'])
-                        current_metadatas.extend(batch['metadatas'])
-                        chunks_count += batch_size
-                        files_in_batch += 1
-                    else:
-                        file_batches[file_hash] = batch  # Put it back if it would exceed limit
-                        break
-                
-                if current_texts:  # Process batch if we have any texts
-                    process_batch(current_texts, current_metadatas)
-                    processed_batches += 1
-                    my_cprint(f"Processed batch {processed_batches} ({files_in_batch} files, {chunks_count} chunks)", "yellow")
-
         except Exception as e:
             logging.error(f"Error creating database: {str(e)}")
+            if self.PERSIST_DIRECTORY.exists():
+                try:
+                    shutil.rmtree(self.PERSIST_DIRECTORY)
+                    logging.info(f"Cleaned up failed database creation at: {self.PERSIST_DIRECTORY}")
+                except Exception as cleanup_error:
+                    logging.error(f"Failed to clean up database directory: {cleanup_error}")
             raise
 
         end_time = time.time()
