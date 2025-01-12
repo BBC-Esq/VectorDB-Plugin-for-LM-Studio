@@ -159,7 +159,7 @@ other_libraries = [
     "aiohappyeyeballs==2.4.4",
     "aiohttp==3.11.11", # langchain libraries require <4
     "aiosignal==1.3.2", # only required by aiohttp
-    "anndata==0.11.2",
+    "anndata==0.11.3",
     "annotated-types==0.7.0",
     "anyio==4.8.0",
     "array_api_compat==1.10.0", # only anndata requires
@@ -233,7 +233,7 @@ other_libraries = [
     "Markdown==3.7",
     "markdown-it-py==3.0.0",
     "MarkupSafe==3.0.2",
-    "marshmallow==3.24.2",
+    "marshmallow==3.25.1",
     "matplotlib==3.10.0", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
     "mdurl==0.1.2",
     "more-itertools==10.5.0",
@@ -256,7 +256,7 @@ other_libraries = [
     "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
     "nvidia-ml-py==12.560.30",
     "olefile==0.47",
-    "openai==1.59.5", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai==1.59.6", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
     "optimum==1.23.3",
@@ -298,7 +298,7 @@ other_libraries = [
     "ruamel.yaml==0.18.10",
     "ruamel.yaml.clib==0.2.12",
     "safetensors==0.5.2",
-    "scikit-learn==1.6.0",
+    "scikit-learn==1.6.1",
     "scipy==1.14.1", # 1.15.0 has possible breaking changes
     "sentence-transformers==3.0.1",
     "sentencepiece==0.2.0",
@@ -308,7 +308,7 @@ other_libraries = [
     "soundfile==0.13.0",
     "soupsieve==2.6",
     "speechbrain==0.5.16",
-    "SQLAlchemy==2.0.36", # langchain and langchain-community require less than 3.0.0
+    "SQLAlchemy==2.0.37", # langchain and langchain-community require less than 3.0.0
     "sseclient-py==1.8.0",
     "sympy==1.13.1", # torch 2.5.1 requires sympy==1.13.1
     "tabulate==0.9.0",
@@ -317,23 +317,23 @@ other_libraries = [
     "termcolor==2.5.0",
     "threadpoolctl==3.5.0",
     "tiktoken==0.8.0",
-    "tiledb==0.33.2", # 0.33.1 has a bug
+    "tiledb==0.33.2",
     "tiledb-cloud==0.13.0",
     "tiledb-vector-search==0.11.0",
-    "timm==1.0.12",
+    "timm==1.0.13",
     "tokenizers==0.21.0",
     "tqdm==4.67.1",
-    "transformers==4.47.1",
+    "transformers==4.48.0",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
     "unstructured-client==0.24.1",
     "tzdata==2024.2",
     "urllib3==2.3.0", # requests 2.32.3 requires <3
-    "vector-quantize-pytorch==1.21.1",
+    "vector-quantize-pytorch==1.21.2",
     "vocos==0.1.0",
     "watchdog==6.0.0",
     "webdataset==0.2.100", # required by all TTS libraries
-    "wrapt==1.17.0",
+    "wrapt==1.17.1",
     "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp311-cp311-win_amd64.whl", # torch 2.5.1 specific
     "xlrd==2.0.1",
     "xxhash==3.5.0",
@@ -634,6 +634,9 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
 +--------------+-----------------------------------------------+----------------+
 | FA2 Version  | Torch Versions Supported                      | CUDA Versions  |
 +--------------+-----------------------------------------------+----------------+
+| v2.7.3       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.2.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.2       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
 | v2.7.1.post4 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
 | v2.7.1.post3 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
 | v2.7.1.post2 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
@@ -642,7 +645,7 @@ print(f"\033[92m\nTotal installation time: {int(hours):02d}:{int(minutes):02d}:{
 | v2.7.0.post2 | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
 | v2.7.0.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
 | v2.7.0       | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.3.2 |
-| v2.6.3*      | 2.2.2, 2.3.1, 2.4.0                           | 11.8.0, 12.3.2 |
+| v2.6.3       | 2.2.2, 2.3.1, 2.4.0                           | 11.8.0, 12.3.2 |
 | v2.6.2       | 2.2.2, 2.3.1, 2.4.0.dev20240527               | 11.8.0, 12.3.2 |
 | v2.6.1       | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.3.2 |
 | v2.6.0.post1 | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.2.2 |
