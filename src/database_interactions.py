@@ -69,10 +69,10 @@ class CreateVectorDB:
 
     @torch.inference_mode()
     def initialize_vector_model(self, embedding_model_name, config_data):
-        EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
+        # EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
         use_half = config_data.get("database", {}).get("half", False)
-        model_native_precision = get_model_native_precision(EMBEDDING_MODEL_NAME, VECTOR_MODELS)
+        model_native_precision = get_model_native_precision(embedding_model_name, VECTOR_MODELS)
 
         # determine dtype based on the compute device, whether "half" is checked, and the model's native precision
         torch_dtype = get_appropriate_dtype(compute_device, use_half, model_native_precision)
@@ -87,8 +87,8 @@ class CreateVectorDB:
         }
 
         if (torch_dtype is not None 
-            and "instructor" not in embedding_model_name 
-            and "bge" not in embedding_model_name):
+            and "instructor" not in embedding_model_name.lower() 
+            and "bge" not in embedding_model_name.lower()):
             model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
 
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 8}
@@ -120,11 +120,11 @@ class CreateVectorDB:
 
             for key, value in batch_size_mapping.items():
                 if isinstance(key, tuple):
-                    if any(model_name_part in EMBEDDING_MODEL_NAME for model_name_part in key):
+                    if any(model_name_part in embedding_model_name for model_name_part in key):
                         encode_kwargs['batch_size'] = value
                         break
                 else:
-                    if key in EMBEDDING_MODEL_NAME:
+                    if key in embedding_model_name:
                         encode_kwargs['batch_size'] = value
                         break
 
@@ -226,7 +226,7 @@ class CreateVectorDB:
                 encode_kwargs=encode_kwargs
             )
 
-        model_name = os.path.basename(EMBEDDING_MODEL_NAME)
+        model_name = os.path.basename(embedding_model_name)
         precision = "float32" if torch_dtype is None else str(torch_dtype).split('.')[-1]
 
         my_cprint(f"{model_name} ({precision}) loaded using a batch size of {encode_kwargs['batch_size']}.", "green")
