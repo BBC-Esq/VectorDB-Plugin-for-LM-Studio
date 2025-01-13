@@ -247,7 +247,7 @@ class CreateVectorDB:
             logging.warning(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            # Group chunks by file hash using defaultdict
+            # Group chunks by file hash
             file_batches = defaultdict(lambda: {'texts': [], 'metadatas': []})
             for doc in texts:
                 file_hash = doc.metadata.get('hash')
@@ -264,7 +264,7 @@ class CreateVectorDB:
                 for batch in file_batches.values():
                     batch['texts'] = [f"passage: {content}" for content in batch['texts']]
 
-            # Prepare all batches upfront
+            # Prepare all batches
             prepared_batches = deque()
             max_chunks = 10000
             current_texts = []
@@ -324,7 +324,7 @@ class CreateVectorDB:
                     logging.error(f"Error processing batch: {str(e)}")
                     raise
                 finally:
-                    # remove from memory each batch after it's processed; unnecessary once process terminates but good short-term
+                    # remove each procesed batch from memory - unnecessary once process terminates but good short-term
                     del batch_texts, batch_metadatas
                     gc.collect()
 
@@ -369,7 +369,7 @@ class CreateVectorDB:
             file_name = metadata.get("file_name", "")
             file_hash = metadata.get("hash", "")
             file_path = metadata.get("file_path", "")
-            page_content = document.page_content  # Add page content
+            page_content = document.page_content
 
             cursor.execute('''
                 INSERT INTO document_metadata (file_name, hash, file_path, page_content)
@@ -442,7 +442,7 @@ class CreateVectorDB:
         # blank list to hold all split document objects
         texts = []
 
-        # split document objects
+        # split document objects and add to list
         if (isinstance(documents, list) and documents) or (isinstance(text_documents_pdf, list) and text_documents_pdf):
             texts = split_documents(documents, text_documents_pdf)
             print(f"Documents split into {len(texts)} chunks.")
@@ -534,7 +534,7 @@ class QueryVectorDB:
                     encode_kwargs=encode_kwargs
                 )
             else:
-                # the medium model requires custom modelin code and can possibly use xformers
+                # the medium model has custom modeling code and can use xformers
                 # config_kwargs MUST be nested within model_kwargs
                 snow_kwargs = deepcopy(model_kwargs)
                 
