@@ -17,6 +17,14 @@ from packaging import version
 from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
 
+def supports_flash_attention():
+    """Check if the current CUDA device supports flash attention (compute capability >= 8.0)."""
+    if not torch.cuda.is_available():
+        return False
+    # Get the compute capability of the current CUDA device
+    major, minor = torch.cuda.get_device_capability()
+    return major >= 8
+
 def check_cuda_re_triton():
     """
     Checks whether the files required by Triton 3.1.0 are present in the relative paths.
