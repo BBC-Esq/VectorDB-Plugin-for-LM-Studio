@@ -81,7 +81,7 @@ class CreateVectorDB:
             "device": compute_device, 
             "trust_remote_code": True,
             "model_kwargs": {
-                "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
+                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "torch_dtype": torch_dtype if torch_dtype is not None else None
             }
         }
@@ -176,7 +176,7 @@ class CreateVectorDB:
         elif "Alibaba" in embedding_model_name.lower():
             ali_kwargs = deepcopy(model_kwargs)
             ali_kwargs["model_kwargs"].update({
-                "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
+                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "tokenizer_kwargs": {
                     "max_length": 8192,
                     "padding": True,
@@ -205,7 +205,7 @@ class CreateVectorDB:
         elif "stella" in embedding_model_name.lower():
             stella_kwargs = deepcopy(model_kwargs)
             stella_kwargs["model_kwargs"].update({
-                "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
+                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "trust_remote_code": True
             })
             if torch_dtype is not None:
@@ -513,7 +513,7 @@ class QueryVectorDB:
             "device": compute_device, 
             "trust_remote_code": True,
             "model_kwargs": {
-                "device_map": "auto" if compute_device.lower() == "cuda" else "cpu"
+                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu"
             }
         }
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
@@ -558,7 +558,7 @@ class QueryVectorDB:
         elif "Alibaba" in model_path.lower():
             ali_kwargs = deepcopy(model_kwargs)
             ali_kwargs["model_kwargs"].update({
-                "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
+                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "tokenizer_kwargs": {
                     "max_length": 8192,
                     "padding": True,
@@ -586,7 +586,7 @@ class QueryVectorDB:
         elif "stella" in model_path.lower():
             stella_kwargs = deepcopy(model_kwargs)
             stella_kwargs["model_kwargs"].update({
-                "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
+                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "trust_remote_code": True
             })
 
@@ -620,6 +620,7 @@ class QueryVectorDB:
         model_path = self.config['created_databases'][self.selected_database]['model']
         return "intfloat" in model_path.lower() or "snowflake" in model_path.lower()
 
+    @torch.inference_mode()
     def search(self, query, k: Optional[int] = None, score_threshold: Optional[float] = None):
         if not self.embeddings:
             logging.info(f"Initializing embedding model for database {self.selected_database}")
