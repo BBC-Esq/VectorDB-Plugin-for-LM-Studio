@@ -57,7 +57,7 @@ graph TD
 
     %% LLM
     subgraph LLM [Get Response from LLM]
-        J[Assemble Chunks & Query]
+        J[Combine Chunks & Query]
         K1[Local Models]
         K2[LM Studio]
         K3[OpenAI and others<br/>coming soon]
