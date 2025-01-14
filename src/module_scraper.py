@@ -27,9 +27,8 @@ class BaseScraper:
 
     def extract_main_content(self, soup):
         """
-        By default, each scraped .html file is saved in its entirety.  Subclasses can override and specify only a certain portion.
-        If implemented, only the specified portion from each .html file will be saved.
-        If NOT implemented, "None" is returned and the entire .html file is saved by default.
+        By default, each scraped .html file is saved in its entirety unless overridden by a subclass.  If implemented, only the
+        specified portion from each .html file will be saved.  Otherwise, "None" is returned and the entire .html file is saved.
         """
         return None
 
@@ -42,34 +41,86 @@ class ReadthedocsScraper(BaseScraper):
         return soup.find('div', class_='rst-content')
 
 class LangchainScraper(BaseScraper):
-    """
-    Addresses standard webpage and source code page structures with fallback to scraping everything.
-    """
     def extract_main_content(self, soup):
         main_content = None
-        
-        # standard
+
         article_content = soup.find('article', class_='bd-article')
         if article_content:
             main_content = article_content.find('section')
             if main_content:
                 return main_content
-        
-        # source code
+
         main_element = soup.find('main', class_='bd-main')
         if main_element:
             content_div = main_element.find('div', class_='highlight')
             if content_div:
                 return content_div
-        # fallback
         return soup
+
+class QtForPythonScraper(BaseScraper):
+    def extract_main_content(self, soup):
+        return soup.find('article', attrs={'role': 'main', 'id': 'furo-main-content'})
+
+class PyTorchScraper(BaseScraper):
+    def extract_main_content(self, soup):
+        article = soup.find('article', {'class': 'pytorch-article'})
+        if article:
+            return article
+
+        main_content = soup.find('div', {'class': 'main-content'})
+        if main_content:
+            return main_content
+
+        main = soup.find(['article', 'div'], {
+            'role': 'main',
+            'itemtype': 'http://schema.org/Article'
+        })
+        return main
+
+class TileDBScraper(BaseScraper):
+    def extract_main_content(self, soup):
+        content = soup.find('div', class_='[&>*+*]:mt-5 grid whitespace-pre-wrap')
+
+        if content:
+            new_content = soup.new_tag('article')
+
+            header = soup.find('header', class_='max-w-3xl mx-auto mb-6 space-y-3')
+            if header:
+                new_content.append(header)
+
+            new_content.append(content)
+
+            return new_content
+
+        return None
+
+class TileDBVectorSearchScraper(BaseScraper):
+    def extract_main_content(self, soup):
+        header = soup.find('header', id='title-block-header')
+        content = soup.find('section', id='benchmarks')
+
+        if content:
+            new_content = soup.new_tag('article')
+
+            if header:
+                new_content.append(header)
+
+            new_content.append(content)
+
+            return new_content
+
+        return None
 
 class ScraperRegistry:
     _scrapers = {
         "BaseScraper": BaseScraper,
-        "HuggingfaceScraper": HuggingfaceScraper,
+        "HuggingfaceScraper": HuggingfaceScraper, 
         "ReadthedocsScraper": ReadthedocsScraper,
         "LangchainScraper": LangchainScraper,
+        "QtForPythonScraper": QtForPythonScraper,
+        "PyTorchScraper": PyTorchScraper,
+        "TileDBScraper": TileDBScraper,
+        "TileDBVectorSearchScraper": TileDBVectorSearchScraper,
     }
 
     @classmethod
@@ -87,16 +138,13 @@ class ScraperWorker(QObject):
         self.folder = folder
         self.stats = {'scraped': 0}
         self.save_dir = os.path.join(os.path.dirname(__file__), "Scraped_Documentation", self.folder)
-        
-        # initialize watchdog
+
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
         self.observer = Observer()
         handler = FileHandler(self)
         self.observer.schedule(handler, self.save_dir, recursive=False)
         self.observer.start()
-
-
 
     def run(self):
         asyncio.run(self.crawl_domain())
@@ -178,7 +226,7 @@ class ScraperWorker(QObject):
                                             detected_encoding = 'latin-1'
                                     except Exception as e:
                                         detected_encoding = 'latin-1'
-                                    
+
                                     try:
                                         html = raw.decode(detected_encoding)
                                     except UnicodeDecodeError:
@@ -190,7 +238,7 @@ class ScraperWorker(QObject):
                                                 continue
                                         else:
                                             html = raw.decode('utf-8', errors='ignore')
-                                
+
                                 await self.save_html(html, url, save_dir)
                                 self.stats['scraped'] = self.count_saved_files()
                                 return self.extract_links(html, url, base_domain, acceptable_domain_extension)
@@ -238,30 +286,33 @@ class ScraperWorker(QObject):
 
     def sanitize_filename(self, url):
         url = url.split('#')[0]
-        
+
         while '[' in url and ']' in url:
             start = url.find('[')
             end = url.find(']')
             if start < end:
                 url = url[:start] + url[end+1:]
-                
+
         while '(' in url and ')' in url:
             start = url.find('(')
             end = url.find(')')
             if start < end:
                 url = url[:start] + url[end+1:]
-        
+
         filename = url.replace("https://", "").replace("http://", "")
-        
+
         unsafe_chars = '<>:"/\\|?*'
         for char in unsafe_chars:
             filename = filename.replace(char, '_')
-            
+
+        if filename.lower().endswith('.html'):
+            filename = filename[:-5]
+
         if len(filename) > 200:
             filename = filename[:200]
-            
+
         filename = filename.rstrip('. ')
-        
+
         return filename
 
     async def log_failed_url(self, url, log_file):

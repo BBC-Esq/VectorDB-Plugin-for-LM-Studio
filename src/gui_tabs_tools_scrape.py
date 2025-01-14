@@ -83,6 +83,8 @@ class ScrapeDocumentationTab(QWidget):
         
         self.current_folder = os.path.join(os.path.dirname(__file__), "Scraped_Documentation", folder)
 
+        self.current_doc_name = selected_doc
+
         if os.path.exists(self.current_folder):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Warning)
@@ -104,8 +106,10 @@ class ScrapeDocumentationTab(QWidget):
                         shutil.rmtree(file_path)
                 except Exception as e:
                     print(f'Failed to delete {file_path}. Reason: {e}')
-
-        self.status_label.setText("Pages scraped: 0")
+        self.status_label.setText(
+            f'<span style="color: #FF9800;"><b>Scraping {self.current_doc_name}...</b></span> '
+            f'<span style="color: #4CAF50;"><b>Pages scraped:</b></span> 0'
+        )
         self.scrape_button.setEnabled(False)
 
         self.worker = ScraperWorker(url, folder, scraper_class)
@@ -116,7 +120,9 @@ class ScrapeDocumentationTab(QWidget):
         self.thread.start()
 
     def update_status(self, status):
+        selected_doc = self.doc_combo.currentText()
         self.status_label.setText(
+            f'<span style="color: #FF9800;"><b>Scraping {self.current_doc_name}...</b></span> '
             f'<span style="color: #4CAF50;"><b>Pages scraped:</b></span> {status} '
             f'<span style="color: #2196F3;"><a href="open_folder" style="color: #2196F3;">Open Folder</a></span>'
         )
