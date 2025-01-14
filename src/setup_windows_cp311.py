@@ -256,7 +256,7 @@ other_libraries = [
     "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
     "nvidia-ml-py==12.560.30",
     "olefile==0.47",
-    "openai==1.59.6", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai==1.59.7", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
     "optimum==1.23.3",
@@ -300,7 +300,7 @@ other_libraries = [
     "safetensors==0.5.2",
     "scikit-learn==1.6.1",
     "scipy==1.14.1", # 1.15.0 has possible breaking changes
-    "sentence-transformers==3.0.1",
+    "sentence-transformers==3.3.1",
     "sentencepiece==0.2.0",
     "six==1.17.0",
     "sniffio==1.3.1",
