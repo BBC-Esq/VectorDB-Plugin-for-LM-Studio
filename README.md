@@ -37,7 +37,7 @@ graph TD
     %% Processing
     subgraph Processing [Process]
         D[Extract Text]
-        E[Vision Model Summaries]
+        E[Summarize Images]
         F[Transcribe Audio]
     end
     class Processing processStyle;
