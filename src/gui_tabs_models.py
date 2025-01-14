@@ -27,6 +27,7 @@ class VectorModelsTab(QWidget):
            'dunzhang': 2,
            'intfloat': 4,
            'Alibaba-NLP': 3,
+           # 'Answerdotai': 3,
            'IBM': 3,
            'Snowflake': 3,
        }

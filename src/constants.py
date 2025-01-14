@@ -242,6 +242,30 @@ VECTOR_MODELS = {
             'precision': 'float32'
         },
     ],
+    # 'Answerdotai': [
+        # {
+            # 'name': 'ModernBERT-base',
+            # 'dimensions': 768,
+            # 'max_sequence': 8192,
+            # 'size_mb': 600,
+            # 'repo_id': 'answerdotai/ModernBERT-base',
+            # 'cache_dir': 'answerdotai--ModernBERT-base',
+            # 'type': 'vector',
+            # 'parameters': '150m',
+            # 'precision': 'float32'
+        # },
+        # {
+            # 'name': 'ModernBERT-large',
+            # 'dimensions': 1024,
+            # 'max_sequence': 8192,
+            # 'size_mb': 1590,
+            # 'repo_id': 'answerdotai/ModernBERT-large',
+            # 'cache_dir': 'answerdotai--ModernBERT-large',
+            # 'type': 'vector',
+            # 'parameters': '396m',
+            # 'precision': 'float32'
+        # },
+    # ],
     'BAAI': [
         {
             'name': 'bge-small-en-v1.5',
