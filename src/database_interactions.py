@@ -69,7 +69,6 @@ class CreateVectorDB:
 
     @torch.inference_mode()
     def initialize_vector_model(self, embedding_model_name, config_data):
-        # EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
         compute_device = config_data['Compute_Device']['database_creation']
         use_half = config_data.get("database", {}).get("half", False)
         model_native_precision = get_model_native_precision(embedding_model_name, VECTOR_MODELS)
@@ -81,7 +80,6 @@ class CreateVectorDB:
             "device": compute_device, 
             "trust_remote_code": True,
             "model_kwargs": {
-                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "torch_dtype": torch_dtype if torch_dtype is not None else None
             }
         }
@@ -92,11 +90,6 @@ class CreateVectorDB:
             model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
 
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 8}
-        # encode_kwargs = {
-            # 'normalize_embeddings': True, 
-            # 'batch_size': 8,
-            # # 'precision': 'float32'  # 'float32', 'int8', 'uint8', 'binary', 'ubinary' # passed to sentence-transformers' encode method
-        # }
 
         if compute_device.lower() == 'cpu':
             encode_kwargs['batch_size'] = 2
@@ -139,8 +132,6 @@ class CreateVectorDB:
             if torch_dtype is not None:
                 model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
 
-        # elif "bge" in embedding_model_name.lower(): # deprecated; use huggingfaceembeddings instead
-
         elif "snowflake" in embedding_model_name.lower():
             if "large" in embedding_model_name.lower():
                 model = HuggingFaceEmbeddings(
@@ -176,7 +167,6 @@ class CreateVectorDB:
         elif "Alibaba" in embedding_model_name.lower():
             ali_kwargs = deepcopy(model_kwargs)
             ali_kwargs["model_kwargs"].update({
-                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "tokenizer_kwargs": {
                     "max_length": 8192,
                     "padding": True,
@@ -205,7 +195,6 @@ class CreateVectorDB:
         elif "stella" in embedding_model_name.lower():
             stella_kwargs = deepcopy(model_kwargs)
             stella_kwargs["model_kwargs"].update({
-                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "trust_remote_code": True
             })
             if torch_dtype is not None:
@@ -247,7 +236,6 @@ class CreateVectorDB:
             logging.warning(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            # Group chunks by file hash
             file_batches = defaultdict(lambda: {'texts': [], 'metadatas': []})
             for doc in texts:
                 file_hash = doc.metadata.get('hash')
@@ -264,7 +252,6 @@ class CreateVectorDB:
                 for batch in file_batches.values():
                     batch['texts'] = [f"passage: {content}" for content in batch['texts']]
 
-            # Prepare all batches
             prepared_batches = deque()
             max_chunks = 10000
             current_texts = []
@@ -281,23 +268,18 @@ class CreateVectorDB:
                     current_metadatas.extend(batch['metadatas'])
                     chunks_count += batch_size
                 else:
-                    # store current batch if it has content
                     if current_texts:
                         prepared_batches.append((current_texts[:], current_metadatas[:]))
-                    # start new batch with overflow
                     current_texts = batch['texts'][:]
                     current_metadatas = batch['metadatas'][:]
                     chunks_count = batch_size
 
-            # add the last batch if it has content
             if current_texts:
                 prepared_batches.append((current_texts, current_metadatas))
 
-            # clear original data
             del file_batches, current_texts, current_metadatas
             gc.collect()
 
-            # create empty database
             TileDB.create(
                 index_uri=str(self.PERSIST_DIRECTORY),
                 index_type="FLAT",
@@ -306,7 +288,6 @@ class CreateVectorDB:
                 metadatas=True
             )
 
-            # load the created database
             db = TileDB.load(
                 index_uri=str(self.PERSIST_DIRECTORY),
                 embedding=embeddings,
@@ -314,7 +295,6 @@ class CreateVectorDB:
                 allow_dangerous_deserialization=True
             )
 
-            # process batches
             total_batches = len(prepared_batches)
             for batch_num, (batch_texts, batch_metadatas) in enumerate(prepared_batches, 1):
                 try:
@@ -324,7 +304,6 @@ class CreateVectorDB:
                     logging.error(f"Error processing batch: {str(e)}")
                     raise
                 finally:
-                    # remove each procesed batch from memory - unnecessary once process terminates but good short-term
                     del batch_texts, batch_metadatas
                     gc.collect()
 
@@ -348,11 +327,9 @@ class CreateVectorDB:
 
         sqlite_db_path = self.PERSIST_DIRECTORY / "metadata.db"
 
-        # create sqlite3 database
         conn = sqlite3.connect(sqlite_db_path)
         cursor = conn.cursor()
 
-        # schema
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS document_metadata (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -513,7 +490,6 @@ class QueryVectorDB:
             "device": compute_device, 
             "trust_remote_code": True,
             "model_kwargs": {
-                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu"
             }
         }
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
@@ -558,7 +534,6 @@ class QueryVectorDB:
         elif "Alibaba" in model_path.lower():
             ali_kwargs = deepcopy(model_kwargs)
             ali_kwargs["model_kwargs"].update({
-                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "tokenizer_kwargs": {
                     "max_length": 8192,
                     "padding": True,
@@ -586,7 +561,6 @@ class QueryVectorDB:
         elif "stella" in model_path.lower():
             stella_kwargs = deepcopy(model_kwargs)
             stella_kwargs["model_kwargs"].update({
-                # "device_map": "auto" if compute_device.lower() == "cuda" else "cpu",
                 "trust_remote_code": True
             })
 
