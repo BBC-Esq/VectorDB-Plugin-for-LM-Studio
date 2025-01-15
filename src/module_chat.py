@@ -381,6 +381,50 @@ class QwenCoder_7b(BaseModel):
         generation_thread.join()
 
 
+class Internlm3(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['InternLM 3 - 8b']
+        settings = copy.deepcopy(bnb_bfloat16_settings)
+        settings['tokenizer_settings']['trust_remote_code'] = True
+        settings['model_settings']['trust_remote_code'] = True
+        super().__init__(model_info, settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_text|><|im_start|>system
+{system_message}<|im_end|>
+<|im_start|>user
+{augmented_query}<|im_end|>
+<|im_start|>assistant
+"""
+
+    def generate_response(self, inputs):
+       inputs.pop('token_type_ids', None)
+       
+       streamer = TextIteratorStreamer(
+           self.tokenizer, 
+           skip_prompt=True, 
+           skip_special_tokens=True
+       )
+       
+       eos_token_id = self.tokenizer.convert_tokens_to_ids(['<|im_end|>'])[0]
+       
+       all_settings = {
+           **inputs, 
+           **self.generation_settings, 
+           'streamer': streamer, 
+           'eos_token_id': eos_token_id,
+           'pad_token_id': self.tokenizer.pad_token_id
+       }
+
+       generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+       generation_thread.start()
+
+       for partial_response in streamer:
+           yield partial_response
+
+       generation_thread.join()
+
+
 class QwenCoder_14b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen Coder - 14b']

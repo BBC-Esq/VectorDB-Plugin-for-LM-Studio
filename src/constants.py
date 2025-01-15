@@ -50,7 +50,7 @@ CHAT_MODELS = {
         'context_length': 8192,
         'vram': 2292.18,
         'function': 'Granite_2b',
-        'precision': 'bfloat16', # have float32 version
+        'precision': 'bfloat16', # created float32 version
         'gated': False,
     },
     'Zephyr - 1.6b': {
@@ -72,7 +72,7 @@ CHAT_MODELS = {
         'context_length': 4096,
         'vram': 2733.85,
         'function': 'Zephyr_3B',
-        'precision': 'bfloat16', # have float32 version
+        'precision': 'bfloat16', # created float32 version
         'gated': False,
     },
     'Exaone - 2.4b': {
@@ -127,6 +127,17 @@ CHAT_MODELS = {
         'context_length': 4096,
         'vram': 6760.18,
         'function': 'QwenCoder_7b',
+        'precision': 'bfloat16',
+        'gated': False,
+    },
+    'InternLM 3 - 8b': {
+        'model': 'InternLM 3 - 8b',
+        'repo_id': 'internlm/internlm3-8b-instruct',
+        'cache_dir': 'internlm--internlm3-8b-instruct',
+        'cps': 134.69,
+        'context_length': 8192,
+        'vram': 6802.62,
+        'function': 'Internlm3',
         'precision': 'bfloat16',
         'gated': False,
     },

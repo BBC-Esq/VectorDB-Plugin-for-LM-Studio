@@ -22,6 +22,7 @@ def create_chat_models_comparison_plot():
                 "Exaone - 2.4b",
                 "Granite - 8b",
                 "Exaone - 7.8b",
+                "InternLM 3 - 8b",
                 "Qwen - 14b",
                 "Mistral Small - 22b",
                 "Qwen - 32b",
