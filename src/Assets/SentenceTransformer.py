@@ -1,3 +1,7 @@
+# modified _text_length method based on sentence-transformers 3.3.1
+
+from __future__ import annotations
+
 import copy
 import importlib
 import json
@@ -5,14 +9,17 @@ import logging
 import math
 import os
 import queue
+import shutil
+import sys
 import tempfile
 import traceback
 import warnings
 from collections import OrderedDict
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from multiprocessing import Queue
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Tuple, Union, overload
+from typing import Any, Callable, Literal, overload
 
 import numpy as np
 import torch
@@ -23,6 +30,7 @@ from numpy import ndarray
 from torch import Tensor, device, nn
 from tqdm.autonotebook import trange
 from transformers import is_torch_npu_available
+from transformers.dynamic_module_utils import get_class_from_dynamic_module, get_relative_import_files
 
 from sentence_transformers.model_card import SentenceTransformerModelCardData, generate_model_card
 from sentence_transformers.similarity_functions import SimilarityFunction
@@ -31,6 +39,7 @@ from . import __MODEL_HUB_ORGANIZATION__, __version__
 from .evaluation import SentenceEvaluator
 from .fit_mixin import FitMixin
 from .models import Normalize, Pooling, Transformer
+from .peft_mixin import PeftAdapterMixin
 from .quantization import quantize_embeddings
 from .util import (
     batch_to_device,
@@ -46,7 +55,7 @@ from .util import (
 logger = logging.getLogger(__name__)
 
 
-class SentenceTransformer(nn.Sequential, FitMixin):
+class SentenceTransformer(nn.Sequential, FitMixin, PeftAdapterMixin):
     """
     Loads or creates a SentenceTransformer model that can be used to map sentences / text to embeddings.
 
@@ -78,7 +87,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         use_auth_token (bool or str, optional): Deprecated argument. Please use `token` instead.
         truncate_dim (int, optional): The dimension to truncate sentence embeddings to. `None` does no truncation. Truncation is
             only applicable during inference when :meth:`SentenceTransformer.encode` is called.
-        model_kwargs (Dict[str, Any], optional): Additional model configuration parameters to be passed to the Huggingface Transformers model.
+        model_kwargs (Dict[str, Any], optional): Additional model configuration parameters to be passed to the Hugging Face Transformers model.
             Particularly useful options are:
 
             - ``torch_dtype``: Override the default `torch.dtype` and load the model under a specific `dtype`.
@@ -99,21 +108,31 @@ class SentenceTransformer(nn.Sequential, FitMixin):
               or `"flash_attention_2"` (using `Dao-AILab/flash-attention <https://github.com/Dao-AILab/flash-attention>`_).
               By default, if available, SDPA will be used for torch>=2.1.1. The default is otherwise the manual `"eager"`
               implementation.
+            - ``provider``: If backend is "onnx", this is the provider to use for inference, for example "CPUExecutionProvider",
+              "CUDAExecutionProvider", etc. See https://onnxruntime.ai/docs/execution-providers/ for all ONNX execution providers.
+            - ``file_name``: If backend is "onnx" or "openvino", this is the file name to load, useful for loading optimized
+              or quantized ONNX or OpenVINO models.
+            - ``export``: If backend is "onnx" or "openvino", then this is a boolean flag specifying whether this model should
+              be exported to the backend. If not specified, the model will be exported only if the model repository or directory
+              does not already contain an exported model.
 
             See the `PreTrainedModel.from_pretrained
             <https://huggingface.co/docs/transformers/en/main_classes/model#transformers.PreTrainedModel.from_pretrained>`_
             documentation for more details.
-        tokenizer_kwargs (Dict[str, Any], optional): Additional tokenizer configuration parameters to be passed to the Huggingface Transformers tokenizer.
+        tokenizer_kwargs (Dict[str, Any], optional): Additional tokenizer configuration parameters to be passed to the Hugging Face Transformers tokenizer.
             See the `AutoTokenizer.from_pretrained
             <https://huggingface.co/docs/transformers/en/model_doc/auto#transformers.AutoTokenizer.from_pretrained>`_
             documentation for more details.
-        config_kwargs (Dict[str, Any], optional): Additional model configuration parameters to be passed to the Huggingface Transformers config.
+        config_kwargs (Dict[str, Any], optional): Additional model configuration parameters to be passed to the Hugging Face Transformers config.
             See the `AutoConfig.from_pretrained
             <https://huggingface.co/docs/transformers/en/model_doc/auto#transformers.AutoConfig.from_pretrained>`_
             documentation for more details.
         model_card_data (:class:`~sentence_transformers.model_card.SentenceTransformerModelCardData`, optional): A model
             card data object that contains information about the model. This is used to generate a model card when saving
             the model. If not set, a default model card data object is created.
+        backend (str): The backend to use for inference. Can be one of "torch" (default), "onnx", or "openvino".
+            See https://sbert.net/docs/sentence_transformer/usage/efficiency.html for benchmarking information
+            on the different backends.
 
     Example:
         ::
@@ -143,36 +162,40 @@ class SentenceTransformer(nn.Sequential, FitMixin):
 
     def __init__(
         self,
-        model_name_or_path: Optional[str] = None,
-        modules: Optional[Iterable[nn.Module]] = None,
-        device: Optional[str] = None,
-        prompts: Optional[Dict[str, str]] = None,
-        default_prompt_name: Optional[str] = None,
-        similarity_fn_name: Optional[Union[str, SimilarityFunction]] = None,
-        cache_folder: Optional[str] = None,
+        model_name_or_path: str | None = None,
+        modules: Iterable[nn.Module] | None = None,
+        device: str | None = None,
+        prompts: dict[str, str] | None = None,
+        default_prompt_name: str | None = None,
+        similarity_fn_name: str | SimilarityFunction | None = None,
+        cache_folder: str | None = None,
         trust_remote_code: bool = False,
-        revision: Optional[str] = None,
+        revision: str | None = None,
         local_files_only: bool = False,
-        token: Optional[Union[bool, str]] = None,
-        use_auth_token: Optional[Union[bool, str]] = None,
-        truncate_dim: Optional[int] = None,
-        model_kwargs: Optional[Dict[str, Any]] = None,
-        tokenizer_kwargs: Optional[Dict[str, Any]] = None,
-        config_kwargs: Optional[Dict[str, Any]] = None,
-        model_card_data: Optional[SentenceTransformerModelCardData] = None,
+        token: bool | str | None = None,
+        use_auth_token: bool | str | None = None,
+        truncate_dim: int | None = None,
+        model_kwargs: dict[str, Any] | None = None,
+        tokenizer_kwargs: dict[str, Any] | None = None,
+        config_kwargs: dict[str, Any] | None = None,
+        model_card_data: SentenceTransformerModelCardData | None = None,
+        backend: Literal["torch", "onnx", "openvino"] = "torch",
     ) -> None:
         # Note: self._load_sbert_model can also update `self.prompts` and `self.default_prompt_name`
         self.prompts = prompts or {}
         self.default_prompt_name = default_prompt_name
         self.similarity_fn_name = similarity_fn_name
+        self.trust_remote_code = trust_remote_code
         self.truncate_dim = truncate_dim
         self.model_card_data = model_card_data or SentenceTransformerModelCardData()
+        self.module_kwargs = None
         self._model_card_vars = {}
         self._model_card_text = None
         self._model_config = {}
+        self.backend = backend
         if use_auth_token is not None:
             warnings.warn(
-                "The `use_auth_token` argument is deprecated and will be removed in v3 of SentenceTransformers.",
+                "The `use_auth_token` argument is deprecated and will be removed in v4 of SentenceTransformers.",
                 FutureWarning,
             )
             if token is not None:
@@ -186,7 +209,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
 
         if device is None:
             device = get_device_name()
-            logger.info("Use pytorch device_name: {}".format(device))
+            logger.info(f"Use pytorch device_name: {device}")
 
         if device == "hpu" and importlib.util.find_spec("optimum") is not None:
             from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
@@ -194,7 +217,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             adapt_transformers_to_gaudi()
 
         if model_name_or_path is not None and model_name_or_path != "":
-            logger.info("Load pretrained SentenceTransformer: {}".format(model_name_or_path))
+            logger.info(f"Load pretrained SentenceTransformer: {model_name_or_path}")
 
             # Old models that don't belong to any organization
             basic_transformer_models = [
@@ -271,7 +294,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             if not os.path.exists(model_name_or_path):
                 # Not a path, load from hub
                 if "\\" in model_name_or_path or model_name_or_path.count("/") > 1:
-                    raise ValueError("Path {} not found".format(model_name_or_path))
+                    raise ValueError(f"Path {model_name_or_path} not found")
 
                 if "/" not in model_name_or_path and model_name_or_path.lower() not in basic_transformer_models:
                     # A model from sentence-transformers
@@ -284,7 +307,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
                 revision=revision,
                 local_files_only=local_files_only,
             ):
-                modules = self._load_sbert_model(
+                modules, self.module_kwargs = self._load_sbert_model(
                     model_name_or_path,
                     token=token,
                     cache_folder=cache_folder,
@@ -361,20 +384,97 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         # Pass the model to the model card data for later use in generating a model card upon saving this model
         self.model_card_data.register_model(self)
 
+    def get_backend(self) -> Literal["torch", "onnx", "openvino"]:
+        """Return the backend used for inference, which can be one of "torch", "onnx", or "openvino".
+
+        Returns:
+            str: The backend used for inference.
+        """
+        return self.backend
+
+    @overload
     def encode(
         self,
-        sentences: Union[str, List[str]],
-        prompt_name: Optional[str] = None,
-        prompt: Optional[str] = None,
+        sentences: str,
+        prompt_name: str | None = ...,
+        prompt: str | None = ...,
+        batch_size: int = ...,
+        show_progress_bar: bool | None = ...,
+        output_value: Literal["sentence_embedding", "token_embeddings"] | None = ...,
+        precision: Literal["float32", "int8", "uint8", "binary", "ubinary"] = ...,
+        convert_to_numpy: Literal[False] = ...,
+        convert_to_tensor: Literal[False] = ...,
+        device: str = ...,
+        normalize_embeddings: bool = ...,
+        **kwargs,
+    ) -> Tensor: ...
+
+    @overload
+    def encode(
+        self,
+        sentences: str | list[str],
+        prompt_name: str | None = ...,
+        prompt: str | None = ...,
+        batch_size: int = ...,
+        show_progress_bar: bool | None = ...,
+        output_value: Literal["sentence_embedding", "token_embeddings"] | None = ...,
+        precision: Literal["float32", "int8", "uint8", "binary", "ubinary"] = ...,
+        convert_to_numpy: Literal[True] = ...,
+        convert_to_tensor: Literal[False] = ...,
+        device: str = ...,
+        normalize_embeddings: bool = ...,
+        **kwargs,
+    ) -> np.ndarray: ...
+
+    @overload
+    def encode(
+        self,
+        sentences: str | list[str],
+        prompt_name: str | None = ...,
+        prompt: str | None = ...,
+        batch_size: int = ...,
+        show_progress_bar: bool | None = ...,
+        output_value: Literal["sentence_embedding", "token_embeddings"] | None = ...,
+        precision: Literal["float32", "int8", "uint8", "binary", "ubinary"] = ...,
+        convert_to_numpy: bool = ...,
+        convert_to_tensor: Literal[True] = ...,
+        device: str = ...,
+        normalize_embeddings: bool = ...,
+        **kwargs,
+    ) -> Tensor: ...
+
+    @overload
+    def encode(
+        self,
+        sentences: list[str] | np.ndarray,
+        prompt_name: str | None = ...,
+        prompt: str | None = ...,
+        batch_size: int = ...,
+        show_progress_bar: bool | None = ...,
+        output_value: Literal["sentence_embedding", "token_embeddings"] | None = ...,
+        precision: Literal["float32", "int8", "uint8", "binary", "ubinary"] = ...,
+        convert_to_numpy: Literal[False] = ...,
+        convert_to_tensor: Literal[False] = ...,
+        device: str = ...,
+        normalize_embeddings: bool = ...,
+        **kwargs,
+    ) -> list[Tensor]: ...
+
+    def encode(
+        self,
+        sentences: str | list[str],
+        prompt_name: str | None = None,
+        prompt: str | None = None,
         batch_size: int = 32,
-        show_progress_bar: bool = None,
-        output_value: Optional[Literal["sentence_embedding", "token_embeddings"]] = "sentence_embedding",
+        show_progress_bar: bool | None = None,
+        output_value: Literal["sentence_embedding", "token_embeddings"] | None = "sentence_embedding",
         precision: Literal["float32", "int8", "uint8", "binary", "ubinary"] = "float32",
         convert_to_numpy: bool = True,
         convert_to_tensor: bool = False,
         device: str = None,
         normalize_embeddings: bool = False,
-    ) -> Union[List[Tensor], ndarray, Tensor]:
+        **kwargs,
+    ) -> list[Tensor] | np.ndarray | Tensor:
         """
         Computes sentence embeddings.
 
@@ -436,9 +536,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
 
         self.eval()
         if show_progress_bar is None:
-            show_progress_bar = (
-                logger.getEffectiveLevel() == logging.INFO or logger.getEffectiveLevel() == logging.DEBUG
-            )
+            show_progress_bar = logger.getEffectiveLevel() in (logging.INFO, logging.DEBUG)
 
         if convert_to_tensor:
             convert_to_numpy = False
@@ -524,7 +622,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             features.update(extra_features)
 
             with torch.no_grad():
-                out_features = self.forward(features)
+                out_features = self.forward(features, **kwargs)
                 if self.device.type == "hpu":
                     out_features = copy.deepcopy(out_features)
 
@@ -572,7 +670,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
                 all_embeddings = torch.Tensor()
         elif convert_to_numpy:
             if not isinstance(all_embeddings, np.ndarray):
-                if all_embeddings[0].dtype == torch.bfloat16:
+                if all_embeddings and all_embeddings[0].dtype == torch.bfloat16:
                     all_embeddings = np.asarray([emb.float().numpy() for emb in all_embeddings])
                 else:
                     all_embeddings = np.asarray([emb.numpy() for emb in all_embeddings])
@@ -584,23 +682,37 @@ class SentenceTransformer(nn.Sequential, FitMixin):
 
         return all_embeddings
 
+    def forward(self, input: dict[str, Tensor], **kwargs) -> dict[str, Tensor]:
+        if self.module_kwargs is None:
+            return super().forward(input)
+
+        for module_name, module in self.named_children():
+            module_kwarg_keys = self.module_kwargs.get(module_name, [])
+            module_kwargs = {key: value for key, value in kwargs.items() if key in module_kwarg_keys}
+            input = module(input, **module_kwargs)
+        return input
+
     @property
-    def similarity_fn_name(self) -> Optional[str]:
+    def similarity_fn_name(self) -> Literal["cosine", "dot", "euclidean", "manhattan"]:
         """Return the name of the similarity function used by :meth:`SentenceTransformer.similarity` and :meth:`SentenceTransformer.similarity_pairwise`.
 
         Returns:
-            Optional[str]: The name of the similarity function. Can be None if not set, in which case any uses of
-            :meth:`SentenceTransformer.similarity` and :meth:`SentenceTransformer.similarity_pairwise` default to "cosine".
+            Optional[str]: The name of the similarity function. Can be None if not set, in which case it will
+                default to "cosine" when first called.
 
         Example:
             >>> model = SentenceTransformer("multi-qa-mpnet-base-dot-v1")
             >>> model.similarity_fn_name
             'dot'
         """
+        if self._similarity_fn_name is None:
+            self.similarity_fn_name = SimilarityFunction.COSINE
         return self._similarity_fn_name
 
     @similarity_fn_name.setter
-    def similarity_fn_name(self, value: Union[str, SimilarityFunction]) -> None:
+    def similarity_fn_name(
+        self, value: Literal["cosine", "dot", "euclidean", "manhattan"] | SimilarityFunction
+    ) -> None:
         if isinstance(value, SimilarityFunction):
             value = value.value
         self._similarity_fn_name = value
@@ -616,7 +728,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
     def similarity(self, embeddings1: ndarray, embeddings2: ndarray) -> Tensor: ...
 
     @property
-    def similarity(self) -> Callable[[Union[Tensor, ndarray], Union[Tensor, ndarray]], Tensor]:
+    def similarity(self) -> Callable[[Tensor | ndarray, Tensor | ndarray], Tensor]:
         """
         Compute the similarity between two collections of embeddings. The output will be a matrix with the similarity
         scores between all embeddings from the first parameter and all embeddings from the second parameter. This
@@ -665,7 +777,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
     def similarity_pairwise(self, embeddings1: ndarray, embeddings2: ndarray) -> Tensor: ...
 
     @property
-    def similarity_pairwise(self) -> Callable[[Union[Tensor, ndarray], Union[Tensor, ndarray]], Tensor]:
+    def similarity_pairwise(self) -> Callable[[Tensor | ndarray, Tensor | ndarray], Tensor]:
         """
         Compute the similarity between two collections of embeddings. The output will be a vector with the similarity
         scores between each pair of embeddings.
@@ -701,8 +813,8 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         return self._similarity_pairwise
 
     def start_multi_process_pool(
-        self, target_devices: List[str] = None
-    ) -> Dict[Literal["input", "output", "processes"], Any]:
+        self, target_devices: list[str] = None
+    ) -> dict[Literal["input", "output", "processes"], Any]:
         """
         Starts a multi-process pool to process the encoding with several independent processes
         via :meth:`SentenceTransformer.encode_multi_process <sentence_transformers.SentenceTransformer.encode_multi_process>`.
@@ -722,9 +834,9 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         """
         if target_devices is None:
             if torch.cuda.is_available():
-                target_devices = ["cuda:{}".format(i) for i in range(torch.cuda.device_count())]
+                target_devices = [f"cuda:{i}" for i in range(torch.cuda.device_count())]
             elif is_torch_npu_available():
-                target_devices = ["npu:{}".format(i) for i in range(torch.npu.device_count())]
+                target_devices = [f"npu:{i}" for i in range(torch.npu.device_count())]
             else:
                 logger.info("CUDA/NPU is not available. Starting 4 CPU workers")
                 target_devices = ["cpu"] * 4
@@ -750,7 +862,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         return {"input": input_queue, "output": output_queue, "processes": processes}
 
     @staticmethod
-    def stop_multi_process_pool(pool: Dict[Literal["input", "output", "processes"], Any]) -> None:
+    def stop_multi_process_pool(pool: dict[Literal["input", "output", "processes"], Any]) -> None:
         """
         Stops all processes started with start_multi_process_pool.
 
@@ -772,12 +884,13 @@ class SentenceTransformer(nn.Sequential, FitMixin):
 
     def encode_multi_process(
         self,
-        sentences: List[str],
-        pool: Dict[Literal["input", "output", "processes"], Any],
-        prompt_name: Optional[str] = None,
-        prompt: Optional[str] = None,
+        sentences: list[str],
+        pool: dict[Literal["input", "output", "processes"], Any],
+        prompt_name: str | None = None,
+        prompt: str | None = None,
         batch_size: int = 32,
         chunk_size: int = None,
+        show_progress_bar: bool | None = None,
         precision: Literal["float32", "int8", "uint8", "binary", "ubinary"] = "float32",
         normalize_embeddings: bool = False,
     ) -> np.ndarray:
@@ -802,6 +915,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             batch_size (int): Encode sentences with batch size. (default: 32)
             chunk_size (int): Sentences are chunked and sent to the individual processes. If None, it determines a
                 sensible size. Defaults to None.
+            show_progress_bar (bool, optional): Whether to output a progress bar when encode sentences. Defaults to None.
             precision (Literal["float32", "int8", "uint8", "binary", "ubinary"]): The precision to use for the
                 embeddings. Can be "float32", "int8", "uint8", "binary", or "ubinary". All non-float32 precisions
                 are quantized embeddings. Quantized embeddings are smaller in size and faster to compute, but may
@@ -836,6 +950,9 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         if chunk_size is None:
             chunk_size = min(math.ceil(len(sentences) / len(pool["processes"]) / 10), 5000)
 
+        if show_progress_bar is None:
+            show_progress_bar = logger.getEffectiveLevel() in (logging.INFO, logging.DEBUG)
+
         logger.debug(f"Chunk data into {math.ceil(len(sentences) / chunk_size)} packages of size {chunk_size}")
 
         input_queue = pool["input"]
@@ -856,13 +973,16 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             last_chunk_id += 1
 
         output_queue = pool["output"]
-        results_list = sorted([output_queue.get() for _ in range(last_chunk_id)], key=lambda x: x[0])
+        results_list = sorted(
+            [output_queue.get() for _ in trange(last_chunk_id, desc="Chunks", disable=not show_progress_bar)],
+            key=lambda x: x[0],
+        )
         embeddings = np.concatenate([result[1] for result in results_list])
         return embeddings
 
     @staticmethod
     def _encode_multi_process_worker(
-        target_device: str, model: "SentenceTransformer", input_queue: Queue, results_queue: Queue
+        target_device: str, model: SentenceTransformer, input_queue: Queue, results_queue: Queue
     ) -> None:
         """
         Internal working process to encode sentences in multi-process setup
@@ -906,7 +1026,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
                 module.include_prompt = include_prompt
                 break
 
-    def get_max_seq_length(self) -> Optional[int]:
+    def get_max_seq_length(self) -> int | None:
         """
         Returns the maximal sequence length that the model accepts. Longer inputs will be truncated.
 
@@ -918,7 +1038,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
 
         return None
 
-    def tokenize(self, texts: Union[List[str], List[Dict], List[Tuple[str, str]]]) -> Dict[str, Tensor]:
+    def tokenize(self, texts: list[str] | list[dict] | list[tuple[str, str]]) -> dict[str, Tensor]:
         """
         Tokenizes the texts.
 
@@ -931,10 +1051,10 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         """
         return self._first_module().tokenize(texts)
 
-    def get_sentence_features(self, *features) -> Dict[Literal["sentence_embedding"], torch.Tensor]:
+    def get_sentence_features(self, *features) -> dict[Literal["sentence_embedding"], Tensor]:
         return self._first_module().get_sentence_features(*features)
 
-    def get_sentence_embedding_dimension(self) -> Optional[int]:
+    def get_sentence_embedding_dimension(self) -> int | None:
         """
         Returns the number of dimensions in the output of :meth:`SentenceTransformer.encode <sentence_transformers.SentenceTransformer.encode>`.
 
@@ -949,12 +1069,12 @@ class SentenceTransformer(nn.Sequential, FitMixin):
                 break
         if self.truncate_dim is not None:
             # The user requested truncation. If they set it to a dim greater than output_dim,
-            # no truncation will actually happen. So return output_dim insead of self.truncate_dim
+            # no truncation will actually happen. So return output_dim instead of self.truncate_dim
             return min(output_dim or np.inf, self.truncate_dim)
         return output_dim
 
     @contextmanager
-    def truncate_sentence_embeddings(self, truncate_dim: Optional[int]) -> Iterator[None]:
+    def truncate_sentence_embeddings(self, truncate_dim: int | None) -> Iterator[None]:
         """
         In this context, :meth:`SentenceTransformer.encode <sentence_transformers.SentenceTransformer.encode>` outputs
         sentence embeddings truncated at dimension ``truncate_dim``.
@@ -994,9 +1114,9 @@ class SentenceTransformer(nn.Sequential, FitMixin):
     def save(
         self,
         path: str,
-        model_name: Optional[str] = None,
+        model_name: str | None = None,
         create_model_card: bool = True,
-        train_datasets: Optional[List[str]] = None,
+        train_datasets: list[str] | None = None,
         safe_serialization: bool = True,
     ) -> None:
         """
@@ -1016,7 +1136,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
 
         os.makedirs(path, exist_ok=True)
 
-        logger.info("Save model to {}".format(path))
+        logger.info(f"Save model to {path}")
         modules_config = []
 
         # Save some model info
@@ -1036,7 +1156,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         # Save modules
         for idx, name in enumerate(self._modules):
             module = self._modules[name]
-            if idx == 0 and isinstance(module, Transformer):  # Save transformer model in the main folder
+            if idx == 0 and hasattr(module, "save_in_root"):  # Save first module in the main folder
                 model_path = path + "/"
             else:
                 model_path = os.path.join(path, str(idx) + "_" + type(module).__name__)
@@ -1048,9 +1168,28 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             except TypeError:
                 module.save(model_path)
 
-            modules_config.append(
-                {"idx": idx, "name": name, "path": os.path.basename(model_path), "type": type(module).__module__}
-            )
+            # "module" only works for Sentence Transformers as the modules have the same names as the classes
+            class_ref = type(module).__module__
+            # For remote modules, we want to remove "transformers_modules.{repo_name}":
+            if class_ref.startswith("transformers_modules."):
+                class_file = sys.modules[class_ref].__file__
+
+                # Save the custom module file
+                dest_file = Path(model_path) / (Path(class_file).name)
+                shutil.copy(class_file, dest_file)
+
+                # Save all files importeed in the custom module file
+                for needed_file in get_relative_import_files(class_file):
+                    dest_file = Path(model_path) / (Path(needed_file).name)
+                    shutil.copy(needed_file, dest_file)
+
+                # For remote modules, we want to ignore the "transformers_modules.{repo_id}" part,
+                # i.e. we only want the filename
+                class_ref = f"{class_ref.split('.')[-1]}.{type(module).__name__}"
+            # For other cases, we want to add the class name:
+            elif not class_ref.startswith("sentence_transformers."):
+                class_ref = f"{class_ref}.{type(module).__name__}"
+            modules_config.append({"idx": idx, "name": name, "path": os.path.basename(model_path), "type": class_ref})
 
         with open(os.path.join(path, "modules.json"), "w") as fOut:
             json.dump(modules_config, fOut, indent=2)
@@ -1062,9 +1201,9 @@ class SentenceTransformer(nn.Sequential, FitMixin):
     def save_pretrained(
         self,
         path: str,
-        model_name: Optional[str] = None,
+        model_name: str | None = None,
         create_model_card: bool = True,
-        train_datasets: Optional[List[str]] = None,
+        train_datasets: list[str] | None = None,
         safe_serialization: bool = True,
     ) -> None:
         """
@@ -1088,7 +1227,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         )
 
     def _create_model_card(
-        self, path: str, model_name: Optional[str] = None, train_datasets: Optional[List[str]] = "deprecated"
+        self, path: str, model_name: str | None = None, train_datasets: list[str] | None = "deprecated"
     ) -> None:
         """
         Create an automatic model and stores it in the specified path. If no training was done and the loaded model
@@ -1135,15 +1274,15 @@ class SentenceTransformer(nn.Sequential, FitMixin):
     def save_to_hub(
         self,
         repo_id: str,
-        organization: Optional[str] = None,
-        token: Optional[str] = None,
-        private: Optional[bool] = None,
+        organization: str | None = None,
+        token: str | None = None,
+        private: bool | None = None,
         safe_serialization: bool = True,
         commit_message: str = "Add new SentenceTransformer model.",
-        local_model_path: Optional[str] = None,
+        local_model_path: str | None = None,
         exist_ok: bool = False,
         replace_model_card: bool = False,
-        train_datasets: Optional[List[str]] = None,
+        train_datasets: list[str] | None = None,
     ) -> str:
         """
         DEPRECATED, use `push_to_hub` instead.
@@ -1199,14 +1338,16 @@ class SentenceTransformer(nn.Sequential, FitMixin):
     def push_to_hub(
         self,
         repo_id: str,
-        token: Optional[str] = None,
-        private: Optional[bool] = None,
+        token: str | None = None,
+        private: bool | None = None,
         safe_serialization: bool = True,
-        commit_message: str = "Add new SentenceTransformer model.",
-        local_model_path: Optional[str] = None,
+        commit_message: str | None = None,
+        local_model_path: str | None = None,
         exist_ok: bool = False,
         replace_model_card: bool = False,
-        train_datasets: Optional[List[str]] = None,
+        train_datasets: list[str] | None = None,
+        revision: str | None = None,
+        create_pr: bool = False,
     ) -> str:
         """
         Uploads all elements of this Sentence Transformer to a new HuggingFace Hub repository.
@@ -1221,6 +1362,8 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             exist_ok (bool, optional): If true, saving to an existing repository is OK. If false, saving only to a new repository is possible
             replace_model_card (bool, optional): If true, replace an existing model card in the hub with the automatically created model card
             train_datasets (List[str], optional): Datasets used to train the model. If set, the datasets will be added to the model card in the Hub.
+            revision (str, optional): Branch to push the uploaded files to
+            create_pr (bool, optional): If True, create a pull request instead of pushing directly to the main branch
 
         Returns:
             str: The url of the commit of your model in the repository on the Hugging Face Hub.
@@ -1230,40 +1373,93 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             repo_id=repo_id,
             private=private,
             repo_type=None,
-            exist_ok=exist_ok,
+            exist_ok=exist_ok or create_pr,
         )
         repo_id = repo_url.repo_id  # Update the repo_id in case the old repo_id didn't contain a user or organization
         self.model_card_data.set_model_id(repo_id)
+        if revision is not None:
+            api.create_branch(repo_id=repo_id, branch=revision, exist_ok=True)
+
+        if commit_message is None:
+            backend = self.get_backend()
+            if backend == "torch":
+                commit_message = "Add new SentenceTransformer model"
+            else:
+                commit_message = f"Add new SentenceTransformer model with an {backend} backend"
+
+        commit_description = ""
+        if create_pr:
+            commit_description = f"""\
+Hello!
+
+*This pull request has been automatically generated from the [`push_to_hub`](https://sbert.net/docs/package_reference/sentence_transformer/SentenceTransformer.html#sentence_transformers.SentenceTransformer.push_to_hub) method from the Sentence Transformers library.*
+
+## Full Model Architecture:
+```
+{self}
+```
+
+## Tip:
+Consider testing this pull request before merging by loading the model from this PR with the `revision` argument:
+```python
+from sentence_transformers import SentenceTransformer
+
+# TODO: Fill in the PR number
+pr_number = 2
+model = SentenceTransformer(
+    "{repo_id}",
+    revision=f"refs/pr/{{pr_number}}",
+    backend="{self.get_backend()}",
+)
+
+# Verify that everything works as expected
+embeddings = model.encode(["The weather is lovely today.", "It's so sunny outside!", "He drove to the stadium."])
+print(embeddings.shape)
+
+similarities = model.similarity(embeddings, embeddings)
+print(similarities)
+```
+"""
+
         if local_model_path:
             folder_url = api.upload_folder(
-                repo_id=repo_id, folder_path=local_model_path, commit_message=commit_message
+                repo_id=repo_id,
+                folder_path=local_model_path,
+                commit_message=commit_message,
+                commit_description=commit_description,
+                revision=revision,
+                create_pr=create_pr,
             )
         else:
             with tempfile.TemporaryDirectory() as tmp_dir:
                 create_model_card = replace_model_card or not os.path.exists(os.path.join(tmp_dir, "README.md"))
-                self.save(
+                self.save_pretrained(
                     tmp_dir,
                     model_name=repo_url.repo_id,
                     create_model_card=create_model_card,
                     train_datasets=train_datasets,
                     safe_serialization=safe_serialization,
                 )
-                folder_url = api.upload_folder(repo_id=repo_id, folder_path=tmp_dir, commit_message=commit_message)
+                folder_url = api.upload_folder(
+                    repo_id=repo_id,
+                    folder_path=tmp_dir,
+                    commit_message=commit_message,
+                    commit_description=commit_description,
+                    revision=revision,
+                    create_pr=create_pr,
+                )
 
-        refs = api.list_repo_refs(repo_id=repo_id)
-        for branch in refs.branches:
-            if branch.name == "main":
-                return f"https://huggingface.co/{repo_id}/commit/{branch.target_commit}"
-        # This isn't expected to ever be reached.
-        return folder_url
+        if create_pr:
+            return folder_url.pr_url
+        return folder_url.commit_url
 
-    def _text_length(self, text: Union[str, List[str], List[int], List[List[int]]]):
+    def _text_length(self, text: Union[str, List[int], List[List[int]]]) -> int:
         """
         Help function to get the length for the input text. Text can be either
         a list of ints (which means a single text as input), or a tuple of list of ints
         (representing several text inputs to the model).
         """
-        if isinstance(text, str):
+        if isinstance(text, str):  # Handle string input directly
             return len(text)
         elif isinstance(text, dict):  # {key: value} case
             return len(next(iter(text.values())))
@@ -1274,7 +1470,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         else:
             return sum([len(t) for t in text])  # Sum of length of individual strings
 
-    def evaluate(self, evaluator: SentenceEvaluator, output_path: str = None) -> Union[Dict[str, float], float]:
+    def evaluate(self, evaluator: SentenceEvaluator, output_path: str = None) -> dict[str, float] | float:
         """
         Evaluate the model based on an evaluator
 
@@ -1292,15 +1488,15 @@ class SentenceTransformer(nn.Sequential, FitMixin):
     def _load_auto_model(
         self,
         model_name_or_path: str,
-        token: Optional[Union[bool, str]],
-        cache_folder: Optional[str],
-        revision: Optional[str] = None,
+        token: bool | str | None,
+        cache_folder: str | None,
+        revision: str | None = None,
         trust_remote_code: bool = False,
         local_files_only: bool = False,
-        model_kwargs: Optional[Dict[str, Any]] = None,
-        tokenizer_kwargs: Optional[Dict[str, Any]] = None,
-        config_kwargs: Optional[Dict[str, Any]] = None,
-    ) -> List[nn.Module]:
+        model_kwargs: dict[str, Any] | None = None,
+        tokenizer_kwargs: dict[str, Any] | None = None,
+        config_kwargs: dict[str, Any] | None = None,
+    ) -> list[nn.Module]:
         """
         Creates a simple Transformer + Mean Pooling model and returns the modules
 
@@ -1338,23 +1534,52 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             model_args=model_kwargs,
             tokenizer_args=tokenizer_kwargs,
             config_args=config_kwargs,
+            backend=self.backend,
         )
         pooling_model = Pooling(transformer_model.get_word_embedding_dimension(), "mean")
         self.model_card_data.set_base_model(model_name_or_path, revision=revision)
         return [transformer_model, pooling_model]
 
+    def _load_module_class_from_ref(
+        self,
+        class_ref: str,
+        model_name_or_path: str,
+        trust_remote_code: bool,
+        revision: str | None,
+        model_kwargs: dict[str, Any] | None,
+    ) -> nn.Module:
+        # If the class is from sentence_transformers, we can directly import it,
+        # otherwise, we try to import it dynamically, and if that fails, we fall back to the default import
+        if class_ref.startswith("sentence_transformers."):
+            return import_from_string(class_ref)
+
+        if trust_remote_code:
+            code_revision = model_kwargs.pop("code_revision", None) if model_kwargs else None
+            try:
+                return get_class_from_dynamic_module(
+                    class_ref,
+                    model_name_or_path,
+                    revision=revision,
+                    code_revision=code_revision,
+                )
+            except OSError:
+                # Ignore the error if the file does not exist, and fall back to the default import
+                pass
+
+        return import_from_string(class_ref)
+
     def _load_sbert_model(
         self,
         model_name_or_path: str,
-        token: Optional[Union[bool, str]],
-        cache_folder: Optional[str],
-        revision: Optional[str] = None,
+        token: bool | str | None,
+        cache_folder: str | None,
+        revision: str | None = None,
         trust_remote_code: bool = False,
         local_files_only: bool = False,
-        model_kwargs: Optional[Dict[str, Any]] = None,
-        tokenizer_kwargs: Optional[Dict[str, Any]] = None,
-        config_kwargs: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, nn.Module]:
+        model_kwargs: dict[str, Any] | None = None,
+        tokenizer_kwargs: dict[str, Any] | None = None,
+        config_kwargs: dict[str, Any] | None = None,
+    ) -> dict[str, nn.Module]:
         """
         Loads a full SentenceTransformer model using the modules.json file.
 
@@ -1397,7 +1622,7 @@ class SentenceTransformer(nn.Sequential, FitMixin):
                 )
 
             # Set score functions & prompts if not already overridden by the __init__ calls
-            if self.similarity_fn_name is None:
+            if self._similarity_fn_name is None:
                 self.similarity_fn_name = self._model_config.get("similarity_fn_name", None)
             if not self.prompts:
                 self.prompts = self._model_config.get("prompts", {})
@@ -1433,11 +1658,16 @@ class SentenceTransformer(nn.Sequential, FitMixin):
             modules_config = json.load(fIn)
 
         modules = OrderedDict()
+        module_kwargs = OrderedDict()
         for module_config in modules_config:
-            module_class = import_from_string(module_config["type"])
+            class_ref = module_config["type"]
+            module_class = self._load_module_class_from_ref(
+                class_ref, model_name_or_path, trust_remote_code, revision, model_kwargs
+            )
+
             # For Transformer, don't load the full directory, rely on `transformers` instead
             # But, do load the config file first.
-            if module_class == Transformer and module_config["path"] == "":
+            if module_config["path"] == "":
                 kwargs = {}
                 for config_name in [
                     "sentence_bert_config.json",
@@ -1495,7 +1725,12 @@ class SentenceTransformer(nn.Sequential, FitMixin):
                 if config_kwargs:
                     kwargs["config_args"].update(config_kwargs)
 
-                module = Transformer(model_name_or_path, cache_dir=cache_folder, **kwargs)
+                # Try to initialize the module with a lot of kwargs, but only if the module supports them
+                # Otherwise we fall back to the load method
+                try:
+                    module = module_class(model_name_or_path, cache_dir=cache_folder, backend=self.backend, **kwargs)
+                except TypeError:
+                    module = module_class.load(model_name_or_path)
             else:
                 # Normalize does not require any files to be loaded
                 if module_class == Normalize:
@@ -1510,7 +1745,9 @@ class SentenceTransformer(nn.Sequential, FitMixin):
                         local_files_only=local_files_only,
                     )
                 module = module_class.load(module_path)
+
             modules[module_config["name"]] = module
+            module_kwargs[module_config["name"]] = module_config.get("kwargs", [])
 
         if revision is None:
             path_parts = Path(modules_json_path)
@@ -1519,10 +1756,10 @@ class SentenceTransformer(nn.Sequential, FitMixin):
                 if len(revision_path_part) == 40:
                     revision = revision_path_part
         self.model_card_data.set_base_model(model_name_or_path, revision=revision)
-        return modules
+        return modules, module_kwargs
 
     @staticmethod
-    def load(input_path) -> "SentenceTransformer":
+    def load(input_path) -> SentenceTransformer:
         return SentenceTransformer(input_path)
 
     @property
@@ -1531,12 +1768,15 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         Get torch.device from module, assuming that the whole module has one device.
         In case there are no PyTorch parameters, fall back to CPU.
         """
+        if isinstance(self[0], Transformer):
+            return self[0].auto_model.device
+
         try:
             return next(self.parameters()).device
         except StopIteration:
             # For nn.DataParallel compatibility in PyTorch 1.5
 
-            def find_tensor_attributes(module: nn.Module) -> List[Tuple[str, Tensor]]:
+            def find_tensor_attributes(module: nn.Module) -> list[tuple[str, Tensor]]:
                 tuples = [(k, v) for k, v in module.__dict__.items() if torch.is_tensor(v)]
                 return tuples
 
@@ -1595,18 +1835,18 @@ class SentenceTransformer(nn.Sequential, FitMixin):
         return self.device
 
     @_target_device.setter
-    def _target_device(self, device: Optional[Union[int, str, torch.device]] = None) -> None:
+    def _target_device(self, device: int | str | torch.device | None = None) -> None:
         self.to(device)
 
     @property
-    def _no_split_modules(self) -> List[str]:
+    def _no_split_modules(self) -> list[str]:
         try:
             return self._first_module()._no_split_modules
         except AttributeError:
             return []
 
     @property
-    def _keys_to_ignore_on_save(self) -> List[str]:
+    def _keys_to_ignore_on_save(self) -> list[str]:
         try:
             return self._first_module()._keys_to_ignore_on_save
         except AttributeError:
