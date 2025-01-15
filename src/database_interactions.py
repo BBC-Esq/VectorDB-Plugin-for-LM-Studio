@@ -430,6 +430,7 @@ class CreateVectorDB:
         if isinstance(audio_documents, list) and audio_documents:
             documents.extend(audio_documents)
 
+        # create a list to save pre-split text for sqliteDB
         json_docs_to_save = []
         json_docs_to_save.extend(documents)
         json_docs_to_save.extend(text_documents_pdf)
