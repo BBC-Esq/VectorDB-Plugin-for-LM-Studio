@@ -28,6 +28,112 @@ from module_process_images import choose_image_loader
 from utilities import my_cprint, get_model_native_precision, get_appropriate_dtype, supports_flash_attention
 from constants import VECTOR_MODELS
 
+class BaseEmbeddingModel:
+    def __init__(self, model_name, model_kwargs, encode_kwargs, is_query=False):
+        self.model_name = model_name
+        self.model_kwargs = model_kwargs
+        self.encode_kwargs = encode_kwargs
+        self.is_query = is_query
+
+    def prepare_kwargs(self):
+        return self.model_kwargs
+
+    def prepare_encode_kwargs(self):
+        if self.is_query:
+            # Override batch size for queries
+            self.encode_kwargs['batch_size'] = 1
+        return self.encode_kwargs
+
+    def create(self):
+        prepared_kwargs = self.prepare_kwargs()
+        prepared_encode_kwargs = self.prepare_encode_kwargs()
+        return HuggingFaceEmbeddings(
+            model_name=self.model_name,
+            show_progress=not self.is_query,  # Only show progress for database creation
+            model_kwargs=prepared_kwargs,
+            encode_kwargs=prepared_encode_kwargs
+        )
+
+class InstructorEmbedding(BaseEmbeddingModel):
+    def create(self):
+        instruction = (
+            "Represent the question for retrieving supporting documents:"
+            if self.is_query else
+            "Represent the document for retrieval:"
+        )
+        
+        model = HuggingFaceInstructEmbeddings(
+            model_name=self.model_name,
+            model_kwargs=self.model_kwargs,
+            encode_kwargs=self.prepare_encode_kwargs(),
+            show_progress=not self.is_query,
+            embed_instruction=instruction
+        )
+        
+        if "torch_dtype" in self.model_kwargs.get("model_kwargs", {}):
+            torch_dtype = self.model_kwargs["model_kwargs"]["torch_dtype"]
+            if torch_dtype is not None:
+                model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
+        
+        return model
+
+class SnowflakeEmbedding(BaseEmbeddingModel):
+    def prepare_kwargs(self):
+        if "large" in self.model_name.lower():
+            return self.model_kwargs
+        
+        snow_kwargs = deepcopy(self.model_kwargs)
+        compute_device = self.model_kwargs.get("device", "").lower()
+        is_cuda = compute_device == "cuda"
+        use_xformers = is_cuda and supports_flash_attention()
+        
+        snow_kwargs["config_kwargs"] = {
+            "use_memory_efficient_attention": use_xformers,
+            "unpad_inputs": use_xformers,
+            "attn_implementation": "eager" if use_xformers else "sdpa"
+        }
+        
+        return snow_kwargs
+
+class StellaEmbedding(BaseEmbeddingModel):
+    def prepare_kwargs(self):
+        stella_kwargs = deepcopy(self.model_kwargs)
+        stella_kwargs["model_kwargs"].update({
+            "trust_remote_code": True
+        })
+        if "torch_dtype" in self.model_kwargs.get("model_kwargs", {}):
+            stella_kwargs["model_kwargs"]["torch_dtype"] = self.model_kwargs["model_kwargs"]["torch_dtype"]
+        
+        return stella_kwargs
+
+    def prepare_encode_kwargs(self):
+        encode_kwargs = super().prepare_encode_kwargs()
+        if self.is_query:
+            encode_kwargs["prompt_name"] = "s2p_query"
+        return encode_kwargs
+
+class AlibabaEmbedding(BaseEmbeddingModel):
+    def prepare_kwargs(self):
+        ali_kwargs = deepcopy(self.model_kwargs)
+        ali_kwargs["model_kwargs"].update({
+            "tokenizer_kwargs": {
+                "max_length": 8192,
+                "padding": True,
+                "truncation": True
+            }
+        })
+
+        compute_device = self.model_kwargs.get("device", "").lower()
+        is_cuda = compute_device == "cuda"
+        use_xformers = is_cuda and supports_flash_attention()
+        ali_kwargs["config_kwargs"] = {
+            "use_memory_efficient_attention": use_xformers,
+            "unpad_inputs": use_xformers,
+            "attn_implementation": "eager" if use_xformers else "sdpa"
+        }
+
+        return ali_kwargs
+
 def create_vector_db_in_process(database_name):
     create_vector_db = CreateVectorDB(database_name=database_name)
     create_vector_db.run()
@@ -72,8 +178,6 @@ class CreateVectorDB:
         compute_device = config_data['Compute_Device']['database_creation']
         use_half = config_data.get("database", {}).get("half", False)
         model_native_precision = get_model_native_precision(embedding_model_name, VECTOR_MODELS)
-
-        # determine dtype based on the compute device, whether "half" is checked, and the model's native precision
         torch_dtype = get_appropriate_dtype(compute_device, use_half, model_native_precision)
 
         model_kwargs = {
@@ -83,11 +187,6 @@ class CreateVectorDB:
                 "torch_dtype": torch_dtype if torch_dtype is not None else None
             }
         }
-
-        if (torch_dtype is not None 
-            and "instructor" not in embedding_model_name.lower() 
-            and "bge" not in embedding_model_name.lower()):
-            model_kwargs["model_kwargs"] = {"torch_dtype": torch_dtype}
 
         encode_kwargs = {'normalize_embeddings': True, 'batch_size': 8}
 
@@ -122,102 +221,22 @@ class CreateVectorDB:
                         break
 
         if "instructor" in embedding_model_name.lower():
-            model = HuggingFaceInstructEmbeddings(
-                model_name=embedding_model_name,
-                model_kwargs=model_kwargs,
-                encode_kwargs=encode_kwargs,
-                show_progress=True,
-                embed_instruction="Represent the document for retrieval:",
-            )
-            if torch_dtype is not None:
-                model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
+            model = InstructorEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
 
         elif "snowflake" in embedding_model_name.lower():
-            if "large" in embedding_model_name.lower():
-                model = HuggingFaceEmbeddings(
-                    model_name=embedding_model_name,
-                    show_progress=True,
-                    model_kwargs=model_kwargs,
-                    encode_kwargs=encode_kwargs
-                )
-            else:
-                # the medium model requires custom modelin code and can possibly use xformers
-                # config_kwargs MUST be nested within model_kwargs
-                snow_kwargs = deepcopy(model_kwargs)
-
-                is_cuda = compute_device.lower() == "cuda"
-                use_xformers = is_cuda and supports_flash_attention()
-
-                snow_kwargs["config_kwargs"] = {
-                    # "True" when using xformers
-                    "use_memory_efficient_attention": use_xformers,
-                    # "True" when using xformers
-                    "unpad_inputs": use_xformers,
-                    # "eager" when using xformers
-                    "attn_implementation": "eager" if use_xformers else "sdpa"
-                }
-
-                model = HuggingFaceEmbeddings(
-                    model_name=embedding_model_name,
-                    show_progress=True,
-                    model_kwargs=snow_kwargs,
-                    encode_kwargs=encode_kwargs
-                )
+            model = SnowflakeEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
 
         elif "Alibaba" in embedding_model_name.lower():
-            ali_kwargs = deepcopy(model_kwargs)
-            ali_kwargs["model_kwargs"].update({
-                "tokenizer_kwargs": {
-                    "max_length": 8192,
-                    "padding": True,
-                    "truncation": True
-                }
-            })
-
-            is_cuda = compute_device.lower() == "cuda"
-            use_xformers = is_cuda and supports_flash_attention()
-            ali_kwargs["config_kwargs"] = {
-                # "True" when using xformers
-                "use_memory_efficient_attention": use_xformers,
-                # "True" when using xformers
-                "unpad_inputs": use_xformers,
-                # "eager" when using xformers
-                "attn_implementation": "eager" if use_xformers else "sdpa"
-            }
-
-            model = HuggingFaceEmbeddings(
-                model_name=embedding_model_name,
-                show_progress=True,
-                model_kwargs=ali_kwargs,
-                encode_kwargs=encode_kwargs
-            )
+            model = AlibabaEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
 
         elif "stella" in embedding_model_name.lower():
-            stella_kwargs = deepcopy(model_kwargs)
-            stella_kwargs["model_kwargs"].update({
-                "trust_remote_code": True
-            })
-            if torch_dtype is not None:
-                stella_kwargs["model_kwargs"]["torch_dtype"] = torch_dtype
-
-            model = HuggingFaceEmbeddings(
-                model_name=embedding_model_name,
-                model_kwargs=stella_kwargs,
-                encode_kwargs=encode_kwargs,
-                show_progress=True
-            )
+            model = StellaEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
 
         else:
-            model = HuggingFaceEmbeddings(
-                model_name=embedding_model_name,
-                show_progress=True,
-                model_kwargs=model_kwargs,
-                encode_kwargs=encode_kwargs
-            )
+            model = BaseEmbeddingModel(embedding_model_name, model_kwargs, encode_kwargs).create()
 
         model_name = os.path.basename(embedding_model_name)
         precision = "float32" if torch_dtype is None else str(torch_dtype).split('.')[-1]
-
         my_cprint(f"{model_name} ({precision}) loaded using a batch size of {encode_kwargs['batch_size']}.", "green")
 
         return model, encode_kwargs
@@ -381,7 +400,6 @@ class CreateVectorDB:
                 except Exception as e:
                     print(f"Failed to delete {item}: {e}")
 
-
     @torch.inference_mode()
     def run(self):
         config_data = self.load_config(self.ROOT_DIRECTORY)
@@ -489,98 +507,23 @@ class QueryVectorDB:
         model_kwargs = {
             "device": compute_device, 
             "trust_remote_code": True,
-            "model_kwargs": {
-            }
+            "model_kwargs": {}
         }
-        encode_kwargs = {'normalize_embeddings': True, 'batch_size': 1}
+        encode_kwargs = {'normalize_embeddings': True}
 
+        # Create the appropriate embedding model
         if "instructor" in model_path.lower():
-            embeddings = HuggingFaceInstructEmbeddings(
-                model_name=model_path,
-                model_kwargs=model_kwargs,
-                encode_kwargs=encode_kwargs,
-                query_instruction="Represent the question for retrieving supporting documents:"
-            )
-
+            embeddings = InstructorEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
         elif "snowflake" in model_path.lower():
-            if "large" in model_path.lower():
-                embeddings = HuggingFaceEmbeddings(
-                    model_name=model_path,
-                    model_kwargs=model_kwargs,
-                    encode_kwargs=encode_kwargs
-                )
-            else:
-                # the medium model has custom modeling code and can use xformers
-                # config_kwargs MUST be nested within model_kwargs
-                snow_kwargs = deepcopy(model_kwargs)
-                
-                is_cuda = compute_device.lower() == "cuda"
-                use_xformers = is_cuda and supports_flash_attention()
-                snow_kwargs["config_kwargs"] = {
-                    # "True" when using xformers
-                    "use_memory_efficient_attention": use_xformers,
-                    # True when using xformers
-                    "unpad_inputs": use_xformers,
-                    # "eager" when using xformers
-                    "attn_implementation": "eager" if use_xformers else "sdpa"
-                }
-
-                embeddings = HuggingFaceEmbeddings(
-                    model_name=model_path,
-                    model_kwargs=snow_kwargs,
-                    encode_kwargs=encode_kwargs
-                )
-
+            embeddings = SnowflakeEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
         elif "Alibaba" in model_path.lower():
-            ali_kwargs = deepcopy(model_kwargs)
-            ali_kwargs["model_kwargs"].update({
-                "tokenizer_kwargs": {
-                    "max_length": 8192,
-                    "padding": True,
-                    "truncation": True
-                }
-            })
-            
-            is_cuda = compute_device.lower() == "cuda"
-            use_xformers = is_cuda and supports_flash_attention()
-            ali_kwargs["config_kwargs"] = {
-                # "True" when using xformers
-                "use_memory_efficient_attention": use_xformers,
-                # True when using xformers
-                "unpad_inputs": use_xformers,
-                # "eager" when using xformers
-                "attn_implementation": "eager" if use_xformers else "sdpa"
-            }
-
-            embeddings = HuggingFaceEmbeddings(
-                model_name=model_path,
-                model_kwargs=ali_kwargs,
-                encode_kwargs=encode_kwargs
-            )
-
+            embeddings = AlibabaEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
         elif "stella" in model_path.lower():
-            stella_kwargs = deepcopy(model_kwargs)
-            stella_kwargs["model_kwargs"].update({
-                "trust_remote_code": True
-            })
-
-            encode_kwargs["prompt_name"] = "s2p_query"
-
-            embeddings = HuggingFaceEmbeddings(
-                model_name=model_path,
-                model_kwargs=stella_kwargs,
-                encode_kwargs=encode_kwargs
-            )
-
+            embeddings = StellaEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
         else:
             if "bge" in model_path.lower():
                 encode_kwargs["prompt"] = "Represent this sentence for searching relevant passages: "
-
-            embeddings = HuggingFaceEmbeddings(
-                model_name=model_path,
-                model_kwargs=model_kwargs,
-                encode_kwargs=encode_kwargs
-            )
+            embeddings = BaseEmbeddingModel(model_path, model_kwargs, encode_kwargs, is_query=True).create()
 
         return embeddings
 
