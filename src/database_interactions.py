@@ -16,6 +16,7 @@ import concurrent.futures
 import queue
 from collections import defaultdict, deque
 import shutil
+import random
 
 import numpy as np
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -54,6 +55,7 @@ class BaseEmbeddingModel:
             encode_kwargs=prepared_encode_kwargs
         )
 
+
 class InstructorEmbedding(BaseEmbeddingModel):
     def create(self):
         instruction = (
@@ -77,6 +79,7 @@ class InstructorEmbedding(BaseEmbeddingModel):
         
         return model
 
+
 class SnowflakeEmbedding(BaseEmbeddingModel):
     def prepare_kwargs(self):
         if "large" in self.model_name.lower():
@@ -95,6 +98,7 @@ class SnowflakeEmbedding(BaseEmbeddingModel):
         
         return snow_kwargs
 
+
 class StellaEmbedding(BaseEmbeddingModel):
     def prepare_kwargs(self):
         stella_kwargs = deepcopy(self.model_kwargs)
@@ -111,6 +115,7 @@ class StellaEmbedding(BaseEmbeddingModel):
         if self.is_query:
             encode_kwargs["prompt_name"] = "s2p_query"
         return encode_kwargs
+
 
 class AlibabaEmbedding(BaseEmbeddingModel):
     def prepare_kwargs(self):
@@ -133,6 +138,7 @@ class AlibabaEmbedding(BaseEmbeddingModel):
         }
 
         return ali_kwargs
+
 
 def create_vector_db_in_process(database_name):
     create_vector_db = CreateVectorDB(database_name=database_name)
@@ -162,6 +168,7 @@ def process_chunks_only_query(database_name, query, result_queue):
     finally:
         if 'query_db' in locals():
             query_db.cleanup()
+
 
 class CreateVectorDB:
     def __init__(self, database_name):
@@ -241,13 +248,14 @@ class CreateVectorDB:
 
         return model, encode_kwargs
 
-
     @torch.inference_mode()
     def create_database(self, texts, embeddings):
-
-        my_cprint("\nThe progress bar relates to computing vectors...", "yellow")
+        my_cprint("\nComputing vectors...", "yellow")
         start_time = time.time()
         
+        hash_id_mappings = []
+        MAX_UINT64 = 18446744073709551615
+
         if not self.PERSIST_DIRECTORY.exists():
             self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {self.PERSIST_DIRECTORY}")
@@ -255,54 +263,30 @@ class CreateVectorDB:
             logging.warning(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            file_batches = defaultdict(lambda: {'texts': [], 'metadatas': []})
+            # Initialize collections for all chunks
+            all_texts = []
+            all_metadatas = []
+            all_ids = []
+            chunk_counters = defaultdict(int)
+
+            # Process all texts and generate IDs
             for doc in texts:
                 file_hash = doc.metadata.get('hash')
-                file_batches[file_hash]['texts'].append(doc.page_content)
-                file_batches[file_hash]['metadatas'].append(doc.metadata)
+                chunk_counters[file_hash] += 1
+                tiledb_id = str(random.randint(0, MAX_UINT64 - 1))
+                
+                all_texts.append(doc.page_content)
+                all_metadatas.append(doc.metadata)
+                all_ids.append(tiledb_id)
+                hash_id_mappings.append((tiledb_id, file_hash))
 
             with open(self.ROOT_DIRECTORY / "config.yaml", 'r', encoding='utf-8') as config_file:
                 config_data = yaml.safe_load(config_file)
-            
-            embedding_model_name = config_data.get("EMBEDDING_MODEL_NAME", "")
-            embedding_dimensions = config_data.get("EMBEDDING_MODEL_DIMENSIONS")
-            
-            if "intfloat" in embedding_model_name.lower():
-                for batch in file_batches.values():
-                    batch['texts'] = [f"passage: {content}" for content in batch['texts']]
-
-            prepared_batches = deque()
-            max_chunks = 10000
-            current_texts = []
-            current_metadatas = []
-            chunks_count = 0
-            
-            while file_batches:
-                file_hash = next(iter(file_batches))
-                batch = file_batches.pop(file_hash)
-                batch_size = len(batch['texts'])
-                
-                if chunks_count + batch_size <= max_chunks:
-                    current_texts.extend(batch['texts'])
-                    current_metadatas.extend(batch['metadatas'])
-                    chunks_count += batch_size
-                else:
-                    if current_texts:
-                        prepared_batches.append((current_texts[:], current_metadatas[:]))
-                    current_texts = batch['texts'][:]
-                    current_metadatas = batch['metadatas'][:]
-                    chunks_count = batch_size
-
-            if current_texts:
-                prepared_batches.append((current_texts, current_metadatas))
-
-            del file_batches, current_texts, current_metadatas
-            gc.collect()
 
             TileDB.create(
                 index_uri=str(self.PERSIST_DIRECTORY),
                 index_type="FLAT",
-                dimensions=embedding_dimensions,
+                dimensions=config_data.get("EMBEDDING_MODEL_DIMENSIONS"),
                 vector_type=np.float32,
                 metadatas=True
             )
@@ -310,21 +294,26 @@ class CreateVectorDB:
             db = TileDB.load(
                 index_uri=str(self.PERSIST_DIRECTORY),
                 embedding=embeddings,
-                metric="euclidean",
+                metric="cosine",
                 allow_dangerous_deserialization=True
             )
 
-            total_batches = len(prepared_batches)
-            for batch_num, (batch_texts, batch_metadatas) in enumerate(prepared_batches, 1):
-                try:
-                    db.add_texts(texts=batch_texts, metadatas=batch_metadatas)
-                    my_cprint(f"Processed batch {batch_num}/{total_batches} ({len(batch_texts)} chunks)", "yellow")
-                except Exception as e:
-                    logging.error(f"Error processing batch: {str(e)}")
-                    raise
-                finally:
-                    del batch_texts, batch_metadatas
-                    gc.collect()
+            try:
+                db.add_texts(
+                    texts=all_texts,
+                    metadatas=all_metadatas,
+                    ids=all_ids
+                )
+                my_cprint(f"Processed {len(all_texts)} chunks", "yellow")
+            except Exception as e:
+                logging.error(f"Error processing texts: {str(e)}")
+                raise
+
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            my_cprint(f"Database created. Elapsed time: {elapsed_time:.2f} seconds.", "green")
+            
+            return hash_id_mappings
 
         except Exception as e:
             logging.error(f"Error creating database: {str(e)}")
@@ -336,16 +325,11 @@ class CreateVectorDB:
                     logging.error(f"Failed to clean up database directory: {cleanup_error}")
             raise
 
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        my_cprint(f"Database created. Elapsed time: {elapsed_time:.2f} seconds.", "green")
-
-    def create_metadata_db(self, documents):
+    def create_metadata_db(self, documents, hash_id_mappings):
         if not self.PERSIST_DIRECTORY.exists():
             self.PERSIST_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
         sqlite_db_path = self.PERSIST_DIRECTORY / "metadata.db"
-
         conn = sqlite3.connect(sqlite_db_path)
         cursor = conn.cursor()
 
@@ -355,25 +339,39 @@ class CreateVectorDB:
                 file_name TEXT,
                 hash TEXT,
                 file_path TEXT,
-                page_content TEXT -- Added page content column
+                page_content TEXT
             )
         ''')
 
-        # insert metadata and page content
-        for document in documents:
-            metadata = document.metadata
-            file_name = metadata.get("file_name", "")
-            file_hash = metadata.get("hash", "")
-            file_path = metadata.get("file_path", "")
-            page_content = document.page_content
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS hash_chunk_ids (
+                tiledb_id TEXT PRIMARY KEY,
+                hash TEXT
+            )
+        ''')
 
-            cursor.execute('''
-                INSERT INTO document_metadata (file_name, hash, file_path, page_content)
-                VALUES (?, ?, ?, ?)
-            ''', (file_name, file_hash, file_path, page_content))
+        try:
+            for document in documents:
+                metadata = document.metadata
+                cursor.execute('''
+                    INSERT INTO document_metadata (file_name, hash, file_path, page_content)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    metadata.get("file_name", ""),
+                    metadata.get("hash", ""),
+                    metadata.get("file_path", ""),
+                    document.page_content
+                ))
 
-        conn.commit()
-        conn.close()
+            for tiledb_id, file_hash in hash_id_mappings:
+                cursor.execute('''
+                    INSERT INTO hash_chunk_ids (tiledb_id, hash)
+                    VALUES (?, ?)
+                ''', (tiledb_id, file_hash))
+
+            conn.commit()
+        finally:
+            conn.close()
 
     def load_audio_documents(self, source_dir: Path = None) -> list:
         if source_dir is None:
@@ -450,12 +448,14 @@ class CreateVectorDB:
         if isinstance(texts, list) and texts:
             embeddings, encode_kwargs = self.initialize_vector_model(EMBEDDING_MODEL_NAME, config_data)
 
-            self.create_database(texts, embeddings)
+            # Get hash->ID mappings along with creating the vector database
+            hash_id_mappings = self.create_database(texts, embeddings)
 
             del texts
             gc.collect()
 
-            self.create_metadata_db(json_docs_to_save)
+            # Pass mappings to metadata db creation
+            self.create_metadata_db(json_docs_to_save, hash_id_mappings)
             del json_docs_to_save
             gc.collect()
             self.clear_docs_for_db_folder()
@@ -528,7 +528,6 @@ class QueryVectorDB:
 
         return embeddings
 
-
     def initialize_database(self):
         persist_directory = Path(__file__).resolve().parent / "Vector_DB" / self.selected_database
         
@@ -598,3 +597,166 @@ class QueryVectorDB:
         logging.debug(f"Cleanup completed for instance {self._debug_id}")
 
         # my_cprint(f"{self.model_name} removed from memory.", "red")
+
+
+# class DeleteFromVectorDB:
+    # def __init__(self, selected_database):
+       # """
+       # Initialize with path to the selected vector database.
+       # """
+       # self.ROOT_DIRECTORY = Path(__file__).resolve().parent
+       # self.PERSIST_DIRECTORY = self.ROOT_DIRECTORY / "Vector_DB" / selected_database
+
+    # def get_tiledb_ids_for_hash(self, file_hash):
+       # """
+       # Retrieve all TileDB IDs associated with a given hash from SQLite database.
+       # """
+       # sqlite_db_path = self.PERSIST_DIRECTORY / "metadata.db"
+       # conn = sqlite3.connect(sqlite_db_path)
+       # cursor = conn.cursor()
+
+       # try:
+           # cursor.execute('''
+               # SELECT tiledb_id FROM hash_chunk_ids 
+               # WHERE hash = ?
+           # ''', (file_hash,))
+
+           # tiledb_ids = [row[0] for row in cursor.fetchall()]
+           # return tiledb_ids
+       # finally:
+           # conn.close()
+
+    # def delete_from_sqlite(self, file_hash, conn):
+       # """
+       # Delete all entries associated with the hash from both SQLite tables.
+       # """
+       # cursor = conn.cursor()
+
+       # # Delete from document_metadata table
+       # cursor.execute('''
+           # DELETE FROM document_metadata 
+           # WHERE hash = ?
+       # ''', (file_hash,))
+
+       # # Delete from hash_chunk_ids table
+       # cursor.execute('''
+           # DELETE FROM hash_chunk_ids 
+           # WHERE hash = ?
+       # ''', (file_hash,))
+
+    # def delete_from_tiledb(self, tiledb_ids):
+        # """
+        # Delete vectors from TileDB using their IDs.
+        # """
+        # try:
+            # db = TileDB.load(
+                # index_uri=str(self.PERSIST_DIRECTORY),
+                # embedding=None,  # We don't need embeddings for deletion
+                # allow_dangerous_deserialization=True
+            # )
+
+            # success = db.delete(ids=tiledb_ids)
+            # return success
+        # except Exception as e:
+            # logging.error(f"TileDB deletion error: {str(e)}")
+            # raise
+
+    # def delete_vectors(self, file_hashes: list[str]):
+        # """
+        # Main method to handle deletion from both TileDB and SQLite databases with transaction support.
+        # Ensures atomic operations - either all deletions succeed or none do.
+
+        # Args:
+            # file_hashes (list[str]): List of file hashes whose vectors should be deleted
+
+        # Returns:
+            # bool: True if deletion was successful, False otherwise
+
+        # Raises:
+            # Exception: If deletion process fails
+        # """
+        # sqlite_db_path = self.PERSIST_DIRECTORY / "metadata.db"
+        # conn = sqlite3.connect(sqlite_db_path)
+
+        # try:
+            # conn.execute("BEGIN TRANSACTION")
+
+            # # Get all TileDB IDs for all hashes
+            # all_tiledb_ids = []
+            # for file_hash in file_hashes:
+                # tiledb_ids = self.get_tiledb_ids_for_hash(file_hash)
+                # if not tiledb_ids:
+                    # logging.warning(f"No vectors found for hash {file_hash}")
+                    # continue
+                # all_tiledb_ids.extend(tiledb_ids)
+
+            # if not all_tiledb_ids:
+                # logging.warning("No vectors found for any of the provided hashes")
+                # conn.rollback()
+                # return False
+
+            # # Delete from TileDB first
+            # tiledb_success = self.delete_from_tiledb(all_tiledb_ids)
+
+            # if not tiledb_success:
+                # logging.error("TileDB deletion failed")
+                # conn.rollback()
+                # return False
+
+            # # If TileDB deletion succeeded, delete from SQLite for all hashes
+            # for file_hash in file_hashes:
+                # self.delete_from_sqlite(file_hash, conn)
+
+            # conn.commit()
+
+            # logging.info(f"Successfully deleted {len(all_tiledb_ids)} vectors across {len(file_hashes)} hashes")
+            # return True
+
+        # except Exception as e:
+            # logging.error(f"Error during deletion: {str(e)}")
+            # conn.rollback()
+            # raise
+        # finally:
+            # conn.close()
+
+    # def verify_deletion(self, file_hashes: list[str]):
+        # """
+        # Verify that all traces of the hashes have been removed from both databases.
+        # """
+        # all_clean = True
+        # remaining_tiledb_count = 0
+        # remaining_metadata_count = 0
+
+        # for file_hash in file_hashes:
+           # tiledb_ids = self.get_tiledb_ids_for_hash(file_hash)
+           # if tiledb_ids:
+               # remaining_tiledb_count += len(tiledb_ids)
+               # all_clean = False
+               
+        # if remaining_tiledb_count > 0:
+           # logging.warning(f"Found {remaining_tiledb_count} remaining TileDB IDs across all hashes")
+
+        # sqlite_db_path = self.PERSIST_DIRECTORY / "metadata.db"
+        # conn = sqlite3.connect(sqlite_db_path)
+        # cursor = conn.cursor()
+
+        # try:
+           # placeholders = ','.join('?' * len(file_hashes))
+           # cursor.execute(f'''
+               # SELECT COUNT(*) FROM document_metadata 
+               # WHERE hash IN ({placeholders})
+           # ''', file_hashes)
+
+           # remaining_metadata_count = cursor.fetchone()[0]
+           # if remaining_metadata_count > 0:
+               # logging.warning(f"Found {remaining_metadata_count} remaining metadata entries across all hashes")
+               # all_clean = False
+
+           # return all_clean
+        # finally:
+           # conn.close()
+
+    # def cleanup(self):
+        # if torch.cuda.is_available():
+           # torch.cuda.empty_cache()
+        # gc.collect()

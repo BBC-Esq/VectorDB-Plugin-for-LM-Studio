@@ -2,7 +2,6 @@
 
 import time
 import gc
-import pickle
 import json
 from pathlib import Path
 import multiprocessing
@@ -15,7 +14,7 @@ from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, Q
 
 from database_interactions import create_vector_db_in_process
 from choose_documents_and_vector_model import choose_documents_directory
-from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database_incremental, get_pkl_file_path, my_cprint
+from utilities import check_preconditions_for_db_creation, open_file, delete_file, backup_database_incremental, my_cprint
 from download_model import model_downloaded_signal
 from constants import TOOLTIPS
 
@@ -87,22 +86,6 @@ class CustomFileSystemModel(QFileSystemModel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFilter(QDir.Files)
-
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole and index.column() == 0:
-            file_path = super().filePath(index)
-            """
-            Opens the .pkl file and gets the file name from metadata to temporarily show the files that will be put in the database.
-            """
-            if file_path.endswith('.pkl'):
-                try:
-                    with open(file_path, 'rb') as file:
-                        document = pickle.load(file)
-                    return document.metadata.get('file_name', 'Unknown')
-                except Exception as e:
-                    print(f"Error unpickling file {file_path}: {e}")
-                    return "Error"
-        return super().data(index, role)
 
 class DatabasesTab(QWidget):
     def __init__(self):
@@ -214,7 +197,7 @@ class DatabasesTab(QWidget):
             config_data["EMBEDDING_MODEL_NAME"] = selected_path
 
             # hardcode dimensions for stella)
-            if "stella" in selected_path.lower():
+            if "stella" in selected_path.lower() or "static-retrieval" in selected_path.lower():
                 config_data["EMBEDDING_MODEL_DIMENSIONS"] = 1024
             else:
                 config_json_path = Path(selected_path) / "config.json"
@@ -277,18 +260,7 @@ class DatabasesTab(QWidget):
         tree_view = self.sender()
         model = tree_view.model()
         file_path = model.filePath(index)
-        
-        if file_path.endswith('.pkl'):
-            try:
-                internal_file_path = get_pkl_file_path(file_path)
-                if internal_file_path:
-                    open_file(internal_file_path)
-                else:
-                    QMessageBox.warning(self, "File Not Found", f"The file from {file_path} does not exist.")
-            except ValueError as e:
-                QMessageBox.critical(self, "Error", str(e))
-        else:
-            open_file(file_path)
+        open_file(file_path)
 
     def on_context_menu(self, point):
         tree_view = self.sender()
@@ -350,6 +322,6 @@ class DatabasesTab(QWidget):
         self.adjust_stretch()
 
     def adjust_stretch(self):
-        total_stretch = sum(stretch for group, stretch in self.groups.items() if group.isChecked())
+        # total_stretch = sum(stretch for group, stretch in self.groups.items() if group.isChecked())
         for group, stretch in self.groups.items():
             self.layout.setStretchFactor(group, stretch if group.isChecked() else 0)
