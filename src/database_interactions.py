@@ -215,6 +215,7 @@ class CreateVectorDB:
                 'e5-small': 16,
                 'bge-small': 16,
                 'Granite-30m-English': 16,
+                'static-retrieval': 400
             }
 
             for key, value in batch_size_mapping.items():
@@ -283,32 +284,21 @@ class CreateVectorDB:
             with open(self.ROOT_DIRECTORY / "config.yaml", 'r', encoding='utf-8') as config_file:
                 config_data = yaml.safe_load(config_file)
 
-            TileDB.create(
+            db = TileDB.from_texts(
+                texts=all_texts,
+                embedding=embeddings,
+                metadatas=all_metadatas,
+                ids=all_ids,
+                metric="euclidean",
                 index_uri=str(self.PERSIST_DIRECTORY),
                 index_type="FLAT",
                 dimensions=config_data.get("EMBEDDING_MODEL_DIMENSIONS"),
-                vector_type=np.float32,
-                metadatas=True
+                allow_dangerous_deserialization=True,
+                # vector_type=np.float32
             )
 
-            db = TileDB.load(
-                index_uri=str(self.PERSIST_DIRECTORY),
-                embedding=embeddings,
-                metric="cosine",
-                allow_dangerous_deserialization=True
-            )
-
-            try:
-                db.add_texts(
-                    texts=all_texts,
-                    metadatas=all_metadatas,
-                    ids=all_ids
-                )
-                my_cprint(f"Processed {len(all_texts)} chunks", "yellow")
-            except Exception as e:
-                logging.error(f"Error processing texts: {str(e)}")
-                raise
-
+            my_cprint(f"Processed {len(all_texts)} chunks", "yellow")
+            
             end_time = time.time()
             elapsed_time = end_time - start_time
             my_cprint(f"Database created. Elapsed time: {elapsed_time:.2f} seconds.", "green")
