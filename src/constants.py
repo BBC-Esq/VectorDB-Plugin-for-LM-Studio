@@ -421,6 +421,17 @@ VECTOR_MODELS = {
     ],
     'sentence-transformers': [
         {
+            'name': 'static-retrieval-mrl-en-v1',
+            'dimensions': 1024,
+            'max_sequence': 8192,
+            'size_mb': 125,
+            'repo_id': 'sentence-transformers/static-retrieval-mrl-en-v1',
+            'cache_dir': 'sentence-transformers--static-retrieval-mrl-en-v1',
+            'type': 'vector',
+            'parameters': '110m',
+            'precision': 'float32'
+        },
+        {
             'name': 'sentence-t5-base',
             'dimensions': 768,
             'max_sequence': 256,
@@ -836,6 +847,17 @@ Cutting Knowledge Date: December 2023
 [|endofturn|]
 [|assistant|]"""
     },
+    # "InternLM 3 - 8b Q4_K_M": {
+        # "filename": "internlm3-8b-instruct-q4_k_m.gguf",
+        # "repo_id": "internlm/internlm3-8b-instruct-gguf",
+        # "allow_patterns": ["internlm3-8b-instruct-q4_k_m.gguf"],
+        # "prompt_template": """<s><|im_start|>system
+# {jeeves_system_message}<|im_end|>
+# <|im_start|>user
+# {user_message}<|im_end|>
+# <|im_start|>assistant
+# """
+    # },
 }
 
 kobold_config = {
@@ -1143,7 +1165,7 @@ scrape_documentation = {
         "URL": "https://gtts.readthedocs.io/en/latest/",
         "folder": "gtts"
     },
-    "Huggingface Hub 0.26.5": {
+    "Huggingface Hub 0.27.1": {
         "URL": "https://huggingface.co/docs/huggingface_hub/v0.27.1/en/",
         "folder": "huggingface_hub_0271",
         "scraper_class": "HuggingfaceScraper"
@@ -2430,3 +2452,455 @@ master_questions = [
     "What are the prefix and suffix settings?",
     "What does precision mean?"
 ]
+
+priority_libs = {
+    "cp311": {
+        "GPU": [
+            "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp311-cp311-win_amd64.whl",
+            "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=6c8a7003ef1327479ede284b6e5ab3527d3900c2b2d401af15bcc50f2245a59f",
+            "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=b3d75f4e6efc5412fe78c7f2787ee4f39cea1317652e1a47785879cde109f5c4",
+            "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=15796b453a99ed0f0cbc249d129685ddc88157310135fb3addaf738a15db5306",
+            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl",
+            "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
+            "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
+            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp311-cp311-win_amd64.whl", # torch 2.5.1 specific
+        ],
+        "CPU": [
+            # CPU specific links would go here
+        ]
+    },
+    "cp312": {
+        "GPU": [
+            "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=3c3f705fb125edbd77f9579fa11a138c56af8968a10fc95834cdd9fdf4f1f1a6",
+            "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=cca2de94f232611b20d379edf28befa7a1aa482ae9ed41c3b958b08ed1bf4983",
+            "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=0f6c7b3b0e13663fb3359e64f3604c0ab74c2b4809ae6949ace5635a5240f0e5",
+            "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp312-cp312-win_amd64.whl",
+            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp312-cp312-win_amd64.whl",
+            "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
+            "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
+            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp312-cp312-win_amd64.whl" # torch 2.5.1 specific
+        ],
+        "CPU": [
+            # CPU specific links would go here
+        ]
+    }
+}
+
+libs = [
+    "accelerate==1.2.1",
+    "aiofiles==24.1.0",
+    "aiohappyeyeballs==2.4.4",
+    "aiohttp==3.11.11", # langchain libraries require <4
+    "aiosignal==1.3.2", # only required by aiohttp
+    "anndata==0.11.3",
+    "annotated-types==0.7.0",
+    "anyio==4.8.0",
+    "array_api_compat==1.10.0", # only anndata requires
+    "async-timeout==5.0.1",
+    "attrs==24.3.0",
+    "av==14.0.1",
+    "backoff==2.2.1",
+    "beautifulsoup4==4.12.3",
+    "bitsandbytes==0.45.0",
+    "braceexpand==0.1.7",
+    "certifi==2024.12.14",
+    "cffi==1.17.1",
+    "chardet==5.2.0",
+    "charset-normalizer==3.4.1", # requests requires <4
+    "chattts==0.2.1",
+    "click==8.1.8",
+    "cloudpickle==3.1.0", # only required by tiledb-cloud and 3+ is only supported by tiledb-cloud 0.13+
+    "colorama==0.4.6",
+    "coloredlogs==15.0.1",
+    "contourpy==1.3.1", # onlyk required by matplotlib
+    "ctranslate2==4.5.0",
+    "cycler==0.12.1",
+    "dataclasses-json==0.6.7",
+    "datasets==3.2.0",
+    "deepdiff==8.1.1", # required by unstructured
+    "dill==0.3.8", # datasets 3.2.0 requires <0.3.9; multiprocess 0.70.16 requires >=0.3.8
+    "distro==1.9.0",
+    "docx2txt==0.8",
+    "einops==0.8.0",
+    "einx==0.3.0",
+    "emoji==2.14.0",
+    "encodec==0.1.1",
+    "et-xmlfile==1.1.0", # openpyxl requires; caution...openpyxl 3.1.5 (6/28/2024) predates et-xmlfile 2.0.0 (10/25/2024)
+    "fastcore==1.7.28", # only required by whisperspeech
+    "fastprogress==1.0.3", # only required by whisperspeech
+    "filetype==1.2.0",
+    "filelock==3.16.1",
+    "fonttools==4.55.3", # only required by matplotlib
+    "frozendict==2.4.6",
+    "frozenlist==1.5.0",
+    "fsspec==2024.9.0", # datasets 3.2.0 requires <=2024.9.0
+    "greenlet==3.1.1",
+    "gTTS==2.5.4",
+    "h11==0.14.0",
+    "h5py==3.12.1",
+    "httpcore==1.0.7",
+    "httpx==0.28.1",
+    "httpx-sse==0.4.0",
+    "huggingface-hub==0.27.1", # tokenizers 0.20.3 requires >=0.16.4,<1.0
+    "humanfriendly==10.0",
+    "HyperPyYAML==1.2.2",
+    "idna==3.10",
+    "importlib_metadata==8.5.0",
+    "InstructorEmbedding==1.0.1",
+    "Jinja2==3.1.5",
+    "jiter==0.8.2", # required by openai newer versions
+    "joblib==1.4.2",
+    "jsonpatch==1.33",
+    "jsonpath-python==1.0.6",
+    "jsonpointer==3.0.0",
+    "kiwisolver==1.4.8",
+    "langchain==0.3.14",
+    "langchain-community==0.3.14",
+    "langchain-core==0.3.29",
+    "langchain-huggingface==0.1.2",
+    "langchain-text-splitters==0.3.5",
+    "langdetect==1.0.9",
+    "langsmith==0.2.10",
+    "llvmlite==0.43.0", # only required by numba
+    "lxml==5.3.0",
+    "Markdown==3.7",
+    "markdown-it-py==3.0.0",
+    "MarkupSafe==3.0.2",
+    "marshmallow==3.25.1",
+    "matplotlib==3.10.0", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
+    "mdurl==0.1.2",
+    "more-itertools==10.5.0",
+    "mpmath==1.3.0", # sympy 1.12.1 requires less than 1.4
+    "msg-parser==1.2.0",
+    "multidict==6.1.0",
+    "multiprocess==0.70.16", # datasets 3.2.0 requires <0.70.17
+    "mypy-extensions==1.0.0",
+    "natsort==8.4.0",
+    "nest-asyncio==1.6.0",
+    "networkx==3.4.2",
+    "nltk==3.8.1", # not higher; gives unexplained error
+    "numba==0.60.0", # only required by openai-whisper
+    "numpy==1.26.4", # langchain libraries <2; numba <2.1; scipy <2.3; chattts <2.0.0
+    "nvidia-cuda-runtime-cu12==12.4.127", # Torch 2.5.1 official support (based on CUDA 12.4.1)
+    "nvidia-cublas-cu12==12.4.5.8", # Torch 2.5.1 official support (based on CUDA 12.4.1)
+    "nvidia-cuda-nvrtc-cu12==12.4.127", # Torch 2.5.1 official support (based on CUDA 12.4.1)
+    "nvidia-cuda-nvcc-cu12==12.4.131", # Torch 2.5.1 official support (based on CUDA 12.4.1) 
+    "nvidia-cufft-cu12==11.2.1.3", # Torch 2.5.1 official support (based on CUDA 12.4.1)
+    "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
+    "nvidia-ml-py==12.560.30",
+    "olefile==0.47",
+    "openai==1.59.7", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
+    "openpyxl==3.1.5",
+    "optimum==1.23.3",
+    "ordered-set==4.1.0",
+    "orderly-set==5.2.3", # deepdiff 8.1.1 requires 5.2.3
+    "orjson==3.10.14",
+    "packaging==24.2",
+    "pandas==2.2.3",
+    "peft==0.14.0", # only required by mississippi model
+    "pillow==11.1.0",
+    "platformdirs==4.3.6",
+    "propcache==0.2.1",
+    "protobuf==5.29.3",
+    "psutil==6.1.1",
+    "pyarrow==18.1.0",
+    "pyarrow-hotfix==0.6",
+    "pybase16384==0.3.7", # only required by chattts
+    "pycparser==2.22",
+    "pydantic==2.10.5",
+    "pydantic_core==2.27.2",
+    "pydantic-settings==2.7.1",
+    "Pygments==2.19.1",
+    "pypandoc==1.15",
+    "pyparsing==3.2.0",
+    "pypdf==5.1.0",
+    "pyreadline3==3.5.4",
+    "python-dateutil==2.9.0.post0",
+    "python-docx==1.1.2",
+    "python-dotenv==1.0.1",
+    "python-iso639==2024.10.22",
+    "python-magic==0.4.27",
+    "pytz==2024.2",
+    "PyYAML==6.0.2",
+    "rapidfuzz==3.11.0",
+    "regex==2024.11.6",
+    "requests==2.32.3",
+    "requests-toolbelt==1.0.0",
+    "rich==13.9.4",
+    "ruamel.yaml==0.18.10",
+    "ruamel.yaml.clib==0.2.12",
+    "safetensors==0.5.2",
+    "scikit-learn==1.6.1",
+    "scipy==1.14.1", # 1.15.0 has possible breaking changes
+    "sentence-transformers==3.3.1",
+    "sentencepiece==0.2.0",
+    "six==1.17.0",
+    "sniffio==1.3.1",
+    "sounddevice==0.5.1",
+    "soundfile==0.13.0",
+    "soupsieve==2.6",
+    "speechbrain==0.5.16",
+    "SQLAlchemy==2.0.37", # langchain and langchain-community require less than 3.0.0
+    "sseclient-py==1.8.0",
+    "sympy==1.13.1", # torch 2.5.1 requires sympy==1.13.1
+    "tabulate==0.9.0",
+    "tblib==1.7.0", # tiledb-cloud requires >= 1.7.0 but < 1.8.0
+    "tenacity==9.0.0",
+    "termcolor==2.5.0",
+    "threadpoolctl==3.5.0",
+    "tiktoken==0.8.0",
+    "tiledb==0.33.2",
+    "tiledb-cloud==0.13.0",
+    "tiledb-vector-search==0.11.0",
+    "timm==1.0.13",
+    "tokenizers==0.21.0",
+    "tqdm==4.67.1",
+    "transformers==4.48.0",
+    "typing-inspect==0.9.0",
+    "typing_extensions==4.12.2",
+    "unstructured-client==0.24.1",
+    "tzdata==2024.2",
+    "urllib3==2.3.0", # requests 2.32.3 requires <3
+    "vector-quantize-pytorch==1.21.2",
+    "vocos==0.1.0",
+    "watchdog==6.0.0",
+    "webdataset==0.2.100", # required by all TTS libraries
+    "wrapt==1.17.1",
+    "xlrd==2.0.1",
+    "xxhash==3.5.0",
+    "yarl==1.18.3", # aiohttp requires <2
+    "zipp==3.21.0",
+]
+
+full_install_libs = [
+    "PySide6==6.8.1",
+    "pymupdf==1.25.1",
+    "unstructured==0.13.4"
+]
+
+"""
+****************
+**Torch Wheels**
+****************
+
+# modern torch wheels contain either "cu121" or "cu124" in their name and are prebuilt for the following versions
++---------------+---------------------------------------------------------+
+| Pytorch Wheel | PyTorch Versions Supported                              |
++---------------+---------------------------------------------------------+
+| cu124         | 2.5.1, 2.5.0, 2.4.1, 2.4.0                              |
+| cu121         | 2.5.1, 2.5.0, 2.4.1, 2.4.0, 2.3.1, 2.3.0, 2.2.2...2.1.0 |
++---------------+---------------------------------------------------------+
+* "cu121" and "cu124" wheels include libraries from CUDA releases 12.1.1 and 12.4.1, respectively (see next table)
+
+*********
+**Torch**
+*********
+
+# dependencies scraped from pypi for linux builds
+# useful to determine windows compatibility when pip installing CUDA libraries rather than relying on a systemwide installation
++-------+-----------------+------------------+------------+-----------+--------+------------+--------+
+| Torch | cuda-nvrtc-cu12 | cuda-runtime-cu12| cublas-cu12| cudnn-cu12| triton | mkl        | sympy  |
++-------+-----------------+------------------+------------+-----------+--------+------------+--------+
+| 2.5.1 | 12.4.127        | 12.4.127         | 12.4.5.8   | 9.1.0.70  | 3.1.0  | -          | 1.13.1 |
+| 2.5.0 | 12.4.127        | 12.4.127         | 12.4.5.8   | 9.1.0.70  | 3.1.0  | -          | 1.13.1 |
+| 2.4.1 | 12.1.105        | 12.1.105         | 12.1.3.1   | 9.1.0.70  | 3.0.0  | -          | -      |
+| 2.4.0 | 12.1.105        | 12.1.105         | 12.1.3.1   | 9.1.0.70  | 3.0.0  | -          | -      |
+| 2.3.1 | 12.1.105        | 12.1.105         | 12.1.3.1   | 8.9.2.26  | 2.3.1  | <=2021.4.0 | -      |
+| 2.3.0 | 12.1.105        | 12.1.105         | 12.1.3.1   | 8.9.2.26  | 2.3.0  | <=2021.4.0 | -      |
+| 2.2.2 | 12.1.105        | 12.1.105         | 12.1.3.1   | 8.9.2.26  | 2.2.0  | -          | -      |
++-------+-----------------+------------------+------------+-----------+--------+------------+--------+
+* 12.1.105 and 12.1.3.1 come from CUDA release 12.1.1
+* 12.4.127 and 12.4.5.8 come from CUDA release 12.4.1
+* In other words, torch is not 100% compatible with CUDA 12.1.0 or 12.4.0, for example, or any other version.
+
+**************
+**cuDNN/CUDA**
+**************
+
+# According to Nvidia, cuDNN 8.9.2.26 is only compatible up to CUDA 12.2
+# For cuDNN 9+, Nvidia promises compatibility for all CUDA 12.x releases, but static linking fluctuates
++---------------+-----------------+-------------------------+
+| cuDNN Version | Static Linking  | No Static Linking       |
++---------------+-----------------+-------------------------+
+| 8.9.2         | 12.1, 11.8      | 12.0, ≤11.7             |
+| 8.9.3         | 12.1, 11.8      | 12.0, ≤11.7             |
+| 8.9.4         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
+| 8.9.5         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
+| 8.9.6         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
+| 8.9.7         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
+| 9.0.0         | 12.3, 11.8      | 12.2, 12.1, 12.0, ≤11.7 |
+| 9.1.0         | 12.4-12.0, 11.8 | ≤11.7                   |
+| 9.1.1         | 12.5-12.0, 11.8 | ≤11.7                   |
++---------------+-----------------+-------------------------+
+* 9.2+ continues the same trend
+
+***************************
+**PyTorch Official Matrix**
+***************************
+
+# https://github.com/pytorch/pytorch/blob/main/RELEASE.md#release-compatibility-matrix
++-------+----------------------------+----------------------------------------+----------------------------+
+| Torch | Python                     | Stable                                 | Experimental               |
++-------+----------------------------+----------------------------------------+----------------------------+
+| 2.6   | >=3.9, <=3.12, (3.13 exp.) | CUDA 11.8, 12.1, 12.4 + CUDNN 9.1.0.70 | None                       |
+|       |                            | CUDA 12.6 + CUDNN 9.5.1.17             | None                       |
++-------+----------------------------+----------------------------------------+----------------------------+
+| 2.5   | >=3.9, <=3.12, (3.13 exp.) | CUDA 11.8, 12.1, 12.4 + CUDNN 9.1.0.70 | None                       |
++-------+----------------------------+----------------------------------------+----------------------------+
+| 2.4   | >=3.8, <=3.12              | CUDA 11.8, 12.1 + CUDNN 9.1.0.70       | CUDA 12.4 + CUDNN 9.1.0.70 |
++-------+----------------------------+----------------------------------------+----------------------------+
+| 2.3   | >=3.8, <=3.11, (3.12 exp.) | CUDA 11.8 + CUDNN 8.7.0.84             | CUDA 12.1 + CUDNN 8.9.2.26 |
++-------+----------------------------+----------------------------------------+----------------------------+
+| 2.2   | >=3.8, <=3.11, (3.12 exp.) | CUDA 11.8 + CUDNN 8.7.0.84             | CUDA 12.1 + CUDNN 8.9.2.26 |
++-------+----------------------------+----------------------------------------+----------------------------+
+
+************
+**Xformers**
+************
+
+# strictly tied to a specific torch version per "metadata" in each whl file
++------------------+---------------+
+| Xformers Version | Torch Version |
++------------------+---------------+
+| v0.0.29.post1    | 2.5.1         |
+| v0.0.29          | 2.5.1         | # BUG, don't use
+| v0.0.28.post3    | 2.5.1         |
+| v0.0.28.post2    | 2.5.0         |
+| v0.0.28.post1    | 2.4.1         |
+| v0.0.27.post2    | 2.4.0         |
+| v0.0.27.post1    | 2.4.0         |
+| v0.0.27          | 2.3.0         | # release notes confusingly say "some operation might require torch 2.4"
+| v0.0.26.post1    | 2.3.0         |
+| v0.0.25.post1    | 2.2.2         |
++------------------+---------------+
+* Pypi only has windows wheels through 2.4.0.
+* 2.4.0+ windows wheels only available from pytorch directly - https://download.pytorch.org/whl/cu124/xformers/
+  * e.g. pip install https://download.pytorch.org/whl/cu124/xformers-0.0.28.post3-cp311-cp311-win_amd64.whl
+
+
+**********
+**Triton**
+**********
+
+# 3.0.0 and earlier wheels are located here: https://github.com/jakaline-dev/Triton_win/releases
+  * E.g., https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl
+  * only supports up to Python 3.11
+
+# 3.1.0 and later wheels: https://github.com/woct0rdho/triton-windows/releases
+ * "Triton 3.1.0 requires torch 2.4.0+
+ * "The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x."
+ * https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl
+ * supports Python 3.12
+
+
+*************
+**LINUX FA2**
+*************
+
+# According to flash-attention/.github/workflows/publish.yml
++--------------+-----------------------------------------------+----------------+
+| FA2 Version  | Torch Versions Supported                      | CUDA Versions  |
++--------------+-----------------------------------------------+----------------+
+| v2.7.3       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.2.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.2       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post4 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post3 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post2 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
+| v2.7.1.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241010 | 11.8.0, 12.4.1 |
+| v2.7.1       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241010 | 11.8.0, 12.4.1 |
+| v2.7.0.post2 | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
+| v2.7.0.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.4.1 |
+| v2.7.0       | 2.2.2, 2.3.1, 2.4.0, 2.5.1                    | 11.8.0, 12.3.2 |
+| v2.6.3       | 2.2.2, 2.3.1, 2.4.0                           | 11.8.0, 12.3.2 |
+| v2.6.2       | 2.2.2, 2.3.1, 2.4.0.dev20240527               | 11.8.0, 12.3.2 |
+| v2.6.1       | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.3.2 |
+| v2.6.0.post1 | 2.2.2, 2.3.1, 2.4.0.dev20240514               | 11.8.0, 12.2.2 |
+| v2.6.0       | 2.2.2, 2.3.1, 2.4.0.dev20240512               | 11.8.0, 12.2.2 |
+| v2.5.9.post1 | 2.2.2, 2.3.0, 2.4.0.dev20240407               | 11.8.0, 12.2.2 |
++--------------+-----------------------------------------------+----------------+
+* 2.5.8 is the first to support torch 2.2.2
+* no prebuilt wheels simultaneously support torch 2.2.2 and CUDA prior to 12.2.2
+
+***************
+**WINDOWS FA2**
+***************
+
+# per https://github.com/bdashore3/flash-attention/releases/
++--------------+---------------------+----------------+
+| FA2 Version  | Torch Versions      | CUDA Versions |
++--------------+---------------------+---------------+
+| v2.7.1.post1 | 2.3.1, 2.4.0, 2.5.1 | 12.4.1        |
+| v2.7.0.post2 | 2.3.1, 2.4.0, 2.5.1 | 12.4.1        |
+| v2.6.3       | 2.2.2, 2.3.1, 2.4.0 | 12.3.2        |
+| v2.6.1       | 2.2.2, 2.3.1        | 12.3.2        |
+| v2.5.9.post2 | 2.2.2, 2.3.1        | 12.2.2        |
+| v2.5.9.post1 | 2.2.2, 2.3.0        | 12.2.2        |
+| v2.5.8       | 2.2.2, 2.3.0        | 12.2.2        |
+| v2.5.6       | 2.1.2, 2.2.2        | 12.2.2        |
+| v2.5.2       | 2.1.2, 2.2.0        | 12.2.2        |
+| v2.4.2       | 2.1.2, 2.2.0        | 12.2.2        |
++--------------+---------------------+---------------+
+Supported model architectures: https://huggingface.co/docs/transformers/v4.47.1/en/perf_infer_gpu_one
+
+****************
+**Xformers/FA2**
+****************
+https://github.com/facebookresearch/xformers/blob/46a02df62a6192bf11456e712ae072bfd9c83e71/xformers/ops/fmha/flash.py#L66
+https://github.com/facebookresearch/xformers/commit/839c4ec4b928f1f02f83d25a7d111bde819e6bce
+
+
+****************
+**One Big Mess**
+****************
+
+PER CTRANSLATE2...
+
+Starting from version 4.5.0, ctranslate2 is compatible with cuDNN 9+.
+
+---
+
+According to Ashraf...
+
+either use ct2<4.5 along with torch<2.4 or ct2==4.5 along with torch>=2.4
+
+v4.5.0 works just fine with pip installed cudnn, but if you have a torch version where the cuda binaries are
+precompiled such as torch==2.5.0+cu121 or any version that ends with +cu12, this error comes up, the only
+solution is downgrade to v4.4.0 at the moment which is strange because it was compiled using cudnn 8.9
+
++---------------+---------------------+
+| Torch Version | Ctranslate2 Version |
++---------------+---------------------+
+| 2.*.*+cu121   | <=4.4.0             |
+| 2.*.*+cu124   | >=4.5.0             |
+| >=2.4.0       | >=4.5.0             |
+| <2.4.0        | <4.5.0              |
++---------------+---------------------+
+* torch(CUDA or CPU) are compatible with CT2 except for torch +cu121, which requires CT2 <=4.4.0
+
+Update: it's compatible with torch==2.*+cu124 so it's only incompatible with 12.1, I'll open a PR to solve this
+  * but his fix didn't work: https://github.com/OpenNMT/CTranslate2/pull/1807
+
+
+***************
+**CTRANSLATE2**
+***************
+
+Ctranslate2 3.24.0 - last to use cuDNN 8.1.1 with CUDA 11.2.2 by default
+Ctranslate2 4.0.0 - first to use cuDNN 8.8.0 with CUDA 12.2 by default
+Ctranslate2 4.5.0 - first to use cuDNN 9.1 with CUDA 12.2 by default
+
+# based on /blob/master/python/tools/prepare_build_environment_windows.sh
+
+
+*************************************************
+* Python 3.12
+*************************************************
+
+Python 3.12.4 is incompatible with pydantic.v1 as of pydantic==2.7.3
+https://github.com/langchain-ai/langchain/issues/22692
+***Everything should now be fine as long as Langchain 0.3+ is used, which requires pydantic version 2+***
+
+Other libraries can be checked at: https://pyreadiness.org/3.12/
+"""
