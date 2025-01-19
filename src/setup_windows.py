@@ -11,6 +11,7 @@ from replace_sourcecode import (
     replace_chattts_file,
     add_cuda_files,
     setup_vector_db,
+    check_embedding_model_dimensions,
 )
 
 from constants import priority_libs, libs, full_install_libs
@@ -243,6 +244,7 @@ replace_sentence_transformer_file()
 replace_chattts_file()
 add_cuda_files()
 setup_vector_db()
+check_embedding_model_dimensions()
 
 # 7. Create directores if needed
 def create_directory_structure():
