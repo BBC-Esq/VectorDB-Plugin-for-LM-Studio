@@ -138,13 +138,8 @@ Activate the virtual environment:
 Run the setup script:
    > Only ```Windows``` is supported for now.
 
-If using Python 3.11
 ```
-python setup_windows_cp311.py
-```
-If using Python 3.12
-```
-python setup_windows_cp312.py
+python setup_windows_.py
 ```
 
 ### Step 5 - 🔥IMPORTANT🔥
