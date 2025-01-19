@@ -246,3 +246,51 @@ class LocalModelChat:
 
 def is_cuda_available():
     return torch.cuda.is_available()
+
+"""
+[Main Process]
+    |
+    |         DatabaseQueryTab (GUI)                 LocalModelChat
+    |         ------------------                     --------------
+    |              |                                      |
+    |        [Submit Button]                             |
+    |              |                                     |
+    |         on_submit_button_clicked()                 |
+    |              |                                     |
+    |              |---> start_model_process() --------->|
+    |              |          Creates Pipe               |
+    |              |                                     |
+    |              |                           _local_model_process (Child Process)
+    |              |                                     |
+    |              |                            [Load Model Instance]
+    |              |                                     |
+    |              |---> start_chat() ----------------->|
+    |              |     (question, model, database)    |
+    |              |                                     |
+    |              |                    [QueryVectorDB Search]
+    |              |                                     |
+    |              |                    [Generate Response]
+    |                                                    |
+    |    Pipe Communication (Parent)        Pipe Communication (Child)
+    |    ------------------------           ------------------------
+    |         |                                        |
+    |    [_listen_for_response]                   Send Messages:
+    |         |                                   - ("partial_response", text)
+    |         |                                   - ("citations", text)
+    |         |                                   - ("error", text)
+    |         |                                   - ("finished", None)
+    |         |                                   - ("token_counts", text)
+    |         |                                        |
+    |    Signal Emissions:                            |
+    |    - response_signal                            |
+    |    - citations_signal                           |
+    |    - error_signal                              |
+    |    - finished_signal                           |
+    |    - token_count_signal                        |
+    |         |                                      |
+    |    [GUI Updates]                               |
+    |    - update_response_local_model()             |
+    |    - display_citations_in_widget()             |
+    |    - show_error_message()                      |
+    |    - update_token_count_label()                |
+"""

@@ -17,6 +17,64 @@ from packaging import version
 from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
 
+def test_triton_installation():
+    """
+    Tests if Triton is properly installed and working by comparing a simple addition operation between PyTorch's
+    native implementation and a custom Triton kernel. Returns True or False.
+
+    Example:
+
+    from triton_test import test_triton_installation
+
+    is_triton_working = test_triton_installation()
+
+    if is_triton_working:
+       print("Proceeding with Triton functionality...")
+    else:
+       print("Cannot proceed - Triton is not working properly")
+"""
+    try:
+        import torch
+        import triton
+        import triton.language as tl
+
+        @triton.jit
+        def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+            pid = tl.program_id(axis=0)
+            block_start = pid * BLOCK_SIZE
+            offsets = block_start + tl.arange(0, BLOCK_SIZE)
+            mask = offsets < n_elements
+            x = tl.load(x_ptr + offsets, mask=mask)
+            y = tl.load(y_ptr + offsets, mask=mask)
+            output = x + y
+            tl.store(output_ptr + offsets, output, mask=mask)
+
+        def add(x: torch.Tensor, y: torch.Tensor):
+            output = torch.empty_like(x)
+            assert x.is_cuda and y.is_cuda and output.is_cuda
+            n_elements = output.numel()
+            grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
+            add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
+            return output
+
+        print("Testing Triton installation...")
+        a = torch.rand(3, device="cuda")
+        b = a + a
+        b_compiled = add(a, a)
+        difference = b_compiled - b
+
+        works = torch.all(difference == 0).item()
+        if works:
+            print("✓ Triton is working correctly")
+        else:
+           print("⨯ Triton test failed - results do not match PyTorch implementation.  Please visit the Windows Triton repository")
+           print("here and review the instructions for installing any necessary dependencies: https://github.com/woct0rdho/triton-windows")
+        return works
+
+    except Exception as e:
+        print(f"⨯ Triton test failed - error occurred: {str(e)}")
+        return False
+
 def supports_flash_attention():
     """Check if the current CUDA device supports flash attention (compute capability >= 8.0)."""
     if not torch.cuda.is_available():
@@ -33,14 +91,14 @@ def check_cuda_re_triton():
     venv_base = Path(sys.executable).parent.parent
     nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
     cuda_runtime = nvidia_base_path / 'cuda_runtime'
-    
+
     files_to_check = [
         cuda_runtime / "bin" / "cudart64_12.dll",
         cuda_runtime / "bin" / "ptxas.exe",
         cuda_runtime / "include" / "cuda.h",
         cuda_runtime / "lib" / "x64" / "cuda.lib"
     ]
-    
+
     print("Checking CUDA files:")
     for file_path in files_to_check:
         exists = file_path.exists()
@@ -58,7 +116,7 @@ def get_model_native_precision(embedding_model_name, vector_models):
 def get_appropriate_dtype(compute_device, use_half, model_native_precision):
     if compute_device.lower() == 'cpu':
         return torch.float32
-        
+
     if model_native_precision == 'float16':
         return torch.float16
     elif model_native_precision == 'float32':
@@ -83,16 +141,16 @@ def cpu_db_creation_vision_model_compatibility(directory, image_extensions, conf
         if any(file.lower().endswith(ext) for file in files for ext in image_extensions):
             has_images = True
             break
-    
+
     if not has_images:
         return False, None
 
     # Load config
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
-    
+
     compute_device = config.get('Compute_Device', {}).get('database_creation', 'cpu')
-    
+
     if compute_device.lower() == 'cpu':
         return True, None
 
@@ -103,19 +161,6 @@ def cpu_db_creation_vision_model_compatibility(directory, image_extensions, conf
         return True, message
 
     return True, None
-
-def get_pkl_file_path(pkl_file_path):
-    # used in gui_tabs_databases.py when opening a file
-    try:
-        with open(pkl_file_path, 'rb') as file:
-            document = pickle.load(file)
-        internal_file_path = document.metadata.get('file_path')
-        if internal_file_path and Path(internal_file_path).exists():
-            return internal_file_path
-        else:
-            return None
-    except Exception as e:
-        raise ValueError(f"Could not process pickle file: {e}")
 
 def print_first_citation_metadata(metadata_list):
     """
@@ -181,9 +226,8 @@ def format_citations(metadata_list):
     citations_with_scores = [create_citation(data, file_path) for file_path, data in grouped_citations.items()]
     sorted_citations = [citation for _, citation in sorted(citations_with_scores)]
     list_items = "".join(f"<li>{citation}</li>" for citation in sorted_citations)
-    
-    return f"<ol>{list_items}</ol>"
 
+    return f"<ol>{list_items}</ol>"
 
 def count_physical_cores():
     return psutil.cpu_count(logical=False)

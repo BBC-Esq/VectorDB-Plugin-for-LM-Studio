@@ -40,7 +40,6 @@ HAS_NVIDIA_GPU = is_nvidia_gpu_available()
 
 if HAS_NVIDIA_GPU:
     import pynvml
-
     pynvml.nvmlInit()
     HANDLE = pynvml.nvmlDeviceGetHandleByIndex(0)
 else:
@@ -110,12 +109,20 @@ class MetricsCollectorThread(QThread):
 
     def __init__(self):
         super().__init__()
-        self.running = True
-        self.interval = 150  # 150ms polling interval
+        self._running = True
+        self.interval = 150
         self.gpu_available = HAS_NVIDIA_GPU
 
+    def stop(self):
+        self._running = False
+        self.quit()
+        self.wait()
+
     def run(self):
-        while self.running:
+        while self._running:
+            if not self._running:
+                break
+                
             cpu_usage = collect_cpu_metrics()
             ram_usage_percent, _ = collect_ram_metrics()
 
@@ -138,10 +145,6 @@ class MetricsCollectorThread(QThread):
             self.metrics_updated.emit(metrics)
             self.msleep(self.interval)
 
-    def stop(self):
-        self.running = False
-        self.wait()
-
 
 class MetricsCollector(QObject):
     metrics_updated = Signal(Metrics)
@@ -151,10 +154,6 @@ class MetricsCollector(QObject):
         self.thread = MetricsCollectorThread()
         self.thread.metrics_updated.connect(self.metrics_updated)
         self.thread.start()
-
-    def stop(self):
-        if self.thread.isRunning():
-            self.thread.stop()
 
 
 class MetricsVisualization(QWidget):
@@ -311,7 +310,7 @@ class Sparkline(QWidget):
 
         # Fill the area under the curve
         fill_color = QColor(self.color)
-        fill_color.setAlpha(60) # Semi-transparent
+        fill_color.setAlpha(60)  # Semi-transparent
         painter.setPen(Qt.NoPen)
         painter.setBrush(fill_color)
         painter.drawPath(fill_path)
@@ -373,35 +372,35 @@ class SparklineVisualization(MetricsVisualization):
             main_layout.setColumnStretch(i, 1)
 
     def update_metrics(self, metrics: Metrics):
-        self.cpu_buffer.append(metrics.cpu_usage)
-        self.ram_buffer.append(metrics.ram_usage_percent)
-        self.cpu_sparkline.add_value(metrics.cpu_usage)
-        self.ram_sparkline.add_value(metrics.ram_usage_percent)
+            self.cpu_buffer.append(metrics.cpu_usage)
+            self.ram_buffer.append(metrics.ram_usage_percent)
+            self.cpu_sparkline.add_value(metrics.cpu_usage)
+            self.ram_sparkline.add_value(metrics.ram_usage_percent)
 
-        avg_cpu = sum(self.cpu_buffer) / len(self.cpu_buffer)
-        self.cpu_label.setText(f"CPU {avg_cpu:.1f}%")
+            avg_cpu = sum(self.cpu_buffer) / len(self.cpu_buffer)
+            self.cpu_label.setText(f"CPU {avg_cpu:.1f}%")
 
-        avg_ram = sum(self.ram_buffer) / len(self.ram_buffer)
-        self.ram_label.setText(f"RAM {avg_ram:.1f}%")
+            avg_ram = sum(self.ram_buffer) / len(self.ram_buffer)
+            self.ram_label.setText(f"RAM {avg_ram:.1f}%")
 
-        if self.has_nvidia_gpu:
-            if metrics.gpu_utilization is not None:
-                self.gpu_buffer.append(metrics.gpu_utilization)
-                self.gpu_sparkline.add_value(metrics.gpu_utilization)
-                avg_gpu = sum(self.gpu_buffer) / len(self.gpu_buffer)
-                self.gpu_label.setText(f"GPU {avg_gpu:.1f}%")
+            if self.has_nvidia_gpu:
+                if metrics.gpu_utilization is not None:
+                    self.gpu_buffer.append(metrics.gpu_utilization)
+                    self.gpu_sparkline.add_value(metrics.gpu_utilization)
+                    avg_gpu = sum(self.gpu_buffer) / len(self.gpu_buffer)
+                    self.gpu_label.setText(f"GPU {avg_gpu:.1f}%")
 
-            if metrics.vram_usage_percent is not None:
-                self.vram_buffer.append(metrics.vram_usage_percent)
-                self.vram_sparkline.add_value(metrics.vram_usage_percent)
-                avg_vram = sum(self.vram_buffer) / len(self.vram_buffer)
-                self.vram_label.setText(f"VRAM {avg_vram:.1f}%")
+                if metrics.vram_usage_percent is not None:
+                    self.vram_buffer.append(metrics.vram_usage_percent)
+                    self.vram_sparkline.add_value(metrics.vram_usage_percent)
+                    avg_vram = sum(self.vram_buffer) / len(self.vram_buffer)
+                    self.vram_label.setText(f"VRAM {avg_vram:.1f}%")
 
-            if metrics.power_usage_percent is not None:
-                self.power_buffer.append(metrics.power_usage_percent)
-                self.power_sparkline.add_value(metrics.power_usage_percent)
-                avg_power = sum(self.power_buffer) / len(self.power_buffer)
-                self.power_label.setText(f"GPU Power {avg_power:.1f}%")
+                if metrics.power_usage_percent is not None:
+                    self.power_buffer.append(metrics.power_usage_percent)
+                    self.power_sparkline.add_value(metrics.power_usage_percent)
+                    avg_power = sum(self.power_buffer) / len(self.power_buffer)
+                    self.power_label.setText(f"GPU Power {avg_power:.1f}%")
 
 
 class Speedometer(QWidget):
@@ -410,9 +409,8 @@ class Speedometer(QWidget):
         self.min_value = min_value
         self.max_value = max_value
         self.current_value = 0
-        # To change colors, modify this list. Each color corresponds to a section of the speedometer.
-        self.colors = colors or ["#00FF00", "#FFFF00", "#FF0000"] # Green, Yellow, Red
-        self.setFixedSize(105, 105) # Adjust these values to change the overall size of the speedometer
+        self.colors = colors or ["#00FF00", "#FFFF00", "#FF0000"]
+        self.setFixedSize(105, 105)
 
     def set_value(self, value):
         self.current_value = max(self.min_value, min(self.max_value, value))
@@ -426,7 +424,7 @@ class Speedometer(QWidget):
         height = self.height()
         center_x = width / 2
         center_y = height / 2
-        radius = min(width, height) / 2 * 0.7 # Adjust the 0.7 factor to change the size of the arc relative to the widget
+        radius = min(width, height) / 2 * 0.7
 
         # Colored background arc
         start_angle = 180 * 16
@@ -447,8 +445,8 @@ class Speedometer(QWidget):
             self.max_value - self.min_value
         ) * 180
 
-        needle_length = radius * 0.9 # Adjust this factor to change the length of the needle
-        needle_width = 5 # Adjust this value to change the thickness of the needle
+        needle_length = radius * 0.9
+        needle_width = 5
         needle_angle = angle * (pi / 180)
 
         needle_tip_x = center_x + needle_length * cos(needle_angle)
@@ -470,12 +468,10 @@ class Speedometer(QWidget):
         needle = QPolygon([point1.toPoint(), point2.toPoint(), point3.toPoint()])
 
         painter.setPen(Qt.NoPen)
-        painter.setBrush(Qt.white) # Change this color to modify the needle color
+        painter.setBrush(Qt.white)
         painter.drawPolygon(needle)
 
     def get_color_at_angle(self, angle):
-        # This method determines the color gradient of the speedometer.
-        # Modify the color interpolation logic here to change the appearance.
         t = angle / 180
         if t <= 0:
             return QColor(self.colors[0])
@@ -515,14 +511,10 @@ class SpeedometerVisualization(MetricsVisualization):
             group.addWidget(label, alignment=Qt.AlignCenter)
             return group, speedometer, label
 
-        cpu_group, self.cpu_speedometer, self.cpu_label = create_speedometer_group(
-            "CPU"
-        )
+        cpu_group, self.cpu_speedometer, self.cpu_label = create_speedometer_group("CPU")
         main_layout.addLayout(cpu_group, 0, 0)
 
-        ram_group, self.ram_speedometer, self.ram_label = create_speedometer_group(
-            "RAM"
-        )
+        ram_group, self.ram_speedometer, self.ram_label = create_speedometer_group("RAM")
         main_layout.addLayout(ram_group, 0, 1)
 
         if self.has_nvidia_gpu:
@@ -580,28 +572,42 @@ class MetricsWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.init_ui()
-        self.metrics_collector = MetricsCollector()
-        self.metrics_collector.metrics_updated.connect(self.update_visualization)
-        self.current_visualization_type = 1 # Default to SparklineVisualization
+        self.metrics_collector = None
+        self.current_visualization_type = 1
         self.setToolTip("Right click for display options")
+        self.start_metrics_collector()
 
     def init_ui(self):
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
-
         self.current_visualization = SparklineVisualization()
         self.layout.addWidget(self.current_visualization)
 
+    def start_metrics_collector(self):
+        if self.metrics_collector is None or not self.metrics_collector.thread.isRunning():
+            self.metrics_collector = MetricsCollector()
+            self.metrics_collector.metrics_updated.connect(self.update_visualization)
+
+    def stop_metrics_collector(self):
+        if self.metrics_collector and self.metrics_collector.thread.isRunning():
+            self.metrics_collector.thread.stop()
+
     def contextMenuEvent(self, event):
         menu = QMenu(self)
-        bar_action = menu.addAction("Bar")
-        sparkline_action = menu.addAction("Sparkline")
-        speedometer_action = menu.addAction("Speedometer")
+        
+        visual_menu = menu.addMenu("Visualization")
+        bar_action = visual_menu.addAction("Bar")
+        sparkline_action = visual_menu.addAction("Sparkline")
+        speedometer_action = visual_menu.addAction("Speedometer")
 
-        # Check the current visualization and set it as checked
         actions = [bar_action, sparkline_action, speedometer_action]
         actions[self.current_visualization_type].setCheckable(True)
         actions[self.current_visualization_type].setChecked(True)
+
+        menu.addSeparator()
+
+        is_running = self.metrics_collector and self.metrics_collector.thread.isRunning()
+        control_action = menu.addAction("Stop Monitoring" if is_running else "Start Monitoring")
 
         action = menu.exec_(event.globalPos())
 
@@ -611,13 +617,17 @@ class MetricsWidget(QWidget):
             self.change_visualization(1)
         elif action == speedometer_action:
             self.change_visualization(2)
+        elif action == control_action:
+            if is_running:
+                self.stop_metrics_collector()
+            else:
+                self.start_metrics_collector()
 
     def change_visualization(self, index):
         if index == self.current_visualization_type:
             return
 
         self.current_visualization_type = index
-
         self.layout.removeWidget(self.current_visualization)
         self.current_visualization.deleteLater()
 
@@ -629,11 +639,11 @@ class MetricsWidget(QWidget):
             self.current_visualization = SpeedometerVisualization()
 
         self.current_visualization.setToolTip("Right click for display options")
-        
         self.layout.addWidget(self.current_visualization)
 
     def update_visualization(self, metrics: Metrics):
         self.current_visualization.update_metrics(metrics)
 
-    def stop_metrics_collector(self):
-        self.metrics_collector.stop()
+    def closeEvent(self, event):
+        self.stop_metrics_collector()
+        super().closeEvent(event)

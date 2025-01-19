@@ -18,7 +18,7 @@ def extract_common_metadata(file_path):
     file_path = os.path.realpath(file_path)
     file_name = os.path.basename(file_path)
     file_type = os.path.splitext(file_path)[1]
-    file_size = os.path.getsize(file_path)
+    # file_size = os.path.getsize(file_path)
     creation_date = datetime.datetime.fromtimestamp(os.path.getctime(file_path)).isoformat()
     modification_date = datetime.datetime.fromtimestamp(os.path.getmtime(file_path)).isoformat()
     file_hash = compute_file_hash(file_path)

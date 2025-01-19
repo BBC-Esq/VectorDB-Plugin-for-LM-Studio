@@ -124,3 +124,43 @@ def is_lm_studio_available():
     # This function should check if LM Studio is available and running
     # For now, we'll just return True as a placeholder
     return True
+
+"""
+[Main Process]
+    |
+    |         DatabaseQueryTab (GUI)                 LMStudioChatThread
+    |         ------------------                     -----------------
+    |              |                                      |
+    |        [Submit Button]                             |
+    |              |                                     |
+    |         on_submit_button_clicked()                 |
+    |              |                                     |
+    |              |---> LMStudioChatThread.start() --->|
+    |              |                                     |
+    |                                          [LMStudioChat Instance]
+    |                                                    |
+    |                                         ask_local_chatgpt()
+    |                                                    |
+    |                                         [QueryVectorDB Search]
+    |                                                    |
+    |                                      connect_to_local_chatgpt()
+    |                                                    |
+    |    Signal Flow                            OpenAI API Stream
+    |    -----------                            ----------------
+    |         |                                        |
+    |    Signals Received:                     Stream Chunks:
+    |    - response_signal                     - chunk.choices[0].delta.content
+    |    - error_signal                                |
+    |    - finished_signal                             |
+    |    - citation_signal                             |
+    |         |                                        |
+    |    GUI Updates:                          Cleanup Operations:
+    |    - update_response_lm_studio()         - handle_response_and_cleanup()
+    |    - show_error_message()                - save_metadata_to_file()
+    |    - on_submission_finished()            - torch.cuda.empty_cache()
+    |    - display_citations_in_widget()       - gc.collect()
+    |                                                  |
+    |                                          Emit Final Signals:
+    |                                          - citation_signal
+    |                                          - finished_signal
+"""

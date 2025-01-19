@@ -76,10 +76,20 @@ class GuiSignals(QObject):
     error_signal = Signal(str)
     finished_signal = Signal()
 
+# class CustomBrowser(QTextBrowser):
+    # def __init__(self, parent=None):
+        # super().__init__(parent)
+        # self.setOpenExternalLinks(True)
+        
+        # self.anchorClicked.connect(self._handle_link_click)
+
+    # def _handle_link_click(self, url: QUrl):
+        # print(f"Link clicked: {url.toString()}")
+
 class CustomTextBrowser(QTextBrowser):
     '''
     Inherits from QTextBrowser but overrides the doSetSource method to ensure that "http," "https," and "file" schemes are opened
-    with the system's default program while other types are still opened however the QTextBrowswer normally does.
+    with the system's default program while other types are still opened like the QTextBrowswer normally does.
     
     The following examples allow for additional handling and/or make the opening internal or external based on the type of link.
         

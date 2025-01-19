@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil
 import sys
 import zipfile
+import yaml
 
 class DependencyUpdater:
     def __init__(self):
@@ -196,6 +197,34 @@ def setup_vector_db():
     except Exception as e:
         updater.print_status("ERROR", f"Error extracting zip file: {str(e)}")
 
+def check_embedding_model_dimensions():
+    updater = DependencyUpdater()
+    config_path = Path(__file__).parent / "config.yaml"
+
+    if not config_path.exists():
+        updater.print_status("ERROR", "config.yaml not found in current directory.")
+        return
+
+    try:
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+
+        if config is None:
+            config = {}
+
+        if 'EMBEDDING_MODEL_DIMENSIONS' not in config:
+            config['EMBEDDING_MODEL_DIMENSIONS'] = None
+            with open(config_path, 'w') as file:
+                yaml.dump(config, file, default_flow_style=False)
+            updater.print_status("SUCCESS", "Added EMBEDDING_MODEL_DIMENSIONS: null to config.yaml")
+        else:
+            updater.print_status("SKIP", "EMBEDDING_MODEL_DIMENSIONS already exists in config.yaml")
+
+    except yaml.YAMLError as e:
+        updater.print_status("ERROR", f"Error parsing config.yaml: {str(e)}")
+    except Exception as e:
+        updater.print_status("ERROR", f"Unexpected error while processing config.yaml: {str(e)}")
+
 if __name__ == "__main__":
     DependencyUpdater.print_ascii_table("DEPENDENCY UPDATER", [
         "Replace PDF File",
@@ -203,7 +232,8 @@ if __name__ == "__main__":
         "Replace Sentence Transformer File",
         "Replace ChatTTS File",
         "Add CUDA Files",
-        "Setup Vector DB"
+        "Setup Vector DB",
+        "Check Config EMBEDDING_MODEL_DIMENSIONS"
     ])
 
     replace_pdf_file()
@@ -212,3 +242,4 @@ if __name__ == "__main__":
     replace_chattts_file()
     add_cuda_files()
     setup_vector_db()
+    check_embedding_model_dimensions()

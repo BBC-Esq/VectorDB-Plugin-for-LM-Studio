@@ -2289,6 +2289,9 @@ GPUS_INTEL = {
 }
 
 master_questions = [
+    "What is the InternLM chat model?",
+    "What is the stella embedding model?",
+    "What is the sentence transformer static-retrieval embedding model?",
     "What are the main features and capabilities of this program?",
     "How does LM Studio integrate with this program?",
     "What are local models and how can I access them through Huggingface?",
@@ -2460,7 +2463,7 @@ priority_libs = {
             "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=6c8a7003ef1327479ede284b6e5ab3527d3900c2b2d401af15bcc50f2245a59f",
             "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=b3d75f4e6efc5412fe78c7f2787ee4f39cea1317652e1a47785879cde109f5c4",
             "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=15796b453a99ed0f0cbc249d129685ddc88157310135fb3addaf738a15db5306",
-            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl",
+            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post7/triton-3.1.0-cp311-cp311-win_amd64.whl",
             "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
             "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
             "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp311-cp311-win_amd64.whl", # torch 2.5.1 specific
@@ -2475,7 +2478,7 @@ priority_libs = {
             "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=cca2de94f232611b20d379edf28befa7a1aa482ae9ed41c3b958b08ed1bf4983",
             "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=0f6c7b3b0e13663fb3359e64f3604c0ab74c2b4809ae6949ace5635a5240f0e5",
             "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp312-cp312-win_amd64.whl",
-            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp312-cp312-win_amd64.whl",
+            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post7/triton-3.1.0-cp312-cp312-win_amd64.whl",
             "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
             "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
             "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp312-cp312-win_amd64.whl" # torch 2.5.1 specific

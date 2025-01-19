@@ -21,23 +21,6 @@ from extract_metadata import extract_image_metadata
 from utilities import my_cprint
 from constants import VISION_MODELS
 
-"""
-+----------------------+-----------------------------------------+-----------+----------------+----------+
-| Sub-Class            | Config Details                          | Attention | Precision      | Device   |
-+----------------------+-----------------------------------------+-----------+----------------+----------+
-| loader_llava_next    | do_sample=False, no temperature control | SDPA      | float16 4-bit  | CUDA     |
-| loader_moondream     | No generation config (uses answer_      | SDPA      | float16        | CUDA     |
-|                      | question method)                        |           |                |          |
-| loader_florence2     | Comprehensive beam settings, no         | SDPA      | autoselect     | CPU/CUDA |
-|                      | sampling                                |           |                |          |
-| loader_minicpm_V_2_6 | sampling=False, no temperature          | FA2       | bfloat16 4-bit | CUDA     |
-| loader_glmv4         | do_sample=False, no temperature         | SDPA      | bfloat16 4-bit | CUDA     |
-| loader_molmo         | Uses GenerationConfig class             | SDPA      | float32 4-bit  | CUDA     |
-| loader_mississippi   | Uses repetition_penalty=1.1             | SDPA      | autoselect     | CUDA     |
-| loader_ovis          | repetition_penalty=1.0, use_cache=True  | SDPA      | autoselect     | CUDA     |
-+----------------------+-----------------------------------------+-----------+----------------+----------+
-"""
-
 warnings.filterwarnings("ignore", message=".*Torch was not compiled with flash attention.*")
 
 ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tif', '.tiff']
@@ -696,3 +679,20 @@ class loader_internvl2_5(BaseLoader):
         )
         
         return response
+
+"""
++----------------------+-----------------------------------------+-----------+----------------+----------+
+| Sub-Class            | Config Details                          | Attention | Precision      | Device   |
++----------------------+-----------------------------------------+-----------+----------------+----------+
+| loader_llava_next    | do_sample=False, no temperature control | SDPA      | float16 4-bit  | CUDA     |
+| loader_moondream     | No generation config (uses answer_      | SDPA      | float16        | CUDA     |
+|                      | question method)                        |           |                |          |
+| loader_florence2     | Comprehensive beam settings, no         | SDPA      | autoselect     | CPU/CUDA |
+|                      | sampling                                |           |                |          |
+| loader_minicpm_V_2_6 | sampling=False, no temperature          | FA2       | bfloat16 4-bit | CUDA     |
+| loader_glmv4         | do_sample=False, no temperature         | SDPA      | bfloat16 4-bit | CUDA     |
+| loader_molmo         | Uses GenerationConfig class             | SDPA      | float32 4-bit  | CUDA     |
+| loader_mississippi   | Uses repetition_penalty=1.1             | SDPA      | autoselect     | CUDA     |
+| loader_ovis          | repetition_penalty=1.0, use_cache=True  | SDPA      | autoselect     | CUDA     |
++----------------------+-----------------------------------------+-----------+----------------+----------+
+"""
