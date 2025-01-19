@@ -2487,7 +2487,7 @@ priority_libs = {
 }
 
 libs = [
-    "accelerate==1.2.1",
+    "accelerate==1.3.0",
     "aiofiles==24.1.0",
     "aiohappyeyeballs==2.4.4",
     "aiohttp==3.11.11", # langchain libraries require <4
@@ -2509,7 +2509,7 @@ libs = [
     "charset-normalizer==3.4.1", # requests requires <4
     "chattts==0.2.1",
     "click==8.1.8",
-    "cloudpickle==3.1.0", # only required by tiledb-cloud and 3+ is only supported by tiledb-cloud 0.13+
+    "cloudpickle==3.1.1", # only required by tiledb-cloud and 3+ is only supported by tiledb-cloud 0.13+
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "contourpy==1.3.1", # onlyk required by matplotlib
@@ -2523,7 +2523,7 @@ libs = [
     "docx2txt==0.8",
     "einops==0.8.0",
     "einx==0.3.0",
-    "emoji==2.14.0",
+    "emoji==2.14.1",
     "encodec==0.1.1",
     "et-xmlfile==1.1.0", # openpyxl requires; caution...openpyxl 3.1.5 (6/28/2024) predates et-xmlfile 2.0.0 (10/25/2024)
     "fastcore==1.7.28", # only required by whisperspeech
@@ -2556,7 +2556,7 @@ libs = [
     "kiwisolver==1.4.8",
     "langchain==0.3.14",
     "langchain-community==0.3.14",
-    "langchain-core==0.3.29",
+    "langchain-core==0.3.30",
     "langchain-huggingface==0.1.2",
     "langchain-text-splitters==0.3.5",
     "langdetect==1.0.9",
@@ -2569,7 +2569,7 @@ libs = [
     "marshmallow==3.25.1",
     "matplotlib==3.10.0", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
     "mdurl==0.1.2",
-    "more-itertools==10.5.0",
+    "more-itertools==10.6.0",
     "mpmath==1.3.0", # sympy 1.12.1 requires less than 1.4
     "msg-parser==1.2.0",
     "multidict==6.1.0",
@@ -2589,13 +2589,13 @@ libs = [
     "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
     "nvidia-ml-py==12.560.30",
     "olefile==0.47",
-    "openai==1.59.7", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai==1.59.8", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
     "optimum==1.23.3",
     "ordered-set==4.1.0",
     "orderly-set==5.2.3", # deepdiff 8.1.1 requires 5.2.3
-    "orjson==3.10.14",
+    "orjson==3.10.15",
     "packaging==24.2",
     "pandas==2.2.3",
     "peft==0.14.0", # only required by mississippi model
@@ -2605,7 +2605,6 @@ libs = [
     "protobuf==5.29.3",
     "psutil==6.1.1",
     "pyarrow==18.1.0",
-    "pyarrow-hotfix==0.6",
     "pybase16384==0.3.7", # only required by chattts
     "pycparser==2.22",
     "pydantic==2.10.5",
@@ -2613,7 +2612,7 @@ libs = [
     "pydantic-settings==2.7.1",
     "Pygments==2.19.1",
     "pypandoc==1.15",
-    "pyparsing==3.2.0",
+    "pyparsing==3.2.1",
     "pypdf==5.1.0",
     "pyreadline3==3.5.4",
     "python-dateutil==2.9.0.post0",
@@ -2666,7 +2665,7 @@ libs = [
     "vocos==0.1.0",
     "watchdog==6.0.0",
     "webdataset==0.2.100", # required by all TTS libraries
-    "wrapt==1.17.1",
+    "wrapt==1.17.2",
     "xlrd==2.0.1",
     "xxhash==3.5.0",
     "yarl==1.18.3", # aiohttp requires <2
