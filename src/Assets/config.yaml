@@ -3,7 +3,8 @@ Compute_Device:
   database_creation: cpu
   database_query: cpu
   gpu_brand: NVIDIA
-EMBEDDING_MODEL_NAME: null
+EMBEDDING_MODEL_DIMENSIONS: null
+EMBEDDING_MODEL_NAME: ''
 Platform_Info:
   os: windows
 Supported_CTranslate2_Quantizations:
@@ -26,14 +27,6 @@ database:
   half: false
   search_term: ''
   similarity: 0.8
-embedding-models:
-  bge:
-    query_instruction: 'Represent this sentence for searching relevant passages:'
-  instructor:
-    embed_instruction: 'Represent the document for retrieval:'
-    query_instruction: 'Represent the question for retrieving supporting documents:'
-  mxbai:
-    query_instruction: 'Represent this sentence for searching relevant passages:'
 server:
   api_key: ''
   connection_str: http://localhost:1234/v1
@@ -53,11 +46,11 @@ transcriber:
   model: whisper-small.en
   quant: float32
 tts:
-  model: whisperspeech
+  model: googletts
   s2a:
   t2s:
 vision:
-  chosen_model: moondream2
+  chosen_model: Florence-2-base
   chosen_quant: float16
   chosen_size: 2b
   flash_attention2: null
