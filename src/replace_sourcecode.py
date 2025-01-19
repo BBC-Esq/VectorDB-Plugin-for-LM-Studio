@@ -3,7 +3,6 @@ from pathlib import Path
 import shutil
 import sys
 import zipfile
-import yaml
 
 class DependencyUpdater:
     def __init__(self):
@@ -198,6 +197,7 @@ def setup_vector_db():
         updater.print_status("ERROR", f"Error extracting zip file: {str(e)}")
 
 def check_embedding_model_dimensions():
+    import yaml
     updater = DependencyUpdater()
     config_path = Path(__file__).parent / "config.yaml"
 
