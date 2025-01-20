@@ -568,6 +568,117 @@ class SpeedometerVisualization(MetricsVisualization):
                 self.power_label.setText(f"GPU Power {avg_power:.1f}%")
 
 
+class ArcGraph(QWidget):
+    def __init__(self, color="#0074D9"):
+        super().__init__()
+        self.color = QColor(color)
+        self.value = 0
+        self.setFixedSize(100, 100)
+
+    def set_value(self, value):
+        self.value = min(100, max(0, value))
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # Calculate dimensions
+        width = self.width()
+        height = self.height()
+        radius = min(width, height) / 2 - 10
+        center = QPointF(width / 2, height / 2)
+
+        # Draw background arc
+        painter.setPen(QPen(QColor("#1e2126"), 8))
+        painter.drawArc(int(center.x() - radius), int(center.y() - radius),
+                       int(radius * 2), int(radius * 2),
+                       180 * 16, -180 * 16)  # Draw from left to right
+
+        # Draw progress arc
+        painter.setPen(QPen(self.color, 8))
+        span_angle = -(self.value / 100.0) * 180  # Convert percentage to degrees
+        painter.drawArc(int(center.x() - radius), int(center.y() - radius),
+                       int(radius * 2), int(radius * 2),
+                       180 * 16, span_angle * 16)  # Start from left side
+
+        # Draw percentage text
+        painter.setPen(Qt.white)
+        font = painter.font()
+        font.setPointSize(14)
+        painter.setFont(font)
+        painter.drawText(self.rect(), Qt.AlignCenter, f"{int(self.value)}%")
+
+class ArcGraphVisualization(MetricsVisualization):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        main_layout = QGridLayout(self)
+        main_layout.setSpacing(1)
+        main_layout.setContentsMargins(1, 1, 1, 1)
+
+        def create_arc_group(name, color):
+            group = QVBoxLayout()
+            group.setSpacing(2)
+            arc = ArcGraph(color=color)
+            group.addWidget(arc, alignment=Qt.AlignCenter)
+            label = QLabel(name)
+            label.setAlignment(Qt.AlignCenter)
+            group.addWidget(label, alignment=Qt.AlignCenter)
+            return group, arc, label
+
+        cpu_group, self.cpu_arc, self.cpu_label = create_arc_group("CPU", "#FF4136")
+        main_layout.addLayout(cpu_group, 0, 0)
+
+        ram_group, self.ram_arc, self.ram_label = create_arc_group("RAM", "#B10DC9")
+        main_layout.addLayout(ram_group, 0, 1)
+
+        if self.has_nvidia_gpu:
+            gpu_group, self.gpu_arc, self.gpu_label = create_arc_group("GPU", "#0074D9")
+            main_layout.addLayout(gpu_group, 0, 2)
+
+            vram_group, self.vram_arc, self.vram_label = create_arc_group("VRAM", "#2ECC40")
+            main_layout.addLayout(vram_group, 0, 3)
+
+            power_group, self.power_arc, self.power_label = create_arc_group("GPU Power", "#FFD700")
+            main_layout.addLayout(power_group, 0, 4)
+
+        for i in range(main_layout.columnCount()):
+            main_layout.setColumnStretch(i, 1)
+
+    def update_metrics(self, metrics: Metrics):
+        self.cpu_buffer.append(metrics.cpu_usage)
+        self.ram_buffer.append(metrics.ram_usage_percent)
+
+        avg_cpu = sum(self.cpu_buffer) / len(self.cpu_buffer)
+        self.cpu_arc.set_value(avg_cpu)
+        self.cpu_label.setText(f"CPU {avg_cpu:.1f}%")
+
+        avg_ram = sum(self.ram_buffer) / len(self.ram_buffer)
+        self.ram_arc.set_value(avg_ram)
+        self.ram_label.setText(f"RAM {avg_ram:.1f}%")
+
+        if self.has_nvidia_gpu:
+            if metrics.gpu_utilization is not None:
+                self.gpu_buffer.append(metrics.gpu_utilization)
+                avg_gpu = sum(self.gpu_buffer) / len(self.gpu_buffer)
+                self.gpu_arc.set_value(avg_gpu)
+                self.gpu_label.setText(f"GPU {avg_gpu:.1f}%")
+
+            if metrics.vram_usage_percent is not None:
+                self.vram_buffer.append(metrics.vram_usage_percent)
+                avg_vram = sum(self.vram_buffer) / len(self.vram_buffer)
+                self.vram_arc.set_value(avg_vram)
+                self.vram_label.setText(f"VRAM {avg_vram:.1f}%")
+
+            if metrics.power_usage_percent is not None:
+                self.power_buffer.append(metrics.power_usage_percent)
+                avg_power = sum(self.power_buffer) / len(self.power_buffer)
+                self.power_arc.set_value(avg_power)
+                self.power_label.setText(f"GPU Power {avg_power:.1f}%")
+
 class MetricsWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -599,8 +710,9 @@ class MetricsWidget(QWidget):
         bar_action = visual_menu.addAction("Bar")
         sparkline_action = visual_menu.addAction("Sparkline")
         speedometer_action = visual_menu.addAction("Speedometer")
+        arc_action = visual_menu.addAction("Arc")
 
-        actions = [bar_action, sparkline_action, speedometer_action]
+        actions = [bar_action, sparkline_action, speedometer_action, arc_action]
         actions[self.current_visualization_type].setCheckable(True)
         actions[self.current_visualization_type].setChecked(True)
 
@@ -617,6 +729,8 @@ class MetricsWidget(QWidget):
             self.change_visualization(1)
         elif action == speedometer_action:
             self.change_visualization(2)
+        elif action == arc_action:
+            self.change_visualization(3)
         elif action == control_action:
             if is_running:
                 self.stop_metrics_collector()
@@ -637,6 +751,8 @@ class MetricsWidget(QWidget):
             self.current_visualization = SparklineVisualization()
         elif index == 2:
             self.current_visualization = SpeedometerVisualization()
+        elif index == 3:
+            self.current_visualization = ArcGraphVisualization()
 
         self.current_visualization.setToolTip("Right click for display options")
         self.layout.addWidget(self.current_visualization)
