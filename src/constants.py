@@ -1,4 +1,4 @@
-jeeves_system_message = "You are a helpful British butler who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address a question you answer based on what the contexts say and then briefly summarize the parts of the question that the contexts didn't provide an answer to.  Also, you should be very respectful to the person asking the question and frequently offer traditional butler services like various fancy drinks, snacks, various butler services like shining of shoes, pressing of suites, and stuff like that. Also, if you can't answer the question at all based on the provided contexts, you should apologize profusely and beg to keep your job.  Lastly, it is essential that if there are no contexts actually provided it means that a user's question wasn't relevant and you should state that you can't answer based off of the contexts because there are none.  And it goes without saying you should refuse to answer any questions that are not directly answerable by the provided contexts.  Moreover, some of the contexts might not have relevant information and you shoud simply ignore them and focus on only answering a user's question.  I cannot emphasize enought that you must gear your answer towards using this program and based your response off of the contexts you receive."
+jeeves_system_message = "You are a helpful British butler who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address a question you answer based on what the contexts say and then briefly summarize the parts of the question that the contexts didn't provide an answer to.  Also, you should be very respectful to the person asking the question and frequently offer traditional butler services like various fancy drinks, snacks, various butler services like shining of shoes, pressing of suites, and stuff like that. Also, if you can't answer the question at all based on the provided contexts, you should apologize profusely and beg to keep your job.  Lastly, it is essential that if there are no contexts actually provided it means that a user's question wasn't relevant and you should state that you can't answer based off of the contexts because there are none.  And it goes without saying you should refuse to answer any questions that are not directly answerable by the provided contexts.  Moreover, some of the contexts might not have relevant information and you should simply ignore them and focus on only answering a user's question.  I cannot emphasize enough that you must gear your answer towards using this program and based your response off of the contexts you receive."
 system_message = "You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."
 rag_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
 
@@ -207,25 +207,6 @@ CHAT_MODELS = {
         # 'precision': 'float32',
         'gated': False,
     },
-}
-
-WHISPER_SPEECH_MODELS = {
-    "s2a": {
-        "s2a-q4-tiny": ("s2a-q4-tiny-en+pl.model", 74),
-        "s2a-q4-base": ("s2a-q4-base-en+pl.model", 203),
-        "s2a-q4-hq-fast": ("s2a-q4-hq-fast-en+pl.model", 380),
-        # "s2a-v1.1-small": ("s2a-v1.1-small-en+pl-noyt.model", 437),
-        # "s2a-q4-small": ("s2a-q4-small-en+pl.model", 874),
-    },
-    "t2s": {
-        "t2s-tiny": ("t2s-tiny-en+pl.model", 74),
-        "t2s-base": ("t2s-base-en+pl.model", 193),
-        "t2s-hq-fast": ("t2s-hq-fast-en+pl.model", 743),
-        # "t2s-fast-small": ("t2s-fast-small-en+pl.model", 743),
-        # "t2s-small": ("t2s-small-en+pl.model", 856),
-        # "t2s-v1.1-small": ("t2s-v1.1-small-en+pl.model", 429),
-        # "t2s-fast-medium": ("t2s-fast-medium-en+pl+yt.model", 1310)
-    }
 }
 
 VECTOR_MODELS = {
@@ -595,6 +576,218 @@ VISION_MODELS = {
     }
 }
 
+TTS_MODELS = {
+    "Kokoro": {
+        "model": "Kokoro",
+        "repo_id": "hexgrad/Kokoro-82M",
+        "save_dir": "hexgrad--Kokoro-82M",
+        "cps": 20.5,
+        "vram": "2GB",
+        "precision": "float32",
+        "gated": False,
+        "allow_patterns": [
+            "voices/**",
+            "config.json",
+            "istftnet.py",
+            "kokoro-v0_19.pth",
+            # "kokoro.py", # using customized source code instead
+            # "models.py", # using customized source code instead
+            "plbert.py"
+        ],
+        "ignore_patterns": [
+            "demo/**",
+            "fp16/**",
+            ".gitattributes",
+            "kokoro-v0_19.onnx",
+            "kokoro.py", # using customized source code instead
+            "models.py", # using customized source code instead
+        ]
+    },
+    "Bark - Normal": {
+        "model": "Bark - Normal", 
+        "repo_id": "suno/bark",
+        "save_dir": "tts",
+        "cps": 18.2,
+        "vram": "4GB",
+        "precision": "float32",
+        "gated": False,
+        "allow_patterns": [
+            "voices/**",
+            "config.json",
+            "istftnet.py",
+            "kokoro-v0_19.pth",
+            # "kokoro.py", # using custom source code
+            # "models.py", # using custom source code
+            "plbert.py"
+        ],
+        "ignore_patterns": [
+            "demo/**",
+            "fp16/**",
+            ".gitattributes",
+            "kokoro-v0_19.onnx",
+            "kokoro.py", # using custom source code
+            "models.py", # using custom source code
+        ]
+    },
+    "Bark - Small": {
+        "model": "Bark - Small", 
+        "repo_id": "suno/bark-small",
+        "save_dir": "tts",
+        "cps": 18.2,
+        "vram": "4GB",
+        "precision": "float32",
+        "gated": False,
+        "allow_patterns": [
+            "voices/**",
+            "config.json",
+            "istftnet.py",
+            "kokoro-v0_19.pth",
+            # "kokoro.py", # using custom source code
+            # "models.py", # using custom source code
+            "plbert.py"
+        ],
+        "ignore_patterns": [
+            "demo/**",
+            "fp16/**",
+            ".gitattributes",
+            "kokoro-v0_19.onnx",
+            "kokoro.py", # using custom source code
+            "models.py", # using custom source code
+        ]
+    },
+    "WhisperSpeech": {
+        "model": "WhisperSpeech", 
+        "repo_id": "WhisperSpeech/WhisperSpeech",
+        "save_dir": "tts",
+        "cps": 18.2,
+        "vram": "4GB",
+        "precision": "fp32",
+        "gated": False,
+        "allow_patterns": [
+            "voices/**",
+            "config.json",
+            "istftnet.py",
+            "kokoro-v0_19.pth",
+            # "kokoro.py", # using custom source code
+            # "models.py", # using custom source code
+            "plbert.py"
+        ],
+        "ignore_patterns": [
+            "demo/**",
+            "fp16/**",
+            ".gitattributes",
+            "kokoro-v0_19.onnx",
+            "kokoro.py", # using custom source code
+            "models.py", # using custom source code
+        ]
+    },
+    "ChatTTS": {
+        "model": "ChatTTS", 
+        "repo_id": "2Noise/ChatTTS",
+        "save_dir": "tts",
+        "cps": 18.2,
+        "vram": "4GB",
+        "precision": "fp32",
+        "gated": False,
+        "allow_patterns": [
+            "asset/**",
+            "config/**",
+        ],
+        "ignore_patterns": [
+            "demo/**",
+            "fp16/**",
+            ".gitattributes",
+            "kokoro-v0_19.onnx",
+            "kokoro.py", # using custom source code
+            "models.py", # using custom source code
+        ]
+    },
+}
+
+JEEVES_MODELS = {
+    "EXAONE - 2.4b Q8_0": {
+        "filename": "EXAONE-3.5-2.4B-Instruct-Q8_0.gguf",
+        "repo_id": "bartowski/EXAONE-3.5-2.4B-Instruct-GGUF",
+        "allow_patterns": ["EXAONE-3.5-2.4B-Instruct-Q8_0.gguf"],
+        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
+[|user|]{user_message}
+[|endofturn|]
+[|assistant|]"""
+    },
+    "Llama - 3b Q8_0": {
+        "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+        "repo_id": "lmstudio-community/Llama-3.2-3B-Instruct-GGUF",
+        "allow_patterns": ["Llama-3.2-3B-Instruct-Q8_0.gguf"],
+        "prompt_template": """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+Cutting Knowledge Date: December 2023
+{jeeves_system_message}<|eot_id|>
+<|start_header_id|>user<|end_header_id|>
+{user_message}<|eot_id|>
+<|start_header_id|>assistant<|end_header_id|>"""
+    },
+    "Qwen - 3b Q8_0": {
+        "filename": "Qwen2.5-3B-Instruct-Q8_0.gguf",
+        "repo_id": "bartowski/Qwen2.5-3B-Instruct-GGUF",
+        "allow_patterns": ["Qwen2.5-3B-Instruct-Q8_0.gguf"],
+        "prompt_template": """<|im_start|>system
+{jeeves_system_message}<|im_end|>
+<|im_start|>user
+{user_message}<|im_end|>
+<|im_start|>assistant
+"""
+    },
+    "Zephyr - 3b Q8_0": {
+        "filename": "stablelm-zephyr-3b-q8_0.gguf",
+        "repo_id": "ysn-rfd/stablelm-zephyr-3b-Q8_0-GGUF",
+        "allow_patterns": ["stablelm-zephyr-3b-q8_0.gguf"],
+        "prompt_template": """<|system|>
+{jeeves_system_message}<|endoftext|>
+<|user|>
+{user_message}<|endoftext|>
+<|assistant|>
+"""
+    },
+    "EXAONE - 7.8b Q4_K_M": {
+        "filename": "EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf",
+        "repo_id": "bartowski/EXAONE-3.5-7.8B-Instruct-GGUF",
+        "allow_patterns": ["EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf"],
+        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
+[|user|]{user_message}
+[|endofturn|]
+[|assistant|]"""
+    },
+    # "InternLM 3 - 8b Q4_K_M": {
+        # "filename": "internlm3-8b-instruct-q4_k_m.gguf",
+        # "repo_id": "internlm/internlm3-8b-instruct-gguf",
+        # "allow_patterns": ["internlm3-8b-instruct-q4_k_m.gguf"],
+        # "prompt_template": """<s><|im_start|>system
+# {jeeves_system_message}<|im_end|>
+# <|im_start|>user
+# {user_message}<|im_end|>
+# <|im_start|>assistant
+# """
+    # },
+}
+
+WHISPER_SPEECH_MODELS = {
+    "s2a": {
+        "s2a-q4-tiny": ("s2a-q4-tiny-en+pl.model", 74),
+        "s2a-q4-base": ("s2a-q4-base-en+pl.model", 203),
+        "s2a-q4-hq-fast": ("s2a-q4-hq-fast-en+pl.model", 380),
+        # "s2a-v1.1-small": ("s2a-v1.1-small-en+pl-noyt.model", 437),
+        # "s2a-q4-small": ("s2a-q4-small-en+pl.model", 874),
+    },
+    "t2s": {
+        "t2s-tiny": ("t2s-tiny-en+pl.model", 74),
+        "t2s-base": ("t2s-base-en+pl.model", 193),
+        "t2s-hq-fast": ("t2s-hq-fast-en+pl.model", 743),
+        # "t2s-fast-small": ("t2s-fast-small-en+pl.model", 743),
+        # "t2s-small": ("t2s-small-en+pl.model", 856),
+        # "t2s-v1.1-small": ("t2s-v1.1-small-en+pl.model", 429),
+        # "t2s-fast-medium": ("t2s-fast-medium-en+pl+yt.model", 1310)
+    }
+}
+
 WHISPER_MODELS = {
     # LARGE-V3
     'Distil Whisper large-v3 - float32': {
@@ -795,71 +988,6 @@ WHISPER_MODELS = {
     },
 }
 
-JEEVES_MODELS = {
-    "EXAONE - 2.4b Q8_0": {
-        "filename": "EXAONE-3.5-2.4B-Instruct-Q8_0.gguf",
-        "repo_id": "bartowski/EXAONE-3.5-2.4B-Instruct-GGUF",
-        "allow_patterns": ["EXAONE-3.5-2.4B-Instruct-Q8_0.gguf"],
-        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
-[|user|]{user_message}
-[|endofturn|]
-[|assistant|]"""
-    },
-    "Llama - 3b Q8_0": {
-        "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
-        "repo_id": "lmstudio-community/Llama-3.2-3B-Instruct-GGUF",
-        "allow_patterns": ["Llama-3.2-3B-Instruct-Q8_0.gguf"],
-        "prompt_template": """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-Cutting Knowledge Date: December 2023
-{jeeves_system_message}<|eot_id|>
-<|start_header_id|>user<|end_header_id|>
-{user_message}<|eot_id|>
-<|start_header_id|>assistant<|end_header_id|>"""
-    },
-    "Qwen - 3b Q8_0": {
-        "filename": "Qwen2.5-3B-Instruct-Q8_0.gguf",
-        "repo_id": "bartowski/Qwen2.5-3B-Instruct-GGUF",
-        "allow_patterns": ["Qwen2.5-3B-Instruct-Q8_0.gguf"],
-        "prompt_template": """<|im_start|>system
-{jeeves_system_message}<|im_end|>
-<|im_start|>user
-{user_message}<|im_end|>
-<|im_start|>assistant
-"""
-    },
-    "Zephyr - 3b Q8_0": {
-        "filename": "stablelm-zephyr-3b-q8_0.gguf",
-        "repo_id": "ysn-rfd/stablelm-zephyr-3b-Q8_0-GGUF",
-        "allow_patterns": ["stablelm-zephyr-3b-q8_0.gguf"],
-        "prompt_template": """<|system|>
-{jeeves_system_message}<|endoftext|>
-<|user|>
-{user_message}<|endoftext|>
-<|assistant|>
-"""
-    },
-    "EXAONE - 7.8b Q4_K_M": {
-        "filename": "EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf",
-        "repo_id": "bartowski/EXAONE-3.5-7.8B-Instruct-GGUF",
-        "allow_patterns": ["EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf"],
-        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
-[|user|]{user_message}
-[|endofturn|]
-[|assistant|]"""
-    },
-    # "InternLM 3 - 8b Q4_K_M": {
-        # "filename": "internlm3-8b-instruct-q4_k_m.gguf",
-        # "repo_id": "internlm/internlm3-8b-instruct-gguf",
-        # "allow_patterns": ["internlm3-8b-instruct-q4_k_m.gguf"],
-        # "prompt_template": """<s><|im_start|>system
-# {jeeves_system_message}<|im_end|>
-# <|im_start|>user
-# {user_message}<|im_end|>
-# <|im_start|>assistant
-# """
-    # },
-}
-
 kobold_config = {
   "benchmark": None,
   "blasbatchsize": 512,
@@ -931,7 +1059,8 @@ kobold_config = {
 }
 
 DOCUMENT_LOADERS = {
-    ".pdf": "PyMuPDFLoader",
+    # ".pdf": "PyMuPDFLoader",
+    ".pdf": "CustomPyMuPDFLoader",
     ".docx": "Docx2txtLoader",
     ".txt": "TextLoader",
     ".enex": "EverNoteLoader",
@@ -1323,7 +1452,8 @@ scrape_documentation = {
     },
     "PyMuPDF": {
         "URL": "https://pymupdf.readthedocs.io/en/latest/",
-        "folder": "pymupdf"
+        "folder": "pymupdf",
+        "scraper_class": "PyMuScraper"
     },
     "PyPDF 5.1.0": {
         "URL": "https://pypdf.readthedocs.io/en/5.1.0/",
@@ -2500,11 +2630,11 @@ libs = [
     "anyio==4.8.0",
     "array_api_compat==1.10.0", # only anndata requires
     "async-timeout==5.0.1",
-    "attrs==24.3.0",
-    "av==14.0.1",
+    "attrs==25.1.0",
+    "av==14.1.0",
     "backoff==2.2.1",
     "beautifulsoup4==4.12.3",
-    "bitsandbytes==0.45.0",
+    "bitsandbytes==0.45.1",
     "braceexpand==0.1.7",
     "certifi==2024.12.14",
     "cffi==1.17.1",
@@ -2532,8 +2662,8 @@ libs = [
     "fastcore==1.7.28", # only required by whisperspeech
     "fastprogress==1.0.3", # only required by whisperspeech
     "filetype==1.2.0",
-    "filelock==3.16.1",
-    "fonttools==4.55.3", # only required by matplotlib
+    "filelock==3.17.0",
+    "fonttools==4.55.6", # only required by matplotlib
     "frozendict==2.4.6",
     "frozenlist==1.5.0",
     "fsspec==2024.9.0", # datasets 3.2.0 requires <=2024.9.0
@@ -2548,7 +2678,7 @@ libs = [
     "humanfriendly==10.0",
     "HyperPyYAML==1.2.2",
     "idna==3.10",
-    "importlib_metadata==8.5.0",
+    "importlib_metadata==8.6.1",
     "InstructorEmbedding==1.0.1",
     "Jinja2==3.1.5",
     "jiter==0.8.2", # required by openai newer versions
@@ -2557,19 +2687,19 @@ libs = [
     "jsonpath-python==1.0.6",
     "jsonpointer==3.0.0",
     "kiwisolver==1.4.8",
-    "langchain==0.3.14",
+    "langchain==0.3.15",
     "langchain-community==0.3.14",
-    "langchain-core==0.3.30",
+    "langchain-core==0.3.31",
     "langchain-huggingface==0.1.2",
     "langchain-text-splitters==0.3.5",
     "langdetect==1.0.9",
     "langsmith==0.2.10",
-    "llvmlite==0.43.0", # only required by numba
+    "llvmlite==0.44.0", # only required by numba
     "lxml==5.3.0",
     "Markdown==3.7",
     "markdown-it-py==3.0.0",
     "MarkupSafe==3.0.2",
-    "marshmallow==3.25.1",
+    "marshmallow==3.26.0",
     "matplotlib==3.10.0", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
     "mdurl==0.1.2",
     "more-itertools==10.6.0",
@@ -2582,7 +2712,7 @@ libs = [
     "nest-asyncio==1.6.0",
     "networkx==3.4.2",
     "nltk==3.8.1", # not higher; gives unexplained error
-    "numba==0.60.0", # only required by openai-whisper
+    "numba==0.61.0", # only required by openai-whisper
     "numpy==1.26.4", # langchain libraries <2; numba <2.1; scipy <2.3; chattts <2.0.0
     "nvidia-cuda-runtime-cu12==12.4.127", # Torch 2.5.1 official support (based on CUDA 12.4.1)
     "nvidia-cublas-cu12==12.4.5.8", # Torch 2.5.1 official support (based on CUDA 12.4.1)
@@ -2590,9 +2720,9 @@ libs = [
     "nvidia-cuda-nvcc-cu12==12.4.131", # Torch 2.5.1 official support (based on CUDA 12.4.1) 
     "nvidia-cufft-cu12==11.2.1.3", # Torch 2.5.1 official support (based on CUDA 12.4.1)
     "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
-    "nvidia-ml-py==12.560.30",
+    "nvidia-ml-py==12.570.86",
     "olefile==0.47",
-    "openai==1.59.8", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai==1.60.1", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
     "optimum==1.23.3",
@@ -2607,16 +2737,16 @@ libs = [
     "propcache==0.2.1",
     "protobuf==5.29.3",
     "psutil==6.1.1",
-    "pyarrow==18.1.0",
+    "pyarrow==19.0.0",
     "pybase16384==0.3.7", # only required by chattts
     "pycparser==2.22",
-    "pydantic==2.10.5",
+    "pydantic==2.10.6",
     "pydantic_core==2.27.2",
     "pydantic-settings==2.7.1",
     "Pygments==2.19.1",
     "pypandoc==1.15",
     "pyparsing==3.2.1",
-    "pypdf==5.1.0",
+    "pypdf==5.2.0",
     "pyreadline3==3.5.4",
     "python-dateutil==2.9.0.post0",
     "python-docx==1.1.2",
@@ -2635,34 +2765,34 @@ libs = [
     "safetensors==0.5.2",
     "scikit-learn==1.6.1",
     "scipy==1.14.1", # 1.15.0 has possible breaking changes
-    "sentence-transformers==3.3.1",
+    "sentence-transformers==3.4.0",
     "sentencepiece==0.2.0",
     "six==1.17.0",
     "sniffio==1.3.1",
     "sounddevice==0.5.1",
-    "soundfile==0.13.0",
+    "soundfile==0.13.1",
     "soupsieve==2.6",
     "speechbrain==0.5.16",
     "SQLAlchemy==2.0.37", # langchain and langchain-community require less than 3.0.0
     "sseclient-py==1.8.0",
-    "sympy==1.13.1", # torch 2.5.1 requires sympy==1.13.1
+    "sympy==1.13.3", # torch 2.5.1 requires sympy==1.13.1
     "tabulate==0.9.0",
     "tblib==1.7.0", # tiledb-cloud requires >= 1.7.0 but < 1.8.0
     "tenacity==9.0.0",
     "termcolor==2.5.0",
     "threadpoolctl==3.5.0",
     "tiktoken==0.8.0",
-    "tiledb==0.33.2",
+    "tiledb==0.33.3",
     "tiledb-cloud==0.13.0",
     "tiledb-vector-search==0.11.0",
-    "timm==1.0.13",
+    "timm==1.0.14",
     "tokenizers==0.21.0",
     "tqdm==4.67.1",
-    "transformers==4.48.0",
+    "transformers==4.48.1",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
     "unstructured-client==0.24.1",
-    "tzdata==2024.2",
+    "tzdata==2025.1",
     "urllib3==2.3.0", # requests 2.32.3 requires <3
     "vector-quantize-pytorch==1.21.2",
     "vocos==0.1.0",
@@ -2677,7 +2807,7 @@ libs = [
 
 full_install_libs = [
     "PySide6==6.8.1",
-    "pymupdf==1.25.1",
+    "pymupdf==1.25.2",
     "unstructured==0.13.4"
 ]
 

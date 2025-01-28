@@ -5,7 +5,6 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from replace_sourcecode import (
-    replace_pdf_file,
     replace_instructor_file,
     replace_sentence_transformer_file,
     replace_chattts_file,
@@ -238,7 +237,6 @@ if all_failed:
     sys.exit(1)
 
 # 6. replace sourcode files
-replace_pdf_file()
 replace_instructor_file()
 replace_sentence_transformer_file()
 replace_chattts_file()

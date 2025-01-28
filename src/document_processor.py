@@ -1,4 +1,4 @@
-# compatible with langchain 0.3+
+# compatible with langchain 0.3.15
 
 import os
 import logging
@@ -24,14 +24,21 @@ from langchain_community.document_loaders import (
     BSHTMLLoader
 )
 
+from typing import Optional, Any, Iterator, Union
+from pathlib import PurePath
+from langchain_community.document_loaders.blob_loaders import Blob
+
+from langchain_community.document_loaders.parsers import PyMuPDFParser
+import pymupdf # throws error if imported before langchain stuff
+
 from constants import DOCUMENT_LOADERS
 from extract_metadata import extract_document_metadata, add_pymupdf_page_metadata
 
 logging.basicConfig(
-    level=logging.ERROR,  # Only log errors
+    level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('document_processor.log', mode='w')  # 'w' mode overwrites the file
+        logging.FileHandler('document_processor.log', mode='w')
     ]
 )
 
@@ -41,6 +48,30 @@ warnings.filterwarnings("ignore", category=UserWarning)
 ROOT_DIRECTORY = Path(__file__).parent
 SOURCE_DIRECTORY = ROOT_DIRECTORY / "Docs_for_DB"
 INGEST_THREADS = max(4, os.cpu_count() - 4)
+
+class CustomPyMuPDFParser(PyMuPDFParser):
+    def _lazy_parse(self, blob: Blob, text_kwargs: Optional[dict[str, Any]] = None) -> Iterator[Document]:
+        with PyMuPDFParser._lock:
+            with blob.as_bytes_io() as file_path:
+                doc = pymupdf.open(stream=file_path, filetype="pdf") if blob.data else pymupdf.open(file_path)
+                
+                full_content = []
+                for page in doc:
+                    page_content = self._get_page_content(doc, page, text_kwargs)
+                    full_content.append(f"[[page{page.number + 1}]]{page_content}")
+                
+                yield Document(
+                    page_content="".join(full_content),
+                    metadata=self._extract_metadata(doc, blob)
+                )
+
+class CustomPyMuPDFLoader(PyMuPDFLoader):
+    def __init__(self, file_path: Union[str, PurePath], **kwargs: Any) -> None:
+        super().__init__(file_path, **kwargs)
+        self.parser = CustomPyMuPDFParser(
+            text_kwargs=kwargs.get('text_kwargs'),
+            extract_images=kwargs.get('extract_images', False)
+        )
 
 for ext, loader_name in DOCUMENT_LOADERS.items():
     DOCUMENT_LOADERS[ext] = globals()[loader_name]
@@ -62,6 +93,13 @@ def load_single_document(file_path: Path) -> Document:
                 "strategy": "fast"
             }
         })
+
+    elif file_extension == ".pdf":
+        loader_options.update({
+            "extract_images": False,
+            "text_kwargs": {},  # Optional: passed to https://pymupdf.readthedocs.io/en/latest/page.html#Page.get_text
+        })
+
     elif file_extension in [".eml", ".msg"]:
         loader_options.update({
             "mode": "single",
@@ -185,7 +223,7 @@ def split_documents(documents=None, text_documents_pdf=None):
 
         # split PDF document objects
         """
-        customizes langchain's pymupdfparser to add custom page markers in the following format:
+        I customized langchain's pymupdfparser to add custom page markers as follows:
         
         [[page1]]This is the text content of the first page.
         It might contain multiple lines, paragraphs, or sections.
@@ -209,3 +247,49 @@ def split_documents(documents=None, text_documents_pdf=None):
             logging.exception("Error during document splitting")
             logging.error(f"Error type: {type(e)}")
             raise
+
+"""
+Select notes regarding changes to PyMuPDF loading and parsing in langchain-community 0.3.15+
+
+- Adds "producer" and "creator" metadata fields
+- Adds thread safety features
+- Adds support for encrypted PDFs, tables, and enhanced image extraction
+- Added configurable page handling modes
+
++----------------------+---------------------------+---------------+-----------+
+| Parameter            | Available Options         | Default Value | Required? |
++----------------------+---------------------------+---------------+-----------+
+| mode                 | "single", "page"          | "page"        | No        |
++----------------------+---------------------------+---------------+-----------+
+| password            | Any string                 | None          | No        |
++----------------------+---------------------------+---------------+-----------+
+| pages_delimiter     | Any string                 | "\n\f"        | No        |
++----------------------+---------------------------+---------------+-----------+
+| extract_images      | True, False                | False         | No        |
++----------------------+---------------------------+---------------+-----------+
+| images_parser       | BaseImageBlobParser obj    | None          | No        |
++----------------------+---------------------------+---------------+-----------+
+| images_inner_format | "text"                     | "text"        | No        |
+|                     | "markdown-img"             |               |           |
+|                     | "html-img"                 |               |           |
++----------------------+---------------------------+---------------+-----------+
+| extract_tables      | "csv"                      | None          | No        |
+|                     | "markdown"                 |               |           |
+|                     | "html"                     |               |           |
+|                     | None                       |               |           |
++----------------------+---------------------------+---------------+-----------+
+| extract_tables      | Dictionary with settings   | None          | No        |
+| _settings           | for table extraction       |               |           |
++----------------------+---------------------------+---------------+-----------+
+| text_kwargs         | Dictionary with text       | None          | No        |
+| (Parser only)       | extraction settings        |               |           |
++----------------------+---------------------------+---------------+-----------+
+
+Regarding the additional metadata fields, this won't interfere with your extract_metadata.py because it:
+
+1) Applies after the document is loaded; and
+2) Uses document.metadata.update(metadata), which means that it will either:
+
+* Add your metadata fields alongside the Langchain metadata; or
+* Override any duplicate fields with your values
+"""
