@@ -113,11 +113,11 @@ class BarkAudio(BaseAudio):
             cache_dir=CACHE_DIR,
             # attn_implementation="flash_attention_2"
         ).to(self.device)
-        
+
         self.model.eval()
         
         my_cprint("Bark model loaded (float16)", "green")
-        
+
         # self.model = self.model.to_bettertransformer()
 
     @torch.inference_mode()
@@ -129,7 +129,7 @@ class BarkAudio(BaseAudio):
                     inputs = self.processor(text=sentence, voice_preset=self.config['speaker'], return_tensors="pt")
                     inputs = {k: v.to(self.device) if hasattr(v, 'to') else v 
                             for k, v in inputs.items()}
-                    
+
                     speech_output = self.model.generate(
                         **inputs,
                         use_cache=True,
@@ -139,7 +139,7 @@ class BarkAudio(BaseAudio):
                         # top_p=0.95,
                         pad_token_id=0,
                     )
-                    
+
                     audio_array = speech_output[0].cpu().numpy()
                     audio_array = np.int16(audio_array / np.max(np.abs(audio_array)) * 32767)
                     self.audio_queue.put((audio_array, self.model.generation_config.sample_rate))
@@ -162,12 +162,12 @@ class WhisperSpeechAudio(BaseAudio):
         
         t2s_model = self.config.get('t2s', 't2s-base-en+pl.model')
         t2s = f"collabora/whisperspeech:{t2s_model}"
-        
+
         return s2a, t2s
 
     def initialize_model(self):
         s2a, t2s = self.get_whisper_speech_models()
-        
+
         try:
             self.pipe = Pipeline(
                 s2a_ref=s2a,
@@ -202,21 +202,21 @@ class WhisperSpeechAudio(BaseAudio):
 
 class ChatTTSAudio(BaseAudio):
     """
-    +----------------+------------------+------------------------+---------------+--------------+
-    | Source         | Parameters       | Behavior             | Repo Structure? | Verify Hash? |
-    +----------------+------------------+------------------------+---------------+--------------+
-    | "huggingface"  | (default)        | ~/.cache/huggingface | No              | Yes          |
-    | "huggingface"  | cache_dir="path" | Downloads to path    | No              | Yes          |
-    | "huggingface"  | local_dir="path" | Downloads to path    | Yes             | No           |
-    +----------------+------------------+----------------------+-----------------+--------------+
-    | "local"        | (default)        | Current directory    | No              | Yes          |
-    | "local"        | cache_dir="path" | Downloads to path    | No              | Yes          |
-    | "local"        | local_dir="path" | Downloads to path    | Yes             | No           |
-    +----------------+------------------+----------------------+-----------------+--------------+
-    | "custom"       | custom_path      | Uses existing files  | n/a             | Yes          |
-    | "custom"       | +cache_dir       | cache_dir ignored    | n/a             | Yes          |
-    | "custom"       | +local_dir       | local_dir ignored    | n/a             | Yes          |
-    +----------------+------------------+----------------------+-----------------+--------------+
+    +----------------+------------------+------------------------+---------------+
+    | Source         | Parameters       | Behavior             | Repo Structure? |
+    +----------------+------------------+------------------------+---------------+
+    | "huggingface"  | (default)        | ~/.cache/huggingface | No              |
+    | "huggingface"  | cache_dir="path" | Downloads to path    | No              |
+    | "huggingface"  | local_dir="path" | Downloads to path    | Yes             |
+    +----------------+------------------+----------------------+-----------------+
+    | "local"        | (default)        | Current directory    | No              |
+    | "local"        | cache_dir="path" | Downloads to path    | No              |
+    | "local"        | local_dir="path" | Downloads to path    | Yes             |
+    +----------------+------------------+----------------------+-----------------+
+    | "custom"       | custom_path      | Uses existing files  | n/a             |
+    | "custom"       | +cache_dir       | cache_dir ignored    | n/a             |
+    | "custom"       | +local_dir       | local_dir ignored    | n/a             |
+    +----------------+------------------+----------------------+-----------------+
 
     1. `local_dir` takes precedence over everything else:
     ```python
@@ -277,26 +277,24 @@ class ChatTTSAudio(BaseAudio):
         for sentence in sentences:
             if not sentence or not sentence.strip():
                 continue
-                
+
             print(f"Processing sentence: {sentence}")
             try:
                 wavs = self.chat.infer(
                     sentence,
                     params_refine_text=self.params_refine_text,
-                    params_infer_code=self.params_infer_code
+                    params_infer_code=self.params_infer_code,
+                    split_text=False # new in version 0.2.2
                 )
-                
-                # Handle the output without checking array truth value
+
                 if wavs is not None and len(wavs) > 0:
                     audio_data = wavs[0]
                     if isinstance(audio_data, torch.Tensor):
                         audio_data = audio_data.cpu().numpy()
                     audio_data = audio_data.squeeze()
-                    
-                    # Check array size using numpy methods
+
                     if np.prod(audio_data.shape) > 0:
                         print(f"Audio data shape: {audio_data.shape}")
-                        # Normalize if needed
                         if np.abs(audio_data).max() > 1.0:
                             audio_data = audio_data / np.abs(audio_data).max()
                         print(f"Audio range: [{audio_data.min():.3f}, {audio_data.max():.3f}]")
@@ -307,7 +305,7 @@ class ChatTTSAudio(BaseAudio):
                 import traceback
                 print(traceback.format_exc())
                 continue
-        
+
         print("Text processing complete, sending end signal")
         self.audio_queue.put(None)
 
@@ -367,17 +365,17 @@ class GoogleTTSAudio:
 
         processed_text = self.preprocess_text(text)
         tokens = self.tokenize_and_minimize(processed_text)
-        
+
         all_audio_data = []
         samplerate = None
         for token in tokens:
             if token.strip():
                 print(f"Processing token: '{token}'")
                 fp = io.BytesIO()
-                
+
                 if token.startswith("<continue>"):
                     token = token[10:].strip()
-                
+
                 tts = gTTS(text=token, lang=self.lang, slow=self.slow, tld=self.tld)
                 tts.write_to_fp(fp)
                 fp.seek(0)
@@ -419,10 +417,10 @@ class GoogleTTSAudio:
                             minimized_tokens.append(word)
                     else:
                         current_chunk += " " + word
-                
+
                 if current_chunk:
                     minimized_tokens.append(current_chunk.strip())
-        
+
         return minimized_tokens
 
     def trim_silence(self, audio, samplerate):
@@ -441,10 +439,10 @@ class GoogleTTSAudio:
 
         for i in range(0, len(silent_regions) - 1, 2):
             silence_start, silence_end = silent_regions[i], silent_regions[i + 1]
-            
+
             # Trim silence at the beginning of the chunk
             chunk_start = max(start, silence_start - max_silence_samples)
-            
+
             # Trim silence at the end of the chunk
             chunk_end = min(silence_end, silence_start + max_silence_samples)
             
@@ -460,7 +458,7 @@ def run_tts(config_path, input_text_file):
     with open(config_path, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
         tts_model = config.get('tts', {}).get('model', 'bark')
-    
+
     if tts_model == 'bark':
         audio_class = BarkAudio()
     elif tts_model == 'whisperspeech':
@@ -469,7 +467,9 @@ def run_tts(config_path, input_text_file):
         audio_class = ChatTTSAudio()
     elif tts_model == 'googletts':
         audio_class = GoogleTTSAudio()
+    elif tts_model == 'kokoro':
+        audio_class = KokoroAudio()
     else:
         raise ValueError(f"Invalid TTS model specified in config.yaml: {tts_model}")
-    
+
     audio_class.run(input_text_file)
