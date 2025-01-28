@@ -285,6 +285,8 @@ Select notes regarding changes to PyMuPDF loading and parsing in langchain-commu
 | (Parser only)       | extraction settings        |               |           |
 +----------------------+---------------------------+---------------+-----------+
 
+This table is ONLY RELEVANT if I do not use custom sub-classes, but good for possible future reference
+
 Regarding the additional metadata fields, this won't interfere with your extract_metadata.py because it:
 
 1) Applies after the document is loaded; and
