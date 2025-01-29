@@ -3,6 +3,8 @@ import subprocess
 import platform
 import signal
 import os
+import re
+
 import time
 import atexit
 from pathlib import Path
@@ -18,7 +20,7 @@ import requests
 import sseclient
 from huggingface_hub import snapshot_download
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QSizePolicy,
+    QMainWindow, QWidget, QVBoxLayout, QSizePolicy, QComboBox, QDoubleSpinBox,
     QTextEdit, QLineEdit, QMessageBox, QVBoxLayout, QPushButton,
     QLabel, QCommandLinkButton, QHBoxLayout, QApplication, QProgressDialog
 )
@@ -35,6 +37,8 @@ from constants import (
     CustomButtonStyles,
 )
 
+from module_kokoro import KokoroTTS
+from utilities import normalize_chat_text
 
 def cleanup_existing_processes():
     try:
@@ -307,15 +311,44 @@ class ChatWindow(QMainWindow):
         self.chat_display.setPlainText("Hello, my name is Jeeves. Thank you for the job opportunity! Ask me how to use this program.")
         self.layout.addWidget(self.chat_display, 4)
 
-        # Setup input field
         self.input_field = QLineEdit()
         self.input_field.setFixedHeight(40)
         self.input_field.setPlaceholderText("Type your message here...")
         self.input_field.returnPressed.connect(self.send_message)
         self.input_field.textChanged.connect(self.debounce_update)
-        self.layout.addWidget(self.input_field)
 
-        # Replace the suggestion buttons section with this:
+        input_row_layout = QHBoxLayout()
+
+        input_row_layout.addWidget(self.input_field, stretch=4)
+
+        self.speak_button = QPushButton("Speak Response")
+        self.speak_button.setEnabled(False)
+        self.speak_button.setFixedHeight(40)
+        self.speak_button.clicked.connect(self.speak_response)
+        self.speak_button.setStyleSheet(CustomButtonStyles.TEAL_BUTTON_STYLE)
+        input_row_layout.addWidget(self.speak_button)
+
+        self.voice_select = QComboBox()
+        self.voice_select.setEnabled(False)
+        self.voice_select.addItems(['bm_george', 'bm_lewis', 'bf_isabella', 'af'])
+        self.voice_select.setCurrentText('bm_george')
+        self.voice_select.setFixedHeight(40)
+        input_row_layout.addWidget(self.voice_select)
+
+        self.speed_control = QComboBox()
+        self.speed_control.setEnabled(False)
+        self.speed_mapping = {
+            'Slow': 1.0,
+            'Medium': 1.3,
+            'Fast': 1.6
+        }
+        self.speed_control.addItems(list(self.speed_mapping.keys()))
+        self.speed_control.setCurrentText('Medium')
+        self.speed_control.setFixedHeight(40)
+        input_row_layout.addWidget(self.speed_control)
+
+        self.layout.addLayout(input_row_layout)
+
         self.suggestion_widget = QWidget()
         self.suggestion_widget.setMinimumHeight(100)
         self.suggestion_layout = QVBoxLayout(self.suggestion_widget)
@@ -329,7 +362,7 @@ class ChatWindow(QMainWindow):
             btn.setStyleSheet(CustomButtonStyles.TEAL_BUTTON_STYLE)
 
             btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            btn.setMinimumSize(200, 35)  # Set minimum size explicitly
+            btn.setMinimumSize(200, 35)
 
             btn.clicked.connect(self.on_suggestion_clicked)
             btn.setStyleSheet("text-align: left; padding: 1px 14px;")
@@ -340,7 +373,6 @@ class ChatWindow(QMainWindow):
         self.suggestion_layout.addStretch()
         self.layout.addWidget(self.suggestion_widget)
 
-        # Timer setup for debounce
         self.timer = QTimer()
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self._delayed_update)
@@ -351,6 +383,16 @@ class ChatWindow(QMainWindow):
         self.llm_is_active = False
         self.api_url = "http://localhost:5001/api/extra/generate/stream"
         self.vector_db = QueryVectorDB(selected_database="user_manual")
+
+        try:
+            tts_path = Path(__file__).parent / "Models" / "tts" / "ctranslate2-4you--Kokoro-82M-light"
+            self.tts = KokoroTTS(repo_path=str(tts_path))
+            self.speak_button.setEnabled(True)
+            self.voice_select.setEnabled(True)
+            self.speed_control.setEnabled(True)
+        except Exception:
+            self.tts = None
+
         self.initialize()
 
     def showEvent(self, event):
@@ -369,9 +411,8 @@ class ChatWindow(QMainWindow):
             sizeof(true_bool)
         )
 
-        # Make window border black (Windows 11+)
         DWMWA_BORDER_COLOR = DWORD(34)
-        black_color = c_int(0xFF000000)  # ABGR = 0xAARRGGBB => FF 00 00 00 = fully opaque black
+        black_color = c_int(0xFF000000)
         set_window_attribute(
             hwnd,
             DWMWA_BORDER_COLOR,
@@ -387,8 +428,7 @@ class ChatWindow(QMainWindow):
         similarities = np.dot(self.question_embeddings, input_embedding) / (
             np.linalg.norm(self.question_embeddings, axis=1) * np.linalg.norm(input_embedding)
         )
-        
-        # Get indices of top_k similar questions
+
         top_indices = similarities.argsort()[-top_k:][::-1]
         top_similarities = similarities[top_indices]
         
@@ -475,7 +515,7 @@ class ChatWindow(QMainWindow):
             if kill_existing:
                 cleanup_existing_processes()
                 time.sleep(2)
-                return self.is_port_available(port, kill_existing=False)  # Also add self here
+                return self.is_port_available(port, kill_existing=False)
             return False
         except ConnectionRefusedError:
             return True
@@ -486,7 +526,7 @@ class ChatWindow(QMainWindow):
                 "Failed to clean up existing processes. Please restart your computer.")
             self.close()
             return
-            
+
         self.server_worker = ServerStartupWorker(assets_dir, model_path)
         self.server_worker.server_started.connect(self.on_server_started)
         self.server_worker.server_failed.connect(self.on_server_failed)
@@ -546,7 +586,7 @@ class ChatWindow(QMainWindow):
         self.input_field.setDisabled(True)
 
         try:
-            contexts, metadata = self.vector_db.search(user_message, k=7, score_threshold=0.9)
+            contexts, metadata = self.vector_db.search(user_message, k=5, score_threshold=0.9)
             if not contexts:
                 QMessageBox.warning(self, "No Contexts Found", "No relevant contexts were found for your query.")
                 self.input_field.setDisabled(False)
@@ -582,6 +622,78 @@ class ChatWindow(QMainWindow):
 
         self.chat_display.append("Jeeves:\n")
         self.llm_is_active = True
+
+    def speak_response(self):
+        if not self.tts:
+            QMessageBox.warning(self, "TTS Not Available", 
+                "Text-to-speech is not available. Please check if KokoroTTS is properly installed.")
+            return
+
+        selected_voice = self.voice_select.currentText()
+        selected_speed = self.speed_mapping[self.speed_control.currentText()]
+        
+        text = self.chat_display.toPlainText()
+        
+        try:
+            response_text = text.split("Jeeves:\n", 1)[1].strip()
+        except IndexError:
+            QMessageBox.warning(self, "No Response", 
+                "There is no response from Jeeves to speak. Please ask a question first.")
+            return
+
+        if not response_text:
+            QMessageBox.warning(self, "Empty Response", 
+                "The response is empty. Please ask a question first.")
+            return
+
+        self.speak_button.setEnabled(False)
+        self.voice_select.setEnabled(False)
+        self.speed_control.setEnabled(False)
+
+        self.tts_thread = QThread()
+
+        class TTSWorker(QObject):
+            finished = Signal()
+            error = Signal(str)
+
+            def __init__(self, tts, text, voice, speed):
+                super().__init__()
+                self.tts = tts
+                self.text = text
+                self.voice = voice
+                self.speed = speed
+
+            def run(self):
+                try:
+                    text_without_asterisks = self.text.replace('*', '')
+                    text_cleaned = re.sub(r'#{2,}', '', text_without_asterisks)
+                    normalized_text = normalize_chat_text(text_cleaned)
+                    self.tts.speak(normalized_text, voice=self.voice, speed=self.speed)
+                    self.finished.emit()
+                except Exception as e:
+                    self.error.emit(str(e))
+
+        def enable_controls():
+            self.speak_button.setEnabled(True)
+            self.voice_select.setEnabled(True)
+            self.speed_control.setEnabled(True)
+
+        self.tts_worker = TTSWorker(self.tts, response_text, selected_voice, selected_speed)
+        self.tts_worker.moveToThread(self.tts_thread)
+
+        self.tts_thread.started.connect(self.tts_worker.run)
+        self.tts_worker.finished.connect(self.tts_thread.quit)
+        self.tts_worker.finished.connect(enable_controls)
+        self.tts_worker.finished.connect(self.tts_worker.deleteLater)
+        self.tts_thread.finished.connect(self.tts_thread.deleteLater)
+        self.tts_worker.error.connect(self.handle_tts_error)
+
+        self.tts_thread.start()
+
+    def handle_tts_error(self, error_message):
+        self.speak_button.setEnabled(True)
+        QMessageBox.warning(self, "TTS Error", 
+            f"An error occurred while trying to speak: {error_message}")
 
     def update_response(self, response_chunk):
         if self.llm_is_active:
@@ -630,6 +742,11 @@ class ChatWindow(QMainWindow):
                 QMessageBox.warning(self, "Subprocess Termination Error", f"Error terminating subprocess: {e}")
 
     def closeEvent(self, event):
+
+        # Add this at the start of the existing closeEvent method
+        if hasattr(self, 'tts'):
+            del self.tts
+
         if hasattr(self, 'server_worker') and self.server_worker.isRunning():
             self.server_worker.wait()
 

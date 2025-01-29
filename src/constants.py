@@ -2,6 +2,232 @@ jeeves_system_message = "You are a helpful British butler who clearly and direct
 system_message = "You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."
 rag_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
 
+priority_libs = {
+    "cp311": {
+        "GPU": [
+            "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp311-cp311-win_amd64.whl",
+            "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=6c8a7003ef1327479ede284b6e5ab3527d3900c2b2d401af15bcc50f2245a59f",
+            "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=b3d75f4e6efc5412fe78c7f2787ee4f39cea1317652e1a47785879cde109f5c4",
+            "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=15796b453a99ed0f0cbc249d129685ddc88157310135fb3addaf738a15db5306",
+            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post7/triton-3.1.0-cp311-cp311-win_amd64.whl",
+            "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
+            "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
+            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp311-cp311-win_amd64.whl", # requires torch 2.5.1
+        ],
+        "CPU": [
+            # CPU specific links would go here
+        ]
+    },
+    "cp312": {
+        "GPU": [
+            "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=3c3f705fb125edbd77f9579fa11a138c56af8968a10fc95834cdd9fdf4f1f1a6",
+            "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=cca2de94f232611b20d379edf28befa7a1aa482ae9ed41c3b958b08ed1bf4983",
+            "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=0f6c7b3b0e13663fb3359e64f3604c0ab74c2b4809ae6949ace5635a5240f0e5",
+            "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp312-cp312-win_amd64.whl",
+            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post7/triton-3.1.0-cp312-cp312-win_amd64.whl",
+            "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
+            "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
+            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp312-cp312-win_amd64.whl" # requires torch 2.5.1
+        ],
+        "CPU": [
+            # CPU specific links would go here
+        ]
+    }
+}
+
+libs = [
+    "accelerate==1.3.0",
+    "aiofiles==24.1.0",
+    "aiohappyeyeballs==2.4.4",
+    "aiohttp==3.11.11", # langchain libraries require <4
+    "aiosignal==1.3.2", # only required by aiohttp
+    "anndata==0.11.3",
+    "annotated-types==0.7.0",
+    "anyio==4.8.0",
+    "array_api_compat==1.10.0", # only anndata requires
+    "async-timeout==5.0.1",
+    "attrs==25.1.0",
+    "av==14.1.0",
+    "backoff==2.2.1",
+    "beautifulsoup4==4.12.3",
+    "bitsandbytes==0.45.1",
+    "braceexpand==0.1.7",
+    "certifi==2024.12.14",
+    "cffi==1.17.1",
+    "chardet==5.2.0",
+    "charset-normalizer==3.4.1", # requests requires <4
+    "chattts==0.2.2",
+    "click==8.1.8",
+    "cloudpickle==3.1.1", # only required by tiledb-cloud and 3+ is only supported by tiledb-cloud 0.13+
+    "colorama==0.4.6",
+    "coloredlogs==15.0.1",
+    "contourpy==1.3.1", # onlyk required by matplotlib
+    "ctranslate2==4.5.0",
+    "cycler==0.12.1",
+    "dataclasses-json==0.6.7",
+    "datasets==3.2.0",
+    "deepdiff==8.1.1", # required by unstructured
+    "dill==0.3.8", # datasets 3.2.0 requires <0.3.9; multiprocess 0.70.16 requires >=0.3.8
+    "distro==1.9.0",
+    "docx2txt==0.8",
+    "einops==0.8.0",
+    "einx==0.3.0",
+    "emoji==2.14.1",
+    "encodec==0.1.1",
+    "et-xmlfile==1.1.0", # openpyxl requires; caution...openpyxl 3.1.5 (6/28/2024) predates et-xmlfile 2.0.0 (10/25/2024)
+    "fastcore==1.7.28", # only required by whisperspeech
+    "fastprogress==1.0.3", # only required by whisperspeech
+    "filetype==1.2.0",
+    "filelock==3.17.0",
+    "fonttools==4.55.6", # only required by matplotlib
+    "frozendict==2.4.6",
+    "frozenlist==1.5.0",
+    "fsspec==2024.9.0", # datasets 3.2.0 requires <=2024.9.0
+    "greenlet==3.1.1",
+    "gTTS==2.5.4",
+    "h11==0.14.0",
+    "h5py==3.12.1",
+    "httpcore==1.0.7",
+    "httpx==0.28.1",
+    "httpx-sse==0.4.0",
+    "huggingface-hub==0.27.1", # tokenizers 0.20.3 requires >=0.16.4,<1.0
+    "humanfriendly==10.0",
+    "HyperPyYAML==1.2.2",
+    "idna==3.10",
+    "importlib_metadata==8.6.1",
+    "InstructorEmbedding==1.0.1",
+    "Jinja2==3.1.5",
+    "jiter==0.8.2", # required by openai newer versions
+    "joblib==1.4.2",
+    "jsonpatch==1.33",
+    "jsonpath-python==1.0.6",
+    "jsonpointer==3.0.0",
+    "kiwisolver==1.4.8",
+    "langchain==0.3.15",
+    "langchain-community==0.3.14",
+    "langchain-core==0.3.31",
+    "langchain-huggingface==0.1.2",
+    "langchain-text-splitters==0.3.5",
+    "langdetect==1.0.9",
+    "langsmith==0.2.10",
+    "llvmlite==0.44.0", # only required by numba
+    "lxml==5.3.0",
+    "Markdown==3.7",
+    "markdown-it-py==3.0.0",
+    "MarkupSafe==3.0.2",
+    "marshmallow==3.26.0",
+    "matplotlib==3.10.0", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
+    "mdurl==0.1.2",
+    "more-itertools==10.6.0",
+    "mpmath==1.3.0", # sympy 1.12.1 requires less than 1.4
+    "msg-parser==1.2.0",
+    "multidict==6.1.0",
+    "multiprocess==0.70.16", # datasets 3.2.0 requires <0.70.17
+    "mypy-extensions==1.0.0",
+    "natsort==8.4.0",
+    "nest-asyncio==1.6.0",
+    "networkx==3.4.2",
+    "nltk==3.8.1", # not higher; gives unexplained error
+    "numba==0.61.0", # only required by openai-whisper
+    "numpy==1.26.4", # langchain libraries <2; numba <2.1; scipy <2.3; chattts <2.0.0
+    "nvidia-cuda-runtime-cu12==12.4.127", # based on CUDA 12.4.1
+    "nvidia-cublas-cu12==12.4.5.8",  # based on CUDA 12.4.1
+    "nvidia-cuda-nvrtc-cu12==12.4.127", #  based on CUDA 12.4.1
+    "nvidia-cuda-nvcc-cu12==12.4.131", #  based on CUDA 12.4.1
+    "nvidia-cufft-cu12==11.2.1.3", #  based on CUDA 12.4.1
+    "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
+    "nvidia-ml-py==12.570.86",
+    "olefile==0.47",
+    "openai==1.60.1", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
+    "openpyxl==3.1.5",
+    "optimum==1.23.3",
+    "ordered-set==4.1.0",
+    "orderly-set==5.2.3", # deepdiff 8.1.1 requires 5.2.3
+    "orjson==3.10.15",
+    "packaging==24.2",
+    "pandas==2.2.3",
+    "peft==0.14.0", # only required by mississippi model
+    "pillow==11.1.0",
+    "platformdirs==4.3.6",
+    "propcache==0.2.1",
+    "protobuf==5.29.3",
+    "psutil==6.1.1",
+    "pyarrow==19.0.0",
+    "pybase16384==0.3.7", # only required by chattts
+    "pycparser==2.22",
+    "pydantic==2.10.6",
+    "pydantic_core==2.27.2",
+    "pydantic-settings==2.7.1",
+    "Pygments==2.19.1",
+    "pypandoc==1.15",
+    "pyparsing==3.2.1",
+    "pypdf==5.2.0",
+    "pyreadline3==3.5.4",
+    "python-dateutil==2.9.0.post0",
+    "python-docx==1.1.2",
+    "python-dotenv==1.0.1",
+    "python-iso639==2024.10.22",
+    "python-magic==0.4.27",
+    "pytz==2024.2",
+    "PyYAML==6.0.2",
+    "rapidfuzz==3.11.0",
+    "regex==2024.11.6",
+    "requests==2.32.3",
+    "requests-toolbelt==1.0.0",
+    "rich==13.9.4",
+    "ruamel.yaml==0.18.10",
+    "ruamel.yaml.clib==0.2.12",
+    "safetensors==0.5.2",
+    "scikit-learn==1.6.1",
+    "scipy==1.14.1", # 1.15.0 has possible breaking changes
+    "sentence-transformers==3.4.0",
+    "sentencepiece==0.2.0",
+    "six==1.17.0",
+    "sniffio==1.3.1",
+    "sounddevice==0.5.1",
+    "soundfile==0.13.1",
+    "soupsieve==2.6",
+    "speechbrain==0.5.16",
+    "SQLAlchemy==2.0.37", # langchain and langchain-community require less than 3.0.0
+    "sseclient-py==1.8.0",
+    "sympy==1.13.3", # torch 2.5.1 requires sympy==1.13.1
+    "tabulate==0.9.0",
+    "tblib==1.7.0", # tiledb-cloud requires >= 1.7.0 but < 1.8.0
+    "tenacity==9.0.0",
+    "termcolor==2.5.0",
+    "threadpoolctl==3.5.0",
+    "tiktoken==0.8.0",
+    "tiledb==0.33.3",
+    "tiledb-cloud==0.13.0",
+    "tiledb-vector-search==0.11.0",
+    "timm==1.0.14",
+    "tokenizers==0.21.0",
+    "tqdm==4.67.1",
+    "transformers==4.48.1",
+    "typing-inspect==0.9.0",
+    "typing_extensions==4.12.2",
+    "unstructured-client==0.24.1",
+    "tzdata==2025.1",
+    "urllib3==2.3.0", # requests 2.32.3 requires <3
+    "vector-quantize-pytorch==1.21.2",
+    "vocos==0.1.0",
+    "watchdog==6.0.0",
+    "webdataset==0.2.100", # required by all TTS libraries
+    "wrapt==1.17.2",
+    "xlrd==2.0.1",
+    "xxhash==3.5.0",
+    "yarl==1.18.3", # aiohttp requires <2
+    "zipp==3.21.0",
+]
+
+full_install_libs = [
+    "PySide6==6.8.1",
+    "pymupdf==1.25.2",
+    "unstructured==0.13.4"
+]
+
+
 # overrides default max_length parameter of 8192
 MODEL_MAX_TOKENS = {
     'Qwen - 1.5b': 4096,
@@ -579,8 +805,8 @@ VISION_MODELS = {
 TTS_MODELS = {
     "Kokoro": {
         "model": "Kokoro",
-        "repo_id": "hexgrad/Kokoro-82M",
-        "save_dir": "hexgrad--Kokoro-82M",
+        "repo_id": "ctranslate2-4you/Kokoro-82M-light",
+        "save_dir": "ctranslate2-4you--Kokoro-82M-light",
         "cps": 20.5,
         "vram": "2GB",
         "precision": "float32",
@@ -590,18 +816,10 @@ TTS_MODELS = {
             "config.json",
             "istftnet.py",
             "kokoro-v0_19.pth",
-            # "kokoro.py", # using customized source code instead
-            # "models.py", # using customized source code instead
+            "kokoro.py",
+            "models.py",
             "plbert.py"
         ],
-        "ignore_patterns": [
-            "demo/**",
-            "fp16/**",
-            ".gitattributes",
-            "kokoro-v0_19.onnx",
-            "kokoro.py", # using customized source code instead
-            "models.py", # using customized source code instead
-        ]
     },
     "Bark - Normal": {
         "model": "Bark - Normal", 
@@ -2584,231 +2802,6 @@ master_questions = [
     "What is the max tokens setting?",
     "What are the prefix and suffix settings?",
     "What does precision mean?"
-]
-
-priority_libs = {
-    "cp311": {
-        "GPU": [
-            "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp311-cp311-win_amd64.whl",
-            "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=6c8a7003ef1327479ede284b6e5ab3527d3900c2b2d401af15bcc50f2245a59f",
-            "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=b3d75f4e6efc5412fe78c7f2787ee4f39cea1317652e1a47785879cde109f5c4",
-            "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=15796b453a99ed0f0cbc249d129685ddc88157310135fb3addaf738a15db5306",
-            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post7/triton-3.1.0-cp311-cp311-win_amd64.whl",
-            "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
-            "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
-            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp311-cp311-win_amd64.whl", # torch 2.5.1 specific
-        ],
-        "CPU": [
-            # CPU specific links would go here
-        ]
-    },
-    "cp312": {
-        "GPU": [
-            "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=3c3f705fb125edbd77f9579fa11a138c56af8968a10fc95834cdd9fdf4f1f1a6",
-            "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=cca2de94f232611b20d379edf28befa7a1aa482ae9ed41c3b958b08ed1bf4983",
-            "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=0f6c7b3b0e13663fb3359e64f3604c0ab74c2b4809ae6949ace5635a5240f0e5",
-            "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp312-cp312-win_amd64.whl",
-            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post7/triton-3.1.0-cp312-cp312-win_amd64.whl",
-            "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
-            "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
-            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp312-cp312-win_amd64.whl" # torch 2.5.1 specific
-        ],
-        "CPU": [
-            # CPU specific links would go here
-        ]
-    }
-}
-
-libs = [
-    "accelerate==1.3.0",
-    "aiofiles==24.1.0",
-    "aiohappyeyeballs==2.4.4",
-    "aiohttp==3.11.11", # langchain libraries require <4
-    "aiosignal==1.3.2", # only required by aiohttp
-    "anndata==0.11.3",
-    "annotated-types==0.7.0",
-    "anyio==4.8.0",
-    "array_api_compat==1.10.0", # only anndata requires
-    "async-timeout==5.0.1",
-    "attrs==25.1.0",
-    "av==14.1.0",
-    "backoff==2.2.1",
-    "beautifulsoup4==4.12.3",
-    "bitsandbytes==0.45.1",
-    "braceexpand==0.1.7",
-    "certifi==2024.12.14",
-    "cffi==1.17.1",
-    "chardet==5.2.0",
-    "charset-normalizer==3.4.1", # requests requires <4
-    "chattts==0.2.1",
-    "click==8.1.8",
-    "cloudpickle==3.1.1", # only required by tiledb-cloud and 3+ is only supported by tiledb-cloud 0.13+
-    "colorama==0.4.6",
-    "coloredlogs==15.0.1",
-    "contourpy==1.3.1", # onlyk required by matplotlib
-    "ctranslate2==4.5.0",
-    "cycler==0.12.1",
-    "dataclasses-json==0.6.7",
-    "datasets==3.2.0",
-    "deepdiff==8.1.1", # required by unstructured
-    "dill==0.3.8", # datasets 3.2.0 requires <0.3.9; multiprocess 0.70.16 requires >=0.3.8
-    "distro==1.9.0",
-    "docx2txt==0.8",
-    "einops==0.8.0",
-    "einx==0.3.0",
-    "emoji==2.14.1",
-    "encodec==0.1.1",
-    "et-xmlfile==1.1.0", # openpyxl requires; caution...openpyxl 3.1.5 (6/28/2024) predates et-xmlfile 2.0.0 (10/25/2024)
-    "fastcore==1.7.28", # only required by whisperspeech
-    "fastprogress==1.0.3", # only required by whisperspeech
-    "filetype==1.2.0",
-    "filelock==3.17.0",
-    "fonttools==4.55.6", # only required by matplotlib
-    "frozendict==2.4.6",
-    "frozenlist==1.5.0",
-    "fsspec==2024.9.0", # datasets 3.2.0 requires <=2024.9.0
-    "greenlet==3.1.1",
-    "gTTS==2.5.4",
-    "h11==0.14.0",
-    "h5py==3.12.1",
-    "httpcore==1.0.7",
-    "httpx==0.28.1",
-    "httpx-sse==0.4.0",
-    "huggingface-hub==0.27.1", # tokenizers 0.20.3 requires >=0.16.4,<1.0
-    "humanfriendly==10.0",
-    "HyperPyYAML==1.2.2",
-    "idna==3.10",
-    "importlib_metadata==8.6.1",
-    "InstructorEmbedding==1.0.1",
-    "Jinja2==3.1.5",
-    "jiter==0.8.2", # required by openai newer versions
-    "joblib==1.4.2",
-    "jsonpatch==1.33",
-    "jsonpath-python==1.0.6",
-    "jsonpointer==3.0.0",
-    "kiwisolver==1.4.8",
-    "langchain==0.3.15",
-    "langchain-community==0.3.14",
-    "langchain-core==0.3.31",
-    "langchain-huggingface==0.1.2",
-    "langchain-text-splitters==0.3.5",
-    "langdetect==1.0.9",
-    "langsmith==0.2.10",
-    "llvmlite==0.44.0", # only required by numba
-    "lxml==5.3.0",
-    "Markdown==3.7",
-    "markdown-it-py==3.0.0",
-    "MarkupSafe==3.0.2",
-    "marshmallow==3.26.0",
-    "matplotlib==3.10.0", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
-    "mdurl==0.1.2",
-    "more-itertools==10.6.0",
-    "mpmath==1.3.0", # sympy 1.12.1 requires less than 1.4
-    "msg-parser==1.2.0",
-    "multidict==6.1.0",
-    "multiprocess==0.70.16", # datasets 3.2.0 requires <0.70.17
-    "mypy-extensions==1.0.0",
-    "natsort==8.4.0",
-    "nest-asyncio==1.6.0",
-    "networkx==3.4.2",
-    "nltk==3.8.1", # not higher; gives unexplained error
-    "numba==0.61.0", # only required by openai-whisper
-    "numpy==1.26.4", # langchain libraries <2; numba <2.1; scipy <2.3; chattts <2.0.0
-    "nvidia-cuda-runtime-cu12==12.4.127", # Torch 2.5.1 official support (based on CUDA 12.4.1)
-    "nvidia-cublas-cu12==12.4.5.8", # Torch 2.5.1 official support (based on CUDA 12.4.1)
-    "nvidia-cuda-nvrtc-cu12==12.4.127", # Torch 2.5.1 official support (based on CUDA 12.4.1)
-    "nvidia-cuda-nvcc-cu12==12.4.131", # Torch 2.5.1 official support (based on CUDA 12.4.1) 
-    "nvidia-cufft-cu12==11.2.1.3", # Torch 2.5.1 official support (based on CUDA 12.4.1)
-    "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
-    "nvidia-ml-py==12.570.86",
-    "olefile==0.47",
-    "openai==1.60.1", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
-    "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
-    "openpyxl==3.1.5",
-    "optimum==1.23.3",
-    "ordered-set==4.1.0",
-    "orderly-set==5.2.3", # deepdiff 8.1.1 requires 5.2.3
-    "orjson==3.10.15",
-    "packaging==24.2",
-    "pandas==2.2.3",
-    "peft==0.14.0", # only required by mississippi model
-    "pillow==11.1.0",
-    "platformdirs==4.3.6",
-    "propcache==0.2.1",
-    "protobuf==5.29.3",
-    "psutil==6.1.1",
-    "pyarrow==19.0.0",
-    "pybase16384==0.3.7", # only required by chattts
-    "pycparser==2.22",
-    "pydantic==2.10.6",
-    "pydantic_core==2.27.2",
-    "pydantic-settings==2.7.1",
-    "Pygments==2.19.1",
-    "pypandoc==1.15",
-    "pyparsing==3.2.1",
-    "pypdf==5.2.0",
-    "pyreadline3==3.5.4",
-    "python-dateutil==2.9.0.post0",
-    "python-docx==1.1.2",
-    "python-dotenv==1.0.1",
-    "python-iso639==2024.10.22",
-    "python-magic==0.4.27",
-    "pytz==2024.2",
-    "PyYAML==6.0.2",
-    "rapidfuzz==3.11.0",
-    "regex==2024.11.6",
-    "requests==2.32.3",
-    "requests-toolbelt==1.0.0",
-    "rich==13.9.4",
-    "ruamel.yaml==0.18.10",
-    "ruamel.yaml.clib==0.2.12",
-    "safetensors==0.5.2",
-    "scikit-learn==1.6.1",
-    "scipy==1.14.1", # 1.15.0 has possible breaking changes
-    "sentence-transformers==3.4.0",
-    "sentencepiece==0.2.0",
-    "six==1.17.0",
-    "sniffio==1.3.1",
-    "sounddevice==0.5.1",
-    "soundfile==0.13.1",
-    "soupsieve==2.6",
-    "speechbrain==0.5.16",
-    "SQLAlchemy==2.0.37", # langchain and langchain-community require less than 3.0.0
-    "sseclient-py==1.8.0",
-    "sympy==1.13.3", # torch 2.5.1 requires sympy==1.13.1
-    "tabulate==0.9.0",
-    "tblib==1.7.0", # tiledb-cloud requires >= 1.7.0 but < 1.8.0
-    "tenacity==9.0.0",
-    "termcolor==2.5.0",
-    "threadpoolctl==3.5.0",
-    "tiktoken==0.8.0",
-    "tiledb==0.33.3",
-    "tiledb-cloud==0.13.0",
-    "tiledb-vector-search==0.11.0",
-    "timm==1.0.14",
-    "tokenizers==0.21.0",
-    "tqdm==4.67.1",
-    "transformers==4.48.1",
-    "typing-inspect==0.9.0",
-    "typing_extensions==4.12.2",
-    "unstructured-client==0.24.1",
-    "tzdata==2025.1",
-    "urllib3==2.3.0", # requests 2.32.3 requires <3
-    "vector-quantize-pytorch==1.21.2",
-    "vocos==0.1.0",
-    "watchdog==6.0.0",
-    "webdataset==0.2.100", # required by all TTS libraries
-    "wrapt==1.17.2",
-    "xlrd==2.0.1",
-    "xxhash==3.5.0",
-    "yarl==1.18.3", # aiohttp requires <2
-    "zipp==3.21.0",
-]
-
-full_install_libs = [
-    "PySide6==6.8.1",
-    "pymupdf==1.25.2",
-    "unstructured==0.13.4"
 ]
 
 """

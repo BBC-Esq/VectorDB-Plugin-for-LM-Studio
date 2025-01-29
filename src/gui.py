@@ -46,7 +46,7 @@ from PySide6.QtWidgets import (
 from initialize import main as initialize_system
 from metrics_bar import MetricsWidget as MetricsBar
 from gui_tabs import create_tabs
-from utilities import list_theme_files, make_theme_changer, load_stylesheet
+from utilities import list_theme_files, make_theme_changer, load_stylesheet, download_kobold_executable, download_kokoro_tts, download_with_threadpool
 from gui_file_settings_hf import set_hf_access_token
 from module_ask_jeeves import ChatWindow
 from constants import JEEVES_MODELS
@@ -119,8 +119,8 @@ class DocQA_GUI(QWidget):
         self.jeeves_action.triggered.connect(self.open_chat_window)
 
     def open_chat_window(self):
+        # First check - embedding model
         required_folder = script_dir / 'Models' / 'vector' / 'ibm-granite--granite-embedding-30m-english'
-
         if not required_folder.exists() or not required_folder.is_dir():
             QMessageBox.warning(
                 self,
@@ -128,7 +128,72 @@ class DocQA_GUI(QWidget):
                 "Before using Jeeves you must download the granite-30m embedding model, which you can do from the Models tab. Jeeves is waiting."
             )
             return
-                
+
+        # Second check - Kokoro TTS model
+        tts_path = script_dir / "Models" / "tts" / "ctranslate2-4you--Kokoro-82M-light"
+        if not tts_path.exists() or not tts_path.is_dir():
+            ret = QMessageBox.question(
+                self,
+                "Kokoro TTS Model Not Found",
+                "The Kokoro TTS model is missing!\n\nWould you like to download it now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            if ret == QMessageBox.Yes:
+                def on_kokoro_download_complete(success, message):
+                    if success:
+                        QMessageBox.information(
+                            self,
+                            "Download Complete",
+                            "Kokoro TTS model has been downloaded successfully.\n\n"
+                            "Text-to-speech functionality will be available when you restart Jeeves."
+                        )
+                    else:
+                        QMessageBox.critical(
+                            self,
+                            "Download Error",
+                            f"Failed to download Kokoro TTS model: {message}"
+                        )
+                download_with_threadpool(download_kokoro_tts, callback=on_kokoro_download_complete)
+                return
+            else:
+                QMessageBox.information(
+                    self,
+                    "TTS Unavailable",
+                    "You can continue without text-to-speech functionality.\n\n"
+                    "You can always download the TTS model later by closing and reopening Jeeves."
+                )
+
+        # Third check - Kobold executable
+        exe_path = script_dir / "Assets" / "koboldcpp_nocuda.exe"
+        if not exe_path.exists():
+            ret = QMessageBox.question(
+                self,
+                "KoboldCPP Not Found",
+                "KoboldCPP executable is missing!\n\nWould you like to download KoboldCPP now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            if ret == QMessageBox.Yes:
+                def on_download_complete(success, message):
+                    if success:
+                        QMessageBox.information(
+                            self,
+                            "Action Required",
+                            "KoboldCPP has been downloaded, but requires Windows security permissions before first use.\n\n"
+                            "1. Please close this program\n"
+                            "2. Follow the instructions at https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio for setting up Windows permissions\n"
+                            "3. Restart this program and try Jeeves again"
+                        )
+                    else:
+                        QMessageBox.critical(
+                            self,
+                            "Download Error", 
+                            f"Failed to download KoboldCPP: {message}")
+
+                download_with_threadpool(download_kobold_executable, callback=on_download_complete)
+                return
+
         model_choice, ok = QInputDialog.getItem(
             self,
             "Select Chat Model",

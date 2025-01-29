@@ -10,12 +10,171 @@ from pathlib import Path
 import pickle
 import psutil
 import subprocess
+import re
 
 import torch
 import yaml
 from packaging import version
+from PySide6.QtCore import QRunnable, QObject, Signal, QThreadPool
 from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
+
+class DownloadSignals(QObject):
+    finished = Signal(bool, str)
+    progress = Signal(str)
+
+class DownloadRunnable(QRunnable):
+    def __init__(self, download_func, *args):
+        super().__init__()
+        self.download_func = download_func
+        self.args = args
+        self.signals = DownloadSignals()
+
+    def run(self):
+        try:
+            result = self.download_func(*self.args)
+            self.signals.finished.emit(result, "Download completed successfully")
+        except Exception as e:
+            self.signals.finished.emit(False, str(e))
+
+def download_with_threadpool(download_func, *args, callback=None):
+    runnable = DownloadRunnable(download_func, *args)
+    if callback:
+        runnable.signals.finished.connect(callback)
+    QThreadPool.globalInstance().start(runnable)
+
+def download_kokoro_tts():
+    from pathlib import Path
+    from huggingface_hub import snapshot_download
+    import shutil
+
+    repo_id = "ctranslate2-4you/Kokoro-82M-light"
+    tts_path = Path(__file__).parent / "Models" / "tts" / "ctranslate2-4you--Kokoro-82M-light"
+    
+    try:
+        # Create parent directories if they don't exist
+        tts_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        print(f"Downloading Kokoro TTS model from {repo_id}...")
+        snapshot_download(
+            repo_id=repo_id,
+            local_dir=str(tts_path),
+            max_workers=4
+        )
+        print("Kokoro TTS model downloaded successfully")
+        return True
+        
+    except Exception as e:
+        print(f"Failed to download Kokoro TTS model: {e}")
+        if tts_path.exists():
+            shutil.rmtree(tts_path)
+        return False
+
+def download_kobold_executable():
+    import requests
+    from pathlib import Path
+
+    file_name = "koboldcpp_nocuda.exe"
+    url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.80.3/{file_name}"
+
+    script_dir = Path(__file__).parent
+    assets_dir = script_dir / "Assets"
+    assets_dir.mkdir(exist_ok=True)
+
+    kobold_path = assets_dir / file_name
+
+    try:
+        print(f"Downloading KoboldCPP from {url}...")
+        response = requests.get(url)
+        response.raise_for_status()
+        with open(kobold_path, 'wb') as file:
+            file.write(response.content)
+        print(f"KoboldCPP downloaded successfully to {kobold_path}")
+        return True
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred while downloading KoboldCPP: {http_err}")
+        return False
+    except Exception as e:
+        print(f"Failed to download KoboldCPP: {e}")
+        return False
+
+def normalize_chat_text(text):
+    """
+    Normalizes chat text by processing numbers, currency, and various text patterns.
+    
+    Args:
+        text (str): The input text to normalize
+        
+    Returns:
+        str: The normalized text
+    """
+    def split_num(num):
+        num = num.group()
+        if '.' in num:
+            return num
+        elif ':' in num:
+            h, m = [int(n) for n in num.split(':')]
+            if m == 0:
+                return f"{h} o'clock"
+            elif m < 10:
+                return f'{h} oh {m}'
+            return f'{h} {m}'
+        year = int(num[:4])
+        if year < 1100 or year % 1000 < 10:
+            return num
+        left, right = num[:2], int(num[2:4])
+        s = 's' if num.endswith('s') else ''
+        if 100 <= year % 1000 <= 999:
+            if right == 0:
+                return f'{left} hundred{s}'
+            elif right < 10:
+                return f'{left} oh {right}{s}'
+        return f'{left} {right}{s}'
+
+    def flip_money(m):
+        m = m.group()
+        bill = 'dollar' if m[0] == '$' else 'pound'
+        if m[-1].isalpha():
+            return f'{m[1:]} {bill}s'
+        elif '.' not in m:
+            s = '' if m[1:] == '1' else 's'
+            return f'{m[1:]} {bill}{s}'
+        b, c = m[1:].split('.')
+        s = '' if b == '1' else 's'
+        c = int(c.ljust(2, '0'))
+        coins = f"cent{'' if c == 1 else 's'}" if m[0] == '$' else ('penny' if c == 1 else 'pence')
+        return f'{b} {bill}{s} and {c} {coins}'
+
+    def point_num(num):
+        a, b = num.group().split('.')
+        return ' point '.join([a, ' '.join(b)])
+
+    # Replace section symbol
+    text = text.replace('§', ' section ')
+    
+    # Replace smart quotes and other special characters
+    text = text.replace(chr(8216), "'").replace(chr(8217), "'")
+    text = text.replace('«', '"').replace('»', '"')
+    text = text.replace(chr(8220), '"').replace(chr(8221), '"')
+    
+    # Normalize titles
+    text = re.sub(r'\bD[Rr]\.(?= [A-Z])', 'Doctor', text)
+    text = re.sub(r'\b(?:Mr\.|MR\.(?= [A-Z]))', 'Mister', text)
+    text = re.sub(r'\b(?:Ms\.|MS\.(?= [A-Z]))', 'Miss', text)
+    text = re.sub(r'\b(?:Mrs\.|MRS\.(?= [A-Z]))', 'Mrs', text)
+    
+    # Process numbers and currency
+    text = re.sub(r'\d*\.\d+|\b\d{4}s?\b|(?<!:)\b(?:[1-9]|1[0-2]):[0-5]\d\b(?!:)', split_num, text)
+    text = re.sub(r'(?<=\d),(?=\d)', '', text)
+    text = re.sub(r'(?i)[$£]\d+(?:\.\d+)?(?: hundred| thousand| (?:[bm]|tr)illion)*\b|[$£]\d+\.\d\d?\b', flip_money, text)
+    text = re.sub(r'\d*\.\d+', point_num, text)
+    
+    # Clean up spacing and format
+    text = re.sub(r'[^\S \n]', ' ', text)
+    text = re.sub(r'  +', ' ', text)
+    text = re.sub(r'(?<=\n) +(?=\n)', '', text)
+    
+    return text.strip()
 
 def test_triton_installation():
     """
