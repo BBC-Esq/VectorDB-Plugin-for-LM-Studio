@@ -75,7 +75,7 @@ def download_kobold_executable():
     from pathlib import Path
 
     file_name = "koboldcpp_nocuda.exe"
-    url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.80.3/{file_name}"
+    url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.82.4/{file_name}"
 
     script_dir = Path(__file__).parent
     assets_dir = script_dir / "Assets"
@@ -177,121 +177,203 @@ def normalize_chat_text(text):
     return text.strip()
 
 def test_triton_installation():
-    """
-    Tests if Triton is properly installed and working by comparing a simple addition operation between PyTorch's
-    native implementation and a custom Triton kernel. Returns True or False.
+   """
+   Tests if Triton is properly installed and working by comparing a simple addition operation between PyTorch's
+   native implementation and a custom Triton kernel. Returns True or False.
+   Example:
+   from triton_test import test_triton_installation
+   is_triton_working = test_triton_installation()
+   if is_triton_working:
+      print("Proceeding with Triton functionality...")
+   else:
+      print("Cannot proceed - Triton is not working properly")
+   """
+   logging.debug("Starting Triton installation test")
+   try:
+       import torch
+       import triton
+       import triton.language as tl
+       logging.debug("Successfully imported required packages")
 
-    Example:
+       @triton.jit
+       def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+           pid = tl.program_id(axis=0)
+           block_start = pid * BLOCK_SIZE
+           offsets = block_start + tl.arange(0, BLOCK_SIZE)
+           mask = offsets < n_elements
+           x = tl.load(x_ptr + offsets, mask=mask)
+           y = tl.load(y_ptr + offsets, mask=mask)
+           output = x + y
+           tl.store(output_ptr + offsets, output, mask=mask)
 
-    from triton_test import test_triton_installation
+       logging.debug("Defined Triton kernel for addition")
 
-    is_triton_working = test_triton_installation()
+       def add(x: torch.Tensor, y: torch.Tensor):
+           output = torch.empty_like(x)
+           assert x.is_cuda and y.is_cuda and output.is_cuda
+           n_elements = output.numel()
+           grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
+           add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
+           return output
 
-    if is_triton_working:
-       print("Proceeding with Triton functionality...")
-    else:
-       print("Cannot proceed - Triton is not working properly")
-"""
-    try:
-        import torch
-        import triton
-        import triton.language as tl
+       logging.debug("Defined wrapper function for Triton kernel")
+       print("Testing Triton installation...")
 
-        @triton.jit
-        def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
-            pid = tl.program_id(axis=0)
-            block_start = pid * BLOCK_SIZE
-            offsets = block_start + tl.arange(0, BLOCK_SIZE)
-            mask = offsets < n_elements
-            x = tl.load(x_ptr + offsets, mask=mask)
-            y = tl.load(y_ptr + offsets, mask=mask)
-            output = x + y
-            tl.store(output_ptr + offsets, output, mask=mask)
+       a = torch.rand(3, device="cuda")
+       logging.debug("Created test tensor on CUDA device")
 
-        def add(x: torch.Tensor, y: torch.Tensor):
-            output = torch.empty_like(x)
-            assert x.is_cuda and y.is_cuda and output.is_cuda
-            n_elements = output.numel()
-            grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
-            add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
-            return output
+       b = a + a
+       logging.debug("Computed PyTorch native addition")
 
-        print("Testing Triton installation...")
-        a = torch.rand(3, device="cuda")
-        b = a + a
-        b_compiled = add(a, a)
-        difference = b_compiled - b
+       b_compiled = add(a, a)
+       logging.debug("Computed Triton kernel addition")
 
-        works = torch.all(difference == 0).item()
-        if works:
-            print("✓ Triton is working correctly")
-        else:
-           print("⨯ Triton test failed - results do not match PyTorch implementation.  Please visit the Windows Triton repository")
+       difference = b_compiled - b
+       works = torch.all(difference == 0).item()
+       logging.debug(f"Test result: {'passed' if works else 'failed'}")
+
+       if works:
+           print("✓ Triton is working correctly")
+       else:
+           print("⨯ Triton test failed - results do not match PyTorch implementation. Please visit the Windows Triton repository")
            print("here and review the instructions for installing any necessary dependencies: https://github.com/woct0rdho/triton-windows")
-        return works
+       return works
 
-    except Exception as e:
-        print(f"⨯ Triton test failed - error occurred: {str(e)}")
-        return False
+   except Exception as e:
+       logging.debug(f"Triton test failed with error: {str(e)}")
+       print(f"⨯ Triton test failed - error occurred: {str(e)}")
+       return False
 
 def supports_flash_attention():
     """Check if the current CUDA device supports flash attention (compute capability >= 8.0)."""
+    logging.debug("Checking flash attention support")
+    
     if not torch.cuda.is_available():
+        logging.debug("CUDA not available, flash attention not supported")
         return False
-    # Get the compute capability of the current CUDA device
+        
     major, minor = torch.cuda.get_device_capability()
-    return major >= 8
+    logging.debug(f"CUDA compute capability: {major}.{minor}")
+    
+    supports = major >= 8
+    logging.debug(f"Flash attention {'supported' if supports else 'not supported'}")
+    return supports
 
 def check_cuda_re_triton():
     """
     Checks whether the files required by Triton 3.1.0 are present in the relative paths.
     This mirrors where the windows_utils.py script within the Triton library will look for them.
     """
+    logging.debug("Starting CUDA files check for Triton")
     venv_base = Path(sys.executable).parent.parent
     nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
     cuda_runtime = nvidia_base_path / 'cuda_runtime'
-
+    
+    logging.debug(f"Virtual environment base path: {venv_base}")
+    logging.debug(f"NVIDIA base path: {nvidia_base_path}")
+    logging.debug(f"CUDA runtime path: {cuda_runtime}")
+    
     files_to_check = [
         cuda_runtime / "bin" / "cudart64_12.dll",
         cuda_runtime / "bin" / "ptxas.exe",
         cuda_runtime / "include" / "cuda.h",
         cuda_runtime / "lib" / "x64" / "cuda.lib"
     ]
-
+    
+    logging.debug("Beginning file existence checks")
     print("Checking CUDA files:")
     for file_path in files_to_check:
         exists = file_path.exists()
         status = "✓ Found" if exists else "✗ Missing"
+        logging.debug(f"Checking {file_path}: {'exists' if exists else 'missing'}")
         print(f"{status}: {file_path}")
     print()
+    logging.debug("CUDA file check completed")
 
 def get_model_native_precision(embedding_model_name, vector_models):
-    for group_models in vector_models.values():
+    logging.debug(f"Looking for precision for model: {embedding_model_name}")
+    model_name = os.path.basename(embedding_model_name)
+    repo_style_name = model_name.replace('--', '/')
+    
+    for group_name, group_models in vector_models.items():
+        logging.debug(f"Checking group: {group_name}")
         for model in group_models:
-            if model['repo_id'] == embedding_model_name or model['name'] in embedding_model_name:
+            logging.debug(f"Checking model: {model['repo_id']} / {model['name']}")
+            if model['repo_id'] == repo_style_name or model['name'] in model_name:
+                logging.debug(f"Found match! Using precision: {model['precision']}")
                 return model['precision']
+    logging.debug("No match found, defaulting to float32")
     return 'float32'
 
 def get_appropriate_dtype(compute_device, use_half, model_native_precision):
-    if compute_device.lower() == 'cpu':
+    logging.debug(f"compute_device: {compute_device}")
+    logging.debug(f"use_half: {use_half}")
+    logging.debug(f"model_native_precision: {model_native_precision}")
+    
+    compute_device = compute_device.lower()
+    model_native_precision = model_native_precision.lower()
+    
+    if compute_device == 'cpu':
+        logging.debug("Using CPU, returning float32")
         return torch.float32
 
-    if model_native_precision == 'float16':
-        return torch.float16
-    elif model_native_precision == 'float32':
-        if not use_half:
-            return torch.float32
-        else:
-            if torch.cuda.is_available() and torch.version.cuda:
-                cuda_capability = torch.cuda.get_device_capability()
-                if cuda_capability[0] >= 8 and cuda_capability[1] >= 0:
+    # Initialize CUDA availability and capability
+    cuda_available = torch.cuda.is_available()
+    if cuda_available:
+        cuda_capability = torch.cuda.get_device_capability()
+        logging.debug(f"CUDA is available. Capability: {cuda_capability}")
+    else:
+        cuda_capability = (0, 0)
+        logging.debug("CUDA is not available.")
+
+    if model_native_precision == 'bfloat16':
+        if use_half:
+            if cuda_available:
+                if cuda_capability[0] >= 8:
+                    logging.debug("Model native precision is bfloat16, GPU supports it, returning bfloat16")
                     return torch.bfloat16
                 else:
+                    logging.debug("GPU doesn't support bfloat16, falling back to float16")
                     return torch.float16
             else:
+                logging.debug("No CUDA available for bfloat16, falling back to float32")
                 return torch.float32
+        else:
+            logging.debug("Half checkbox not checked for bfloat16 model, returning float32")
+            return torch.float32
+
+    elif model_native_precision == 'float16':
+        if use_half:
+            if cuda_available:
+                logging.debug("Model native precision is float16 and CUDA is available, returning float16")
+                return torch.float16
+            else:
+                logging.debug("Model native precision is float16 but CUDA is not available, returning float32")
+                return torch.float32
+        else:
+            logging.debug("Half checkbox not checked for float16 model, returning float32")
+            return torch.float32
+
+    elif model_native_precision == 'float32':
+        if not use_half:
+            logging.debug("Model is float32 and use_half is False, returning float32")
+            return torch.float32
+        else:
+            if cuda_available:
+                if cuda_capability[0] >= 8:
+                    logging.debug("Using bfloat16 due to Ampere+ GPU")
+                    return torch.bfloat16
+                else:
+                    logging.debug("Using float16 due to pre-Ampere GPU")
+                    return torch.float16
+            else:
+                logging.debug("No CUDA available, returning float32")
+                return torch.float32
+
     else:
+        logging.debug(f"Unrecognized precision '{model_native_precision}', returning float32")
         return torch.float32
+
 
 # IMPLEMENT THIS IF/WHEN A USER TRIES TO CREATE A DB WITH A CPU WITH AN INCOMPATIBLE VISION MODEL
 def cpu_db_creation_vision_model_compatibility(directory, image_extensions, config_path):
@@ -414,40 +496,61 @@ def make_theme_changer(theme_name):
     return change_theme
 
 def backup_database():
-    source_directory = Path('Vector_DB')
-    backup_directory = Path('Vector_DB_Backup')
+   logging.debug("Starting database backup process")
+   source_directory = Path('Vector_DB')
+   backup_directory = Path('Vector_DB_Backup')
+   
+   logging.debug(f"Source directory: {source_directory}")
+   logging.debug(f"Backup directory: {backup_directory}")
 
-    if backup_directory.exists():
-        for item in backup_directory.iterdir():
-            if item.is_dir():
-                shutil.rmtree(item)
-            else:
-                item.unlink()
-    else:
-        backup_directory.mkdir(parents=True, exist_ok=True)
+   if backup_directory.exists():
+       logging.debug("Backup directory exists - cleaning existing contents")
+       for item in backup_directory.iterdir():
+           if item.is_dir():
+               logging.debug(f"Removing directory: {item}")
+               shutil.rmtree(item)
+           else:
+               logging.debug(f"Removing file: {item}")
+               item.unlink()
+   else:
+       logging.debug("Creating backup directory")
+       backup_directory.mkdir(parents=True, exist_ok=True)
 
-    shutil.copytree(source_directory, backup_directory, dirs_exist_ok=True)
+   logging.debug("Copying files from source to backup directory")
+   shutil.copytree(source_directory, backup_directory, dirs_exist_ok=True)
+   logging.debug("Database backup completed successfully")
 
 def backup_database_incremental(new_database_name):
-    source_directory = Path('Vector_DB')
-    backup_directory = Path('Vector_DB_Backup')
-
-    backup_directory.mkdir(parents=True, exist_ok=True)
-
-    source_db_path = source_directory / new_database_name
-    backup_db_path = backup_directory / new_database_name
-
-    if backup_db_path.exists():
-        try:
-            shutil.rmtree(backup_db_path)
-        except Exception as e:
-            print(f"Warning: Could not remove existing backup of {new_database_name}: {e}")
-
-    try:
-        shutil.copytree(source_db_path, backup_db_path)
-        # my_cprint(f"Creating backup of {new_database_name} database.", "green")
-    except Exception as e:
-        print(f"Error backing up {new_database_name}: {e}")
+   logging.debug("Starting incremental database backup")
+   source_directory = Path('Vector_DB')
+   backup_directory = Path('Vector_DB_Backup')
+   
+   logging.debug(f"Source directory: {source_directory}")
+   logging.debug(f"Backup directory: {backup_directory}")
+   
+   backup_directory.mkdir(parents=True, exist_ok=True)
+   logging.debug("Created backup directory (if it didn't exist)")
+   
+   source_db_path = source_directory / new_database_name
+   backup_db_path = backup_directory / new_database_name
+   logging.debug(f"Source DB path: {source_db_path}")
+   logging.debug(f"Backup DB path: {backup_db_path}")
+   
+   if backup_db_path.exists():
+       logging.debug(f"Existing backup found for {new_database_name} - attempting to remove")
+       try:
+           shutil.rmtree(backup_db_path)
+           logging.debug("Successfully removed existing backup")
+       except Exception as e:
+           logging.debug(f"Failed to remove existing backup: {e}")
+           print(f"Warning: Could not remove existing backup of {new_database_name}: {e}")
+           
+   try:
+       shutil.copytree(source_db_path, backup_db_path)
+       logging.debug(f"Successfully created backup of {new_database_name}")
+   except Exception as e:
+       logging.debug(f"Backup failed: {e}")
+       print(f"Error backing up {new_database_name}: {e}")
 
     # log of the latest backup info
     # with open(backup_directory / "backup_manifest.txt", "a") as manifest:
@@ -563,50 +666,85 @@ def my_cprint(*args, **kwargs):
 
 # not currently used
 def get_cuda_compute_capabilities():
-    ccs = []
-    for i in range(torch.cuda.device_count()):
-        cc_major, cc_minor = torch.cuda.get_device_capability(torch.cuda.device(i))
-        ccs.append(f"{cc_major}.{cc_minor}")
-
-    return ccs
+   logging.debug("Getting CUDA compute capabilities")
+   ccs = []
+   device_count = torch.cuda.device_count()
+   logging.debug(f"Found {device_count} CUDA device(s)")
+   
+   for i in range(device_count):
+       device = torch.cuda.device(i)
+       cc_major, cc_minor = torch.cuda.get_device_capability(device)
+       compute_capability = f"{cc_major}.{cc_minor}"
+       logging.debug(f"Device {i} compute capability: {compute_capability}")
+       ccs.append(compute_capability)
+   
+   logging.debug(f"All compute capabilities: {ccs}")
+   return ccs
 
 def get_cuda_version():
-    major, minor = map(int, torch.version.cuda.split("."))
-
-    return f'{major}{minor}'
+   logging.debug("Getting CUDA version")
+   major, minor = map(int, torch.version.cuda.split("."))
+   version = f'{major}{minor}'
+   logging.debug(f"CUDA version {major}.{minor} -> {version}")
+   return version
 
 # returns True if cuda exists and supports compute 8.6 of higher
 def has_bfloat16_support():
-    if not torch.cuda.is_available():
-        return False
-    
-    capability = torch.cuda.get_device_capability()
-    return capability >= (8, 0)
+   logging.debug("Checking bfloat16 support")
+   
+   if not torch.cuda.is_available():
+       logging.debug("CUDA not available, bfloat16 not supported")
+       return False
+   
+   capability = torch.cuda.get_device_capability()
+   logging.debug(f"CUDA compute capability: {capability}")
+   
+   has_support = capability >= (8, 0)
+   logging.debug(f"bfloat16 {'supported' if has_support else 'not supported'}")
+   return has_support
 
 def get_precision():
-    if not torch.cuda.is_available():
-        raise RuntimeError("CUDA is not available. This function requires a CUDA-enabled GPU.")
-
-    capability = torch.cuda.get_device_capability()
-    if capability >= (8, 0):
-        precision = torch.bfloat16
-    else:
-        precision = torch.float16
-    
-    return precision
+   logging.debug("Determining appropriate precision based on GPU capability")
+   
+   if not torch.cuda.is_available():
+       logging.debug("CUDA not available")
+       raise RuntimeError("CUDA is not available. This function requires a CUDA-enabled GPU.")
+   
+   capability = torch.cuda.get_device_capability()
+   logging.debug(f"CUDA compute capability: {capability}")
+   
+   if capability >= (8, 0):
+       precision = torch.bfloat16
+       logging.debug("Using bfloat16 precision (Ampere or newer GPU)")
+   else:
+       precision = torch.float16
+       logging.debug("Using float16 precision (pre-Ampere GPU)")
+   
+   return precision
 
 def get_device_and_precision():
-    if torch.cuda.is_available():
-        device = "cuda"
-        capability = torch.cuda.get_device_capability()
-        if capability >= (8, 0):
-            precision = "bfloat16"
-        else:
-            precision = "float16"
-    else:
-        device = "cpu"
-        precision = "float32"
-    return device, precision
+   logging.debug("Determining device and precision")
+   
+   if torch.cuda.is_available():
+       device = "cuda"
+       logging.debug("CUDA device available")
+       
+       capability = torch.cuda.get_device_capability()
+       logging.debug(f"CUDA compute capability: {capability}")
+       
+       if capability >= (8, 0):
+           precision = "bfloat16"
+           logging.debug("Using bfloat16 precision (Ampere or newer GPU)")
+       else:
+           precision = "float16" 
+           logging.debug("Using float16 precision (pre-Ampere GPU)")
+   else:
+       device = "cpu"
+       precision = "float32"
+       logging.debug("Using CPU with float32 precision")
+   
+   logging.debug(f"Final configuration - Device: {device}, Precision: {precision}")
+   return device, precision
 
 class FlashAttentionUtils:
     """
