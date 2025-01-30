@@ -147,7 +147,7 @@ libs = [
     "openai==1.60.2", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
-    "optimum==1.23.3",
+    "optimum==1.24.0",
     "ordered-set==4.1.0",
     "orderly-set==5.2.3", # deepdiff 8.1.1 requires 5.2.3
     "orjson==3.10.15",
