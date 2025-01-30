@@ -413,6 +413,17 @@ CHAT_MODELS = {
         'precision': 'bfloat16',
         'gated': True,
     },
+    'Mistral Small 3 - 24b': {
+        'model': 'Mistral Small 3 - 24b',
+        'repo_id': 'mistralai/Mistral-Small-24B-Instruct-2501',
+        'cache_dir': 'mistralai--Mistral-Small-24B-Instruct-2501',
+        'cps': 98.33,
+        'context_length': 32768,
+        'vram': 13723.65,
+        'function': 'Mistral_Small_24b',
+        'precision': 'bfloat16',
+        'gated': True,
+    },
     'Deepseek R1 - 32b': {
         'model': 'Deepseek R1 - 32b',
         'repo_id': 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',

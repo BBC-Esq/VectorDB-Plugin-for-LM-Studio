@@ -602,6 +602,19 @@ class Mistral_Small_22b(BaseModel):
 {augmented_query}[/INST]"""
 
 
+class Mistral_Small_24b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Mistral Small 3 - 24b']
+        super().__init__(model_info, bnb_bfloat16_settings, generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<s>
+
+[SYSTEM_PROMPT]{system_message}[/SYSTEM_PROMPT]
+
+[INST]{augmented_query}[/INST]"""
+
+
 class DeepseekR1_32b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Deepseek R1 - 32b']
