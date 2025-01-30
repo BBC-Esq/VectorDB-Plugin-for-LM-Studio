@@ -163,7 +163,7 @@ libs = [
     "pybase16384==0.3.7", # only required by chattts
     "pycparser==2.22",
     "pydantic==2.10.6",
-    "pydantic_core==2.27.2",
+    "pydantic_core==2.28.0",
     "pydantic-settings==2.7.1",
     "Pygments==2.19.1",
     "pypandoc==1.15",
@@ -178,7 +178,7 @@ libs = [
     "python-oxmsg==0.0.1", # only required by unstructured library
     "pytz==2024.2",
     "PyYAML==6.0.2",
-    "rapidfuzz==3.11.0",
+    "rapidfuzz==3.12.1",
     "regex==2024.11.6",
     "requests==2.32.3",
     "requests-toolbelt==1.0.0",
