@@ -72,6 +72,7 @@ libs = [
     "colorama==0.4.6",
     "coloredlogs==15.0.1",
     "contourpy==1.3.1", # onlyk required by matplotlib
+    "cryptography==44.0.0", # only required by unstructured library
     "ctranslate2==4.5.0",
     "cycler==0.12.1",
     "dataclasses-json==0.6.7",
@@ -85,6 +86,7 @@ libs = [
     "emoji==2.14.1",
     "encodec==0.1.1",
     "et-xmlfile==1.1.0", # openpyxl requires; caution...openpyxl 3.1.5 (6/28/2024) predates et-xmlfile 2.0.0 (10/25/2024)
+    "eval-type-backport==0.2.2", # only required by unstructured
     "fastcore==1.7.28", # only required by whisperspeech
     "fastprogress==1.0.3", # only required by whisperspeech
     "filetype==1.2.0",
@@ -97,6 +99,7 @@ libs = [
     "gTTS==2.5.4",
     "h11==0.14.0",
     "h5py==3.12.1",
+    "html5lib==1.1", # only required by unstructured
     "httpcore==1.0.7",
     "httpx==0.28.1",
     "httpx-sse==0.4.0",
@@ -172,6 +175,7 @@ libs = [
     "python-dotenv==1.0.1",
     "python-iso639==2025.1.28",
     "python-magic==0.4.27",
+    "python-oxmsg==0.0.1", # only required by unstructured library
     "pytz==2024.2",
     "PyYAML==6.0.2",
     "rapidfuzz==3.11.0",
@@ -210,13 +214,14 @@ libs = [
     "transformers==4.48.1",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
-    "unstructured-client==0.24.1",
+    "unstructured-client==0.29.0",
     "tzdata==2025.1",
     "urllib3==2.3.0", # requests 2.32.3 requires <3
     "vector-quantize-pytorch==1.21.4",
     "vocos==0.1.0",
     "watchdog==6.0.0",
     "webdataset==0.2.100", # required by all TTS libraries
+    "webencodings==0.5.1", # only required by html5lib
     "wrapt==1.17.2",
     "xlrd==2.0.1",
     "xxhash==3.5.0",
@@ -228,7 +233,7 @@ libs = [
 full_install_libs = [
     "PySide6==6.8.1",
     "pymupdf==1.25.2",
-    "unstructured==0.13.4"
+    "unstructured==0.16.17"
 ]
 
 CHAT_MODELS = {
@@ -1740,6 +1745,10 @@ scrape_documentation = {
         "folder": "pypdf_510",
         "scraper_class": "ReadthedocsScraper"
     },
+    # "Python 3.11": {
+        # "URL": "https://docs.python.org/3.11/",
+        # "folder": "Python_311",
+    # },
     "PyTorch Lightning": {
         "URL": "https://lightning.ai/docs/pytorch/stable/",
         "folder": "pytorch_lightning"
@@ -1906,6 +1915,10 @@ scrape_documentation = {
     "urllib3": {
         "URL": "https://urllib3.readthedocs.io/en/stable/",
         "folder": "urllib3"
+    },
+    "Unstructured": {
+        "URL": "https://docs.unstructured.io/api-reference/",
+        "folder": "unstructured"
     },
     "Watchdog": {
         "URL": "https://python-watchdog.readthedocs.io/en/stable/",
