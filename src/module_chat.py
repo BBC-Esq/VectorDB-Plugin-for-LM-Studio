@@ -335,6 +335,66 @@ class Granite_8b(BaseModel):
 <|start_of_role|>assistant<|end_of_role|>"""
 
 
+class DeepseekR1_7b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Deepseek R1 - 7b']
+
+        custom_generation_settings = {
+            'max_length': generation_settings['max_length'],
+            'max_new_tokens': generation_settings['max_new_tokens'],
+            'do_sample': True,
+            'temperature': 0.6,
+            'top_p': 0.95,
+            'use_cache': True,
+            'num_beams': 1
+        }
+
+        super().__init__(model_info, bnb_bfloat16_settings, custom_generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_sentence|>{system_message}<|User|>{augmented_query}<|Assistant|><｜end_of_sentence｜><｜Assistant｜>"""
+
+    def generate_response(self, inputs):
+        SHOW_THINKING = False
+        streamer = TextIteratorStreamer(
+            self.tokenizer, 
+            skip_prompt=True, 
+            skip_special_tokens=True
+        )
+
+        all_settings = {
+            **inputs, 
+            **self.generation_settings,
+            'streamer': streamer, 
+            'pad_token_id': self.tokenizer.pad_token_id,
+            'eos_token_id': self.tokenizer.eos_token_id
+        }
+
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        if SHOW_THINKING:
+            # stream everything
+            for partial_response in streamer:
+                yield partial_response
+        else:
+            # only stream after </think> tag
+            buffer = ""
+            thinking_complete = False
+
+            for partial_response in streamer:
+                buffer += partial_response
+                if not thinking_complete and '</think>' in buffer:
+                    thinking_complete = True
+                    start_idx = buffer.rfind('</think>') + len('</think>')
+                    yield buffer[start_idx:].strip()
+                    buffer = ""
+                elif thinking_complete:
+                    yield partial_response
+
+        generation_thread.join()
+
+
 class Exaone_7_8b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Exaone - 7.8b']
@@ -425,6 +485,66 @@ class Internlm3(BaseModel):
        generation_thread.join()
 
 
+class DeepseekR1_14b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Deepseek R1 - 14b']
+
+        custom_generation_settings = {
+            'max_length': generation_settings['max_length'],
+            'max_new_tokens': generation_settings['max_new_tokens'],
+            'do_sample': True,
+            'temperature': 0.6,
+            'top_p': 0.95,
+            'use_cache': True,
+            'num_beams': 1
+        }
+
+        super().__init__(model_info, bnb_bfloat16_settings, custom_generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_sentence|>{system_message}<|User|>{augmented_query}<|Assistant|><｜end_of_sentence｜><｜Assistant｜>"""
+
+    def generate_response(self, inputs):
+        SHOW_THINKING = False
+        streamer = TextIteratorStreamer(
+            self.tokenizer, 
+            skip_prompt=True, 
+            skip_special_tokens=True
+        )
+
+        all_settings = {
+            **inputs, 
+            **self.generation_settings,
+            'streamer': streamer, 
+            'pad_token_id': self.tokenizer.pad_token_id,
+            'eos_token_id': self.tokenizer.eos_token_id
+        }
+
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        if SHOW_THINKING:
+            # stream everything
+            for partial_response in streamer:
+                yield partial_response
+        else:
+            # only stream after </think> tag
+            buffer = ""
+            thinking_complete = False
+
+            for partial_response in streamer:
+                buffer += partial_response
+                if not thinking_complete and '</think>' in buffer:
+                    thinking_complete = True
+                    start_idx = buffer.rfind('</think>') + len('</think>')
+                    yield buffer[start_idx:].strip()
+                    buffer = ""
+                elif thinking_complete:
+                    yield partial_response
+
+        generation_thread.join()
+
+
 class QwenCoder_14b(BaseModel):
     def __init__(self, generation_settings):
         model_info = CHAT_MODELS['Qwen Coder - 14b']
@@ -480,6 +600,66 @@ class Mistral_Small_22b(BaseModel):
 [INST] {system_message}
 
 {augmented_query}[/INST]"""
+
+
+class DeepseekR1_32b(BaseModel):
+    def __init__(self, generation_settings):
+        model_info = CHAT_MODELS['Deepseek R1 - 32b']
+
+        custom_generation_settings = {
+            'max_length': generation_settings['max_length'],
+            'max_new_tokens': generation_settings['max_new_tokens'],
+            'do_sample': True,
+            'temperature': 0.6,
+            'top_p': 0.95,
+            'use_cache': True,
+            'num_beams': 1
+        }
+
+        super().__init__(model_info, bnb_bfloat16_settings, custom_generation_settings)
+
+    def create_prompt(self, augmented_query):
+        return f"""<|begin_of_sentence|>{system_message}<|User|>{augmented_query}<|Assistant|><｜end_of_sentence｜><｜Assistant｜>"""
+
+    def generate_response(self, inputs):
+        SHOW_THINKING = False
+        streamer = TextIteratorStreamer(
+            self.tokenizer, 
+            skip_prompt=True, 
+            skip_special_tokens=True
+        )
+
+        all_settings = {
+            **inputs, 
+            **self.generation_settings,
+            'streamer': streamer, 
+            'pad_token_id': self.tokenizer.pad_token_id,
+            'eos_token_id': self.tokenizer.eos_token_id
+        }
+
+        generation_thread = threading.Thread(target=self.model.generate, kwargs=all_settings)
+        generation_thread.start()
+
+        if SHOW_THINKING:
+            # stream everything
+            for partial_response in streamer:
+                yield partial_response
+        else:
+            # only stream after </think> tag
+            buffer = ""
+            thinking_complete = False
+
+            for partial_response in streamer:
+                buffer += partial_response
+                if not thinking_complete and '</think>' in buffer:
+                    thinking_complete = True
+                    start_idx = buffer.rfind('</think>') + len('</think>')
+                    yield buffer[start_idx:].strip()
+                    buffer = ""
+                elif thinking_complete:
+                    yield partial_response
+
+        generation_thread.join()
 
 
 class QwenCoder_32b(BaseModel):
@@ -566,16 +746,16 @@ def choose_model(model_name):
 
         model_class_name = CHAT_MODELS[model_name]['function']
         model_class = globals()[model_class_name]
-        
-        # get relevant "max_length"
+
+        # get "max_length"
         max_length = get_max_length(model_name)
 
-        # get relevant "max_new_tokens"
+        # get "max_new_tokens"
         max_new_tokens = get_max_new_tokens(model_name)
 
         # define "generation_settings" based on "max_length" and "max_new_tokens"
         generation_settings = get_generation_settings(max_length, max_new_tokens)
-        
+
         # pass "generation_settings" to the model constructor
         return model_class(generation_settings)
     else:

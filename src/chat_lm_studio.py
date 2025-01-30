@@ -8,7 +8,7 @@ from openai import OpenAI
 from PySide6.QtCore import QThread, Signal, QObject
 
 from database_interactions import QueryVectorDB
-from utilities import format_citations
+from utilities import format_citations, normalize_chat_text
 from constants import rag_string
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
@@ -98,7 +98,8 @@ class LMStudioChat:
             full_response += response_chunk
         
         with open('chat_history.txt', 'w', encoding='utf-8') as f:
-            f.write(full_response)
+            normalized_response = normalize_chat_text(full_response)
+            f.write(normalized_response)
         
         self.signals.response_signal.emit("\n")
         
@@ -130,12 +131,12 @@ def is_lm_studio_available():
     |
     |         DatabaseQueryTab (GUI)                 LMStudioChatThread
     |         ------------------                     -----------------
-    |              |                                      |
+    |              |                                     |
     |        [Submit Button]                             |
     |              |                                     |
     |         on_submit_button_clicked()                 |
     |              |                                     |
-    |              |---> LMStudioChatThread.start() --->|
+    |              |---> LMStudioChatThread.start() ---->|
     |              |                                     |
     |                                          [LMStudioChat Instance]
     |                                                    |

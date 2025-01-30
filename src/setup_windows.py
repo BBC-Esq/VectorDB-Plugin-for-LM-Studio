@@ -268,7 +268,7 @@ def download_kobold():
     import os
 
     file_name = "koboldcpp_nocuda.exe"
-    url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.80.3/{file_name}"
+    url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.82.4/{file_name}"
     script_dir = os.path.dirname(os.path.abspath(__file__))
     assets_dir = os.path.join(script_dir, "Assets")
     

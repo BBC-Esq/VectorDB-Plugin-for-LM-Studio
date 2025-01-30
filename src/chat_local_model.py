@@ -10,7 +10,7 @@ from PySide6.QtCore import QObject, Signal
 
 import module_chat
 from database_interactions import QueryVectorDB
-from utilities import format_citations, my_cprint
+from utilities import format_citations, my_cprint, normalize_chat_text
 from constants import rag_string
 
 # DECLARE SIGNALS
@@ -224,7 +224,8 @@ class LocalModelChat:
                         conn.send(("token_counts", token_count_string))
 
                         with open('chat_history.txt', 'w', encoding='utf-8') as f:
-                            f.write(full_response)
+                            normalized_response = normalize_chat_text(full_response)
+                            f.write(normalized_response)
                         citations = format_citations(metadata_list)
                         # pipe to "_listen_for_response" in parent process
                         conn.send(("citations", citations))
@@ -251,8 +252,8 @@ def is_cuda_available():
 [Main Process]
     |
     |         DatabaseQueryTab (GUI)                 LocalModelChat
-    |         ------------------                     --------------
-    |              |                                      |
+    |         ---------------------                  --------------
+    |              |                                     |
     |        [Submit Button]                             |
     |              |                                     |
     |         on_submit_button_clicked()                 |
@@ -264,8 +265,8 @@ def is_cuda_available():
     |              |                                     |
     |              |                            [Load Model Instance]
     |              |                                     |
-    |              |---> start_chat() ----------------->|
-    |              |     (question, model, database)    |
+    |              |---> start_chat() ------------------>|
+    |              |     (question, model, database)     |
     |              |                                     |
     |              |                    [QueryVectorDB Search]
     |              |                                     |
@@ -281,16 +282,16 @@ def is_cuda_available():
     |         |                                   - ("finished", None)
     |         |                                   - ("token_counts", text)
     |         |                                        |
-    |    Signal Emissions:                            |
-    |    - response_signal                            |
-    |    - citations_signal                           |
-    |    - error_signal                              |
-    |    - finished_signal                           |
-    |    - token_count_signal                        |
-    |         |                                      |
-    |    [GUI Updates]                               |
-    |    - update_response_local_model()             |
-    |    - display_citations_in_widget()             |
-    |    - show_error_message()                      |
-    |    - update_token_count_label()                |
+    |    Signal Emissions:                             |
+    |    - response_signal                             |
+    |    - citations_signal                            |
+    |    - error_signal                                |
+    |    - finished_signal                             |
+    |    - token_count_signal                          |
+    |         |                                        |
+    |    [GUI Updates]                                 |
+    |    - update_response_local_model()               |
+    |    - display_citations_in_widget()               |
+    |    - show_error_message()                        |
+    |    - update_token_count_label()                  |
 """

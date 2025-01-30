@@ -27,14 +27,12 @@ from math import sin, cos, pi
 from dataclasses import dataclass
 from typing import Optional
 
-
 def is_nvidia_gpu_available():
     try:
         subprocess.check_output(["nvidia-smi"], stderr=subprocess.STDOUT)
         return True
     except (FileNotFoundError, subprocess.CalledProcessError):
         return False
-
 
 HAS_NVIDIA_GPU = is_nvidia_gpu_available()
 
@@ -609,6 +607,7 @@ class ArcGraph(QWidget):
         painter.setFont(font)
         painter.drawText(self.rect(), Qt.AlignCenter, f"{int(self.value)}%")
 
+
 class ArcGraphVisualization(MetricsVisualization):
     def __init__(self):
         super().__init__()
@@ -678,6 +677,7 @@ class ArcGraphVisualization(MetricsVisualization):
                 avg_power = sum(self.power_buffer) / len(self.power_buffer)
                 self.power_arc.set_value(avg_power)
                 self.power_label.setText(f"GPU Power {avg_power:.1f}%")
+
 
 class MetricsWidget(QWidget):
     def __init__(self, parent=None):

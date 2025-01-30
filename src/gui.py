@@ -119,7 +119,7 @@ class DocQA_GUI(QWidget):
         self.jeeves_action.triggered.connect(self.open_chat_window)
 
     def open_chat_window(self):
-        # First check - embedding model
+        # check - embedding model
         required_folder = script_dir / 'Models' / 'vector' / 'ibm-granite--granite-embedding-30m-english'
         if not required_folder.exists() or not required_folder.is_dir():
             QMessageBox.warning(
@@ -129,7 +129,7 @@ class DocQA_GUI(QWidget):
             )
             return
 
-        # Second check - Kokoro TTS model
+        # check - Kokoro TTS model
         tts_path = script_dir / "Models" / "tts" / "ctranslate2-4you--Kokoro-82M-light"
         if not tts_path.exists() or not tts_path.is_dir():
             ret = QMessageBox.question(
@@ -164,7 +164,7 @@ class DocQA_GUI(QWidget):
                     "You can always download the TTS model later by closing and reopening Jeeves."
                 )
 
-        # Third check - Kobold executable
+        # check - Kobold executable
         exe_path = script_dir / "Assets" / "koboldcpp_nocuda.exe"
         if not exe_path.exists():
             ret = QMessageBox.question(
@@ -229,9 +229,9 @@ class DocQA_GUI(QWidget):
             if item.is_file():
                 item.unlink()
         self.metrics_bar.stop_metrics_collector()
-        
+
         self.cleanup_tabs()
-        
+
         super().closeEvent(event)
 
 def main():
@@ -243,7 +243,6 @@ def main():
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
-    # Initialize the QApplication
     app = QApplication(sys.argv)
 
     # Optionally, set the application font size based on DPI (recommended)

@@ -41,7 +41,6 @@ class BaseEmbeddingModel:
 
     def prepare_encode_kwargs(self):
         if self.is_query:
-            # Override batch size for queries
             self.encode_kwargs['batch_size'] = 1
         return self.encode_kwargs
 
@@ -204,13 +203,14 @@ class CreateVectorDB:
                 't5-xxl': 2,
                 't5-xl': 2,
                 'instructor-xl': 2,
-                'stella': 2,
+                'stella_en_1.5B': 2,
                 'gte-large': 4,
                 't5-large': 4,
                 'bge-large': 4,
                 'instructor-large': 4,
                 'e5-large': 4,
                 'arctic-embed-l': 4,
+                'stella_en_400M': 6,
                 't5-base': 6,
                 'e5-small': 16,
                 'bge-small': 16,

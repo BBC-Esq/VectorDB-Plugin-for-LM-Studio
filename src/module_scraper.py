@@ -111,6 +111,11 @@ class TileDBVectorSearchScraper(BaseScraper):
 
         return None
 
+class PyMuScraper(BaseScraper):
+    def extract_main_content(self, soup):
+        main_content = soup.find('article', attrs={'role': 'main'})
+        return main_content
+
 class ScraperRegistry:
     _scrapers = {
         "BaseScraper": BaseScraper,
@@ -121,6 +126,7 @@ class ScraperRegistry:
         "PyTorchScraper": PyTorchScraper,
         "TileDBScraper": TileDBScraper,
         "TileDBVectorSearchScraper": TileDBVectorSearchScraper,
+        "PyMuScraper": PyMuScraper,
     }
 
     @classmethod

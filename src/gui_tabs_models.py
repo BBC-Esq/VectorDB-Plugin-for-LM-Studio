@@ -1,14 +1,14 @@
 import threading
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
    QWidget, QLabel, QGridLayout, QVBoxLayout, QGroupBox, QPushButton, QRadioButton, QButtonGroup
 )
 
 from constants import VECTOR_MODELS, TOOLTIPS
 from download_model import ModelDownloader, model_downloaded_signal
-import webbrowser
 
 class VectorModelsTab(QWidget):
     def __init__(self, parent=None):
@@ -22,11 +22,11 @@ class VectorModelsTab(QWidget):
        self.model_radiobuttons.setExclusive(True)
        self.stretch_factors = {
            'BAAI': 4,
-           'hkunlp': 4,
+           # 'hkunlp': 2,
            'sentence-transformers': 6,
-           'dunzhang': 2,
+           'NovaSearch': 3,
            'intfloat': 4,
-           'Alibaba-NLP': 3,
+           'Alibaba-NLP': 4,
            # 'Answerdotai': 3,
            'IBM': 3,
            'Snowflake': 3,
@@ -176,7 +176,7 @@ class VectorModelsTab(QWidget):
        self.repaint()
 
     def open_link(self, url):
-       webbrowser.open(url)
+        QDesktopServices.openUrl(QUrl(url))
 
 if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication

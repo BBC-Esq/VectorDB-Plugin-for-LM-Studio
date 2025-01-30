@@ -106,6 +106,7 @@ class DatabasesTab(QWidget):
         self.model_combobox.setToolTip(TOOLTIPS["SELECT_VECTOR_MODEL"])
         self.populate_model_combobox()
         self.model_combobox.currentIndexChanged.connect(self.on_model_selected)
+        self.model_combobox.activated.connect(self.refresh_model_combobox)
 
         self.create_db_button = QPushButton("Create Vector Database")
         self.create_db_button.setToolTip(TOOLTIPS["CREATE_VECTOR_DB"])
@@ -134,6 +135,15 @@ class DatabasesTab(QWidget):
         self.layout.addLayout(hbox2)
 
         self.sync_combobox_with_config()
+
+    def refresh_model_combobox(self, index):
+        """Refreshes the combobox contents before showing the dropdown"""
+        current_text = self.model_combobox.currentText()
+        self.populate_model_combobox()
+        # Restore the previous selection if it still exists
+        idx = self.model_combobox.findText(current_text)
+        if idx >= 0:
+            self.model_combobox.setCurrentIndex(idx)
 
     def update_model_combobox(self, model_name, model_type):
         if model_type == "vector":

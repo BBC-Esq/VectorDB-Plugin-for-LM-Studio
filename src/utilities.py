@@ -309,15 +309,14 @@ def get_appropriate_dtype(compute_device, use_half, model_native_precision):
     logging.debug(f"compute_device: {compute_device}")
     logging.debug(f"use_half: {use_half}")
     logging.debug(f"model_native_precision: {model_native_precision}")
-    
+
     compute_device = compute_device.lower()
     model_native_precision = model_native_precision.lower()
-    
+
     if compute_device == 'cpu':
         logging.debug("Using CPU, returning float32")
         return torch.float32
 
-    # Initialize CUDA availability and capability
     cuda_available = torch.cuda.is_available()
     if cuda_available:
         cuda_capability = torch.cuda.get_device_capability()
@@ -499,7 +498,7 @@ def backup_database():
    logging.debug("Starting database backup process")
    source_directory = Path('Vector_DB')
    backup_directory = Path('Vector_DB_Backup')
-   
+
    logging.debug(f"Source directory: {source_directory}")
    logging.debug(f"Backup directory: {backup_directory}")
 
@@ -524,18 +523,18 @@ def backup_database_incremental(new_database_name):
    logging.debug("Starting incremental database backup")
    source_directory = Path('Vector_DB')
    backup_directory = Path('Vector_DB_Backup')
-   
+
    logging.debug(f"Source directory: {source_directory}")
    logging.debug(f"Backup directory: {backup_directory}")
-   
+
    backup_directory.mkdir(parents=True, exist_ok=True)
    logging.debug("Created backup directory (if it didn't exist)")
-   
+
    source_db_path = source_directory / new_database_name
    backup_db_path = backup_directory / new_database_name
    logging.debug(f"Source DB path: {source_db_path}")
    logging.debug(f"Backup DB path: {backup_db_path}")
-   
+
    if backup_db_path.exists():
        logging.debug(f"Existing backup found for {new_database_name} - attempting to remove")
        try:
@@ -591,7 +590,7 @@ def check_preconditions_for_db_creation(script_dir, database_name):
     if not config_path.exists():
         QMessageBox.warning(None, "Configuration Missing", "The configuration file (config.yaml) is missing.")
         return False, "Configuration file missing."
-    
+
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
 
@@ -627,7 +626,7 @@ def check_preconditions_for_db_creation(script_dir, database_name):
     if not torch.cuda.is_available():
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
-        
+
         if config.get('database', {}).get('half', False):
             message = ("CUDA is not available on your system, but half-precision (FP16) "
                        "is selected for database creation. Half-precision requires CUDA. "
@@ -670,14 +669,14 @@ def get_cuda_compute_capabilities():
    ccs = []
    device_count = torch.cuda.device_count()
    logging.debug(f"Found {device_count} CUDA device(s)")
-   
+
    for i in range(device_count):
        device = torch.cuda.device(i)
        cc_major, cc_minor = torch.cuda.get_device_capability(device)
        compute_capability = f"{cc_major}.{cc_minor}"
        logging.debug(f"Device {i} compute capability: {compute_capability}")
        ccs.append(compute_capability)
-   
+
    logging.debug(f"All compute capabilities: {ccs}")
    return ccs
 
@@ -691,47 +690,47 @@ def get_cuda_version():
 # returns True if cuda exists and supports compute 8.6 of higher
 def has_bfloat16_support():
    logging.debug("Checking bfloat16 support")
-   
+
    if not torch.cuda.is_available():
        logging.debug("CUDA not available, bfloat16 not supported")
        return False
-   
+
    capability = torch.cuda.get_device_capability()
    logging.debug(f"CUDA compute capability: {capability}")
-   
+
    has_support = capability >= (8, 0)
    logging.debug(f"bfloat16 {'supported' if has_support else 'not supported'}")
    return has_support
 
 def get_precision():
    logging.debug("Determining appropriate precision based on GPU capability")
-   
+
    if not torch.cuda.is_available():
        logging.debug("CUDA not available")
        raise RuntimeError("CUDA is not available. This function requires a CUDA-enabled GPU.")
-   
+
    capability = torch.cuda.get_device_capability()
    logging.debug(f"CUDA compute capability: {capability}")
-   
+
    if capability >= (8, 0):
        precision = torch.bfloat16
        logging.debug("Using bfloat16 precision (Ampere or newer GPU)")
    else:
        precision = torch.float16
        logging.debug("Using float16 precision (pre-Ampere GPU)")
-   
+
    return precision
 
 def get_device_and_precision():
    logging.debug("Determining device and precision")
-   
+
    if torch.cuda.is_available():
        device = "cuda"
        logging.debug("CUDA device available")
-       
+
        capability = torch.cuda.get_device_capability()
        logging.debug(f"CUDA compute capability: {capability}")
-       
+
        if capability >= (8, 0):
            precision = "bfloat16"
            logging.debug("Using bfloat16 precision (Ampere or newer GPU)")
@@ -742,7 +741,7 @@ def get_device_and_precision():
        device = "cpu"
        precision = "float32"
        logging.debug("Using CPU with float32 precision")
-   
+
    logging.debug(f"Final configuration - Device: {device}, Precision: {precision}")
    return device, precision
 
