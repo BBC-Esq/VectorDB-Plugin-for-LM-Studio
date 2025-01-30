@@ -1,6 +1,16 @@
 """
-Module contains common parsers for PDFs.
-MODIFIED VERSION BASED OFF OF langchain-community version 0.3.13
+MODIFIED VERSION BASED OFF OF langchain-community version 0.3.14
+
+Original Version:
+- Creates separate Document objects for each page
+- Returns an iterator of Document objects (one per page)
+- Maintains page-specific metadata including page numbers
+
+Modified Source Code:
+- Combines all pages into a single Document object
+- Inserts page markers ([[page1]], [[page2]], etc.) to denote page boundaries
+- Returns a single Document object containing the entire PDF content
+- Preserves document-level metadata but removes page-specific metadata
 """
 
 from __future__ import annotations
