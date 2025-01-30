@@ -112,10 +112,10 @@ class BaseModel(ABC):
             tokenizer_settings['use_auth_token'] = hf_token
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_info['repo_id'], **tokenizer_settings)
-        
+
         if tokenizer_kwargs and 'eos_token' in tokenizer_kwargs:
             self.tokenizer.eos_token = tokenizer_kwargs['eos_token']
-        
+
         model_settings = {
             **settings.get('model_settings', {}), 
             'cache_dir': str(cache_dir)
@@ -737,26 +737,49 @@ def generate_response(model_instance, augmented_query):
 def choose_model(model_name):
     if model_name in CHAT_MODELS:
 
-        # DEBUG FA2
-        # from transformers.utils import is_flash_attn_2_available, is_flash_attn_greater_or_equal_2_10
-
-        # my_cprint(f"Flash Attention 2 available: {is_flash_attn_2_available()}", "green")
-        # if is_flash_attn_2_available():
-            # my_cprint(f"Flash Attention >= 2.10: {is_flash_attn_greater_or_equal_2_10()}", "green")
-
         model_class_name = CHAT_MODELS[model_name]['function']
         model_class = globals()[model_class_name]
 
-        # get "max_length"
         max_length = get_max_length(model_name)
 
-        # get "max_new_tokens"
         max_new_tokens = get_max_new_tokens(model_name)
 
-        # define "generation_settings" based on "max_length" and "max_new_tokens"
         generation_settings = get_generation_settings(max_length, max_new_tokens)
 
-        # pass "generation_settings" to the model constructor
         return model_class(generation_settings)
     else:
         raise ValueError(f"Unknown model: {model_name}")
+
+"""
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+| **Model**           | **Token** | **Token Value**         | **In Chat Template?** | **Additional Settings** |
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+| Qwen 2.5/Coder      | BOS       | null                    | No                    | add_bos_token: false    |
+|                     | PAD       | <|endoftext|>           | No                    | N/A                     |
+|                     | EOS       | <|im_end|>              | Yes                   | N/A                     |
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+| Granite 3.1         | BOS       | <|end_of_text|>         | No                    | add_bos_token: false    |
+|                     | PAD       | <|end_of_text|>         | No                    | N/A                     |
+|                     | EOS       | <|end_of_text|>         | Yes                   | N/A                     |
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+| Zephyr 1.6b & 3b    | BOS       | <|endoftext|>           | No                    | N/A                     |
+|                     | PAD       | <|endoftext|>           | No                    | N/A                     |
+|                     | EOS       | <|endoftext|>           | Yes                   | N/A                     |
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+| Exaone 3.5          | BOS       | <s>                     | No*                   | add_bos_token: true     |
+|                     | PAD       | </s>                    | No                    | N/A                     |
+|                     | EOS       | </s>                    | Yes                   | add_eos_token: false    |
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+| Internlm3           | BOS       | <s>                     | No                    | add_bos_token: true     |
+|                     | PAD       | </s>                    | No                    | N/A                     |
+|                     | EOS       | </s>                    | No                    | add_eos_token: false    |
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+| Deepseek R1 Distill | BOS       | <｜begin▁of▁sentence｜> | No*                   | add_bos_token: true     |
+|                     | PAD       | <｜end▁of▁sentence｜>   | No                    | N/A                     |
+|                     | EOS       | <｜end▁of▁sentence｜>   | Yes                   | add_eos_token: false    |
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+| Mistral 22b         | BOS       | <s>                     | No*                   | add_bos_token: true     |
+|                     | PAD       | </s>                    | No                    | N/A                     |
+|                     | EOS       | </s>                    | Yes                   | add_eos_token: false    |
++---------------------+-----------+-------------------------+-----------------------+-------------------------+
+"""

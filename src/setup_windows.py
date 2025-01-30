@@ -302,7 +302,7 @@ def update_config_yaml():
     with open(config_path, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
 
-    vector_model_path = os.path.join(script_dir, 'Models', 'vector', 'ibm-granite--granite-embedding-30m-english')
+    vector_model_path = os.path.join(script_dir, 'Models', 'vector', 'BAAI--bge-small-en-v1.5')
 
     if 'created_databases' not in config:
         config['created_databases'] = {}

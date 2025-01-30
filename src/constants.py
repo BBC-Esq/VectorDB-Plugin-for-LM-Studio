@@ -100,7 +100,7 @@ libs = [
     "httpcore==1.0.7",
     "httpx==0.28.1",
     "httpx-sse==0.4.0",
-    "huggingface-hub==0.27.1", # tokenizers 0.20.3 requires >=0.16.4,<1.0
+    "huggingface-hub==0.28.1", # tokenizers 0.20.3 requires >=0.16.4,<1.0
     "humanfriendly==10.0",
     "HyperPyYAML==1.2.2",
     "idna==3.10",
@@ -113,13 +113,13 @@ libs = [
     "jsonpath-python==1.0.6",
     "jsonpointer==3.0.0",
     "kiwisolver==1.4.8",
-    "langchain==0.3.16",
+    "langchain==0.3.17",
     "langchain-community==0.3.16",
-    "langchain-core==0.3.32",
+    "langchain-core==0.3.33",
     "langchain-huggingface==0.1.2",
     "langchain-text-splitters==0.3.5",
     "langdetect==1.0.9",
-    "langsmith==0.2.10",
+    "langsmith==0.3.3",
     "llvmlite==0.44.0", # only required by numba
     "lxml==5.3.0",
     "Markdown==3.7",
@@ -222,6 +222,7 @@ libs = [
     "xxhash==3.5.0",
     "yarl==1.18.3", # aiohttp requires <2
     "zipp==3.21.0",
+    "zstandard==0.23.0" # only required by langsmith 3+
 ]
 
 full_install_libs = [
@@ -413,7 +414,7 @@ CHAT_MODELS = {
         'cache_dir': 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B',
         'cps': 18,
         'context_length': 8192,
-        'vram': 2200,
+        'vram': 22000,
         'function': 'DeepseekR1_32b',
         'precision': 'bfloat16',
         'gated': False,
@@ -2698,87 +2699,6 @@ GPUS_INTEL = {
 }
 
 master_questions = [
-    "What is the InternLM chat model?",
-    "What is the stella embedding model?",
-    "What is the sentence transformer static-retrieval embedding model?",
-    "What are the main features and capabilities of this program?",
-    "How does LM Studio integrate with this program?",
-    "What are local models and how can I access them through Huggingface?",
-    "How do I obtain and use a Huggingface access token?",
-    "What is the relationship between context limits and chunk sizes?", 
-    "How do token limits affect the performance of vector and chat models?",
-    "What is the optimal number of contexts to retrieve when querying the vector database?",
-    "What purpose does the 'chunks only' checkbox serve?",
-    "How do embedding models convert text into vectors for database storage?",
-    "What are the main differences between Sentence Retrieval Models and Generalist Models?",
-    "What factors should I consider when choosing an embedding model?",
-    "How does the dimension size of a vector model affect its performance?",
-    "What is the purpose of the half-precision checkbox setting?",
-    "What vision models are available in the program and how do they differ?",
-    "What are the key differences between Florence2, Moondream2, and Llava vision models?",
-    "How does the program utilize Whisper for voice recording and audio transcription?",
-    "What are the differences between distil variants and regular Whisper models?",
-    "How do floating point formats affect model performance and accuracy?",
-    "What are the main differences between float32, float16, and bfloat16 formats?",
-    "How does quantization impact model size and performance?",
-    "What LM Studio settings are available and how do they affect responses?",
-    "How does the temperature setting influence LM Studio's output?",
-    "What role do prefix and suffix settings play in prompt formatting?",
-    "How do the device, similarity, and contexts settings interact when querying the database?",
-    "What is the optimal chunk size for different types of documents?",
-    "How does the chunk overlap setting affect context continuity?",
-    "What purpose does the similarity threshold serve when querying the database?",
-    "How does the search term filter affect context retrieval?",
-    "What are the differences between the available text-to-speech backends?",
-    "How can I choose between Bark and WhisperSpeech for text-to-speech conversion?",
-    "What backup and restoration features are available for databases?",
-    "How can I restore a default configuration if the config.yaml file is lost?",
-    "What strategies are effective for searching the vector database?",
-    "How can I manage VRAM efficiently when using the program?",
-    "What is the relationship between maximum context length and maximum sequence length?",
-    "How does the documentation scraping feature work?",
-    "What vector models are available and how do I download them?",
-    "What functionality does the Manage Databases tab provide?",
-    "How do I create a new vector database with multiple file types?",
-    "What is the purpose of the File Type setting when querying?",
-    "How does the program handle audio file transcription?",
-    "What happens when processing files with special characters?",
-    "How can I optimize search results for technical documentation?",
-    "What's the best way to handle code snippets in the database?",
-    "How does the program maintain document structure in searches?",
-    "What are the limitations of the free Google TTS API?",
-    "How does the program handle embedded images in documents?",
-    "What determines the speed of database creation?",
-    "How can I optimize searches for specific programming languages?",
-    "What happens when processing encrypted documents?",
-    "What role do LM Studio's prompt templates play in shaping the final query sent to the model?",
-    "Why is it advisable to use a GPU during database creation and a CPU during querying?",
-    "How can I prevent sending too many tokens when retrieving multiple contexts from the database?",
-    "What practical signs indicate that my chosen chunk size is mismatched for my text content?",
-    "How does token truncation by the embedding model affect the semantic integrity of the output?",
-    "What experimentation can I do in the Tools tab to compare different vision or transcription models?",
-    "Why might creating dedicated databases for images and text improve the relevance of search results?",
-    "How do I determine when to transition from a sentence retrieval model to a more versatile generalist model?",
-    "What adjustments can I make if my GPU struggles to run a particularly large vision model?",
-    "What considerations arise when mixing images, audio transcriptions, and documents in one vector database?",
-    "How can I leverage audio transcriptions for more effective information retrieval within the database?",
-    "In what scenarios should I modify the Whisper batch size to balance speed and GPU memory usage?",
-    "What subtle effects can quantization have on the semantic relationships stored within vector embeddings?",
-    "When should I try post-training quantization versus quantization-aware training?",
-    "When might disabling automatic prompt formatting in LM Studio lead to better query results?",
-    "What steps should I take if I suspect my similarity threshold is either too lenient or too strict?",
-    "When dealing with small documents, how can I adjust chunking strategies for optimal retrieval?",
-    "Is it possible to switch between LM Studio and local models mid-process to refine query responses?",
-    "How can I mix different embedding models to tailor the vector database for specialized queries?",
-    "What actions can I take if the chat model returns errors due to insufficient available token space?",
-    "What features does the Manage Databases tab provide to reorganize or inspect existing vector databases?",
-    "How can testing different audio file formats improve transcription accuracy in the vector database?",
-    "What are the pros and cons of running vision models entirely on a CPU instead of a GPU?",
-    "What practical performance differences might I see when using sentence-t5 versus other generalist models?",
-    "What quick experiments can I run to ensure that the vector database retrieval aligns with my search needs?",
-    "How does blending image summaries with textual data affect the semantic similarity search results?",
-    "Is there a way to continuously update the vector database with newly scraped or added documentation?",
-    "How can changes in chunk size, overlap, and similarity influence the final set of returned contexts?",
     "Overview of Program",
     "What is LM Studio?",
     "What are embedding or vector models?",
@@ -2789,6 +2709,7 @@ master_questions = [
     "What happens if I exceed the context limit or maximum sequence length and how does the chunk size and overlap setting relate?",
     "How many context should I retrieve when querying the vector database?",
     "What does the chunks only checkbox do?",
+    "What are embedding or vector models?",
     "Which embedding or vector model should I choose?",
     "What are the characteristics of vector or embedding models?",
     "What are the dimensions of a vector or embedding model?",
@@ -2832,26 +2753,30 @@ master_questions = [
     "What are maximunm context length of a chat model and and maximum sequence length of an embedding model?",
     "What is the scrape documentaton feature in this program?",
     "Which vector or embedding models are available in this program?",
-    "What are the embedding models created by Alibaba?",
-    "What are the arctic embedding models?",
-    "What are the knunlp or instructor embedding models?",
-    "What are the intfloat embedding models?",
-    "What are the sentence transformer or sentence-t5 embedding models?",
+    "What are the Alibaba embedding models?",
+    "What are the BGE embedding models?",
     "What are the IBM or granite embedding models?",
-    "What is the InternVL2.5-1b vision model?",
-    "What is the Florence2-Base vision model?",
-    "What is the InternVL2.5-4b vision model?",
+    "What are the intfloat embedding models?",
+    "What are the NovaSearch or Nova Search embedding models?",
+    "What are the sentence transformer or sentence-t5 embedding models?",
+    "What are the arctic or snowflake embedding models?",
+    "What is the sentence transformer static-retrieval embedding model?",
+    "What are vision models and which ones does this program offer?",
+    "What are the InternVL2.5 vision models?",
+    "What are the Florence2 vision models?",
     "What is the Moondream2 vision model?",
     "What is the Mississippi vision model?",
     "What is the Ovis1.6-Llama3.2 vision model?",
     "What is the GLM4v vision model?",
     "What is the Molmo-D-0924 vision model?",
     "What is the Llava 1.6 vision model?",
+    "What are chat models and what models does this program offer?",
     "What are the exaone chat models?",
     "What are the qwen 2.5 coder chat models?",
     "What are the qwen chat models and not the coder models?",
     "What is the mistral or mistral small chat model?",
     "What are the IBM or granite chat models?",
+    "What is the InternLM chat model?",
     "What is the manage databaes tab?",
     "How can I create a vector database?",
     "What is the Query Database Tab",
@@ -2885,9 +2810,9 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 +---------------+---------------------------------------------------------+
 * cu121, cu124, and cu126 wheels include libraries from CUDA releases 12.1.1 and 12.4.1, and 12.6.3, respectively
 
-***************************
-**PyTorch Official Matrix**
-***************************
+***********************************
+**PyTorch Official Support Matrix**
+***********************************
 
 # https://github.com/pytorch/pytorch/blob/main/RELEASE.md#release-compatibility-matrix
 +-------+----------------------------+----------------------------------------+----------------------------+
@@ -2910,7 +2835,6 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 
 # dependencies scraped from pypi for linux builds
 # useful to determine windows compatibility when pip installing CUDA libraries rather than relying on a systemwide installation
-
 +-------------------+------------+--------------+----------+----------+----------+---------+
 | Torch Version     | cuda-nvrtc | cuda-runtime | cublas   | cufft     | cudnn    | triton |
 +-------------------+------------+--------------+----------+-----------+----------+--------+
@@ -2933,68 +2857,53 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 
 # According to Nvidia, cuDNN 8.9.2.26 is only compatible up to CUDA 12.2
 # For cuDNN 9+, Nvidia promises compatibility for all CUDA 12.x releases, but static linking fluctuates
-+---------------+-----------------+-------------------------+
-| cuDNN Version | Static Linking  | No Static Linking       |
-+---------------+-----------------+-------------------------+
-| 8.9.2         | 12.1, 11.8      | 12.0, ≤11.7             |
-| 8.9.3         | 12.1, 11.8      | 12.0, ≤11.7             |
-| 8.9.4         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
-| 8.9.5         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
-| 8.9.6         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
-| 8.9.7         | 12.2, 11.8      | 12.1, 12.0, ≤11.7       |
-| 9.0.0         | 12.3, 11.8      | 12.2, 12.1, 12.0, ≤11.7 |
-| 9.1.0         | 12.4-12.0, 11.8 | ≤11.7                   |
-| 9.1.1         | 12.5-12.0, 11.8 | ≤11.7                   |
-+---------------+-----------------+-------------------------+
-* 9.2+ continues the same trend
 
 ************
 **Xformers**
 ************
 
-# strictly tied to a specific torch version per "metadata" in each whl file
-+------------------+---------------+
-| Xformers Version | Torch Version |
-+------------------+---------------+
-| v0.0.29.post1    | 2.5.1         |
-| v0.0.29          | 2.5.1         | # BUG, don't use
-| v0.0.28.post3    | 2.5.1         |
-| v0.0.28.post2    | 2.5.0         |
-| v0.0.28.post1    | 2.4.1         |
-| v0.0.27.post2    | 2.4.0         |
-| v0.0.27.post1    | 2.4.0         |
-| v0.0.27          | 2.3.0         | # release notes confusingly say "some operation might require torch 2.4"
-| v0.0.26.post1    | 2.3.0         |
-| v0.0.25.post1    | 2.2.2         |
-+------------------+---------------+
-* Pypi only has windows wheels through 2.4.0.
-* 2.4.0+ windows wheels only available from pytorch directly - https://download.pytorch.org/whl/cu124/xformers/
-  * e.g. pip install https://download.pytorch.org/whl/cu124/xformers-0.0.28.post3-cp311-cp311-win_amd64.whl
-
++------------------+-------+---------------+----------------+
+| Xformers Version | Torch |  FA2 Support  | CUDA (excl.11) |
++------------------+-------+---------------+----------------|
+| v0.0.29.post1    | 2.5.  | 2.6.3 - 2.7.2 | 12.1.0, 12.4.1 |
+| v0.0.29 (BUG)    | 2.5.  |               |                |
+| v0.0.28.post3    | 2.5.1 |               |                |
+| v0.0.28.post2    | 2.5.0 |               |                |
+| v0.0.28.post1    | 2.4.1 |               |                |
+| v0.0.27.post2    | 2.4.0 |               |                |
+| v0.0.27.post1    | 2.4.0 |               |                |
+| v0.0.27          | 2.3.0 |               |                |
+| v0.0.26.post1    | 2.3.0 |               |                |
+| v0.0.25.post1    | 2.2.2 |               |                |
++------------------+-------+---------------+----------------+
+* Only PyTorch builds Windows wheels after 2.4.0 - https://download.pytorch.org/whl/cu124/xformers/
+* Torch support determined by xformers/.github/workflows/wheels.yml
+* FA2 support determined by by xformers/xformers/ops/fmha/flash.py
+* CUDA support determined by xformers/.girhub/actions/setup-build-cuda/action.yml
 
 **********
 **Triton**
 **********
 
-# 3.0.0 and earlier wheels are located here: https://github.com/jakaline-dev/Triton_win/releases
+* 3.0.0 and earlier wheels are located here: https://github.com/jakaline-dev/Triton_win/releases
   * E.g., https://github.com/jakaline-dev/Triton_win/releases/download/3.0.0/triton-3.0.0-cp311-cp311-win_amd64.whl
   * only supports up to Python 3.11
 
-# 3.1.0 and later wheels: https://github.com/woct0rdho/triton-windows/releases
+* 3.1.0 and later wheels: https://github.com/woct0rdho/triton-windows/releases
  * "Triton 3.1.0 requires torch 2.4.0+
  * "The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x."
  * https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp311-cp311-win_amd64.whl
  * supports Python 3.12
 
-
 *************
 **LINUX FA2**
 *************
 
-# According to flash-attention/.github/workflows/publish.yml
+# Obtained from flash-attention/.github/workflows/publish.yml
 +--------------+-----------------------------------------------+----------------+
 | FA2 Version  | Torch Versions Supported                      | CUDA Versions  |
 +--------------+-----------------------------------------------+----------------+
+| v2.7.4.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0             | 12.4.1         |
 | v2.7.3       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
 | v2.7.2.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
 | v2.7.2       | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0.dev20241001 | 11.8.0, 12.3.2 |
@@ -3013,8 +2922,6 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 | v2.6.0       | 2.2.2, 2.3.1, 2.4.0.dev20240512               | 11.8.0, 12.2.2 |
 | v2.5.9.post1 | 2.2.2, 2.3.0, 2.4.0.dev20240407               | 11.8.0, 12.2.2 |
 +--------------+-----------------------------------------------+----------------+
-* 2.5.8 is the first to support torch 2.2.2
-* no prebuilt wheels simultaneously support torch 2.2.2 and CUDA prior to 12.2.2
 
 ***************
 **WINDOWS FA2**
@@ -3036,13 +2943,6 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 | v2.4.2       | 2.1.2, 2.2.0        | 12.2.2        |
 +--------------+---------------------+---------------+
 Supported model architectures: https://huggingface.co/docs/transformers/v4.47.1/en/perf_infer_gpu_one
-
-****************
-**Xformers/FA2**
-****************
-https://github.com/facebookresearch/xformers/blob/46a02df62a6192bf11456e712ae072bfd9c83e71/xformers/ops/fmha/flash.py#L66
-https://github.com/facebookresearch/xformers/commit/839c4ec4b928f1f02f83d25a7d111bde819e6bce
-
 
 ****************
 **One Big Mess**
@@ -3075,7 +2975,6 @@ solution is downgrade to v4.4.0 at the moment which is strange because it was co
 Update: it's compatible with torch==2.*+cu124 so it's only incompatible with 12.1, I'll open a PR to solve this
   * but his fix didn't work: https://github.com/OpenNMT/CTranslate2/pull/1807
 
-
 ***************
 **CTRANSLATE2**
 ***************
@@ -3085,7 +2984,6 @@ Ctranslate2 4.0.0 - first to use cuDNN 8.8.0 with CUDA 12.2 by default
 Ctranslate2 4.5.0 - first to use cuDNN 9.1 with CUDA 12.2 by default
 
 # based on /blob/master/python/tools/prepare_build_environment_windows.sh
-
 
 *************************************************
 * Python 3.12

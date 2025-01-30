@@ -120,12 +120,12 @@ class DocQA_GUI(QWidget):
 
     def open_chat_window(self):
         # check - embedding model
-        required_folder = script_dir / 'Models' / 'vector' / 'ibm-granite--granite-embedding-30m-english'
+        required_folder = script_dir / 'Models' / 'vector' / 'BAAI--bge-small-en-v1.5'
         if not required_folder.exists() or not required_folder.is_dir():
             QMessageBox.warning(
                 self,
                 "Ask Jeeves",
-                "Before using Jeeves you must download the granite-30m embedding model, which you can do from the Models tab. Jeeves is waiting."
+                "Before using Jeeves you must download the bge-small-en-v1.5 embedding model, which you can do from the Models tab. Jeeves is waiting."
             )
             return
 

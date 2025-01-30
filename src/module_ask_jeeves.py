@@ -284,7 +284,7 @@ class ChatWindow(QMainWindow):
         self.setWindowTitle("Ask Jeeves (Welcome back Jeeves!)")
         self.setGeometry(100, 100, 850, 950)
 
-        self.model = SentenceTransformer('ibm-granite/granite-embedding-30m-english')
+        self.model = SentenceTransformer('BAAI/bge-small-en-v1.5')
         self.question_embeddings = self.model.encode(master_questions)
         self.suggestion_cache = {}
         
