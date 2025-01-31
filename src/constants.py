@@ -30,7 +30,7 @@ priority_libs = {
             "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post9/triton-3.1.0-cp312-cp312-win_amd64.whl",
             "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
             "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
-            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp312-cp312-win_amd64.whl" # requires torch 2.5.1
+            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp312-cp312-win_amd64.whl", # requires torch 2.5.1
             "nvidia-cuda-runtime-cu12==12.4.127", # based on CUDA 12.4.1
             "nvidia-cublas-cu12==12.4.5.8",  # based on CUDA 12.4.1
             "nvidia-cuda-nvrtc-cu12==12.4.127", #  based on CUDA 12.4.1
