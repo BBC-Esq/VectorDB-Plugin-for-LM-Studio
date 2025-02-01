@@ -29,8 +29,9 @@ from module_process_images import choose_image_loader
 from utilities import my_cprint, get_model_native_precision, get_appropriate_dtype, supports_flash_attention
 from constants import VECTOR_MODELS
 
+logging.basicConfig(level=logging.CRITICAL, force=True)
 # logging.basicConfig(level=logging.DEBUG, force=True)
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class BaseEmbeddingModel:
     def __init__(self, model_name, model_kwargs, encode_kwargs, is_query=False):
