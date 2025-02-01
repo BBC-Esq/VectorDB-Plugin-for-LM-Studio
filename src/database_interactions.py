@@ -29,6 +29,9 @@ from module_process_images import choose_image_loader
 from utilities import my_cprint, get_model_native_precision, get_appropriate_dtype, supports_flash_attention
 from constants import VECTOR_MODELS
 
+# logging.basicConfig(level=logging.DEBUG, force=True)
+# logger = logging.getLogger(__name__)
+
 class BaseEmbeddingModel:
     def __init__(self, model_name, model_kwargs, encode_kwargs, is_query=False):
         self.model_name = model_name
@@ -49,7 +52,7 @@ class BaseEmbeddingModel:
         prepared_encode_kwargs = self.prepare_encode_kwargs()
         return HuggingFaceEmbeddings(
             model_name=self.model_name,
-            show_progress=not self.is_query,  # Only show progress for database creation
+            show_progress=not self.is_query,  # only show progress for database creation
             model_kwargs=prepared_kwargs,
             encode_kwargs=prepared_encode_kwargs
         )
@@ -57,68 +60,129 @@ class BaseEmbeddingModel:
 
 class InstructorEmbedding(BaseEmbeddingModel):
     def create(self):
+        logging.debug("Starting creation of InstructorEmbedding model.")
+        
         instruction = (
             "Represent the question for retrieving supporting documents:"
             if self.is_query else
             "Represent the document for retrieval:"
         )
+        logging.debug("Selected embed instruction: %s", instruction)
+        
+        encode_kwargs = self.prepare_encode_kwargs()
+        logging.debug("Prepared encode_kwargs: %s", encode_kwargs)
         
         model = HuggingFaceInstructEmbeddings(
             model_name=self.model_name,
             model_kwargs=self.model_kwargs,
-            encode_kwargs=self.prepare_encode_kwargs(),
+            encode_kwargs=encode_kwargs,
             show_progress=not self.is_query,
             embed_instruction=instruction
         )
+        logging.debug("Created HuggingFaceInstructEmbeddings model with model_name: %s", self.model_name)
         
         if "torch_dtype" in self.model_kwargs.get("model_kwargs", {}):
             torch_dtype = self.model_kwargs["model_kwargs"]["torch_dtype"]
+            logging.debug("Found torch_dtype in model_kwargs: %s", torch_dtype)
             if torch_dtype is not None:
+                logging.debug("Converting model.client[0].auto_model to torch_dtype: %s", torch_dtype)
                 model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
         
+        logging.debug("InstructorEmbedding model creation complete.")
         return model
 
 
 class SnowflakeEmbedding(BaseEmbeddingModel):
     def prepare_kwargs(self):
         if "large" in self.model_name.lower():
+            logging.debug(f"Model name contains 'large'. Returning original model_kwargs: {self.model_kwargs}")
             return self.model_kwargs
-        
+
         snow_kwargs = deepcopy(self.model_kwargs)
+        logging.debug(f"Original model_kwargs: {self.model_kwargs}")
+        
         compute_device = self.model_kwargs.get("device", "").lower()
         is_cuda = compute_device == "cuda"
         use_xformers = is_cuda and supports_flash_attention()
         
-        snow_kwargs["config_kwargs"] = {
+        logging.debug(f"Device: {compute_device}")
+        logging.debug(f"is_cuda: {is_cuda}")
+        logging.debug(f"use_xformers: {use_xformers}")
+        
+        config_kwargs = {
             "use_memory_efficient_attention": use_xformers,
             "unpad_inputs": use_xformers,
             "attn_implementation": "eager" if use_xformers else "sdpa"
         }
-        
+        snow_kwargs["config_kwargs"] = config_kwargs
+
+        logging.debug(f"Final config_kwargs: {config_kwargs}")
+        logging.debug(f"Final snow_kwargs: {snow_kwargs}")
+
         return snow_kwargs
 
 
 class StellaEmbedding(BaseEmbeddingModel):
     def prepare_kwargs(self):
         stella_kwargs = deepcopy(self.model_kwargs)
+        logging.debug(f"Original model_kwargs: {self.model_kwargs}")
+
         stella_kwargs["model_kwargs"].update({
             "trust_remote_code": True
         })
+        logging.debug("Set 'trust_remote_code' to True in model_kwargs")
+
         if "torch_dtype" in self.model_kwargs.get("model_kwargs", {}):
             stella_kwargs["model_kwargs"]["torch_dtype"] = self.model_kwargs["model_kwargs"]["torch_dtype"]
-        
+            logging.debug(f"Preserved 'torch_dtype': {self.model_kwargs['model_kwargs']['torch_dtype']}")
+
+        logging.debug(f"Final stella_kwargs: {stella_kwargs}")
         return stella_kwargs
 
     def prepare_encode_kwargs(self):
         encode_kwargs = super().prepare_encode_kwargs()
+        logging.debug(f"Initial encode_kwargs from super: {encode_kwargs}")
+
         if self.is_query:
             encode_kwargs["prompt_name"] = "s2p_query"
+            logging.debug("is_query is True, set 'prompt_name' to 's2p_query'")
+
+        logging.debug(f"Final encode_kwargs: {encode_kwargs}")
         return encode_kwargs
+
+
+class Stella400MEmbedding(BaseEmbeddingModel):
+    def prepare_kwargs(self):
+        stella_kwargs = deepcopy(self.model_kwargs)
+        compute_device = self.model_kwargs.get("device", "").lower()
+        is_cuda = compute_device == "cuda"
+        use_xformers = is_cuda and supports_flash_attention()
+
+        logging.debug(f"Device: {compute_device}")
+        logging.debug(f"is_cuda: {is_cuda}")
+        logging.debug(f"use_xformers: {use_xformers}")
+
+        stella_kwargs["config_kwargs"] = {
+            "use_memory_efficient_attention": use_xformers,
+            "unpad_inputs": use_xformers,
+            "attn_implementation": "eager"  # sdpa is not implemented yet like it is for Stella and Snowflake
+        }
+
+        logging.debug("\nFinal config settings:")
+        logging.debug(f"use_memory_efficient_attention: {stella_kwargs['config_kwargs']['use_memory_efficient_attention']}")
+        logging.debug(f"unpad_inputs: {stella_kwargs['config_kwargs']['unpad_inputs']}")
+        logging.debug(f"attn_implementation: {stella_kwargs['config_kwargs']['attn_implementation']}")
+
+        return stella_kwargs
 
 
 class AlibabaEmbedding(BaseEmbeddingModel):
     def prepare_kwargs(self):
+        logging.debug("Starting AlibabaEmbedding prepare_kwargs.")
         ali_kwargs = deepcopy(self.model_kwargs)
+        logging.debug(f"Original model_kwargs: {self.model_kwargs}")
+        
+        # Update tokenizer_kwargs in model_kwargs
         ali_kwargs["model_kwargs"].update({
             "tokenizer_kwargs": {
                 "max_length": 8192,
@@ -126,16 +190,23 @@ class AlibabaEmbedding(BaseEmbeddingModel):
                 "truncation": True
             }
         })
+        logging.debug("Updated 'tokenizer_kwargs' in model_kwargs with max_length=8192, padding=True, and truncation=True.")
 
         compute_device = self.model_kwargs.get("device", "").lower()
         is_cuda = compute_device == "cuda"
         use_xformers = is_cuda and supports_flash_attention()
+        logging.debug(f"Device: {compute_device}")
+        logging.debug(f"is_cuda: {is_cuda}")
+        logging.debug(f"use_xformers: {use_xformers}")
+        
         ali_kwargs["config_kwargs"] = {
             "use_memory_efficient_attention": use_xformers,
             "unpad_inputs": use_xformers,
             "attn_implementation": "eager" if use_xformers else "sdpa"
         }
-
+        logging.debug(f"Set 'config_kwargs': {ali_kwargs['config_kwargs']}")
+        
+        logging.debug(f"Final ali_kwargs: {ali_kwargs}")
         return ali_kwargs
 
 
@@ -229,18 +300,22 @@ class CreateVectorDB:
                         break
 
         if "instructor" in embedding_model_name.lower():
+            logger.debug("Matched Instructor condition")
             model = InstructorEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
-
         elif "snowflake" in embedding_model_name.lower():
+            logger.debug("Matched Snowflake condition")
             model = SnowflakeEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
-
-        elif "Alibaba" in embedding_model_name.lower():
+        elif "alibaba" in embedding_model_name.lower():
+            logger.debug("Matched Alibaba condition")
             model = AlibabaEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
-
-        elif "stella" in embedding_model_name.lower():
+        elif "400m" in embedding_model_name.lower():
+            logger.debug("Matched Stella 400m condition")
+            model = Stella400MEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
+        elif "1.5b" in embedding_model_name.lower():
+            logger.debug("Matched Stella 1.5B condition")
             model = StellaEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
-
         else:
+            logger.debug("No conditions matched - using base model")
             model = BaseEmbeddingModel(embedding_model_name, model_kwargs, encode_kwargs).create()
 
         model_name = os.path.basename(embedding_model_name)
@@ -502,18 +577,26 @@ class QueryVectorDB:
         }
         encode_kwargs = {'normalize_embeddings': True}
 
-        # Create the appropriate embedding model
         if "instructor" in model_path.lower():
+            logger.debug("Matched Instructor condition")
             embeddings = InstructorEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
         elif "snowflake" in model_path.lower():
+            logger.debug("Matched Snowflake condition")
             embeddings = SnowflakeEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
-        elif "Alibaba" in model_path.lower():
+        elif "alibaba" in model_path.lower():
+            logger.debug("Matched Alibaba condition")
             embeddings = AlibabaEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
-        elif "stella" in model_path.lower():
+        elif "400m" in model_path.lower():
+            logger.debug("Matched Stella 400m condition")
+            embeddings = Stella400MEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
+        elif "1.5b" in model_path.lower():
+            logger.debug("Matched Stella 1.5B condition")
             embeddings = StellaEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
         else:
             if "bge" in model_path.lower():
+                logger.debug("Matched BGE condition - setting prompt in encode_kwargs")
                 encode_kwargs["prompt"] = "Represent this sentence for searching relevant passages: "
+            logger.debug("No specific condition matched - using base model")
             embeddings = BaseEmbeddingModel(model_path, model_kwargs, encode_kwargs, is_query=True).create()
 
         return embeddings

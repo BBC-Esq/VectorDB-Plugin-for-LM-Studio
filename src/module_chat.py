@@ -40,7 +40,7 @@ def get_generation_settings(max_length, max_new_tokens):
 bnb_bfloat16_settings = {
     'tokenizer_settings': {
         'torch_dtype': torch.bfloat16,
-        'add_bos_token': False, # doublecheck this
+        # 'add_bos_token': False, # doublecheck this
     },
     'model_settings': {
         'torch_dtype': torch.bfloat16,
@@ -48,7 +48,7 @@ bnb_bfloat16_settings = {
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.bfloat16,
             bnb_4bit_quant_type="nf4",
-            # bnb_4bit_use_double_quant=True,
+            bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         # 'attn_implementation': "sdpa"
@@ -58,7 +58,7 @@ bnb_bfloat16_settings = {
 bnb_float16_settings = {
     'tokenizer_settings': {
         'torch_dtype': torch.float16,
-        'add_bos_token': False, # doublecheck this
+        # 'add_bos_token': False, # doublecheck this
     },
     'model_settings': {
         'torch_dtype': torch.float16,
@@ -66,7 +66,7 @@ bnb_float16_settings = {
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.float16,
             bnb_4bit_quant_type="nf4",
-            # bnb_4bit_use_double_quant=True,
+            bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         # 'attn_implementation': "sdpa"

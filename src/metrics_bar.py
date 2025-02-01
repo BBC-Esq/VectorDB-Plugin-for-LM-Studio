@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, List, Callable
 from datetime import datetime
+import csv
 
 import subprocess
 import psutil
@@ -80,6 +81,67 @@ if HAS_NVIDIA_GPU:
     HANDLE = pynvml.nvmlDeviceGetHandleByIndex(0)
 else:
     HANDLE = None
+
+
+class BatchCSVLogger(QObject):
+    def __init__(self, filepath: str, flush_interval: int = 5000):
+        """
+        Initialize the BatchCSVLogger.
+
+        :param filepath: Path to the CSV file where metrics will be logged.
+        :param flush_interval: Time interval (in milliseconds) between flushes to disk.
+        """
+        super().__init__()
+        self.filepath = filepath
+        self.flush_interval = flush_interval
+        self.buffer = []
+
+        # Open the CSV file and write the header row.
+        self.file = open(self.filepath, 'w', newline='')
+        self.writer = csv.writer(self.file)
+        self.writer.writerow([
+            'timestamp', 'cpu_usage', 'ram_usage_percent',
+            'gpu_utilization', 'vram_usage_percent',
+            'power_usage_percent'
+        ])
+
+        self.timer = QTimer(self)
+        self.timer.setInterval(self.flush_interval)
+        self.timer.timeout.connect(self.flush)
+        self.timer.start()
+
+    def log(self, metrics):
+        self.buffer.append(metrics)
+
+    def flush(self):
+        if not self.buffer:
+            return
+
+        for metrics in self.buffer:
+            self.writer.writerow([
+                metrics.timestamp.isoformat(),
+                metrics.cpu_usage,
+                metrics.ram_usage_percent,
+                metrics.gpu_utilization if metrics.gpu_utilization is not None else '',
+                metrics.vram_usage_percent if metrics.vram_usage_percent is not None else '',
+                metrics.power_usage_percent if metrics.power_usage_percent is not None else '',
+            ])
+        self.file.flush()
+        self.buffer.clear()
+
+    def close(self):
+
+        self.timer.stop()
+        self.flush()
+        self.file.close()
+
+    def __del__(self):
+
+        try:
+            self.close()
+        except Exception:
+            pass
+
 
 def collect_cpu_metrics():
     cpu_times = psutil.cpu_times_percent(interval=None, percpu=True)
@@ -712,6 +774,11 @@ class MetricsWidget(QWidget):
         QPixmapCache.setCacheLimit(10 * 1024)
         
         self.metrics_store = MetricsStore(buffer_size=100)
+
+        # DEBUG
+        # csv_logger = BatchCSVLogger('metrics_log.csv')
+        # self.metrics_store.subscribe(csv_logger.log)
+
         self.init_ui()
         self.current_visualization_type = 1
         self.setToolTip("Right click for display options")
@@ -792,5 +859,5 @@ class MetricsWidget(QWidget):
         if self.metrics_collector:
             self.metrics_collector.cleanup()
         self.current_visualization.cleanup()
-        QPixmapCache.clear()  # Clear cache when widget is destroyed
+        QPixmapCache.clear()
         super().closeEvent(event)
