@@ -40,6 +40,7 @@ def get_generation_settings(max_length, max_new_tokens):
 bnb_bfloat16_settings = {
     'tokenizer_settings': {
         'torch_dtype': torch.bfloat16,
+        'add_bos_token': False, # doublecheck this
     },
     'model_settings': {
         'torch_dtype': torch.bfloat16,
@@ -47,6 +48,7 @@ bnb_bfloat16_settings = {
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.bfloat16,
             bnb_4bit_quant_type="nf4",
+            # bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         # 'attn_implementation': "sdpa"
@@ -56,6 +58,7 @@ bnb_bfloat16_settings = {
 bnb_float16_settings = {
     'tokenizer_settings': {
         'torch_dtype': torch.float16,
+        'add_bos_token': False, # doublecheck this
     },
     'model_settings': {
         'torch_dtype': torch.float16,
@@ -63,6 +66,7 @@ bnb_float16_settings = {
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.float16,
             bnb_4bit_quant_type="nf4",
+            # bnb_4bit_use_double_quant=True,
         ),
         'low_cpu_mem_usage': True,
         # 'attn_implementation': "sdpa"
@@ -764,35 +768,72 @@ def choose_model(model_name):
         raise ValueError(f"Unknown model: {model_name}")
 
 """
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
-| **Model**           | **Token** | **Token Value**         | **In Chat Template?** | **Additional Settings** |
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
-| Qwen 2.5/Coder      | BOS       | null                    | No                    | add_bos_token: false    |
-|                     | PAD       | <|endoftext|>           | No                    | N/A                     |
-|                     | EOS       | <|im_end|>              | Yes                   | N/A                     |
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
-| Granite 3.1         | BOS       | <|end_of_text|>         | No                    | add_bos_token: false    |
-|                     | PAD       | <|end_of_text|>         | No                    | N/A                     |
-|                     | EOS       | <|end_of_text|>         | Yes                   | N/A                     |
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
-| Zephyr 1.6b & 3b    | BOS       | <|endoftext|>           | No                    | N/A                     |
-|                     | PAD       | <|endoftext|>           | No                    | N/A                     |
-|                     | EOS       | <|endoftext|>           | Yes                   | N/A                     |
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
-| Exaone 3.5          | BOS       | <s>                     | No*                   | add_bos_token: true     |
-|                     | PAD       | </s>                    | No                    | N/A                     |
-|                     | EOS       | </s>                    | Yes                   | add_eos_token: false    |
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
-| Internlm3           | BOS       | <s>                     | No                    | add_bos_token: true     |
-|                     | PAD       | </s>                    | No                    | N/A                     |
-|                     | EOS       | </s>                    | No                    | add_eos_token: false    |
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
-| Deepseek R1 Distill | BOS       | <｜begin▁of▁sentence｜> | No*                   | add_bos_token: true     |
-|                     | PAD       | <｜end▁of▁sentence｜>   | No                    | N/A                     |
-|                     | EOS       | <｜end▁of▁sentence｜>   | Yes                   | add_eos_token: false    |
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
-| Mistral 22b         | BOS       | <s>                     | No*                   | add_bos_token: true     |
-|                     | PAD       | </s>                    | No                    | N/A                     |
-|                     | EOS       | </s>                    | Yes                   | add_eos_token: false    |
-+---------------------+-----------+-------------------------+-----------------------+-------------------------+
++-----------------------------+---------------+----------------------+
+| Jinja Shows {{ bos_token }} | add_bos_token | Include in f-string? |
++=============================+===============+======================+
+| Yes                         | True          | Yes                  |
++-----------------------------+---------------+----------------------+
+| Yes                         | False         | Yes                  |
++-----------------------------+---------------+----------------------+
+| No                          | True          | Yes                  |
++-----------------------------+---------------+----------------------+
+| No                          | False         | No                   |
++-----------------------------+---------------+----------------------+
+| hardcoded in template       | False         | No                   |
++-----------------------------+----------------+---------------------+
++---------------+---------------------+---------------+
+| Model         | Has {{ bos_token }} | add_bos_token |
++===============+=====================+===============+
+| Qwen2         | No                  | False         |
++---------------+---------------------+---------------+
+| Granite 3.1   | No                  | False         |
++---------------+---------------------+---------------+
+| Zephyr        | No                  | Not specified |
++---------------+---------------------+---------------+
+| Exaone        | No                  | Not specified |
++---------------+---------------------+---------------+
+| Internlm3     | Yes                 | True          |
++---------------+---------------------+---------------+
+| Deepseek R1   | Yes                 | True          |
++---------------+---------------------+---------------+
+| Mistral Small | Yes                 | True          |
++---------------+---------------------+---------------+
+| Mistral 24b   | Yes                 | True          |
++---------------+---------------------+---------------+
++-----------------+-------+-------------------------+-------------------+----------------------+
+| Model           | Token | Token Value             | In Chat Template? | Additional Settings  |
++-----------------+-------+-------------------------+-------------------+----------------------+
+| Qwen 2.5/Coder  | BOS   | null                    | No                | add_bos_token: false |
+|                 | PAD   | <|endoftext|>           | No                | N/A                  |
+|                 | EOS   | <|im_end|>              | Yes               | N/A                  |
++-----------------+-------+-------------------------+-------------------+----------------------+
+| Granite 3.1     | BOS   | <|end_of_text|>         | No                | add_bos_token: false |
+|                 | PAD   | <|end_of_text|>         | No                | N/A                  |
+|                 | EOS   | <|end_of_text|>         | Yes               | N/A                  |
++-----------------+-------+-------------------------+-------------------+----------------------+
+| Zephyr 1.6b & 3b| BOS   | <|endoftext|>           | No                | N/A                  |
+|                 | PAD   | <|endoftext|>           | No                | N/A                  |
+|                 | EOS   | <|endoftext|>           | Yes               | N/A                  |
++-----------------+-------+-------------------------+-------------------+----------------------+
+| Exaone 3.5      | BOS   | [BOS]                   | No*               | add_bos_token: true  |
+|                 | PAD   | [|endofturn|]           | No                | N/A                  |
+|                 | EOS   | [PAD]                   | Yes               | add_eos_token: false |
++-----------------+-------+-------------------------+-------------------+----------------------+
+| Internlm3       | BOS   | <s>                     | No                | add_bos_token: true  |
+|                 | PAD   | </s>                    | No                | N/A                  |
+|                 | EOS   | </s>                    | No                | add_eos_token: false |
++-----------------+---------------------------------+-------------------+----------------------+
+| Deepseek R1     | BOS   | <｜begin▁of▁sentence｜> | No*               | add_bos_token: true  |
+|                 | PAD   | <｜end▁of▁sentence｜>   | No                | N/A                  |
+|                 | EOS   | <｜end▁of▁sentence｜>   | Yes               | add_eos_token: false |
++-----------------+-------+-------------------------+-------------------+----------------------+
+| Mistral 22b     | BOS   | <s>                     | No*               | add_bos_token: true  |
+|                 | PAD   | </s>                    | No                | N/A                  |
+|                 | EOS   | </s>                    | Yes               | add_eos_token: false |
++-----------------+-------+-------------------------+-------------------+----------------------+
+| Mistral 24b     | BOS   | <s>                     | Yes               | add_bos_token: true  |
+|                 | PAD   | </s>                    | No                | N/A                  |
+|                 | EOS   | </s>                    | Yes               | add_eos_token: false |
++-----------------+-------+-------------------------+-------------------+----------------------+
+* Exaone handles the bos token in its custom source code I think...
 """

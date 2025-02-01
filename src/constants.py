@@ -1895,14 +1895,29 @@ scrape_documentation = {
         "folder": "torch_251",
         "scraper_class": "PyTorchScraper"
     },
+    "torch 2.6.0": {
+        "URL": "https://pytorch.org/docs/2.6/",
+        "folder": "torch_260",
+        "scraper_class": "PyTorchScraper"
+    },
     "Torchaudio 2.5.1": {
         "URL": "https://pytorch.org/audio/2.5.0/",
         "folder": "torchaudio_251",
         "scraper_class": "PyTorchScraper"
     },
+    "Torchaudio 2.6.0": {
+        "URL": "https://pytorch.org/audio/2.6.0/",
+        "folder": "torchaudio_260",
+        "scraper_class": "PyTorchScraper"
+    },
     "Torchmetrics": {
         "URL": "https://lightning.ai/docs/torchmetrics/stable/",
         "folder": "torchmetrics"
+    },
+    "Torchvision 0.21.0": {
+        "URL": "https://pytorch.org/vision/0.21/",
+        "folder": "torchvision_021",
+        "scraper_class": "PyTorchScraper"
     },
     "Torchvision 0.20.1": {
         "URL": "https://pytorch.org/vision/0.20/",
@@ -2824,7 +2839,7 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 **Torch Wheels**
 ****************
 
-# modern torch wheels contain either "cu121," "cu124" or cu126 in their name and are prebuilt for the following versions
+# modern torch wheels are named "cu121," "cu124" or cu126 and are prebuilt for the following torch versions
 +---------------+---------------------------------------------------------+
 | Pytorch Wheel | PyTorch Versions Supported                              |
 +---------------+---------------------------------------------------------+
@@ -2832,7 +2847,7 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 | cu124         | 2.5.1, 2.5.0, 2.4.1, 2.4.0                              |
 | cu121         | 2.5.1, 2.5.0, 2.4.1, 2.4.0, 2.3.1, 2.3.0, 2.2.2...2.1.0 |
 +---------------+---------------------------------------------------------+
-* cu121, cu124, and cu126 wheels include libraries from CUDA releases 12.1.1 and 12.4.1, and 12.6.3, respectively
+* This naming scheme refers to CUDA releases 12.1.1 and 12.4.1, and 12.6.2, respectively
 
 ***********************************
 **PyTorch Official Support Matrix**
@@ -2867,13 +2882,13 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 | 2.5.1 (CUDA 12.4) | 12.4.127   | 12.4.127     | 12.4.5.8 | 11.2.1.3  | 9.1.0.70 | 3.1.0  |
 | 2.5.1 (CUDA 12.1) | 12.1.105   | 12.1.105     | 12.1.3.1 | 11.0.2.54 | 9.1.0.70 | 3.1.0  |
 +-------------------+------------+--------------+----------+-----------+----------+--------+
-* 12.1.105 and 12.1.3.1 = CUDA release 12.1.1
-* 12.4.127 and 12.4.5.8 = CUDA release 12.4.1
-* 12.6.77 = CUDA release 12.6.2
-* 12.6.4.1 = CUDA release 12.6.3
+* 12.1.105 and 12.1.3.1 come from CUDA 12.1.1
+* 12.4.127 and 12.4.5.8 come from CUDA 12.4.1
+* 12.6.77 come from CUDA 12.6.2
+* 12.6.4.1 come from CUDA 12.6.3
 * See .json files here for more info: https://developer.download.nvidia.com/compute/cuda/redist/
-* Basically, torch is not 100% compatible with CUDA 12.1.0 or 12.4.0, for example, or any other version.
-# updates can be found at:     pytorch/.github/scripts/generate_binary_build_matrix.py
+* Thus, torch is not 100% compatible with CUDA 12.1.0 or 12.4.0, for example, or any other version.
+* See pytorch/.github/scripts/generate_binary_build_matrix.py
 
 **************
 **cuDNN/CUDA**
@@ -2886,11 +2901,12 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 **Xformers**
 ************
 
-+------------------+-------+---------------+----------------+
-| Xformers Version | Torch |  FA2 Support  | CUDA (excl.11) |
-+------------------+-------+---------------+----------------|
-| v0.0.29.post1    | 2.5.  | 2.6.3 - 2.7.2 | 12.1.0, 12.4.1 |
-| v0.0.29 (BUG)    | 2.5.  |               |                |
++------------------+-------+---------------+----------------+------------------------
+| Xformers Version | Torch |  FA2 Support  | CUDA (excl.11) | Python                |
++------------------+-------+---------------+----------------|------------------------
+| v0.0.29.post2    | 2.6.0 | 2.7.1 - 2.7.2 | 12.4.1, 12.6.? | 3.9, 3.10, 3.11, 3.12 |
+| v0.0.29.post1    | 2.5.1 | 2.6.3 - 2.7.2 | 12.1.0, 12.4.1 |
+| v0.0.29 (BUG)    | 2.5.1 |               |                |
 | v0.0.28.post3    | 2.5.1 |               |                |
 | v0.0.28.post2    | 2.5.0 |               |                |
 | v0.0.28.post1    | 2.4.1 |               |                |
@@ -2900,7 +2916,7 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 | v0.0.26.post1    | 2.3.0 |               |                |
 | v0.0.25.post1    | 2.2.2 |               |                |
 +------------------+-------+---------------+----------------+
-* Only PyTorch builds Windows wheels after 2.4.0 - https://download.pytorch.org/whl/cu124/xformers/
+* PyTorch builds the Windows wheels after 2.4.0 - e.g. https://download.pytorch.org/whl/cu124/xformers/
 * Torch support determined by xformers/.github/workflows/wheels.yml
 * FA2 support determined by by xformers/xformers/ops/fmha/flash.py
 * CUDA support determined by xformers/.girhub/actions/setup-build-cuda/action.yml

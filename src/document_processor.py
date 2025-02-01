@@ -5,9 +5,10 @@ import sys
 import io
 import logging
 import warnings
+from contextlib import redirect_stdout
 import yaml
 import math
-from pathlib import Path
+from pathlib import Path, PurePath
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from langchain_community.docstore.document import Document
 from langchain_text_splitters.character import RecursiveCharacterTextSplitter
@@ -27,7 +28,6 @@ from langchain_community.document_loaders import (
 )
 
 from typing import Optional, Any, Iterator, Union
-from pathlib import PurePath
 from langchain_community.document_loaders.blob_loaders import Blob
 
 from langchain_community.document_loaders.parsers import PyMuPDFParser
@@ -155,12 +155,8 @@ def load_single_document(file_path: Path) -> Document:
             
             # Only suppress stdout for .eml and .msg files
             if file_extension in [".eml", ".msg"]:
-                old_stdout = sys.stdout
-                sys.stdout = io.StringIO()
-                try:
+                with io.StringIO() as buf, redirect_stdout(buf):
                     documents = loader.load()
-                finally:
-                    sys.stdout = old_stdout
             else:
                 documents = loader.load()
         else:
@@ -175,7 +171,6 @@ def load_single_document(file_path: Path) -> Document:
         document = documents[0]
         metadata = extract_document_metadata(file_path)
         document.metadata.update(metadata)
-
         print(f"Loaded---> {file_path.name}")
         return document
 
@@ -195,8 +190,11 @@ def load_document_batch(filepaths, threads_per_process):
     return (data_list, filepaths)
 
 def load_documents(source_dir: Path) -> list:
-    all_files = list(source_dir.iterdir())
-    doc_paths = [f for f in all_files if f.suffix.lower() in (key.lower() for key in DOCUMENT_LOADERS.keys())]
+    # Pre-compute valid extensions set
+    valid_extensions = {ext.lower() for ext in DOCUMENT_LOADERS.keys()}
+    
+    # Use the pre-computed set for filtering
+    doc_paths = [f for f in source_dir.iterdir() if f.suffix.lower() in valid_extensions]
     
     docs = []
 

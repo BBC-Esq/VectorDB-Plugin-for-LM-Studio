@@ -1,12 +1,14 @@
+from dataclasses import dataclass
+from typing import Optional, List, Callable
+from datetime import datetime
+
 import subprocess
-from collections import deque
 import psutil
 from PySide6.QtCore import (
     Qt,
     QObject,
-    Signal,
     QPointF,
-    QThread,
+    QTimer,
 )
 from PySide6.QtWidgets import (
     QWidget,
@@ -22,10 +24,46 @@ from PySide6.QtGui import (
     QPolygon,
     QPainterPath,
     QPen,
+    QPixmap,
+    QPixmapCache,
+    QLinearGradient,
 )
 from math import sin, cos, pi
-from dataclasses import dataclass
+from collections import deque
 from typing import Optional
+
+@dataclass
+class SystemMetrics:
+    timestamp: datetime
+    cpu_usage: float
+    ram_usage_percent: float
+    gpu_utilization: Optional[float] = None
+    vram_usage_percent: Optional[float] = None
+    power_usage_percent: Optional[float] = None
+    power_limit_percent: Optional[float] = None
+
+class MetricsStore:
+    def __init__(self, buffer_size: int = 100):
+        self.buffer_size = buffer_size
+        self.metrics_history: List[SystemMetrics] = []
+        self._subscribers: List[Callable[[SystemMetrics], None]] = []
+    
+    def add_metrics(self, metrics: SystemMetrics) -> None:
+        self.metrics_history.append(metrics)
+        if len(self.metrics_history) > self.buffer_size:
+            self.metrics_history.pop(0)
+        self._notify_subscribers(metrics)
+    
+    def subscribe(self, callback: Callable[[SystemMetrics], None]) -> None:
+        self._subscribers.append(callback)
+    
+    def unsubscribe(self, callback: Callable[[SystemMetrics], None]) -> None:
+        if callback in self._subscribers:
+            self._subscribers.remove(callback)
+    
+    def _notify_subscribers(self, metrics: SystemMetrics) -> None:
+        for subscriber in self._subscribers:
+            subscriber(metrics)
 
 def is_nvidia_gpu_available():
     try:
@@ -43,16 +81,23 @@ if HAS_NVIDIA_GPU:
 else:
     HANDLE = None
 
-
 def collect_cpu_metrics():
-    percentages = psutil.cpu_percent(interval=None, percpu=True)
-    return sum(percentages) / len(percentages)
+    cpu_times = psutil.cpu_times_percent(interval=None, percpu=True)
 
+    cpu_percentages = []
+    for cpu in cpu_times:
+
+        total_active = sum(
+            value for field, value in cpu._asdict().items() 
+            if field not in ('idle', 'iowait')
+        )
+        cpu_percentages.append(total_active)
+
+    return sum(cpu_percentages) / len(cpu_percentages)
 
 def collect_ram_metrics():
     ram = psutil.virtual_memory()
     return ram.percent, ram.used
-
 
 def collect_gpu_metrics(handle):
     if handle is None:
@@ -63,7 +108,6 @@ def collect_gpu_metrics(handle):
         (memory_info.used / memory_info.total) * 100 if memory_info.total > 0 else 0
     )
     return gpu_utilization, vram_usage_percent
-
 
 def collect_power_metrics(handle):
     if handle is None:
@@ -92,93 +136,71 @@ def collect_power_metrics(handle):
     return power_percentage, power_limit
 
 
-@dataclass
-class Metrics:
-    cpu_usage: float
-    ram_usage_percent: float
-    gpu_utilization: Optional[float] = None
-    vram_usage_percent: Optional[float] = None
-    power_usage_percent: Optional[float] = None
-    power_limit_percent: Optional[float] = None
-
-
-class MetricsCollectorThread(QThread):
-    metrics_updated = Signal(Metrics)
-
-    def __init__(self):
+class MetricsCollector(QObject):
+    def __init__(self, store: MetricsStore):
         super().__init__()
-        self._running = True
-        self.interval = 150
+        self.store = store
+        self.timer = QTimer()
+        self.timer.setInterval(200)
+        self.timer.timeout.connect(self._collect_metrics)
         self.gpu_available = HAS_NVIDIA_GPU
 
+    def start(self):
+        self.timer.start()
+
     def stop(self):
-        self._running = False
-        self.quit()
-        self.wait()
+        self.timer.stop()
+    
+    def _collect_metrics(self) -> None:
+        from datetime import datetime
+        
+        cpu_usage = collect_cpu_metrics()
+        ram_usage_percent, _ = collect_ram_metrics()
+        
+        if self.gpu_available:
+            gpu_util, vram_usage = collect_gpu_metrics(HANDLE)
+            power_usage, power_limit = collect_power_metrics(HANDLE)
+        else:
+            gpu_util = vram_usage = power_usage = power_limit = None
+        
+        metrics = SystemMetrics(
+            timestamp=datetime.now(),
+            cpu_usage=cpu_usage,
+            ram_usage_percent=ram_usage_percent,
+            gpu_utilization=gpu_util,
+            vram_usage_percent=vram_usage,
+            power_usage_percent=power_usage,
+            power_limit_percent=power_limit
+        )
+        
+        self.store.add_metrics(metrics)
 
-    def run(self):
-        while self._running:
-            if not self._running:
-                break
-                
-            cpu_usage = collect_cpu_metrics()
-            ram_usage_percent, _ = collect_ram_metrics()
-
-            if self.gpu_available:
-                gpu_utilization, vram_usage_percent = collect_gpu_metrics(HANDLE)
-                power_usage_percent, power_limit_percent = collect_power_metrics(HANDLE)
-            else:
-                gpu_utilization, vram_usage_percent = None, None
-                power_usage_percent, power_limit_percent = None, None
-
-            metrics = Metrics(
-                cpu_usage=cpu_usage,
-                ram_usage_percent=ram_usage_percent,
-                gpu_utilization=gpu_utilization,
-                vram_usage_percent=vram_usage_percent,
-                power_usage_percent=power_usage_percent,
-                power_limit_percent=power_limit_percent,
-            )
-
-            self.metrics_updated.emit(metrics)
-            self.msleep(self.interval)
+    def cleanup(self):
+        self.stop()
+        if self.gpu_available:
+            try:
+                pynvml.nvmlShutdown()
+            except pynvml.NVMLError as e:
+                print(f"Error shutting down NVML: {e}")
 
 
-class MetricsCollector(QObject):
-    metrics_updated = Signal(Metrics)
-
-    def __init__(self):
+class BaseVisualization(QWidget):
+    def __init__(self, metrics_store: MetricsStore):
         super().__init__()
-        self.thread = MetricsCollectorThread()
-        self.thread.metrics_updated.connect(self.metrics_updated)
-        self.thread.start()
-
-
-class MetricsVisualization(QWidget):
-    def __init__(self, buffer_size=10, metrics=None):
-        super().__init__()
+        self.metrics_store = metrics_store
+        self.metrics_store.subscribe(self.update_metrics)
         self.has_nvidia_gpu = HAS_NVIDIA_GPU
-        # base metrics
-        base_metrics = ['cpu', 'ram']
-        
-        # Add GPU metrics if NVIDIA GPU is available
-        if self.has_nvidia_gpu:
-            base_metrics += ['gpu', 'vram', 'power']
-        
-        if metrics:
-            base_metrics += metrics
-        
-        self.setup_metrics_buffers(buffer_size=buffer_size, metrics=base_metrics)
-
-    def setup_metrics_buffers(self, buffer_size, metrics=None):
-        metrics = metrics or ['cpu', 'ram']
-        for metric in metrics:
-            setattr(self, f"{metric}_buffer", deque(maxlen=buffer_size))
+    
+    def update_metrics(self, metrics: SystemMetrics):
+        raise NotImplementedError("Visualization must implement update_metrics")
+    
+    def cleanup(self):
+        self.metrics_store.unsubscribe(self.update_metrics)
 
 
-class BarVisualization(MetricsVisualization):
-    def __init__(self):
-        super().__init__()
+class BarVisualization(BaseVisualization):
+    def __init__(self, metrics_store: MetricsStore):
+        super().__init__(metrics_store)
         self.initUI()
 
     def initUI(self):
@@ -205,16 +227,16 @@ class BarVisualization(MetricsVisualization):
             )
 
     def add_metric_to_grid(self, label_text, color, grid_layout, row):
-        label = QLabel(label_text)
-        grid_layout.addWidget(label, row, 0)
+            label = QLabel(label_text)
+            grid_layout.addWidget(label, row, 0)
 
-        percent_label = QLabel("0%")
-        grid_layout.addWidget(percent_label, row, 1)
+            percent_label = QLabel("0%")
+            grid_layout.addWidget(percent_label, row, 1)
 
-        progress_bar = self.create_progress_bar(color)
-        grid_layout.addWidget(progress_bar, row, 2)
+            progress_bar = self.create_progress_bar(color)
+            grid_layout.addWidget(progress_bar, row, 2)
 
-        return progress_bar, percent_label
+            return progress_bar, percent_label
 
     def create_progress_bar(self, color):
         bar = QProgressBar()
@@ -227,35 +249,25 @@ class BarVisualization(MetricsVisualization):
         bar.setTextVisible(False)
         return bar
 
-    def update_metrics(self, metrics: Metrics):
-        self.cpu_buffer.append(metrics.cpu_usage)
-        self.ram_buffer.append(metrics.ram_usage_percent)
+    def update_metrics(self, metrics: SystemMetrics):
+        self.cpu_bar.setValue(int(metrics.cpu_usage))
+        self.cpu_percent_label.setText(f"{int(metrics.cpu_usage)}%")
+        
+        self.ram_bar.setValue(int(metrics.ram_usage_percent))
+        self.ram_percent_label.setText(f"{int(metrics.ram_usage_percent)}%")
 
         if self.has_nvidia_gpu:
-            self.gpu_buffer.append(metrics.gpu_utilization)
-            self.vram_buffer.append(metrics.vram_usage_percent)
-            self.power_buffer.append(metrics.power_usage_percent)
+            if metrics.gpu_utilization is not None:
+                self.gpu_bar.setValue(int(metrics.gpu_utilization))
+                self.gpu_percent_label.setText(f"{int(metrics.gpu_utilization)}%")
 
-        self.update_progress_bar(self.cpu_bar, self.cpu_buffer, self.cpu_percent_label)
-        self.update_progress_bar(self.ram_bar, self.ram_buffer, self.ram_percent_label)
+            if metrics.vram_usage_percent is not None:
+                self.vram_bar.setValue(int(metrics.vram_usage_percent))
+                self.vram_percent_label.setText(f"{int(metrics.vram_usage_percent)}%")
 
-        if self.has_nvidia_gpu:
-            self.update_progress_bar(
-                self.gpu_bar, self.gpu_buffer, self.gpu_percent_label
-            )
-            self.update_progress_bar(
-                self.vram_bar, self.vram_buffer, self.vram_percent_label
-            )
-            self.update_progress_bar(
-                self.power_bar, self.power_buffer, self.power_percent_label
-            )
-
-    def update_progress_bar(self, bar, buffer, label):
-        if buffer:
-            avg_value = sum(buffer) / len(buffer)
-            bar_value = min(100, int(avg_value))
-            bar.setValue(bar_value)
-            label.setText(f"{int(avg_value)}%")
+            if metrics.power_usage_percent is not None:
+                self.power_bar.setValue(int(metrics.power_usage_percent))
+                self.power_percent_label.setText(f"{int(metrics.power_usage_percent)}%")
 
 
 class Sparkline(QWidget):
@@ -265,14 +277,38 @@ class Sparkline(QWidget):
         self.values = deque(maxlen=max_values)
         self.setFixedSize(125, 65)
         self.color = QColor(color)
+        self._gradient_key = f"sparkline_gradient_{color}"
 
     def add_value(self, value):
         self.values.append(value)
         self.update()
 
+    def _create_gradient(self):
+        pixmap = QPixmap(1, self.height())
+        pixmap.fill(Qt.transparent)
+        
+        painter = QPainter(pixmap)
+        gradient = QLinearGradient(0, 0, 0, self.height())
+        
+        fill_color = QColor(self.color)
+        fill_color.setAlpha(60)
+        gradient.setColorAt(0, fill_color)
+        gradient.setColorAt(1, QColor(0, 0, 0, 0))
+        
+        painter.fillRect(pixmap.rect(), gradient)
+        painter.end()
+        
+        QPixmapCache.insert(self._gradient_key, pixmap)
+        return pixmap
+
     def paintEvent(self, event):
         if not self.values:
             return
+
+        gradient_pixmap = QPixmap()
+        if not QPixmapCache.find(self._gradient_key, gradient_pixmap):
+            gradient_pixmap = self._create_gradient()
+
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
@@ -285,9 +321,7 @@ class Sparkline(QWidget):
         value_range = max_value - min_value
 
         path = QPainterPath()
-        x_step = (
-            (width - 2 * margin) / (len(self.values) - 1) if len(self.values) > 1 else 0
-        )
+        x_step = (width - 2 * margin) / (len(self.values) - 1) if len(self.values) > 1 else 0
         points = []
 
         for i, value in enumerate(self.values):
@@ -299,28 +333,25 @@ class Sparkline(QWidget):
             else:
                 path.lineTo(x, y)
 
-        fill_path = QPainterPath()
-        fill_path.moveTo(points[0].x(), height - margin)
-        for point in points:
-            fill_path.lineTo(point)
+        fill_path = QPainterPath(path)
         fill_path.lineTo(points[-1].x(), height - margin)
+        fill_path.lineTo(points[0].x(), height - margin)
         fill_path.closeSubpath()
 
-        # Fill the area under the curve
-        fill_color = QColor(self.color)
-        fill_color.setAlpha(60)  # Semi-transparent
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(fill_color)
-        painter.drawPath(fill_path)
+        painter.save()
+        painter.setClipPath(fill_path)
+        for x in range(0, width, gradient_pixmap.width()):
+            painter.drawPixmap(x, 0, gradient_pixmap)
+        painter.restore()
 
         painter.setPen(QPen(self.color, 1))
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(path)
 
 
-class SparklineVisualization(MetricsVisualization):
-    def __init__(self):
-        super().__init__()
+class SparklineVisualization(BaseVisualization):
+    def __init__(self, metrics_store: MetricsStore):
+        super().__init__(metrics_store)
         self.initUI()
 
     def initUI(self):
@@ -369,36 +400,25 @@ class SparklineVisualization(MetricsVisualization):
         for i in range(main_layout.columnCount()):
             main_layout.setColumnStretch(i, 1)
 
-    def update_metrics(self, metrics: Metrics):
-            self.cpu_buffer.append(metrics.cpu_usage)
-            self.ram_buffer.append(metrics.ram_usage_percent)
-            self.cpu_sparkline.add_value(metrics.cpu_usage)
-            self.ram_sparkline.add_value(metrics.ram_usage_percent)
+    def update_metrics(self, metrics: SystemMetrics):
+        self.cpu_sparkline.add_value(metrics.cpu_usage)
+        self.cpu_label.setText(f"CPU {metrics.cpu_usage:.1f}%")
 
-            avg_cpu = sum(self.cpu_buffer) / len(self.cpu_buffer)
-            self.cpu_label.setText(f"CPU {avg_cpu:.1f}%")
+        self.ram_sparkline.add_value(metrics.ram_usage_percent)
+        self.ram_label.setText(f"RAM {metrics.ram_usage_percent:.1f}%")
 
-            avg_ram = sum(self.ram_buffer) / len(self.ram_buffer)
-            self.ram_label.setText(f"RAM {avg_ram:.1f}%")
+        if self.has_nvidia_gpu:
+            if metrics.gpu_utilization is not None:
+                self.gpu_sparkline.add_value(metrics.gpu_utilization)
+                self.gpu_label.setText(f"GPU {metrics.gpu_utilization:.1f}%")
 
-            if self.has_nvidia_gpu:
-                if metrics.gpu_utilization is not None:
-                    self.gpu_buffer.append(metrics.gpu_utilization)
-                    self.gpu_sparkline.add_value(metrics.gpu_utilization)
-                    avg_gpu = sum(self.gpu_buffer) / len(self.gpu_buffer)
-                    self.gpu_label.setText(f"GPU {avg_gpu:.1f}%")
+            if metrics.vram_usage_percent is not None:
+                self.vram_sparkline.add_value(metrics.vram_usage_percent)
+                self.vram_label.setText(f"VRAM {metrics.vram_usage_percent:.1f}%")
 
-                if metrics.vram_usage_percent is not None:
-                    self.vram_buffer.append(metrics.vram_usage_percent)
-                    self.vram_sparkline.add_value(metrics.vram_usage_percent)
-                    avg_vram = sum(self.vram_buffer) / len(self.vram_buffer)
-                    self.vram_label.setText(f"VRAM {avg_vram:.1f}%")
-
-                if metrics.power_usage_percent is not None:
-                    self.power_buffer.append(metrics.power_usage_percent)
-                    self.power_sparkline.add_value(metrics.power_usage_percent)
-                    avg_power = sum(self.power_buffer) / len(self.power_buffer)
-                    self.power_label.setText(f"GPU Power {avg_power:.1f}%")
+            if metrics.power_usage_percent is not None:
+                self.power_sparkline.add_value(metrics.power_usage_percent)
+                self.power_label.setText(f"GPU Power {metrics.power_usage_percent:.1f}%")
 
 
 class Speedometer(QWidget):
@@ -424,7 +444,6 @@ class Speedometer(QWidget):
         center_y = height / 2
         radius = min(width, height) / 2 * 0.7
 
-        # Colored background arc
         start_angle = 180 * 16
         span_angle = -180 * 16
         for i in range(180):
@@ -470,27 +489,27 @@ class Speedometer(QWidget):
         painter.drawPolygon(needle)
 
     def get_color_at_angle(self, angle):
-        t = angle / 180
-        if t <= 0:
-            return QColor(self.colors[0])
-        elif t >= 1:
-            return QColor(self.colors[-1])
-        else:
-            segment = t * (len(self.colors) - 1)
-            index = int(segment)
-            t = segment - index
-            index = min(index, len(self.colors) - 2)
-            c1 = QColor(self.colors[index])
-            c2 = QColor(self.colors[index + 1])
-            r = int(c1.red() * (1 - t) + c2.red() * t)
-            g = int(c1.green() * (1 - t) + c2.green() * t)
-            b = int(c1.blue() * (1 - t) + c2.blue() * t)
-            return QColor(r, g, b)
+            t = angle / 180
+            if t <= 0:
+                return QColor(self.colors[0])
+            elif t >= 1:
+                return QColor(self.colors[-1])
+            else:
+                segment = t * (len(self.colors) - 1)
+                index = int(segment)
+                t = segment - index
+                index = min(index, len(self.colors) - 2)
+                c1 = QColor(self.colors[index])
+                c2 = QColor(self.colors[index + 1])
+                r = int(c1.red() * (1 - t) + c2.red() * t)
+                g = int(c1.green() * (1 - t) + c2.green() * t)
+                b = int(c1.blue() * (1 - t) + c2.blue() * t)
+                return QColor(r, g, b)
 
 
-class SpeedometerVisualization(MetricsVisualization):
-    def __init__(self):
-        super().__init__()
+class SpeedometerVisualization(BaseVisualization):
+    def __init__(self, metrics_store: MetricsStore):
+        super().__init__(metrics_store)
         self.initUI()
 
     def initUI(self):
@@ -534,36 +553,25 @@ class SpeedometerVisualization(MetricsVisualization):
         for i in range(main_layout.columnCount()):
             main_layout.setColumnStretch(i, 1)
 
-    def update_metrics(self, metrics: Metrics):
-        self.cpu_buffer.append(metrics.cpu_usage)
-        self.ram_buffer.append(metrics.ram_usage_percent)
+    def update_metrics(self, metrics: SystemMetrics):
+            self.cpu_speedometer.set_value(metrics.cpu_usage)
+            self.cpu_label.setText(f"CPU {metrics.cpu_usage:.1f}%")
 
-        avg_cpu = sum(self.cpu_buffer) / len(self.cpu_buffer)
-        self.cpu_speedometer.set_value(avg_cpu)
-        self.cpu_label.setText(f"CPU {avg_cpu:.1f}%")
+            self.ram_speedometer.set_value(metrics.ram_usage_percent)
+            self.ram_label.setText(f"RAM {metrics.ram_usage_percent:.1f}%")
 
-        avg_ram = sum(self.ram_buffer) / len(self.ram_buffer)
-        self.ram_speedometer.set_value(avg_ram)
-        self.ram_label.setText(f"RAM {avg_ram:.1f}%")
+            if self.has_nvidia_gpu:
+                if metrics.gpu_utilization is not None:
+                    self.gpu_speedometer.set_value(metrics.gpu_utilization)
+                    self.gpu_label.setText(f"GPU {metrics.gpu_utilization:.1f}%")
 
-        if self.has_nvidia_gpu:
-            if metrics.gpu_utilization is not None:
-                self.gpu_buffer.append(metrics.gpu_utilization)
-                avg_gpu = sum(self.gpu_buffer) / len(self.gpu_buffer)
-                self.gpu_speedometer.set_value(avg_gpu)
-                self.gpu_label.setText(f"GPU {avg_gpu:.1f}%")
+                if metrics.vram_usage_percent is not None:
+                    self.vram_speedometer.set_value(metrics.vram_usage_percent)
+                    self.vram_label.setText(f"VRAM {metrics.vram_usage_percent:.1f}%")
 
-            if metrics.vram_usage_percent is not None:
-                self.vram_buffer.append(metrics.vram_usage_percent)
-                avg_vram = sum(self.vram_buffer) / len(self.vram_buffer)
-                self.vram_speedometer.set_value(avg_vram)
-                self.vram_label.setText(f"VRAM {avg_vram:.1f}%")
-
-            if metrics.power_usage_percent is not None:
-                self.power_buffer.append(metrics.power_usage_percent)
-                avg_power = sum(self.power_buffer) / len(self.power_buffer)
-                self.power_speedometer.set_value(avg_power)
-                self.power_label.setText(f"GPU Power {avg_power:.1f}%")
+                if metrics.power_usage_percent is not None:
+                    self.power_speedometer.set_value(metrics.power_usage_percent)
+                    self.power_label.setText(f"GPU Power {metrics.power_usage_percent:.1f}%")
 
 
 class ArcGraph(QWidget):
@@ -572,35 +580,64 @@ class ArcGraph(QWidget):
         self.color = QColor(color)
         self.value = 0
         self.setFixedSize(100, 100)
+        self._cache_key = f"arc_bg_{color}"
+        self._background = None
 
     def set_value(self, value):
         self.value = min(100, max(0, value))
         self.update()
 
-    def paintEvent(self, event):
-        painter = QPainter(self)
+    def _create_background(self):
+        background = QPixmap(self.size())
+        background.fill(Qt.transparent)
+        
+        painter = QPainter(background)
         painter.setRenderHint(QPainter.Antialiasing)
-
-        # Calculate dimensions
+        
         width = self.width()
         height = self.height()
         radius = min(width, height) / 2 - 10
         center = QPointF(width / 2, height / 2)
-
-        # Draw background arc
+        
         painter.setPen(QPen(QColor("#1e2126"), 8))
-        painter.drawArc(int(center.x() - radius), int(center.y() - radius),
-                       int(radius * 2), int(radius * 2),
-                       180 * 16, -180 * 16)  # Draw from left to right
+        painter.drawArc(
+            int(center.x() - radius), 
+            int(center.y() - radius),
+            int(radius * 2), 
+            int(radius * 2),
+            180 * 16, 
+            -180 * 16
+        )
+        painter.end()
 
-        # Draw progress arc
+        QPixmapCache.insert(self._cache_key, background)
+        return background
+
+    def paintEvent(self, event):
+        background = QPixmap()
+        if not QPixmapCache.find(self._cache_key, background):
+            background = self._create_background()
+
+        painter = QPainter(self)
+        painter.drawPixmap(0, 0, background)
+
+        painter.setRenderHint(QPainter.Antialiasing)
+        width = self.width()
+        height = self.height()
+        radius = min(width, height) / 2 - 10
+        center = QPointF(width / 2, height / 2)
+        
         painter.setPen(QPen(self.color, 8))
-        span_angle = -(self.value / 100.0) * 180  # Convert percentage to degrees
-        painter.drawArc(int(center.x() - radius), int(center.y() - radius),
-                       int(radius * 2), int(radius * 2),
-                       180 * 16, span_angle * 16)  # Start from left side
+        span_angle = -(self.value / 100.0) * 180
+        painter.drawArc(
+            int(center.x() - radius), 
+            int(center.y() - radius),
+            int(radius * 2), 
+            int(radius * 2),
+            180 * 16, 
+            span_angle * 16
+        )
 
-        # Draw percentage text
         painter.setPen(Qt.white)
         font = painter.font()
         font.setPointSize(14)
@@ -608,9 +645,9 @@ class ArcGraph(QWidget):
         painter.drawText(self.rect(), Qt.AlignCenter, f"{int(self.value)}%")
 
 
-class ArcGraphVisualization(MetricsVisualization):
-    def __init__(self):
-        super().__init__()
+class ArcGraphVisualization(BaseVisualization):
+    def __init__(self, metrics_store: MetricsStore):
+        super().__init__(metrics_store)
         self.initUI()
 
     def initUI(self):
@@ -647,65 +684,49 @@ class ArcGraphVisualization(MetricsVisualization):
         for i in range(main_layout.columnCount()):
             main_layout.setColumnStretch(i, 1)
 
-    def update_metrics(self, metrics: Metrics):
-        self.cpu_buffer.append(metrics.cpu_usage)
-        self.ram_buffer.append(metrics.ram_usage_percent)
+    def update_metrics(self, metrics: SystemMetrics):
+        self.cpu_arc.set_value(metrics.cpu_usage)
+        self.cpu_label.setText(f"CPU {metrics.cpu_usage:.1f}%")
 
-        avg_cpu = sum(self.cpu_buffer) / len(self.cpu_buffer)
-        self.cpu_arc.set_value(avg_cpu)
-        self.cpu_label.setText(f"CPU {avg_cpu:.1f}%")
-
-        avg_ram = sum(self.ram_buffer) / len(self.ram_buffer)
-        self.ram_arc.set_value(avg_ram)
-        self.ram_label.setText(f"RAM {avg_ram:.1f}%")
+        self.ram_arc.set_value(metrics.ram_usage_percent)
+        self.ram_label.setText(f"RAM {metrics.ram_usage_percent:.1f}%")
 
         if self.has_nvidia_gpu:
             if metrics.gpu_utilization is not None:
-                self.gpu_buffer.append(metrics.gpu_utilization)
-                avg_gpu = sum(self.gpu_buffer) / len(self.gpu_buffer)
-                self.gpu_arc.set_value(avg_gpu)
-                self.gpu_label.setText(f"GPU {avg_gpu:.1f}%")
+                self.gpu_arc.set_value(metrics.gpu_utilization)
+                self.gpu_label.setText(f"GPU {metrics.gpu_utilization:.1f}%")
 
             if metrics.vram_usage_percent is not None:
-                self.vram_buffer.append(metrics.vram_usage_percent)
-                avg_vram = sum(self.vram_buffer) / len(self.vram_buffer)
-                self.vram_arc.set_value(avg_vram)
-                self.vram_label.setText(f"VRAM {avg_vram:.1f}%")
+                self.vram_arc.set_value(metrics.vram_usage_percent)
+                self.vram_label.setText(f"VRAM {metrics.vram_usage_percent:.1f}%")
 
             if metrics.power_usage_percent is not None:
-                self.power_buffer.append(metrics.power_usage_percent)
-                avg_power = sum(self.power_buffer) / len(self.power_buffer)
-                self.power_arc.set_value(avg_power)
-                self.power_label.setText(f"GPU Power {avg_power:.1f}%")
+                self.power_arc.set_value(metrics.power_usage_percent)
+                self.power_label.setText(f"GPU Power {metrics.power_usage_percent:.1f}%")
 
 
 class MetricsWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        QPixmapCache.setCacheLimit(10 * 1024)
+        
+        self.metrics_store = MetricsStore(buffer_size=100)
         self.init_ui()
-        self.metrics_collector = None
         self.current_visualization_type = 1
         self.setToolTip("Right click for display options")
+        self.metrics_collector = MetricsCollector(self.metrics_store)
         self.start_metrics_collector()
 
     def init_ui(self):
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.current_visualization = SparklineVisualization()
+        self.current_visualization = SparklineVisualization(self.metrics_store)
         self.layout.addWidget(self.current_visualization)
-
-    def start_metrics_collector(self):
-        if self.metrics_collector is None or not self.metrics_collector.thread.isRunning():
-            self.metrics_collector = MetricsCollector()
-            self.metrics_collector.metrics_updated.connect(self.update_visualization)
-
-    def stop_metrics_collector(self):
-        if self.metrics_collector and self.metrics_collector.thread.isRunning():
-            self.metrics_collector.thread.stop()
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
-        
+
         visual_menu = menu.addMenu("Visualization")
         bar_action = visual_menu.addAction("Bar")
         sparkline_action = visual_menu.addAction("Sparkline")
@@ -718,7 +739,7 @@ class MetricsWidget(QWidget):
 
         menu.addSeparator()
 
-        is_running = self.metrics_collector and self.metrics_collector.thread.isRunning()
+        is_running = self.metrics_collector and self.metrics_collector.timer.isActive()
         control_action = menu.addAction("Stop Monitoring" if is_running else "Start Monitoring")
 
         action = menu.exec_(event.globalPos())
@@ -742,24 +763,34 @@ class MetricsWidget(QWidget):
             return
 
         self.current_visualization_type = index
+        self.current_visualization.cleanup()
         self.layout.removeWidget(self.current_visualization)
         self.current_visualization.deleteLater()
 
         if index == 0:
-            self.current_visualization = BarVisualization()
+            self.current_visualization = BarVisualization(self.metrics_store)
         elif index == 1:
-            self.current_visualization = SparklineVisualization()
+            self.current_visualization = SparklineVisualization(self.metrics_store)
         elif index == 2:
-            self.current_visualization = SpeedometerVisualization()
+            self.current_visualization = SpeedometerVisualization(self.metrics_store)
         elif index == 3:
-            self.current_visualization = ArcGraphVisualization()
+            self.current_visualization = ArcGraphVisualization(self.metrics_store)
 
         self.current_visualization.setToolTip("Right click for display options")
         self.layout.addWidget(self.current_visualization)
 
-    def update_visualization(self, metrics: Metrics):
-        self.current_visualization.update_metrics(metrics)
+    def start_metrics_collector(self):
+        if self.metrics_collector is None:
+            self.metrics_collector = MetricsCollector(self.metrics_store)
+        self.metrics_collector.start()
 
-    def closeEvent(self, event):
-        self.stop_metrics_collector()
+    def stop_metrics_collector(self):
+        if self.metrics_collector:
+            self.metrics_collector.stop()
+
+    def cleanup(self):
+        if self.metrics_collector:
+            self.metrics_collector.cleanup()
+        self.current_visualization.cleanup()
+        QPixmapCache.clear()  # Clear cache when widget is destroyed
         super().closeEvent(event)
