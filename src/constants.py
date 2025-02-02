@@ -62,7 +62,7 @@ libs = [
     "beautifulsoup4==4.12.3",
     "bitsandbytes==0.45.1",
     "braceexpand==0.1.7",
-    "certifi==2024.12.14",
+    "certifi==2025.1.31",
     "cffi==1.17.1",
     "chardet==5.2.0",
     "charset-normalizer==3.4.1", # requests requires <4
@@ -87,7 +87,7 @@ libs = [
     "encodec==0.1.1",
     "et-xmlfile==1.1.0", # openpyxl requires; caution...openpyxl 3.1.5 (6/28/2024) predates et-xmlfile 2.0.0 (10/25/2024)
     "eval-type-backport==0.2.2", # only required by unstructured
-    "fastcore==1.7.28", # only required by whisperspeech
+    "fastcore==1.7.29", # only required by whisperspeech
     "fastprogress==1.0.3", # only required by whisperspeech
     "filetype==1.2.0",
     "filelock==3.17.0",
@@ -122,7 +122,7 @@ libs = [
     "langchain-huggingface==0.1.2",
     "langchain-text-splitters==0.3.5",
     "langdetect==1.0.9",
-    "langsmith==0.3.3",
+    "langsmith==0.3.4",
     "llvmlite==0.44.0", # only required by numba
     "lxml==5.3.0",
     "Markdown==3.7",
@@ -144,7 +144,7 @@ libs = [
     "numba==0.61.0", # only required by openai-whisper
     "numpy==1.26.4", # langchain libraries <2; numba <2.1; scipy <2.3; chattts <2.0.0
     "olefile==0.47",
-    "openai==1.60.2", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai==1.61.0", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
     "optimum==1.24.0",
@@ -163,7 +163,7 @@ libs = [
     "pybase16384==0.3.7", # only required by chattts
     "pycparser==2.22",
     "pydantic==2.10.6",
-    "pydantic_core==2.28.0",
+    "pydantic_core==2.27.2",
     "pydantic-settings==2.7.1",
     "Pygments==2.19.1",
     "pypandoc==1.15",
@@ -211,7 +211,7 @@ libs = [
     "timm==1.0.14",
     "tokenizers==0.21.0",
     "tqdm==4.67.1",
-    "transformers==4.48.1",
+    "transformers==4.48.2",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
     "unstructured-client==0.29.0",
@@ -796,6 +796,7 @@ VISION_MODELS = {
         'cache_dir': 'OpenGVLab--InternVL2_5-1B',
         'requires_cuda': True,
         'vram': '2.4 GB',
+        'loader': 'loader_internvl2_5'
     },
     'Florence-2-base': {
         'precision': 'autoselect',
@@ -805,6 +806,7 @@ VISION_MODELS = {
         'cache_dir': 'microsoft--Florence-2-base',
         'requires_cuda': False,
         'vram': '2.6 GB',
+        'loader': 'loader_florence2'
     },
     'InternVL2.5 - 4b': {
         'precision': 'bfloat16',
@@ -814,6 +816,7 @@ VISION_MODELS = {
         'cache_dir': 'OpenGVLab--InternVL2_5-4B',
         'requires_cuda': True,
         'vram': '3.2 GB',
+        'loader': 'loader_internvl2_5'
     },
     'Moondream2 - 1.9b': {
         'precision': 'float16',
@@ -823,6 +826,7 @@ VISION_MODELS = {
         'cache_dir': 'vikhyatk--moondream2',
         'requires_cuda': True,
         'vram': '4.6 GB',
+        'loader': 'loader_moondream'
     },
     'Florence-2-large': {
         'precision': 'autoselect',
@@ -832,6 +836,7 @@ VISION_MODELS = {
         'cache_dir': 'microsoft--Florence-2-large',
         'requires_cuda': False,
         'vram': '5.3 GB',
+        'loader': 'loader_florence2'
     },
     'Mississippi - 2b': {
         'precision': 'autoselect',
@@ -841,6 +846,7 @@ VISION_MODELS = {
         'cache_dir': 'h2oai--h2ovl-mississippi-2b',
         'requires_cuda': True,
         'vram': '5.3 GB',
+        'loader': 'loader_mississippi'
     },
     'Ovis1.6-Llama3.2 - 3b': {
         'precision': 'bfloat16',
@@ -850,6 +856,7 @@ VISION_MODELS = {
         'cache_dir': 'AIDC-AI--Ovis1.6-Llama3.2-3B',
         'requires_cuda': True,
         'vram': '9.6 GB',
+        'loader': 'loader_ovis'
     },
     'THUDM glm4v - 9b': {
         'precision': 'bfloat16',
@@ -859,6 +866,7 @@ VISION_MODELS = {
         'cache_dir': 'THUDM--glm-4v-9b',
         'requires_cuda': True,
         'vram': '10.5 GB',
+        'loader': 'loader_glmv4'
     },
     'Molmo-D-0924 - 8b': {
         'precision': 'autoselect',
@@ -868,6 +876,7 @@ VISION_MODELS = {
         'cache_dir': 'ctranslate2-4you--molmo-7B-O-bnb-4bit',
         'requires_cuda': True,
         'vram': '10.5 GB',
+        'loader': 'loader_molmo'
     },
     'Llava 1.6 Vicuna - 13b': {
         'precision': 'float16',
@@ -877,6 +886,7 @@ VISION_MODELS = {
         'cache_dir': 'llava-hf--llava-v1.6-vicuna-13b-hf',
         'requires_cuda': True,
         'vram': '14.1 GB',
+        'loader': 'loader_llava_next'
     }
 }
 
