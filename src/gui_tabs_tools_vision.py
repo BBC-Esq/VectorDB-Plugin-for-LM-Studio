@@ -15,13 +15,39 @@ from PySide6.QtCore import QUrl, QThread, Signal as pyqtSignal, Qt
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QMessageBox, QFileDialog, QProgressDialog
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QMessageBox, QFileDialog, QProgressDialog, QDialog, QCheckBox
 
 import module_process_images
 from module_process_images import choose_image_loader
 from constants import VISION_MODELS
 
 CONFIG_FILE = 'config.yaml'
+
+class ModelSelectionDialog(QDialog):
+    def __init__(self, models, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Select Vision Models")
+        layout = QVBoxLayout()
+        
+        self.checkboxes = {}
+        for model_name, info in models.items():
+            checkbox = QCheckBox(f"{model_name} (VRAM: {info['vram']})")
+            self.checkboxes[model_name] = checkbox
+            layout.addWidget(checkbox)
+        
+        buttons_layout = QHBoxLayout()
+        ok_button = QPushButton("OK")
+        cancel_button = QPushButton("Cancel")
+        ok_button.clicked.connect(self.accept)
+        cancel_button.clicked.connect(self.reject)
+        buttons_layout.addWidget(ok_button)
+        buttons_layout.addWidget(cancel_button)
+        
+        layout.addLayout(buttons_layout)
+        self.setLayout(layout)
+    
+    def get_selected_models(self):
+        return [model for model, checkbox in self.checkboxes.items() if checkbox.isChecked()]
 
 class CustomWebEnginePage(QWebEnginePage):
     def acceptNavigationRequest(self, url, _type, isMainFrame):
@@ -53,9 +79,10 @@ class MultiModelProcessorThread(QThread):
     error = pyqtSignal(str)
     progress = pyqtSignal(int)
 
-    def __init__(self, image_path):
+    def __init__(self, image_path, selected_models):
         super().__init__()
         self.image_path = image_path
+        self.selected_models = selected_models
         self.is_cancelled = False
 
     def cancel(self):
@@ -65,7 +92,7 @@ class MultiModelProcessorThread(QThread):
         try:
             results = []
             with Image.open(self.image_path) as raw_image:
-                for i, model_name in enumerate(VISION_MODELS.keys()):
+                for i, model_name in enumerate(self.selected_models):
                     if self.is_cancelled:
                         print("\nProcessing cancelled by user")
                         torch.cuda.empty_cache()
@@ -273,42 +300,49 @@ class VisionToolSettingsTab(QWidget):
             "Image Files (*.png *.jpg *.jpeg *.gif *.bmp *.tif *.tiff)"
         )
         if file_path:
-            msgBox = QMessageBox()
-            msgBox.setIcon(QMessageBox.Information)
-            msgBox.setText(
-                "Process this image with all available vision models?\n\n"
-                "This will test each model sequentially and may take several minutes.\n"
-                "Models will be loaded and unloaded to manage memory usage.\n\n"
-                "Do you want to proceed?"
-            )
-            msgBox.setWindowTitle("Confirm Processing")
-            msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            returnValue = msgBox.exec()
+            dialog = ModelSelectionDialog(VISION_MODELS, self)
+            if dialog.exec():
+                selected_models = dialog.get_selected_models()
+                if not selected_models:
+                    QMessageBox.warning(self, "Warning", "Please select at least one model.")
+                    return
+                    
+                msgBox = QMessageBox()
+                msgBox.setIcon(QMessageBox.Information)
+                msgBox.setText(
+                    "Process this image with the selected vision models?\n\n"
+                    "This will test each model sequentially and may take several minutes.\n"
+                    "Models will be loaded and unloaded to manage memory usage.\n\n"
+                    "Do you want to proceed?"
+                )
+                msgBox.setWindowTitle("Confirm Processing")
+                msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+                returnValue = msgBox.exec()
 
-            if returnValue == QMessageBox.Ok:
-                self.progress = QProgressDialog("Processing image with multiple models...", "Cancel", 0, len(VISION_MODELS), self)
-                self.progress.setWindowModality(Qt.WindowModal)
-                self.progress.setWindowTitle("Processing")
-                self.progress.canceled.connect(self.cancelProcessing)
-                
-                self.thread = MultiModelProcessorThread(file_path)
-                self.thread.finished.connect(self.onMultiModelProcessingFinished)
-                self.thread.error.connect(self.onMultiModelProcessingError)
-                self.thread.progress.connect(self.progress.setValue)
-                self.thread.start()
+                if returnValue == QMessageBox.Ok:
+                    self.progress = QProgressDialog("Processing image with multiple models...", "Cancel", 0, len(selected_models), self)
+                    self.progress.setWindowModality(Qt.WindowModal)
+                    self.progress.setWindowTitle("Processing")
+                    self.progress.canceled.connect(self.cancelProcessing)
+                    
+                    self.thread = MultiModelProcessorThread(file_path, selected_models)
+                    self.thread.finished.connect(self.onMultiModelProcessingFinished)
+                    self.thread.error.connect(self.onMultiModelProcessingError)
+                    self.thread.progress.connect(self.progress.setValue)
+                    self.thread.start()
 
     def cancelProcessing(self):
         if self.thread is not None:
             self.thread.cancel()
 
     def onMultiModelProcessingFinished(self, results):
-        self.progress.close()
-        try:
-            output_file = self.save_comparison_results(self.thread.image_path, results)
-            self.open_file(output_file)
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"An error occurred while saving results:\n\n{str(e)}")
-        self.thread = None
+            self.progress.close()
+            try:
+                output_file = self.save_comparison_results(self.thread.image_path, results)
+                self.open_file(output_file)
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"An error occurred while saving results:\n\n{str(e)}")
+            self.thread = None
 
     def onMultiModelProcessingError(self, error_msg):
         self.progress.close()
