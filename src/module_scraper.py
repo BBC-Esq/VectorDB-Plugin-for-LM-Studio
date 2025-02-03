@@ -116,6 +116,18 @@ class PyMuScraper(BaseScraper):
         main_content = soup.find('article', attrs={'role': 'main'})
         return main_content
 
+class SpacyScraper(BaseScraper):
+    def extract_main_content(self, soup):
+        main_content = soup.find('article', attrs={'role': 'main'})
+
+        if not main_content:
+            main_content = soup.find('article', class_=lambda x: x and 'main_content' in x)
+
+        if not main_content:
+            main_content = soup.find(['main', 'div'], attrs={'role': 'main'})
+
+        return main_content
+
 class ScraperRegistry:
     _scrapers = {
         "BaseScraper": BaseScraper,
@@ -127,6 +139,7 @@ class ScraperRegistry:
         "TileDBScraper": TileDBScraper,
         "TileDBVectorSearchScraper": TileDBVectorSearchScraper,
         "PyMuScraper": PyMuScraper,
+        "SpacyScraper": SpacyScraper
     }
 
     @classmethod

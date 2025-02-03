@@ -1062,17 +1062,6 @@ Cutting Knowledge Date: December 2023
 [|endofturn|]
 [|assistant|]"""
     },
-    # "InternLM 3 - 8b Q4_K_M": {
-        # "filename": "internlm3-8b-instruct-q4_k_m.gguf",
-        # "repo_id": "internlm/internlm3-8b-instruct-gguf",
-        # "allow_patterns": ["internlm3-8b-instruct-q4_k_m.gguf"],
-        # "prompt_template": """<s><|im_start|>system
-# {jeeves_system_message}<|im_end|>
-# <|im_start|>user
-# {user_message}<|im_end|>
-# <|im_start|>assistant
-# """
-    # },
 }
 
 WHISPER_SPEECH_MODELS = {
@@ -1513,14 +1502,9 @@ TOOLTIPS = {
 }
 
 scrape_documentation = {
-    "Accelerate 0.34.2": {
-        "URL": "https://huggingface.co/docs/accelerate/v0.34.2/en/",
-        "folder": "accelerate_0342",
-        "scraper_class": "HuggingfaceScraper"
-    },
-    "Accelerate 1.1.0": {
-        "URL": "https://huggingface.co/docs/accelerate/v1.2.1/en",
-        "folder": "accelerate_121",
+    "Accelerate 1.3.0": {
+        "URL": "https://huggingface.co/docs/accelerate/v1.3.0/en",
+        "folder": "accelerate_130",
         "scraper_class": "HuggingfaceScraper"
     },
     "aiohttp 3.9.5": {
@@ -1543,9 +1527,9 @@ scrape_documentation = {
         "URL": "https://beautiful-soup-4.readthedocs.io/en/latest/",
         "folder": "beautiful_soup_4"
     },
-    "bitsandbytes 0.45.0": {
-        "URL": "https://huggingface.co/docs/bitsandbytes/v0.45.0/en/",
-        "folder": "bitsandbytes_0450",
+    "bitsandbytes 0.45.1": {
+        "URL": "https://huggingface.co/docs/bitsandbytes/v0.45.1/en/index",
+        "folder": "bitsandbytes_0451",
         "scraper_class": "HuggingfaceScraper"
     },
     "Black": {
@@ -1555,10 +1539,6 @@ scrape_documentation = {
     "chardet": {
         "URL": "https://chardet.readthedocs.io/en/stable/",
         "folder": "chardet"
-    },
-    "charset-normalizer 3.3.2": {
-        "URL": "https://charset-normalizer.readthedocs.io/en/3.4.1/",
-        "folder": "charset_normalizer_341"
     },
     "charset-normalizer": {
         "URL": "https://charset-normalizer.readthedocs.io/en/stable/",
@@ -1584,26 +1564,26 @@ scrape_documentation = {
         "URL": "https://docs.cupy.dev/en/stable/",
         "folder": "cupy"
     },
-    "CustomTkinter": {
-        "URL": "https://customtkinter.tomschimansky.com/documentation/",
-        "folder": "customtkinter"
-    },
-    "Dask": {
-        "URL": "https://docs.dask.org/en/stable/",
-        "folder": "dask"
-    },
     "dill": {
         "URL": "https://dill.readthedocs.io/en/latest/",
         "folder": "dill"
+    },
+    "einops": {
+        "URL": "https://einops.rocks/",
+        "folder": "einops"
     },
     "gTTS": {
         "URL": "https://gtts.readthedocs.io/en/latest/",
         "folder": "gtts"
     },
-    "Huggingface Hub 0.27.1": {
-        "URL": "https://huggingface.co/docs/huggingface_hub/v0.27.1/en/",
-        "folder": "huggingface_hub_0271",
+    "Huggingface Hub 0.28.1": {
+        "URL": "https://huggingface.co/docs/huggingface_hub/v0.28.1/en/",
+        "folder": "huggingface_hub_0281",
         "scraper_class": "HuggingfaceScraper"
+    },
+    "humanfriendly": {
+        "URL": "https://humanfriendly.readthedocs.io/en/latest/",
+        "folder": "humanfriendly"
     },
     "isort": {
         "URL": "https://pycqa.github.io/isort/",
@@ -1613,13 +1593,17 @@ scrape_documentation = {
         "URL": "https://jinja.palletsprojects.com/en/stable/",
         "folder": "jinja"
     },
+    "Jiter": {
+        "URL": "https://crates.io/crates/jiter",
+        "folder": "jiter"
+    },
     "jiwer": {
         "URL": "https://jitsi.github.io/jiwer/",
         "folder": "jiwer"
     },
-    "Langchain (0.3)": {
+    "Langchain": {
         "URL": "https://python.langchain.com/api_reference/",
-        "folder": "langchain_03",
+        "folder": "langchain",
         "scraper_class": "LangchainScraper"
     },
     "Librosa": {
@@ -1666,10 +1650,6 @@ scrape_documentation = {
         "URL": "https://multiprocess.readthedocs.io/en/stable/",
         "folder": "multiprocess"
     },
-    "natsort 8.4.0": {
-        "URL": "https://natsort.readthedocs.io/en/8.4.0/",
-        "folder": "natsort_840"
-    },
     "natsort": {
         "URL": "https://natsort.readthedocs.io/en/stable/",
         "folder": "natsort"
@@ -1682,9 +1662,9 @@ scrape_documentation = {
         "URL": "https://www.nltk.org/",
         "folder": "nltk"
     },
-    "Numba 0.60.0": {
-        "URL": "https://numba.readthedocs.io/en/0.60.0/",
-        "folder": "numba_0600",
+    "Numba": {
+        "URL": "https://numba.readthedocs.io/en/stable/",
+        "folder": "numba",
         "scraper_class": "ReadthedocsScraper"
     },
     "Numexpr": {
@@ -1695,6 +1675,10 @@ scrape_documentation = {
         "URL": "https://numpy.org/doc/1.26/",
         "folder": "numpy_126"
     },
+    "NumPy (latest stable)": {
+        "URL": "https://numpy.org/doc/stable/index.html",
+        "folder": "numpy"
+    },
     "ONNX": {
         "URL": "https://onnx.ai/onnx/",
         "folder": "onnx"
@@ -1703,13 +1687,17 @@ scrape_documentation = {
         "URL": "https://onnxruntime.ai/docs/api/python/",
         "folder": "onnx_runtime"
     },
+    "openai": {
+        "URL": "https://platform.openai.com/docs/api-reference/",
+        "folder": "openai"
+    },
     "openpyxl": {
         "URL": "https://openpyxl.readthedocs.io/en/stable/",
         "folder": "openpyxl"
     },
-    "Optimum 1.23.3": {
-        "URL": "https://huggingface.co/docs/optimum/v1.23.3/en/",
-        "folder": "optimum_1233",
+    "Optimum 1.24.0": {
+        "URL": "https://huggingface.co/docs/optimum/v1.24.0/en/",
+        "folder": "optimum_1240",
         "scraper_class": "HuggingfaceScraper"
     },
     "packaging": {
@@ -1752,18 +1740,18 @@ scrape_documentation = {
         "URL": "https://pygments.org/docs/",
         "folder": "pygments"
     },
-    "PyInstaller 6.11.1": {
-        "URL": "https://pyinstaller.org/en/v6.11.1/",
-        "folder": "pyinstaller_6111"
+    "PyInstaller": {
+        "URL": "https://pyinstaller.org/en/stable/",
+        "folder": "pyinstaller"
     },
     "PyMuPDF": {
         "URL": "https://pymupdf.readthedocs.io/en/latest/",
         "folder": "pymupdf",
         "scraper_class": "PyMuScraper"
     },
-    "PyPDF 5.1.0": {
-        "URL": "https://pypdf.readthedocs.io/en/5.1.0/",
-        "folder": "pypdf_510",
+    "PyPDF": {
+        "URL": "https://pypdf.readthedocs.io/en/stable/",
+        "folder": "pypdf",
         "scraper_class": "ReadthedocsScraper"
     },
     # "Python 3.11": {
@@ -1778,6 +1766,10 @@ scrape_documentation = {
         # "URL": "https://python-docx.readthedocs.io/en/stable/", # won't scrape
         # "folder": "python_docx"
     # },
+    "python-oxmsg": {
+        "URL": "https://scanny.github.io/python-oxmsg/",
+        "folder": "python-oxmsg"
+    },
     "PyYAML": {
         "URL": "https://pyyaml.org/wiki/PyYAMLDocumentation",
         "folder": "pyyaml"
@@ -1837,9 +1829,9 @@ scrape_documentation = {
         "URL": "https://scikit-learn.org/stable/",
         "folder": "scikit_learn"
     },
-    "SciPy 1.14.1": {
-        "URL": "https://docs.scipy.org/doc/scipy-1.14.1/",
-        "folder": "scipy_1141"
+    "SciPy 1.15.1": {
+        "URL": "https://docs.scipy.org/doc/scipy-1.15.1/",
+        "folder": "scipy_1151"
     },
     "Sentence-Transformers": {
         "URL": "https://www.sbert.net/docs",
@@ -1855,7 +1847,7 @@ scrape_documentation = {
         "folder": "soundfile_0110",
         "scraper_class": "ReadthedocsScraper"
     },
-    "sounddevice 0.4.6": {
+    "sounddevice 0.5.1": {
         "URL": "https://python-sounddevice.readthedocs.io/en/0.5.1/",
         "folder": "sounddevice_051"
     },
@@ -1866,6 +1858,11 @@ scrape_documentation = {
     "Soxr": {
         "URL": "https://python-soxr.readthedocs.io/en/stable/",
         "folder": "soxr"
+    },
+    "SpaCy": {
+        "URL": "https://spacy.io/api",
+        "folder": "spacy",
+        "scraper_class": "SpacyScraper"
     },
     "SpeechBrain 0.5.15": {
         "URL": "https://speechbrain.readthedocs.io/en/v0.5.15/",
@@ -1880,10 +1877,9 @@ scrape_documentation = {
         "URL": "https://docs.sympy.org/latest/",
         "folder": "sympy"
     },
-    "TensorRT-LLM": {
-        "URL": "https://nvidia.github.io/TensorRT-LLM/",
-        "folder": "tensorrt_llm",
-        "scraper_class": "ReadthedocsScraper"
+    "tenacity": {
+        "URL": "https://tenacity.readthedocs.io/en/stable/",
+        "folder": "tenacity"
     },
     "Tile DB": {
         "URL": "https://docs.tiledb.com/main",
@@ -1895,9 +1891,14 @@ scrape_documentation = {
         "folder": "tiledb_vector_search",
         "scraper_class": "TileDBVectorSearchScraper"
     },
-    "Timm 1.0.13": {
-        "URL": "https://huggingface.co/docs/timm/v1.0.13/en/",
-        "folder": "timm_1013",
+    "Timm 1.0.14": {
+        "URL": "https://huggingface.co/docs/timm/v1.0.14/en/",
+        "folder": "timm_1014",
+        "scraper_class": "HuggingfaceScraper"
+    },
+    "tokenizers": {
+        "URL": "https://huggingface.co/docs/tokenizers/v0.20.3/en",
+        "folder": "tokenizers_0203",
         "scraper_class": "HuggingfaceScraper"
     },
     "torch 2.5.1": {
@@ -1938,9 +1939,9 @@ scrape_documentation = {
         "URL": "https://tqdm.github.io",
         "folder": "tqdm"
     },
-    "Transformers 4.48.0": {
-        "URL": "https://huggingface.co/docs/transformers/v4.48.0/en",
-        "folder": "transformers_4480",
+    "Transformers 4.48.2": {
+        "URL": "https://huggingface.co/docs/transformers/v4.48.2/en",
+        "folder": "transformers_4482",
         "scraper_class": "HuggingfaceScraper"
     },
     "Transformers.js 3.0.0": {
@@ -1953,12 +1954,12 @@ scrape_documentation = {
         "folder": "urllib3"
     },
     "Unstructured": {
-        "URL": "https://docs.unstructured.io/api-reference/",
+        "URL": "https://docs.unstructured.io/api-reference/api-services/sdk-python",
         "folder": "unstructured"
     },
     "Watchdog": {
         "URL": "https://python-watchdog.readthedocs.io/en/stable/",
-        "folder": "watchdog",
+        "folder": "watchdog"
     },
     "webdataset": {
         "URL": "https://webdataset.github.io/webdataset/",
