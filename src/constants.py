@@ -59,7 +59,7 @@ libs = [
     "attrs==25.1.0",
     "av==14.1.0",
     "backoff==2.2.1",
-    "beautifulsoup4==4.12.3",
+    "beautifulsoup4==4.13.1",
     "bitsandbytes==0.45.1",
     "braceexpand==0.1.7",
     "certifi==2025.1.31",
@@ -128,7 +128,7 @@ libs = [
     "Markdown==3.7",
     "markdown-it-py==3.0.0",
     "MarkupSafe==3.0.2",
-    "marshmallow==3.26.0",
+    "marshmallow==3.26.1",
     "matplotlib==3.10.0", # uniquely requires pyparsing==3.1.2 cycler==0.12.1 kiwisolver==1.4.5
     "mdurl==0.1.2",
     "more-itertools==10.6.0",
@@ -149,12 +149,13 @@ libs = [
     "openpyxl==3.1.5",
     "optimum==1.24.0",
     "ordered-set==4.1.0",
-    "orderly-set==5.2.3", # deepdiff 8.1.1 requires 5.2.3
+    "orderly-set==5.3.0", # deepdiff 8.1.1 orderly-set>=5.2.3,<6
     "orjson==3.10.15",
     "packaging==24.2",
     "pandas==2.2.3",
     "peft==0.14.0", # only required by mississippi model
     "pillow==11.1.0",
+    "pipdeptree",
     "platformdirs==4.3.6",
     "propcache==0.2.1",
     "protobuf==5.29.3",
@@ -175,7 +176,7 @@ libs = [
     "python-dotenv==1.0.1",
     "python-iso639==2025.1.28",
     "python-magic==0.4.27",
-    "python-oxmsg==0.0.1", # only required by unstructured library
+    "python-oxmsg==0.0.2", # only required by unstructured library
     "pytz==2024.2",
     "PyYAML==6.0.2",
     "rapidfuzz==3.12.1",
@@ -217,7 +218,7 @@ libs = [
     "unstructured-client==0.29.0",
     "tzdata==2025.1",
     "urllib3==2.3.0", # requests 2.32.3 requires <3
-    "vector-quantize-pytorch==1.21.4",
+    "vector-quantize-pytorch==1.21.5",
     "vocos==0.1.0",
     "watchdog==6.0.0",
     "webdataset==0.2.100", # required by all TTS libraries
@@ -231,7 +232,7 @@ libs = [
 ]
 
 full_install_libs = [
-    "PySide6==6.8.1",
+    "PySide6==6.8.2",
     "pymupdf==1.25.2",
     "unstructured==0.16.17"
 ]
@@ -1395,6 +1396,13 @@ PROMPT_FORMATS = {
     }
 }
 
+# stuff to include/exclude based on whether "show_thinking" is true or false in config.yaml
+THINKING_TAGS = {
+    "think": ("<think>", "</think>"),
+    "thinking": ("<thinking>", "</thinking>")
+    # Add more tag pairs as needed
+}
+
 TOOLTIPS = {
     "AUDIO_FILE_SELECT": "Select an audio file. Supports various audio formats.",
     "CHOOSE_FILES": "Select documents to add to the database. Remember to transcribe audio files in the Tools tab first.",
@@ -1524,7 +1532,7 @@ scrape_documentation = {
         "folder": "autoawq"
     },
     "Beautiful Soup 4": {
-        "URL": "https://beautiful-soup-4.readthedocs.io/en/latest/",
+        "URL": "https://www.crummy.com/software/BeautifulSoup/bs4/doc/",
         "folder": "beautiful_soup_4"
     },
     "bitsandbytes 0.45.1": {
@@ -1571,6 +1579,11 @@ scrape_documentation = {
     "einops": {
         "URL": "https://einops.rocks/",
         "folder": "einops"
+    },
+    "fsspec": {
+        "URL": "https://filesystem-spec.readthedocs.io/en/stable/",
+        "folder": "fsspec",
+        "scraper_class": "ReadthedocsScraper"
     },
     "gTTS": {
         "URL": "https://gtts.readthedocs.io/en/latest/",

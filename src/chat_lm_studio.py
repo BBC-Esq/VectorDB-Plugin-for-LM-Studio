@@ -1,6 +1,7 @@
 import gc
 import logging
 
+import requests
 from pathlib import Path
 import torch
 import yaml
@@ -9,7 +10,7 @@ from PySide6.QtCore import QThread, Signal, QObject
 
 from database_interactions import QueryVectorDB
 from utilities import format_citations, normalize_chat_text
-from constants import rag_string
+from constants import system_message, rag_string, THINKING_TAGS
 
 ROOT_DIRECTORY = Path(__file__).resolve().parent
 
@@ -35,39 +36,59 @@ class LMStudioChat:
     def connect_to_local_chatgpt(self, prompt):
         server_config = self.config.get('server', {})
         base_url = server_config.get('connection_str')
-        prefix = server_config.get('prefix', '')
-        suffix = server_config.get('suffix', '')
-        prompt_format_disabled = server_config.get('prompt_format_disabled')
-        model_temperature = server_config.get('model_temperature')
-        model_max_tokens = server_config.get('model_max_tokens')
+        show_thinking = server_config.get('show_thinking', False)
 
-        client = OpenAI(base_url=base_url, api_key='not-needed')
-
-        formatted_prompt = prompt if prompt_format_disabled else f"{prefix}{prompt}{suffix}"
+        client = OpenAI(base_url=base_url, api_key='lm-studio')
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": prompt}
+        ]
 
         stream = client.chat.completions.create(
             model="local-model",
-            messages=[{"role": "user", "content": formatted_prompt}],
-            temperature=model_temperature,
-            max_tokens=model_max_tokens,
+            messages=messages,
             stream=True
         )
 
+        in_thinking_block = False
+        first_content = True
         for chunk in stream:
             if chunk.choices[0].delta.content is not None:
-                yield chunk.choices[0].delta.content
+                content = chunk.choices[0].delta.content
+
+                if not show_thinking:
+                    skip_chunk = False
+                    # Check each pair of thinking tags
+                    for start_tag, end_tag in THINKING_TAGS.values():
+                        if start_tag in content:
+                            in_thinking_block = True
+                            skip_chunk = True
+                            break
+                        if end_tag in content:
+                            in_thinking_block = False
+                            skip_chunk = True
+                            break
+                    if skip_chunk:
+                        continue
+                    if in_thinking_block:
+                        continue
+
+                if first_content:
+                    content = content.lstrip()
+                    first_content = False
+
+                yield content
 
     def handle_response_and_cleanup(self, full_response, metadata_list):
         citations = format_citations(metadata_list)
         
-        if self.query_vector_db and self.query_vector_db.embeddings:
-            del self.query_vector_db.embeddings.client
-            del self.query_vector_db.embeddings
-
-        if torch.cuda.is_available():
+        if self.query_vector_db:
+            self.query_vector_db.cleanup()
+            print("Embedding model removed from memory.")
+        
+        if torch.cuda.empty_cache():
             torch.cuda.empty_cache()
         gc.collect()
-        print("Embedding model removed from memory.")
         
         return citations
 
@@ -77,6 +98,17 @@ class LMStudioChat:
                 output_file.write(f"{metadata}\n")
 
     def ask_local_chatgpt(self, query, selected_database):
+        """
+        ask_local_chatgpt
+            ├─ Sets up vector DB
+            ├─ Gets contexts
+            ├─ Formats augmented query
+            ├─ Calls connect_to_local_chatgpt
+            │      ├─ Connects to API
+            │      ├─ Sends messages
+            │      └─ Returns response chunks
+            └─ Handles cleanup and signals
+        """
         if self.query_vector_db is None or self.query_vector_db.selected_database != selected_database:
             self.query_vector_db = QueryVectorDB(selected_database)
         
@@ -122,9 +154,11 @@ class LMStudioChatThread(QThread):
             self.lm_studio_chat.signals.error_signal.emit(str(e))
 
 def is_lm_studio_available():
-    # This function should check if LM Studio is available and running
-    # For now, we'll just return True as a placeholder
-    return True
+    try:
+        response = requests.get("http://127.0.0.1:1234/v1/models/", timeout=3)
+        return response.status_code == 200
+    except requests.exceptions.RequestException:
+        return False
 
 """
 [Main Process]
