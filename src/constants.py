@@ -198,7 +198,7 @@ libs = [
     "soupsieve==2.6",
     "speechbrain==0.5.16",
     "SQLAlchemy==2.0.37", # langchain and langchain-community require less than 3.0.0
-    "sseclient-py==1.8.0",
+    "sseclient-py==1.8.0", # only required by Kobold
     "sympy==1.13.1", # torch 2.5.1 requires sympy==1.13.1
     "tabulate==0.9.0",
     "tblib==1.7.0", # tiledb-cloud requires >= 1.7.0 but < 1.8.0
@@ -1320,8 +1320,8 @@ kobold_config = {
   "noshift": True,
   "onready": "",
   "password": None,
-  "port": 5001,
-  "port_param": 5001,
+  "port": 5111,
+  "port_param": 5111,
   "preloadstory": None,
   "prompt": "",
   "promptlimit": 100,
@@ -1422,16 +1422,13 @@ TOOLTIPS = {
     "CREATE_VECTOR_DB": "Creates a new vector database.",
     "DATABASE_NAME_INPUT": "Enter a unique database name. Use only lowercase letters, numbers, underscores, and hyphens.",
     "DATABASE_SELECT": "Vector database that will be queried.",
-    "DISABLE_PROMPT_FORMATTING": "Disables built-in prompt formatting, using LM Studio's settings instead.",
     "DOWNLOAD_MODEL": "Download the selected vector model.",
     "EJECT_LOCAL_MODEL": "Unload the current local model from memory.",
     "FILE_TYPE_FILTER": "Only allows chunks that originate from certain file types.",
     "HALF_PRECISION": "Uses bfloat16/float16 for 2x speedup. Requires a GPU.",
     "LOCAL_MODEL_SELECT": "Select a local model for generating responses.",
-    "MAX_TOKENS": "Maximum tokens for LLM response. -1 for unlimited.",
     "MODEL_BACKEND_SELECT": "Choose the backend for the large language model response.",
     "PORT": "Must match the port used in LM Studio.",
-    "PREFIX_SUFFIX": "Prompt format for LLM. Use preset or custom for different models.",
     "QUESTION_INPUT": "Type your question here or use the voice recorder.",
     "RESTORE_CONFIG": "Restores original config.yaml. May require manual database cleanup.",
     "RESTORE_DATABASE": "Restores backed-up databases. Use with caution.",
@@ -1439,7 +1436,7 @@ TOOLTIPS = {
     "SELECT_VECTOR_MODEL": "Choose the vector model for text embedding.",
     "SIMILARITY": "Relevance threshold for chunks. 0-1, higher returns more. Don't use 1.",
     "SPEAK_RESPONSE": "Speak the response from the large language model using text-to-speech.",
-    "TEMPERATURE": "Controls LLM creativity. 0-1, higher is more creative.",
+    "SHOW_THINKING_CHECKBOX": "If checked, show the model's internal thought process.  Only applies to models like Deepseek's R1 and it will be disregarded if not applicable.",
     "TRANSCRIBE_BUTTON": "Start transcription.",
     "TTS_MODEL": "Choose TTS model. Bark offers customization, Google requires internet.",
     "VECTOR_MODEL_DIMENSIONS": "Higher dimensions captures more nuance but requires more processing time.",
@@ -1472,15 +1469,15 @@ TOOLTIPS = {
         "<tr style='background-color: #ecf0f1;'>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float16</td>"
-        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Yes</td>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'><code>float16</code></td>"
         "</tr>"
         "<tr>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>bfloat16</td>"
-        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Either</td>"
+        "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Yes</td>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>"
-        "<code>bfloat16</code> (if CUDA capability &ge; 8.6) or <code>float16</code></td>"
+        "<code>bfloat16</code> (if CUDA capability &ge; 8.0) or <code>float16</code></td>"
         "</tr>"
         "<tr style='background-color: #ecf0f1;'>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>CUDA</td>"
@@ -1493,7 +1490,7 @@ TOOLTIPS = {
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>float32</td>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>Yes</td>"
         "<td style='border: 1px solid #bdc3c7; padding: 8px;'>"
-        "<code>bfloat16</code> (if CUDA capability &ge; 8.6) or <code>float16</code>"
+        "<code>bfloat16</code> (if CUDA capability &ge; 8.0) or <code>float16</code>"
         "</td>"
         "</tr>"
         "</tbody>"
@@ -1526,6 +1523,10 @@ scrape_documentation = {
     "Argcomplete": {
         "URL": "https://kislyuk.github.io/argcomplete/",
         "folder": "argcomplete"
+    },
+    "array_api_compat": {
+        "URL": "https://data-apis.org/array-api-compat/",
+        "folder": "array_api_compat"
     },
     "AutoAWQ": {
         "URL": "https://casper-hansen.github.io/AutoAWQ/",
@@ -1580,6 +1581,15 @@ scrape_documentation = {
         "URL": "https://einops.rocks/",
         "folder": "einops"
     },
+    "einx": {
+        "URL": "https://einx.readthedocs.io/en/stable/",
+        "folder": "einx",
+        "scraper_class": "ReadthedocsScraper"
+    },
+    "fastcore": {
+        "URL": "https://fastcore.fast.ai/",
+        "folder": "fastcore",
+    },
     "fsspec": {
         "URL": "https://filesystem-spec.readthedocs.io/en/stable/",
         "folder": "fsspec",
@@ -1614,6 +1624,10 @@ scrape_documentation = {
         "URL": "https://jitsi.github.io/jiwer/",
         "folder": "jiwer"
     },
+    "joblib": {
+        "URL": "https://joblib.readthedocs.io/en/stable/",
+        "folder": "joblib"
+    },
     "Langchain": {
         "URL": "https://python.langchain.com/api_reference/",
         "folder": "langchain",
@@ -1626,6 +1640,11 @@ scrape_documentation = {
     "llama-cpp-python": {
         "URL": "https://llama-cpp-python.readthedocs.io/en/stable/",
         "folder": "llama_cpp_python"
+    },
+    "llvmlite": {
+        "URL": "https://llvmlite.readthedocs.io/en/stable/",
+        "folder": "llvmlite",
+        "scraper_class": "ReadthedocsScraper"
     },
     "LM Studio": {
         "URL": "https://lmstudio.ai/docs/",
@@ -1675,11 +1694,11 @@ scrape_documentation = {
         "URL": "https://www.nltk.org/",
         "folder": "nltk"
     },
-    "Numba": {
-        "URL": "https://numba.readthedocs.io/en/stable/",
-        "folder": "numba",
-        "scraper_class": "ReadthedocsScraper"
-    },
+    # "numba": {
+        # "URL": "https://numba.readthedocs.io/",
+        # "folder": "numba",
+        # "scraper_class": "ReadthedocsScraper"
+    # },
     "Numexpr": {
         "URL": "https://numexpr.readthedocs.io/en/latest/",
         "folder": "numexpr"
@@ -1737,9 +1756,13 @@ scrape_documentation = {
         "URL": "https://pillow.readthedocs.io/en/stable/",
         "folder": "pillow"
     },
-    "Protocol Buffers": {
+    # "propcache": {
+        # "URL": "https://propcache.aio-libs.org/",
+        # "folder": "propcache",
+    # },
+    "protobuf": {
         "URL": "https://protobuf.dev/",
-        "folder": "protocol_buffers"
+        "folder": "protobuf"
     },
     "PyAV": {
         "URL": "https://pyav.org/docs/stable/",
@@ -1779,6 +1802,10 @@ scrape_documentation = {
         # "URL": "https://python-docx.readthedocs.io/en/stable/", # won't scrape
         # "folder": "python_docx"
     # },
+    "python-dotenv": {
+        "URL": "https://saurabh-kumar.com/python-dotenv/",
+        "folder": "python-dotenv"
+    },
     "python-oxmsg": {
         "URL": "https://scanny.github.io/python-oxmsg/",
         "folder": "python-oxmsg"
@@ -1886,7 +1913,7 @@ scrape_documentation = {
         "URL": "https://docs.sqlalchemy.org/en/20/",
         "folder": "sqlalchemy_20"
     },
-    "SymPy": {
+    "sympy": {
         "URL": "https://docs.sympy.org/latest/",
         "folder": "sympy"
     },

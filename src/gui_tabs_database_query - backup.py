@@ -435,11 +435,9 @@ class DatabaseQueryTab(QWidget):
         if self.local_model_chat.is_model_loaded():
             self.local_model_chat.eject_model()
         if self.database_query_thread and self.database_query_thread.isRunning():
-            self.database_query_thread.stop()
             self.database_query_thread.wait()
         if self.chatgpt_thread and self.chatgpt_thread.isRunning():
             self.chatgpt_thread.wait()
-        if self.kobold_thread and self.kobold_thread.isRunning():
-            self.kobold_thread.stop()  # Call our new stop method
-            self.kobold_thread.wait(timeout=5000)  # Add timeout
+        if self.kobold_thread and self.kobold_thread.isRunning():  # Add this
+            self.kobold_thread.wait()
         print("Cleanup completed")

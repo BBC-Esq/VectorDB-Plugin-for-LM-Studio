@@ -28,8 +28,8 @@ class GuiSettingsTab(QWidget):
         super(GuiSettingsTab, self).__init__()
         self.layout = QVBoxLayout()
         classes = {
-            "LM Studio Server": (ServerSettingsTab, 5),
-            "Database Query": (DatabaseSettingsTab, 3),
+            "LM Studio Server": (ServerSettingsTab, 2),
+            "Database Query": (DatabaseSettingsTab, 4),
             "Database Creation": (ChunkSettingsTab, 3),
         }
         self.groups = {}
@@ -55,7 +55,7 @@ class GuiSettingsTab(QWidget):
         ttsGroup.setLayout(ttsLayout)
         ttsGroup.setCheckable(True)
         ttsGroup.setChecked(True)
-        self.layout.addWidget(ttsGroup, 4)
+        self.layout.addWidget(ttsGroup, 5)
         self.groups[ttsGroup] = 4
         ttsGroup.toggled.connect(partial(self.toggle_tts_group, ttsSettings))
 
@@ -67,7 +67,7 @@ class GuiSettingsTab(QWidget):
         visionGroup.setLayout(visionLayout)
         visionGroup.setCheckable(True)
         visionGroup.setChecked(True)
-        self.layout.addWidget(visionGroup, 1)
+        self.layout.addWidget(visionGroup, 2)
         self.groups[visionGroup] = 1
         visionGroup.toggled.connect(partial(self.toggle_vision_group, visionSettings))
 

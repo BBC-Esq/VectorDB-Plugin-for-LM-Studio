@@ -173,7 +173,11 @@ def normalize_chat_text(text):
     text = re.sub(r'[^\S \n]', ' ', text)
     text = re.sub(r'  +', ' ', text)
     text = re.sub(r'(?<=\n) +(?=\n)', '', text)
-    
+
+    text = text.strip()
+    text = re.sub(r'^[^a-zA-Z]*', '', text)
+    text = re.sub(r'\n+', ' ', text)
+
     return text.strip()
 
 def test_triton_installation():
@@ -373,7 +377,6 @@ def get_appropriate_dtype(compute_device, use_half, model_native_precision):
         logging.debug(f"Unrecognized precision '{model_native_precision}', returning float32")
         return torch.float32
 
-
 # IMPLEMENT THIS IF/WHEN A USER TRIES TO CREATE A DB WITH A CPU WITH AN INCOMPATIBLE VISION MODEL
 def cpu_db_creation_vision_model_compatibility(directory, image_extensions, config_path):
     has_images = False
@@ -385,7 +388,6 @@ def cpu_db_creation_vision_model_compatibility(directory, image_extensions, conf
     if not has_images:
         return False, None
 
-    # Load config
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
 
@@ -803,22 +805,6 @@ class FlashAttentionUtils:
         # Enable Flash Attention in the config
         config._attn_implementation = "flash_attention_2"
         return config
-
-
-'''
-open a text file on multiple platforms
-    try:
-        if os.name == 'nt':
-            os.startfile(output_file_path)
-        elif sys.platform == 'darwin':
-            subprocess.Popen(['open', output_file_path])
-        elif sys.platform.startswith('linux'):
-            subprocess.Popen(['xdg-open', output_file_path])
-        else:
-            raise NotImplementedError("Unsupported operating system")
-    except Exception as e:
-        print(f"Error opening file: {e}")
-'''
 
 def set_logging_level():
     """

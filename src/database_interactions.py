@@ -670,6 +670,38 @@ class QueryVectorDB:
         gc.collect()
         logging.debug(f"Cleanup completed for instance {self._debug_id}")
 
+
+"""
+Snowflake, Alibaba, and Stella 400M embedding models can all use xformers's memory efficient attention; however, 400M is slightly different.
+
+Snowflake and Alibaba:
+
+1. Initial Setup
+   - Attempts to import xformers library
+   - Checks if use_memory_efficient_attention parameter was explicitly passed
+   - If not passed, uses the value from config
+   - Sets memory_efficient_attention to None if xformers isn't available
+
+2. Implementation Selection
+   - Uses config's attention implementation if none specified
+   - Forces 'eager' implementation when using memory efficient attention
+
+3. Input Processing
+   - Uses config's unpad_inputs if none specified
+
+4. Runtime Verification
+   - Confirms use_memory_efficient_attention is True
+   - Verifies memory_efficient_attention is available (not None)
+   - Only proceeds with xformers if all checks pass
+
+Stella 400M:
+
+Explicitly requires use_memory_efficient_attention to be True when using unpadded inputs, making xformers mandatory.
+This differs from the previous scripts we looked at, which would allow unpadded inputs with or without xformers.
+The model will raise an assertion error if you try to use unpadded inputs without xformers.
+Also, unlike Alibaba or Snowflake, "eager" must be used even when NOT using xformers due to SDPA not being implemented yet.
+"""
+
         # my_cprint(f"{self.model_name} removed from memory.", "red")
 
 

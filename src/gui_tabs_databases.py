@@ -332,6 +332,5 @@ class DatabasesTab(QWidget):
         self.adjust_stretch()
 
     def adjust_stretch(self):
-        # total_stretch = sum(stretch for group, stretch in self.groups.items() if group.isChecked())
         for group, stretch in self.groups.items():
             self.layout.setStretchFactor(group, stretch if group.isChecked() else 0)

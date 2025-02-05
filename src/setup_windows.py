@@ -298,20 +298,54 @@ def update_config_yaml():
     import yaml
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(script_dir, 'config.yaml')
-
+    
     with open(config_path, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
 
+    # Setup vector model path
     vector_model_path = os.path.join(script_dir, 'Models', 'vector', 'BAAI--bge-small-en-v1.5')
-
+    
+    # Ensure base structures exist
     if 'created_databases' not in config:
         config['created_databases'] = {}
     if 'user_manual' not in config['created_databases']:
         config['created_databases']['user_manual'] = {}
 
+    # Update user_manual settings
     config['created_databases']['user_manual']['chunk_overlap'] = 549
     config['created_databases']['user_manual']['chunk_size'] = 1100
     config['created_databases']['user_manual']['model'] = vector_model_path
+
+    # Ensure openai configuration exists with required structure
+    if 'openai' not in config:
+        config['openai'] = {}
+    
+    # Ensure all required openai keys exist (preserving existing values if present)
+    if 'api_key' not in config['openai']:
+        config['openai']['api_key'] = ''
+    if 'model' not in config['openai']:
+        config['openai']['model'] = 'gpt-4o-mini'
+    if 'reasoning_effort' not in config['openai']:
+        config['openai']['reasoning_effort'] = 'medium'
+
+    # Ensure server configuration exists with required structure
+    if 'server' not in config:
+        config['server'] = {}
+    
+    # Ensure all required server keys exist (preserving existing values if present)
+    if 'api_key' not in config['server']:
+        config['server']['api_key'] = ''
+    if 'connection_str' not in config['server']:
+        config['server']['connection_str'] = 'http://localhost:1234/v1'
+    if 'show_thinking' not in config['server']:
+        config['server']['show_thinking'] = 'medium'
+
+    # Remove any extra keys that might exist in the server section
+    server_allowed_keys = {'api_key', 'connection_str', 'show_thinking'}
+    server_keys = list(config['server'].keys())
+    for key in server_keys:
+        if key not in server_allowed_keys:
+            del config['server'][key]
 
     with open(config_path, 'w', encoding='utf-8') as file:
         yaml.dump(config, file, default_flow_style=False)

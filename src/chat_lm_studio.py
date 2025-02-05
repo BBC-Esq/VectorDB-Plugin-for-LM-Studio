@@ -84,8 +84,7 @@ class LMStudioChat:
         
         if self.query_vector_db:
             self.query_vector_db.cleanup()
-            print("Embedding model removed from memory.")
-        
+
         if torch.cuda.empty_cache():
             torch.cuda.empty_cache()
         gc.collect()
@@ -98,17 +97,6 @@ class LMStudioChat:
                 output_file.write(f"{metadata}\n")
 
     def ask_local_chatgpt(self, query, selected_database):
-        """
-        ask_local_chatgpt
-            ├─ Sets up vector DB
-            ├─ Gets contexts
-            ├─ Formats augmented query
-            ├─ Calls connect_to_local_chatgpt
-            │      ├─ Connects to API
-            │      ├─ Sends messages
-            │      └─ Returns response chunks
-            └─ Handles cleanup and signals
-        """
         if self.query_vector_db is None or self.query_vector_db.selected_database != selected_database:
             self.query_vector_db = QueryVectorDB(selected_database)
         

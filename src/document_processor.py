@@ -137,31 +137,14 @@ def load_single_document(file_path: Path) -> Document:
             "autodetect_encoding": True
         })
 
-    # try:
-        # if file_extension in [".epub", ".rtf", ".odt", ".md", ".eml", ".msg", ".xlsx", ".xls", ".xlsm"]:
-            # unstructured_kwargs = loader_options.pop("unstructured_kwargs", {})
-            # loader = loader_class(str(file_path), mode=loader_options.get("mode", "single"), **unstructured_kwargs)
-        # else:
-            # loader = loader_class(str(file_path), **loader_options)
-
-        # documents = loader.load()
-
-    # use the above commented-out version if/when the oxmsg maintainers remove the annoying print statements
-    # https://github.com/scanny/python-oxmsg/issues/3
     try:
         if file_extension in [".epub", ".rtf", ".odt", ".md", ".eml", ".msg", ".xlsx", ".xls", ".xlsm"]:
             unstructured_kwargs = loader_options.pop("unstructured_kwargs", {})
             loader = loader_class(str(file_path), mode=loader_options.get("mode", "single"), **unstructured_kwargs)
-            
-            # Only suppress stdout for .eml and .msg files
-            if file_extension in [".eml", ".msg"]:
-                with io.StringIO() as buf, redirect_stdout(buf):
-                    documents = loader.load()
-            else:
-                documents = loader.load()
         else:
             loader = loader_class(str(file_path), **loader_options)
-            documents = loader.load()
+
+        documents = loader.load()
 
         if not documents:
             print(f"\033[91mFailed---> {file_path.name} (No content extracted)\033[0m")
