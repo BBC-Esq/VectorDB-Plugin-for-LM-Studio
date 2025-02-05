@@ -167,10 +167,10 @@ Select non-audio files (which can include images) within the ```Create Database`
   > It is highly recommended that you test out the different vision models before inputting images.  Just ask Jeeves how.
 
 ### Selecting Audio Files
-Audio transcriptions can be put into the database to be searched; however, they must be transcribed first.  This can be done within the ```Tools Tab```.  As of release v7.3.0, you an select more than one audio file at a time.
+Audio transcriptions can be put into the database to be searched; however, they must be transcribed first.  This can be done within the ```Tools Tab```.  You must do this for each indiviual audio file (batch processing is coming soon).
   > It is highly recommended to test the various ```Whisper``` model sizes as well as the ```batch``` setting **before** committng to transcription.  Ask Jeeves for how to do this.
 
-Once the audio files are transcribed they transcriptions (represented by a .json file with the same name) will appear in the ```Create Database``` tab.
+Once the audio files are transcribed, the transcriptions will appear in the ```Create Database``` tab (represented by a .json file with the same name).
 
 ### Actually Creating The Database
 * Download a vector model from the ```Models``` tab.
