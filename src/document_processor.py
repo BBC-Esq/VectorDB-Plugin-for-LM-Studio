@@ -143,7 +143,6 @@ def load_single_document(file_path: Path) -> Document:
             loader = loader_class(str(file_path), mode=loader_options.get("mode", "single"), **unstructured_kwargs)
         else:
             loader = loader_class(str(file_path), **loader_options)
-
         documents = loader.load()
 
         if not documents:
