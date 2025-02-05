@@ -25,7 +25,6 @@ graph TD
     classDef llmStyle fill:#263238,stroke:#9c27b0,stroke-width:2px;
     classDef ttsStyle fill:#263238,stroke:#3f51b5,stroke-width:2px;
     classDef minWidth width:200px;
-
     %% Input Files
     subgraph InputFiles [Files]
         A[.pdf, .docx, .txt, .html, .csv, .xls, .xlsx, .rtf, .odt]
@@ -33,7 +32,6 @@ graph TD
         C[.mp3, .wav, .m4a, .ogg, .wma, .flac]
     end
     class InputFiles inputStyle;
-
     %% Processing
     subgraph Processing [Process]
         D[Extract Text]
@@ -41,57 +39,45 @@ graph TD
         F[Transcribe Audio]
     end
     class Processing processStyle;
-
     %% Output
     subgraph Output [Save]
         G[Vector Database]:::minWidth
     end
     class Output outputStyle;
-
     %% Search
     subgraph Search [Query]
         H[Type a Question]
         I[Record a Question]
     end
     class Search searchStyle;
-
     %% LLM
     subgraph LLM [Get Response from LLM]
         J[Combine Chunks & Query]
-        K1[Local Models]
-        K2[LM Studio]
-        K3[OpenAI and others<br/>coming soon]
+        K1[Local Models<br/>via this program]
+        K2[Kobold, LM Studio or ChatGPT]
         K[Response from LLM]
         K1 --> K
         K2 --> K
-        K3 --> K
     end
     class LLM llmStyle;
-
     %% TTS
     subgraph TTS [Speak Response]
         L[Text-to-Speech Models]
     end
     class TTS ttsStyle;
-
     %% Connections
     A --> D
     B --> E
     C --> F
-
     D --> G
     E --> G
     F --> G
-
     H --> G
     I --> G
-
     G --> J
     J --> K1
     J --> K2
-    J --> K3
     K --> L
-
 ```
 
 
