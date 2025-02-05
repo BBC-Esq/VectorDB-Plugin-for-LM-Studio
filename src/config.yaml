@@ -27,14 +27,15 @@ database:
   half: false
   search_term: ''
   similarity: 0.8
+hf_access_token:
+openai:
+  api_key:
+  model: gpt-4o-mini
+  reasoning_effort: medium
 server:
   api_key: ''
   connection_str: http://localhost:1234/v1
-  model_max_tokens: -1
-  model_temperature: 0.1
-  prefix: '### User:'
-  prompt_format_disabled: false
-  suffix: '### Assistant:'
+  show_thinking: false
 transcribe_file:
   device: cpu
   file: null
