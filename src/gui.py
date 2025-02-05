@@ -47,7 +47,7 @@ from initialize import main as initialize_system
 from metrics_bar import MetricsWidget as MetricsBar
 from gui_tabs import create_tabs
 from utilities import list_theme_files, make_theme_changer, load_stylesheet, download_kobold_executable, download_kokoro_tts, download_with_threadpool
-from gui_file_settings_hf import set_hf_access_token
+from gui_file_credentials import manage_credentials
 from module_ask_jeeves import ChatWindow
 from constants import JEEVES_MODELS
 
@@ -111,9 +111,12 @@ class DocQA_GUI(QWidget):
         self.theme_menu = self.file_menu.addMenu('Themes')
         for theme in list_theme_files():
             self.theme_menu.addAction(theme).triggered.connect(make_theme_changer(theme))
-        
+
         self.hf_token_menu = self.file_menu.addAction('Hugging Face Access Token')
-        self.hf_token_menu.triggered.connect(lambda: set_hf_access_token(self))
+        self.hf_token_menu.triggered.connect(lambda: manage_credentials(self, 'hf'))
+
+        self.openai_key_menu = self.file_menu.addAction('OpenAI API Key')
+        self.openai_key_menu.triggered.connect(lambda: manage_credentials(self, 'openai'))
 
         self.jeeves_action = self.menu_bar.addAction('Jeeves')
         self.jeeves_action.triggered.connect(self.open_chat_window)

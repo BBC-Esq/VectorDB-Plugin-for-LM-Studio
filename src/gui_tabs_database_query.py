@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QTextEdit, QPushButton, QCh
 
 from chat_lm_studio import LMStudioChatThread
 from chat_local_model import LocalModelChat
+from chat_openai import ChatGPTThread
 from constants import CHAT_MODELS
 from module_voice_recorder import VoiceRecorder
 from utilities import check_preconditions_for_submit_question, my_cprint
@@ -116,6 +117,7 @@ class DatabaseQueryTab(QWidget):
         self.config_path = Path(__file__).resolve().parent / 'config.yaml'
         self.lm_studio_chat_thread = None
         self.local_model_chat = LocalModelChat()
+        self.chatgpt_thread = None
         self.gui_signals = GuiSignals()
         self.current_model_name = None
         self.database_query_thread = None
@@ -141,7 +143,7 @@ class DatabaseQueryTab(QWidget):
 
         self.model_source_combo = QComboBox()
         self.model_source_combo.setToolTip(TOOLTIPS["MODEL_BACKEND_SELECT"])
-        self.model_source_combo.addItems(["LM Studio", "Local Model"])
+        self.model_source_combo.addItems(["Local Model", "LM Studio", "ChatGPT 4o mini"])
         self.model_source_combo.setCurrentText("LM Studio")
         self.model_source_combo.currentTextChanged.connect(self.on_model_source_changed)
         hbox1_layout.addWidget(self.model_source_combo)
@@ -236,10 +238,13 @@ class DatabaseQueryTab(QWidget):
         if text == "Local Model":
             self.model_combo_box.setEnabled(torch.cuda.is_available())
             self.eject_button.setEnabled(self.local_model_chat.is_model_loaded())
+        elif text == "ChatGPT 4o mini":
+            self.model_combo_box.setEnabled(False)
+            self.eject_button.setEnabled(False)
         else:  # "LM Studio"
             self.model_combo_box.setEnabled(False)
             self.eject_button.setEnabled(False)
-    
+
     def load_created_databases(self):
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as file:
@@ -249,6 +254,9 @@ class DatabaseQueryTab(QWidget):
         return []
 
     def on_submit_button_clicked(self):
+        if not self.text_input.toPlainText().strip():
+            QMessageBox.warning(self, "Error", "Please enter a question before submitting.")
+            return
         script_dir = Path(__file__).resolve().parent
         is_valid, error_message = check_preconditions_for_submit_question(script_dir)
         if not is_valid:
@@ -272,19 +280,27 @@ class DatabaseQueryTab(QWidget):
         chunks_only = self.chunks_only_checkbox.isChecked()
         
         selected_database = self.database_pulldown.currentText()
-        if chunks_only: # only get chunks
+        if chunks_only:  # only get chunks
             self.database_query_thread = ChunksOnlyThread(user_question, selected_database)
             self.database_query_thread.chunks_ready.connect(self.display_chunks)
             self.database_query_thread.finished.connect(self.on_database_query_finished)
             self.database_query_thread.start()
-        else: # lm studio or local model
-            if self.model_source_combo.currentText() == "LM Studio":
+        else:  # lm studio, local model, or chatgpt
+            model_source = self.model_source_combo.currentText()
+            if model_source == "LM Studio":
                 self.lm_studio_chat_thread = LMStudioChatThread(user_question, selected_database)
                 self.lm_studio_chat_thread.lm_studio_chat.signals.response_signal.connect(self.update_response_lm_studio)
                 self.lm_studio_chat_thread.lm_studio_chat.signals.error_signal.connect(self.show_error_message)
                 self.lm_studio_chat_thread.lm_studio_chat.signals.finished_signal.connect(self.on_submission_finished)
                 self.lm_studio_chat_thread.lm_studio_chat.signals.citation_signal.connect(self.display_citations_in_widget)
                 self.lm_studio_chat_thread.start()
+            elif model_source == "ChatGPT 4o mini":
+                self.chatgpt_thread = ChatGPTThread(user_question, selected_database)
+                self.chatgpt_thread.chatgpt_chat.signals.response_signal.connect(self.update_response_lm_studio)  # reuse same update method
+                self.chatgpt_thread.chatgpt_chat.signals.error_signal.connect(self.show_error_message)
+                self.chatgpt_thread.chatgpt_chat.signals.finished_signal.connect(self.on_submission_finished)
+                self.chatgpt_thread.chatgpt_chat.signals.citation_signal.connect(self.display_citations_in_widget)
+                self.chatgpt_thread.start()
             else:  # local models
                 selected_model = self.model_combo_box.currentText()
                 try:
@@ -414,4 +430,6 @@ class DatabaseQueryTab(QWidget):
             self.local_model_chat.eject_model()
         if self.database_query_thread and self.database_query_thread.isRunning():
             self.database_query_thread.wait()
+        if self.chatgpt_thread and self.chatgpt_thread.isRunning():  # Add this
+            self.chatgpt_thread.wait()
         print("Cleanup completed")
