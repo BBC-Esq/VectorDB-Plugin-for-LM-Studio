@@ -128,20 +128,6 @@ Run the setup script:
 python setup_windows_.py
 ```
 
-### Step 5 - 🔥IMPORTANT🔥
-In order to use the Ask Jeeves functionality you must:
-1) Go into the ```Assets``` folder;
-2) Right click on ```koboldcpp_nocuda.exe```;
-3) Check the "Unblock" checkbox
-4) Click OK.
-
-<details><summary>See Example Image Here</summary>
-<img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/Assets/kobold_unblock.png?raw=true" width="300">
-</details>
-
-If the "unblock" checkbox is not visible for whatever reason, another option is to doubleclick ```koboldcpp_nocuda.exe```, select the ```.gguf``` file within the ```Assets``` directory, and start the program.  This should (at least on Windows) attempt to start the Kobold program, which will trigger an option to "allow" it and/or create an exception to "Windows Defender" on your computer.  Select "Allow" or whatever other message you receive, which will enable it for all future interactions.  Please note that you should do this before trying to run the ```Ask Jeeves``` functionality in this program; otherwise, it may not work.
-  > Submit a Github ```Issue``` if you encounter any problems as ```Ask Jeeves``` is a relatively new feature.
-
 [Back to Top](#top)
 
 <a name="using-the-program"></a>
@@ -157,6 +143,20 @@ If the "unblock" checkbox is not visible for whatever reason, another option is 
 ```
 python gui.py
 ```
+
+### 🔥IMPORTANT🔥
+In order to use the Ask Jeeves for help you must go to the "File" menu several times in order to download Kobold, the appropriate embedding model, and the appropriate chat model.  ADDITIONALLY, this you must:
+1) Go into the ```Assets``` folder;
+2) Right click on ```koboldcpp_nocuda.exe```;
+3) Check the "Unblock" checkbox
+4) Click OK.
+
+<details><summary>See Example Image Here</summary>
+<img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/Assets/kobold_unblock.png?raw=true" width="300">
+</details>
+
+If the "unblock" checkbox is not visible for whatever reason, another option is to doubleclick ```koboldcpp_nocuda.exe```, select the ```.gguf``` file within the ```Assets``` directory, and start the program.  This should (at least on Windows) attempt to start the Kobold program, which will trigger an option to "allow" it and/or create an exception to "Windows Defender" on your computer.  Select "Allow" or whatever other message you receive, which will enable it for all future interactions.  Please note that you should do this before trying to run the ```Ask Jeeves``` functionality in this program; otherwise, it may not work.
+  > Submit a Github ```Issue``` if you encounter any problems as ```Ask Jeeves``` is a relatively new feature.
 
 ### Download the vector model
 * Download a vector/embedding model from the ```Models Tab```.
