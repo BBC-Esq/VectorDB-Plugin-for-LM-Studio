@@ -131,9 +131,11 @@ python setup_windows_.py
 [Back to Top](#top)
 
 <a name="using-the-program"></a>
-<div align="center"> <h3>🖥️Usage🖥️</h3></div>
+<div align="center"> <h2>🖥️Usage🖥️</h2></div>
 
-> 🔥Important🔥 for more detailed instructions just Ask Jeeves!
+🔥Important🔥
+* Instructions on how to use this program are being consolidated into the Ask jeeves functionality, which can be accessed from the "Ask Jeeves" menu option.  Please post an issue if in this repository if Jeeves is not giving you sufficient answers.
+* To talk with Jeeves, you must first download the ```bge-small-en-v1.5``` embedding model from the ```Models Tab```.
 
 ### Activate the virtual environment and start the program
 > Every time you want to use the program you must activate the virtual environment:
@@ -143,9 +145,6 @@ python setup_windows_.py
 ```
 python gui.py
 ```
-
-### 🔥IMPORTANT🔥
-To use the Ask Jeeves functionality, you must first download the ```bge-small-en-v1.5``` embedding model.  A prompt will notify you of this.
 
 ### Download the vector model
 * Download a vector/embedding model from the ```Models Tab```.
