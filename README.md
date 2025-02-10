@@ -184,12 +184,12 @@ Ask Jeeves for more details regarding query settings or the available backends.
 <a name="request-a-feature-or-report-a-bug"></a>
 ## Request a Feature or Report a Bug
 
-Feel free to report bugs or request enhancements by creating an issue on github.  Alternatively, I can frequently be found on the ```KoboldAI``` (moniker is ```vic49```) and am always happy to answer questions!  I am not formally affiliated with ```KoboldAI```, however.
+Feel free to report bugs or request enhancements by creating an issue on github.
 
 <a name="contact"></a>
 <div align="center"><h3>CONTACT</h3></div>
 
-All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or feel free to message me on the [LM Studio Discord Server](https://discord.gg/aPQfnNkxGC).
+All suggestions (positive and negative) are welcome.  "bbc@chintellalaw.com" or I can frequently be seen on the ```KoboldAI``` Discord server (moniker is ```vic49```).  I am always happy to answer any quesitons or discussing anything vector database related!  (no formal affiliation with ```KoboldAI```, however).
 
 <br>
 <div align="center">
