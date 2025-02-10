@@ -25,7 +25,6 @@ graph TD
     classDef llmStyle fill:#263238,stroke:#9c27b0,stroke-width:2px;
     classDef ttsStyle fill:#263238,stroke:#3f51b5,stroke-width:2px;
     classDef minWidth width:200px;
-
     %% Input Files
     subgraph InputFiles [Files]
         A[.pdf, .docx, .txt, .html, .csv, .xls, .xlsx, .rtf, .odt]
@@ -33,7 +32,6 @@ graph TD
         C[.mp3, .wav, .m4a, .ogg, .wma, .flac]
     end
     class InputFiles inputStyle;
-
     %% Processing
     subgraph Processing [Process]
         D[Extract Text]
@@ -41,57 +39,45 @@ graph TD
         F[Transcribe Audio]
     end
     class Processing processStyle;
-
     %% Output
     subgraph Output [Save]
         G[Vector Database]:::minWidth
     end
     class Output outputStyle;
-
     %% Search
     subgraph Search [Query]
         H[Type a Question]
         I[Record a Question]
     end
     class Search searchStyle;
-
     %% LLM
     subgraph LLM [Get Response from LLM]
         J[Combine Chunks & Query]
-        K1[Local Models]
-        K2[LM Studio]
-        K3[OpenAI and others<br/>coming soon]
+        K1[Local Models<br/>via this program]
+        K2[Kobold, LM Studio or ChatGPT]
         K[Response from LLM]
         K1 --> K
         K2 --> K
-        K3 --> K
     end
     class LLM llmStyle;
-
     %% TTS
     subgraph TTS [Speak Response]
         L[Text-to-Speech Models]
     end
     class TTS ttsStyle;
-
     %% Connections
     A --> D
     B --> E
     C --> F
-
     D --> G
     E --> G
     F --> G
-
     H --> G
     I --> G
-
     G --> J
     J --> K1
     J --> K2
-    J --> K3
     K --> L
-
 ```
 
 
@@ -142,18 +128,6 @@ Run the setup script:
 python setup_windows_.py
 ```
 
-### Step 5 - 🔥IMPORTANT🔥
-In order to use the Ask Jeeves functionality you must:
-1) Go into the ```Assets``` folder;
-2) Right click on ```koboldcpp_nocuda.exe```;
-3) Check the "Unblock" checkbox
-4) Click OK.
-
-<img src="https://github.com/BBC-Esq/VectorDB-Plugin-for-LM-Studio/blob/main/src/Assets/kobold_unblock.png?raw=true" width="300">
-
-If the "unblock" checkbox is not visible for whatever reason, another option is to doubleclick ```koboldcpp_nocuda.exe```, select the ```.gguf``` file within the ```Assets``` directory, and start the program.  This should (at least on Windows) attempt to start the Kobold program, which will trigger an option to "allow" it and/or create an exception to "Windows Defender" on your computer.  Select "Allow" or whatever other message you receive, which will enable it for all future interactions.  Please note that you should do this before trying to run the ```Ask Jeeves``` functionality in this program; otherwise, it may not work.
-  > Submit a Github ```Issue``` if you encounter any problems as ```Ask Jeeves``` is a relatively new feature.
-
 [Back to Top](#top)
 
 <a name="using-the-program"></a>
@@ -170,73 +144,41 @@ If the "unblock" checkbox is not visible for whatever reason, another option is 
 python gui.py
 ```
 
+### 🔥IMPORTANT🔥
+To use the Ask Jeeves functionality, you must first download the ```bge-small-en-v1.5``` embedding model.  A prompt will notify you of this.
+
 ### Download the vector model
-* Select and download a vector/embedding model from the ```Models Tab```.
+* Download a vector/embedding model from the ```Models Tab```.
 
-### Create a vector database
-This program extracts the text from a variety of file types and puts them into the vector database.  It also allows you to create summarizes of images and transcriptions of audio files to be put into the database.
+### Selecting General Files
 
-### Entering General File Types
+Select non-audio files (which can include images) within the ```Create Database``` tab by clicking the  ```Choose Files``` button.
+  > It is highly recommended that you test out the different vision models before inputting images.  Just ask Jeeves how.
 
-In the ```Create Database``` tab, select files you want to add to the database.  You can click the ```Choose Files``` button as many times as you want.
+### Selecting Audio Files
+Audio transcriptions can be put into the database to be searched; however, they must be transcribed first.  This can be done within the ```Tools Tab```.  You must do this for each indiviual audio file (batch processing is coming soon).
+  > It is highly recommended to test the various ```Whisper``` model sizes as well as the ```batch``` setting **before** committng to transcription.  Ask Jeeves for how to do this.
 
-### Entering Images
-This program uses "vision" models to create summaries of images, which can then be entered into the database and searched.  Before inputting images, I highly recommend that you test the various vision models for the one you like the most.
-
-To test a vision model:
-1) From the ```Create Database``` tab, select one or more images.
-2) From the ```Settings``` tab, select the vision model you want to test.
-3) From the ```Tools``` tab, process the images.
-
-After determining which vision model you like, add images to the database by selecting them from the ```Create Database``` tab like any other file.  When you eventually create the database they will be automatically processed.
-
-### Entering Audio Files
-Audio files can be transcribed and put into the database to be searched.  Before transcribing a long audio file, I highly recommend testing the various ```Whisper``` models on a shorter audio file as well as experimenting with different ```batch``` settings.  Your goal should be to use as large of a ```Whisper``` model as your GPU supports and then adjust the batch size to keep the VRAM usage within your available VRAM.
-
-To test optimal settings:
-1) Within the ```Tools``` tab, select a short audio file.
-2) Select a ```Whisper``` model.
-3) Process the audio file.
-4) Within the ```Create Database``` tab, doubleclick the transcription that was just created.
-5) Skim the ```page content``` field to get a sense of whether the transcription is accurate enough for your use-case or if you need to selecta more accurate ```Whisper``` model.
-
-Once you've obtained the optimal settings for your system, it's time to transcribe an audio file into the database:
-1) Within the ```Create Database``` tab, delete any transcriptions you don't want entered into the database.
-2) Create new transcriptions you want entered (repeate for multiple files).
-   > Batch processing is not yet available.
+Once the audio files are transcribed, the transcriptions will appear in the ```Create Database``` tab (represented by a .json file with the same name).
 
 ### Actually Creating The Database
 * Download a vector model from the ```Models``` tab.
 * Within the ```Create Database``` tab, create the database.
 
-### Manging the Database
-* The ```Manage Database``` tab allows you to view the contents of all databases that you've created and delete them if you want.
+Ask Jeeves regarding the database creation settings.
 
-## Query a Database (No LM Studio)
-* In the ```Query Database``` tab, select the database you want to use from the pulldown menu.
-* Enter your question by typing it or using the ```Record Question``` button.
-* Check the ```chunks only``` checkbox to only receive the relevant contexts.
+## Query the Database
+* In the ```Query Database``` tab, select the database you want to search.
+* Type or record your question.
+* Use the ```chunks only``` checkbox to only receive the relevant contexts.
+* Select a backend: ```Local Models```, ```Kobold```, ```LM Studio``` or ```ChatGPT```.
 * Click ```Submit Question```.
-  * In the ```Settings``` tab, you can change multiple settings regarding querying the database.  More information can be found in the User Guide.
+  * In the ```Settings``` tab, you can change multiple settings regarding querying the database.
 
-## Query a Database with a Response From LM Studio
-This program gets relevant chunks from the vector database and forwarding them - along with your question - to LM Studio for an answer!
-* Perform the above steps regarding entering a question and choosing settings, but make sure that ```Chunks Only``` is 🔥UNCHECKED🔥.
-* Start LM Studio and go to the Server tab on the left.
-* Load a model.
-* Turn ```Apply Prompt Formatting``` to "OFF."
-* On the right side within ```Prompt Format```, make sure that all of the following settings are blank:
-  * ```System Message Prefix```
-  * ```System Message Suffix```
-  * ```User Message Prefix```
-  * ```User Message Suffix```
-* At the top, load a model within LM Studio.
-* On the right, adjust the ```GPU Offload``` setting to your liking.
-* Within my program, go to the ```Settings``` tab, select the appropriate prompt format for the model loaded in LM Studio, click ```Update Settings```.
-* In LM Studio,  click ```Start Server.```
-* In the ```Query Database``` tab, click ```Submit Question```.
+Ask Jeeves for more details regarding query settings or the available backends.
 
-</details>
+### Deleting a Database
+* The ```Manage Database``` tab allows you to view the contents of a database or delete it.
 
 [Back to Top](#top)
 
