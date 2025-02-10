@@ -19,6 +19,38 @@ from PySide6.QtCore import QRunnable, QObject, Signal, QThreadPool
 from PySide6.QtWidgets import QApplication, QMessageBox
 from termcolor import cprint
 
+def set_cuda_paths():
+    import sys
+    import os
+    from pathlib import Path
+    
+    venv_base = Path(sys.executable).parent.parent
+    nvidia_base_path = venv_base / 'Lib' / 'site-packages' / 'nvidia'
+    cuda_path_runtime = nvidia_base_path / 'cuda_runtime' / 'bin'
+    cuda_path_runtime_lib = nvidia_base_path / 'cuda_runtime' / 'bin' / 'lib' / 'x64'
+    cuda_path_runtime_include = nvidia_base_path / 'cuda_runtime' / 'include'
+    cublas_path = nvidia_base_path / 'cublas' / 'bin'
+    cudnn_path = nvidia_base_path / 'cudnn' / 'bin'
+    nvrtc_path = nvidia_base_path / 'cuda_nvrtc' / 'bin'
+    nvcc_path = nvidia_base_path / 'cuda_nvcc' / 'bin'
+
+    paths_to_add = [
+        str(cuda_path_runtime),
+        str(cuda_path_runtime_lib),
+        str(cuda_path_runtime_include),
+        str(cublas_path),
+        str(cudnn_path),
+        str(nvrtc_path),
+        str(nvcc_path),
+    ]
+
+    current_value = os.environ.get('PATH', '')
+    new_value = os.pathsep.join(paths_to_add + [current_value] if current_value else paths_to_add)
+    os.environ['PATH'] = new_value
+
+    triton_cuda_path = nvidia_base_path / 'cuda_runtime'
+    os.environ['CUDA_PATH'] = str(triton_cuda_path)
+
 class DownloadSignals(QObject):
     finished = Signal(bool, str)
     progress = Signal(str)
@@ -478,6 +510,11 @@ def load_config(config_file):
     with open(config_file, 'r') as file:
         return yaml.safe_load(file)
 
+def list_theme_files():
+    script_dir = Path(__file__).parent
+    theme_dir = script_dir / 'CSS'
+    return [f.name for f in theme_dir.iterdir() if f.suffix == '.css']
+
 def load_stylesheet(filename):
     script_dir = Path(__file__).parent
     stylesheet_path = script_dir / 'CSS' / filename
@@ -485,15 +522,49 @@ def load_stylesheet(filename):
         stylesheet = file.read()
     return stylesheet
 
-def list_theme_files():
-    script_dir = Path(__file__).parent
-    theme_dir = script_dir / 'CSS'
-    return [f.name for f in theme_dir.iterdir() if f.suffix == '.css']
+def ensure_theme_config():
+    try:
+        with open('config.yaml', 'r') as f:
+            config = yaml.safe_load(f)
+
+        if config is None:
+            config = {}
+
+        if 'appearance' not in config:
+            config['appearance'] = {}
+
+        if 'theme' not in config['appearance'] or not config['appearance']['theme']:
+            config['appearance']['theme'] = 'custom_stylesheet_default.css'
+
+        with open('config.yaml', 'w') as f:
+            yaml.safe_dump(config, f)
+
+        return config['appearance']['theme']
+    except Exception:
+        return 'custom_stylesheet_default.css'
+
+def update_theme_in_config(new_theme):
+    try:
+        with open('config.yaml', 'r') as f:
+            config = yaml.safe_load(f)
+
+        if config is None:
+            config = {}
+
+        if 'appearance' not in config:
+            config['appearance'] = {}
+
+        config['appearance']['theme'] = new_theme
+
+        with open('config.yaml', 'w') as f:
+            yaml.safe_dump(config, f)
+    except Exception:
+        pass
 
 def make_theme_changer(theme_name):
     def change_theme():
-        stylesheet = load_stylesheet(theme_name)
-        QApplication.instance().setStyleSheet(stylesheet)
+        QApplication.instance().setStyleSheet(load_stylesheet(theme_name))
+        update_theme_in_config(theme_name)
     return change_theme
 
 def backup_database():

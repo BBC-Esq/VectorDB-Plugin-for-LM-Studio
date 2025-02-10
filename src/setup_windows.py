@@ -5,7 +5,6 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from replace_sourcecode import (
-    replace_instructor_file,
     replace_sentence_transformer_file,
     replace_chattts_file,
     add_cuda_files,
@@ -28,10 +27,8 @@ def has_nvidia_gpu():
     except FileNotFoundError:
         return False
 
-# get python version
 python_version = f"cp{sys.version_info.major}{sys.version_info.minor}"
 
-# determine cpu or gpu
 hardware_type = "GPU" if has_nvidia_gpu() else "CPU"
 
 def tkinter_message_box(title, message, type="info", yes_no=False):
@@ -237,7 +234,6 @@ if all_failed:
     sys.exit(1)
 
 # 6. replace sourcode files
-replace_instructor_file()
 replace_sentence_transformer_file()
 replace_chattts_file()
 add_cuda_files()
@@ -261,39 +257,7 @@ def create_directory_structure():
 
 create_directory_structure()
 
-# 8. download kobold
-def download_kobold():
-    import platform
-    import requests
-    import os
-
-    file_name = "koboldcpp_nocuda.exe"
-    url = f"https://github.com/LostRuins/koboldcpp/releases/download/v1.82.4/{file_name}"
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    assets_dir = os.path.join(script_dir, "Assets")
-    
-    if not os.path.exists(assets_dir):
-        os.makedirs(assets_dir)
-
-    kobold_path = os.path.join(assets_dir, file_name)
-
-    try:
-        print(f"Downloading KoboldCPP from {url}...")
-        response = requests.get(url)
-        response.raise_for_status()
-        with open(kobold_path, 'wb') as file:
-            file.write(response.content)
-
-        print(f"\033[92mKoboldCPP nocuda version downloaded successfully to {kobold_path}.\033[0m")
-
-    except requests.exceptions.HTTPError as http_err:
-        print(f"\033[91mHTTP error occurred while downloading KoboldCPP: {http_err}\033[0m")
-    except Exception as e:
-        print(f"\033[91mFailed to download KoboldCPP nocuda version: {e}\033[0m")
-
-download_kobold()
-
-# 9. manually add jeeves database to config.yaml
+# 8. manually add jeeves database to config.yaml
 def update_config_yaml():
     import yaml
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -302,25 +266,20 @@ def update_config_yaml():
     with open(config_path, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
 
-    # Setup vector model path
     vector_model_path = os.path.join(script_dir, 'Models', 'vector', 'BAAI--bge-small-en-v1.5')
-    
-    # Ensure base structures exist
+
     if 'created_databases' not in config:
         config['created_databases'] = {}
     if 'user_manual' not in config['created_databases']:
         config['created_databases']['user_manual'] = {}
 
-    # Update user_manual settings
     config['created_databases']['user_manual']['chunk_overlap'] = 549
     config['created_databases']['user_manual']['chunk_size'] = 1100
     config['created_databases']['user_manual']['model'] = vector_model_path
 
-    # Ensure openai configuration exists with required structure
     if 'openai' not in config:
         config['openai'] = {}
-    
-    # Ensure all required openai keys exist (preserving existing values if present)
+
     if 'api_key' not in config['openai']:
         config['openai']['api_key'] = ''
     if 'model' not in config['openai']:
@@ -328,11 +287,9 @@ def update_config_yaml():
     if 'reasoning_effort' not in config['openai']:
         config['openai']['reasoning_effort'] = 'medium'
 
-    # Ensure server configuration exists with required structure
     if 'server' not in config:
         config['server'] = {}
-    
-    # Ensure all required server keys exist (preserving existing values if present)
+
     if 'api_key' not in config['server']:
         config['server']['api_key'] = ''
     if 'connection_str' not in config['server']:
@@ -340,7 +297,6 @@ def update_config_yaml():
     if 'show_thinking' not in config['server']:
         config['server']['show_thinking'] = 'medium'
 
-    # Remove any extra keys that might exist in the server section
     server_allowed_keys = {'api_key', 'connection_str', 'show_thinking'}
     server_keys = list(config['server'].keys())
     for key in server_keys:

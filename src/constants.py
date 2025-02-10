@@ -1,20 +1,20 @@
 priority_libs = {
     "cp311": {
         "GPU": [
-            "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp311-cp311-win_amd64.whl",
-            "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=6c8a7003ef1327479ede284b6e5ab3527d3900c2b2d401af15bcc50f2245a59f",
-            "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=b3d75f4e6efc5412fe78c7f2787ee4f39cea1317652e1a47785879cde109f5c4",
-            "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp311-cp311-win_amd64.whl#sha256=15796b453a99ed0f0cbc249d129685ddc88157310135fb3addaf738a15db5306",
-            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post9/triton-3.1.0-cp311-cp311-win_amd64.whl",
+            "https://github.com/kingbri1/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu124torch2.6.0cxx11abiFALSE-cp311-cp311-win_amd64.whl",
+            "https://download.pytorch.org/whl/cu126/torch-2.6.0%2Bcu126-cp311-cp311-win_amd64.whl#sha256=5ddca43b81c64df8ce0c59260566e648ee46b2622ab6a718e38dea3c0ca059a1",
+            "https://download.pytorch.org/whl/cu126/torchaudio-2.6.0%2Bcu126-cp311-cp311-win_amd64.whl#sha256=833b8e350c77021400fed2271df10ecd02b88f684bbc9d57132faa0efc9a0a57",
+            "https://download.pytorch.org/whl/cu126/torchvision-0.21.0%2Bcu126-cp311-cp311-win_amd64.whl#sha256=ddbf4516fbb7624ac42934b877dcf6a3b295d9914ab89643b55dedb9c9773ce4",
+            "https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/triton-3.2.0-cp311-cp311-win_amd64.whl",
             "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
             "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
-            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp311-cp311-win_amd64.whl", # requires torch 2.5.1
-            "nvidia-cuda-runtime-cu12==12.4.127", # based on CUDA 12.4.1
-            "nvidia-cublas-cu12==12.4.5.8",  # based on CUDA 12.4.1
-            "nvidia-cuda-nvrtc-cu12==12.4.127", #  based on CUDA 12.4.1
-            "nvidia-cuda-nvcc-cu12==12.4.131", #  based on CUDA 12.4.1
-            "nvidia-cufft-cu12==11.2.1.3", #  based on CUDA 12.4.1
-            "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
+            "xformers==0.0.29.post2", # requires torch 2.6.0
+            # per https://github.com/pytorch/pytorch/blob/main/.github/scripts/generate_binary_build_matrix.py
+            "nvidia-cuda-runtime-cu12==12.6.77",
+            "nvidia-cublas-cu12==12.6.4.1",
+            "nvidia-cuda-nvrtc-cu12==12.6.77",
+            "nvidia-cuda-nvcc-cu12==12.6.77",
+            "nvidia-cudnn-cu12==9.5.1.17",
             "nvidia-ml-py==12.570.86",
         ],
         "CPU": [
@@ -23,21 +23,22 @@ priority_libs = {
     },
     "cp312": {
         "GPU": [
-            "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=3c3f705fb125edbd77f9579fa11a138c56af8968a10fc95834cdd9fdf4f1f1a6",
-            "https://download.pytorch.org/whl/cu124/torchaudio-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=cca2de94f232611b20d379edf28befa7a1aa482ae9ed41c3b958b08ed1bf4983",
-            "https://download.pytorch.org/whl/cu124/torchvision-0.20.1%2Bcu124-cp312-cp312-win_amd64.whl#sha256=0f6c7b3b0e13663fb3359e64f3604c0ab74c2b4809ae6949ace5635a5240f0e5",
-            "https://github.com/bdashore3/flash-attention/releases/download/v2.7.1.post1/flash_attn-2.7.1.post1+cu124torch2.5.1cxx11abiFALSE-cp312-cp312-win_amd64.whl",
-            "https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post9/triton-3.1.0-cp312-cp312-win_amd64.whl",
+            "https://github.com/kingbri1/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu124torch2.6.0cxx11abiFALSE-cp312-cp312-win_amd64.whl",
+            "https://download.pytorch.org/whl/cu126/torch-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=b10c39c83e5d1afd639b5c9f5683b351e97e41390a93f59c59187004a9949924",
+            "https://download.pytorch.org/whl/cu126/torchaudio-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=144b286d2f6195ba8d75ed1a568bddd718d032d54d1bf94940d47730c6321a0b",
+            "https://download.pytorch.org/whl/cu126/torchvision-0.21.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=600c18579cd6eae8f6bbfcc43a088bc512bfde1fa4de0587a4db1d44eaf411f9",
+            "https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/triton-3.2.0-cp312-cp312-win_amd64.whl",
             "git+https://github.com/shashikg/WhisperS2T.git@e7f7e6dbfdc7f3a39454feb9dd262fd3653add8c",
             "git+https://github.com/BBC-Esq/WhisperSpeech.git@41c9accb7d9ac1e4e5f5c110a4a973c566c56fd8",
-            "https://download.pytorch.org/whl/cu124/xformers-0.0.29.post1-cp312-cp312-win_amd64.whl", # requires torch 2.5.1
-            "nvidia-cuda-runtime-cu12==12.4.127", # based on CUDA 12.4.1
-            "nvidia-cublas-cu12==12.4.5.8",  # based on CUDA 12.4.1
-            "nvidia-cuda-nvrtc-cu12==12.4.127", #  based on CUDA 12.4.1
-            "nvidia-cuda-nvcc-cu12==12.4.131", #  based on CUDA 12.4.1
-            "nvidia-cufft-cu12==11.2.1.3", #  based on CUDA 12.4.1
-            "nvidia-cudnn-cu12==9.1.0.70", # Torch 2.5.1 officially supported version
+            "xformers==0.0.29.post2", # requires torch 2.6.0
+            # per https://github.com/pytorch/pytorch/blob/main/.github/scripts/generate_binary_build_matrix.py
+            "nvidia-cuda-runtime-cu12==12.6.77",
+            "nvidia-cublas-cu12==12.6.4.1",
+            "nvidia-cuda-nvrtc-cu12==12.6.77",
+            "nvidia-cuda-nvcc-cu12==12.6.77",
+            "nvidia-cudnn-cu12==9.5.1.17",
             "nvidia-ml-py==12.570.86",
+
         ],
         "CPU": [
             # CPU specific links would go here
@@ -48,8 +49,8 @@ priority_libs = {
 libs = [
     "accelerate==1.3.0",
     "aiofiles==24.1.0",
-    "aiohappyeyeballs==2.4.4",
-    "aiohttp==3.11.11", # langchain libraries require <4
+    "aiohappyeyeballs==2.4.6",
+    "aiohttp==3.11.12", # langchain libraries require <4
     "aiosignal==1.3.2", # only required by aiohttp
     "anndata==0.11.3",
     "annotated-types==0.7.0",
@@ -59,8 +60,8 @@ libs = [
     "attrs==25.1.0",
     "av==14.1.0",
     "backoff==2.2.1",
-    "beautifulsoup4==4.13.1",
-    "bitsandbytes==0.45.1",
+    "beautifulsoup4==4.13.3",
+    "bitsandbytes==0.45.2",
     "braceexpand==0.1.7",
     "certifi==2025.1.31",
     "cffi==1.17.1",
@@ -77,11 +78,11 @@ libs = [
     "cycler==0.12.1",
     "dataclasses-json==0.6.7",
     "datasets==3.2.0",
-    "deepdiff==8.1.1", # required by unstructured
+    "deepdiff==8.2.0", # required by unstructured
     "dill==0.3.8", # datasets 3.2.0 requires <0.3.9; multiprocess 0.70.16 requires >=0.3.8
     "distro==1.9.0",
     "docx2txt==0.8",
-    "einops==0.8.0",
+    "einops==0.8.1",
     "einx==0.3.0",
     "emoji==2.14.1",
     "encodec==0.1.1",
@@ -91,7 +92,7 @@ libs = [
     "fastprogress==1.0.3", # only required by whisperspeech
     "filetype==1.2.0",
     "filelock==3.17.0",
-    "fonttools==4.55.8", # only required by matplotlib
+    "fonttools==4.56.0", # only required by matplotlib
     "frozendict==2.4.6",
     "frozenlist==1.5.0",
     "fsspec==2024.9.0", # datasets 3.2.0 requires <=2024.9.0
@@ -108,7 +109,6 @@ libs = [
     "HyperPyYAML==1.2.2",
     "idna==3.10",
     "importlib_metadata==8.6.1",
-    "InstructorEmbedding==1.0.1",
     "Jinja2==3.1.5",
     "jiter==0.8.2", # required by openai newer versions
     "joblib==1.4.2",
@@ -116,11 +116,11 @@ libs = [
     "jsonpath-python==1.0.6",
     "jsonpointer==3.0.0",
     "kiwisolver==1.4.8",
-    "langchain==0.3.17",
-    "langchain-community==0.3.16",
-    "langchain-core==0.3.33",
+    "langchain==0.3.18",
+    "langchain-community==0.3.17",
+    "langchain-core==0.3.34",
     "langchain-huggingface==0.1.2",
-    "langchain-text-splitters==0.3.5",
+    "langchain-text-splitters==0.3.6",
     "langdetect==1.0.9",
     "langsmith==0.3.4",
     "llvmlite==0.44.0", # only required by numba
@@ -144,12 +144,12 @@ libs = [
     "numba==0.61.0", # only required by openai-whisper
     "numpy==1.26.4", # langchain libraries <2; numba <2.1; scipy <2.3; chattts <2.0.0
     "olefile==0.47",
-    "openai==1.61.0", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
+    "openai==1.61.1", # only required by chat_lm_studio.py script and whispers2t (if using openai vanilla backend)
     "openai-whisper==20240930", # only required by whisper_s2t (if using openai vanilla backend)
     "openpyxl==3.1.5",
     "optimum==1.24.0",
     "ordered-set==4.1.0",
-    "orderly-set==5.3.0", # deepdiff 8.1.1 orderly-set>=5.2.3,<6
+    "orderly-set==5.3.0", # deepdiff 8.2.0 requires orderly-set=5.3.0,<6
     "orjson==3.10.15",
     "packaging==24.2",
     "pandas==2.2.3",
@@ -161,23 +161,23 @@ libs = [
     "protobuf==5.29.3",
     "psutil==6.1.1",
     "pyarrow==19.0.0",
-    "pybase16384==0.3.7", # only required by chattts
+    "pybase16384==0.3.8", # only required by chattts
     "pycparser==2.22",
     "pydantic==2.10.6",
-    "pydantic_core==2.27.2",
+    "pydantic_core==2.27.2", # pydantic 2.10.6 requires pydantic_core==2.27.2
     "pydantic-settings==2.7.1",
     "Pygments==2.19.1",
     "pypandoc==1.15",
     "pyparsing==3.2.1",
-    "pypdf==5.2.0",
+    "pypdf==5.3.0",
     "pyreadline3==3.5.4",
     "python-dateutil==2.9.0.post0",
     "python-docx==1.1.2",
     "python-dotenv==1.0.1",
-    "python-iso639==2025.1.28",
+    "python-iso639==2025.2.8",
     "python-magic==0.4.27",
     "python-oxmsg==0.0.2", # only required by unstructured library
-    "pytz==2024.2",
+    "pytz==2025.1",
     "PyYAML==6.0.2",
     "rapidfuzz==3.12.1",
     "regex==2024.11.6",
@@ -189,7 +189,7 @@ libs = [
     "safetensors==0.5.2",
     "scikit-learn==1.6.1",
     "scipy==1.15.1", # 1.15.0 has possible breaking changes
-    "sentence-transformers==3.4.0",
+    "sentence-transformers==3.4.1",
     "sentencepiece==0.2.0",
     "six==1.17.0",
     "sniffio==1.3.1",
@@ -197,7 +197,7 @@ libs = [
     "soundfile==0.13.1",
     "soupsieve==2.6",
     "speechbrain==0.5.16",
-    "SQLAlchemy==2.0.37", # langchain and langchain-community require less than 3.0.0
+    "SQLAlchemy==2.0.38", # langchain and langchain-community require less than 3.0.0
     "sseclient-py==1.8.0", # only required by Kobold
     "sympy==1.13.1", # torch 2.5.1 requires sympy==1.13.1
     "tabulate==0.9.0",
@@ -212,13 +212,13 @@ libs = [
     "timm==1.0.14",
     "tokenizers==0.21.0",
     "tqdm==4.67.1",
-    "transformers==4.48.2",
+    "transformers==4.48.3",
     "typing-inspect==0.9.0",
     "typing_extensions==4.12.2",
     "unstructured-client==0.29.0",
     "tzdata==2025.1",
     "urllib3==2.3.0", # requests 2.32.3 requires <3
-    "vector-quantize-pytorch==1.21.5",
+    "vector-quantize-pytorch==1.21.7",
     "vocos==0.1.0",
     "watchdog==6.0.0",
     "webdataset==0.2.100", # required by all TTS libraries
@@ -232,9 +232,9 @@ libs = [
 ]
 
 full_install_libs = [
-    "PySide6==6.8.2",
-    "pymupdf==1.25.2",
-    "unstructured==0.16.17"
+    "PySide6==6.8.2.1",
+    "pymupdf==1.25.3",
+    "unstructured==0.16.20"
 ]
 
 CHAT_MODELS = {
@@ -528,30 +528,6 @@ VECTOR_MODELS = {
             'precision': 'float32'
         },
     ],
-    # 'Answerdotai': [
-        # {
-            # 'name': 'ModernBERT-base',
-            # 'dimensions': 768,
-            # 'max_sequence': 8192,
-            # 'size_mb': 600,
-            # 'repo_id': 'tasksource/ModernBERT-base-embed',
-            # 'cache_dir': 'tasksource--ModernBERT-base-embed',
-            # 'type': 'vector',
-            # 'parameters': '150m',
-            # 'precision': 'float32'
-        # },
-        # {
-            # 'name': 'ModernBERT-large',
-            # 'dimensions': 1024,
-            # 'max_sequence': 8192,
-            # 'size_mb': 1590,
-            # 'repo_id': 'lightonai/modernbert-embed-large',
-            # 'cache_dir': 'lightonai--modernbert-embed-large',
-            # 'type': 'vector',
-            # 'parameters': '396m',
-            # 'precision': 'float32'
-        # },
-    # ],
     'BAAI': [
         {
             'name': 'bge-small-en-v1.5',
@@ -587,41 +563,6 @@ VECTOR_MODELS = {
             'precision': 'float32'
         },
     ],
-    # 'hkunlp': [
-        # {
-            # 'name': 'instructor-base',
-            # 'dimensions': 768,
-            # 'max_sequence': 512,
-            # 'size_mb': 439,
-            # 'repo_id': 'hkunlp/instructor-base',
-            # 'cache_dir': 'hkunlp--instructor-base',
-            # 'type': 'vector',
-            # 'parameters': '110m',
-            # 'precision': 'float32'
-        # },
-        # {
-            # 'name': 'instructor-large',
-            # 'dimensions': 1024,
-            # 'max_sequence': 512,
-            # 'size_mb': 1340,
-            # 'repo_id': 'hkunlp/instructor-large',
-            # 'cache_dir': 'hkunlp--instructor-large',
-            # 'type': 'vector',
-            # 'parameters': '335m',
-            # 'precision': 'float32'
-        # },
-        # {
-            # 'name': 'instructor-xl',
-            # 'dimensions': 1024,
-            # 'max_sequence': 512,
-            # 'size_mb': 4960,
-            # 'repo_id': 'hkunlp/instructor-xl',
-            # 'cache_dir': 'hkunlp--instructor-xl',
-            # 'type': 'vector',
-            # 'parameters': '1500m',
-            # 'precision': 'float32'
-        # },
-    # ],
     'IBM': [
         {
             'name': 'Granite-30m-English',
@@ -685,7 +626,7 @@ VECTOR_MODELS = {
         {
             'name': 'stella_en_1.5B_v5',
             'dimensions': 1024,
-            'max_sequence': 512,
+            'max_sequence': 131072,
             'size_mb': 6170,
             'repo_id': 'NovaSearch/stella_en_1.5B_v5',
             'cache_dir': 'NovaSearch--stella_en_1.5B_v5',
@@ -696,7 +637,7 @@ VECTOR_MODELS = {
         {
             'name': 'stella_en_400M_v5',
             'dimensions': 1024,
-            'max_sequence': 512,
+            'max_sequence': 8192,
             'size_mb': 1740,
             'repo_id': 'NovaSearch/stella_en_400M_v5',
             'cache_dir': 'NovaSearch--stella_en_400M_v5',
@@ -1012,53 +953,50 @@ TTS_MODELS = {
 }
 
 JEEVES_MODELS = {
-    "EXAONE - 2.4b Q8_0": {
-        "filename": "EXAONE-3.5-2.4B-Instruct-Q8_0.gguf",
-        "repo_id": "bartowski/EXAONE-3.5-2.4B-Instruct-GGUF",
-        "allow_patterns": ["EXAONE-3.5-2.4B-Instruct-Q8_0.gguf"],
-        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
+    "Exaone - 2.4b": {
+        "original_repo": "LGAI-EXAONE/EXAONE-3.5-2.4B-Instruct",
+        "repo": "ctranslate2-4you/EXAONE-3.5-2.4B-Instruct-ct2-int8",
+        "folder_name": "ctranslate2-4you--EXAONE-3.5-2.4B-Instruct-Llamafied-ct2-int8",
+        "prompt_format": """[|system|]{jeeves_system_message}[|endofturn|]
 [|user|]{user_message}
 [|endofturn|]
 [|assistant|]"""
     },
-    "Llama - 3b Q8_0": {
-        "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
-        "repo_id": "lmstudio-community/Llama-3.2-3B-Instruct-GGUF",
-        "allow_patterns": ["Llama-3.2-3B-Instruct-Q8_0.gguf"],
-        "prompt_template": """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+    "Llama - 3b": {
+        "original_repo": "meta-llama/Llama-3.2-3B-Instruct",
+        "repo": "ctranslate2-4you/Llama-3.2-3B-Instruct-ct2-int8",
+        "folder_name": "ctranslate2-4you--Llama-3.2-3B-Instruct-ct2-int8",
+        "prompt_format": """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
 Cutting Knowledge Date: December 2023
+
 {jeeves_system_message}<|eot_id|>
 <|start_header_id|>user<|end_header_id|>
+
 {user_message}<|eot_id|>
 <|start_header_id|>assistant<|end_header_id|>"""
     },
-    "Qwen - 3b Q8_0": {
-        "filename": "Qwen2.5-3B-Instruct-Q8_0.gguf",
-        "repo_id": "bartowski/Qwen2.5-3B-Instruct-GGUF",
-        "allow_patterns": ["Qwen2.5-3B-Instruct-Q8_0.gguf"],
-        "prompt_template": """<|im_start|>system
+    "Qwen - 3b": {
+        "original_repo": "Qwen/Qwen2.5-3B-Instruct",
+        "repo": "ctranslate2-4you/Qwen2.5-3B-Instruct-ct2-int8",
+        "folder_name": "ctranslate2-4you--Qwen2.5-3B-Instruct-ct2-int8",
+        "prompt_format": """<|im_start|>system
 {jeeves_system_message}<|im_end|>
 <|im_start|>user
 {user_message}<|im_end|>
-<|im_start|>assistant
-"""
+<|im_start|>assistant"""
     },
-    "Zephyr - 3b Q8_0": {
-        "filename": "stablelm-zephyr-3b-q8_0.gguf",
-        "repo_id": "ysn-rfd/stablelm-zephyr-3b-Q8_0-GGUF",
-        "allow_patterns": ["stablelm-zephyr-3b-q8_0.gguf"],
-        "prompt_template": """<|system|>
-{jeeves_system_message}<|endoftext|>
-<|user|>
-{user_message}<|endoftext|>
-<|assistant|>
-"""
+    "Danube - 4b": {
+        "original_repo": "h2oai/h2o-danube3-4b-chat",
+        "repo": "ctranslate2-4you/h2o-danube3-4b-chat-ct2-int8",
+        "folder_name": "ctranslate2-4you--h2o-danube3.1-4b-chat-ct2-int8",
+        "prompt_format": """<|system|>{jeeves_system_message}</s><|prompt|>{user_message}</s><|answer|>"""
     },
-    "EXAONE - 7.8b Q4_K_M": {
-        "filename": "EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf",
-        "repo_id": "bartowski/EXAONE-3.5-7.8B-Instruct-GGUF",
-        "allow_patterns": ["EXAONE-3.5-7.8B-Instruct-Q4_K_M.gguf"],
-        "prompt_template": """[|system|]{jeeves_system_message}[|endofturn|]
+    "Exaone - 7.8b": {
+        "original_repo": "LGAI-EXAONE/EXAONE-3.5-7.8B-Instruct",
+        "repo": "ctranslate2-4you/EXAONE-3.5-7.8B-Instruct-ct2-int8",
+        "folder_name": "ctranslate2-4you--EXAONE-3.5-7.8B-Instruct-Llamafied-ct2-int8",
+        "prompt_format": """[|system|]{jeeves_system_message}[|endofturn|]
 [|user|]{user_message}
 [|endofturn|]
 [|assistant|]"""
@@ -1284,76 +1222,6 @@ WHISPER_MODELS = {
     },
 }
 
-kobold_config = {
-  "benchmark": None,
-  "blasbatchsize": 512,
-  "blasthreads": None,
-  "chatcompletionsadapter": None,
-  "config": None,
-  "contextsize": 2048,
-  "debugmode": 0,
-  "flashattention": False,
-  "forceversion": 0,
-  "foreground": False,
-  "gpulayers": -1,
-  "highpriority": True,
-  "hordeconfig": None,
-  "hordegenlen": 0,
-  "hordekey": "",
-  "hordemaxctx": 0,
-  "hordemodelname": "",
-  "hordeworkername": "",
-  "host": "",
-  "ignoremissing": False,
-  "istemplate": True,
-  "launch": False,
-  "lora": None,
-  "mmproj": None,
-  "model": "",
-  "model_param": "",
-  "multiuser": 1,
-  "noblas": False,
-  "nocertify": False,
-  "noavx2": False,
-  "nommap": False,
-  "nomodel": False,
-  "noshift": True,
-  "onready": "",
-  "password": None,
-  "port": 5111,
-  "port_param": 5111,
-  "preloadstory": None,
-  "prompt": "",
-  "promptlimit": 100,
-  "quantkv": 0,
-  "quiet": True,
-  "remotetunnel": False,
-  "ropeconfig": [0.0, 10000.0],
-  "sdclamped": 0,
-  "sdconfig": None,
-  "sdlora": "",
-  "sdloramult": 1.0,
-  "sdmodel": "",
-  "sdquant": False,
-  "sdthreads": 0,
-  "sdvae": "",
-  "sdvaeauto": False,
-  "showgui": False,
-  "skiplauncher": True,
-  "smartcontext": True,
-  "ssl": None,
-  "tensor_split": None,
-  "threads": -1,
-  "unpack": "",
-  "useblascpu": None,
-  "useclblast": None,
-  "usecpu": False,
-  "usecublas": None,
-  "usemlock": True,
-  "usevulkan": None,
-  "whispermodel": ""
-}
-
 DOCUMENT_LOADERS = {
     # ".pdf": "PyMuPDFLoader",
     ".pdf": "CustomPyMuPDFLoader",
@@ -1371,29 +1239,6 @@ DOCUMENT_LOADERS = {
     ".odt": "UnstructuredODTLoader",
     ".md": "UnstructuredMarkdownLoader",
     ".html": "BSHTMLLoader",
-}
-
-PROMPT_FORMATS = {
-    "ChatML": {
-        "prefix": "",
-        "suffix": ""
-    },
-    "Llama2/Mistral": {
-        "prefix": "[INST]",
-        "suffix": "[/INST]"
-    },
-    "Neural Chat/SOLAR": {
-        "prefix": "### User:",
-        "suffix": "### Assistant:"
-    },
-    "Orca2": {
-        "prefix": "user",
-        "suffix": "assistant"
-    },
-    "StableLM-Zephyr": {
-        "prefix": "",
-        "suffix": " "
-    }
 }
 
 # stuff to include/exclude based on whether "show_thinking" is true or false in config.yaml
@@ -2790,11 +2635,13 @@ GPUS_INTEL = {
 
 master_questions = [
     "Overview of Program",
-    "What is LM Studio?",
+    "What is LM Studio and how is it used in this program?",
+    "What is Kobold and how is it used in this program?",
+    "What is ChatGPT?",
     "What are embedding or vector models?",
     "What are local models and how do I use them?",
     "What local models are available to use?",
-    "How do I get a huggingface access token?",
+    "How do I get a Huggingface access token?",
     "What are context limits for a chat model?",
     "What happens if I exceed the context limit or maximum sequence length and how does the chunk size and overlap setting relate?",
     "How many context should I retrieve when querying the vector database?",
@@ -2802,7 +2649,10 @@ master_questions = [
     "What are embedding or vector models?",
     "Which embedding or vector model should I choose?",
     "What are the characteristics of vector or embedding models?",
-    "What are the dimensions of a vector or embedding model?",
+    "What does precision mean regarding embedding models specifically?",
+    "What does parameters mean specifically regarding embedding models?",
+    "What does dimensions mean specifically regarding embedding models?",
+    "What does max sequence mean regarding embedding models?",
     "Tips for using vector or embedding models",
     "What Are Vision Models?",
     "What vision models are available in this program?",
@@ -2816,19 +2666,20 @@ master_questions = [
     "What whisper model should I choose to transcribe a file?",
     "What are floating point formats, precision, and quantization?",
     "What are the common floating point formats?",
-    "What does float16 mean in LLMs?",
+    "What does float16 mean?",
     "What is the bfloat16 floating point format?",
     "What is the float16 floating point format?",
     "What does exponent mean in floating point formats?",
     "What are precision and range in floating point formats?",
-    "What is the difference betwen float32, bfloat16 and float16?",
+    "What is the difference between float32, bfloat16 and float16?",
     "What is quantization?",
-    "What's the difference between post-training and quantization-aware training?",
-    "What are the LM Studio Server Settings and what do they do?",
+    "What settings are available in this program and how can I adjust them?",
+    "What are the LM Studio Server Settings?",
     "What are the database creation settings and what do they do?",
     "What is the Device setting when creating or querying a vector database?",
     "What is the chunk size setting when creating a vector database?",
     "What is the chunk overlap setting when creating a vector database?",
+    "What is the half-precision setting?",
     "What is the contexts setting when querying the vector database?",
     "What is the similarity setting when querying the vector database?",
     "What is the search term filter setting when querying the vector database?",
@@ -2840,15 +2691,15 @@ master_questions = [
     "What are some good tips for searching a vector database?",
     "How can I conserve memory or vram usage for this program?",
     "What device is best for querying a vector database?",
-    "What are maximunm context length of a chat model and and maximum sequence length of an embedding model?",
-    "What is the scrape documentaton feature in this program?",
+    "What are maximum context length of a chat model and and maximum sequence length of an embedding model?",
+    "What is the scrape documentation feature in this program?",
     "Which vector or embedding models are available in this program?",
     "What are the Alibaba embedding models?",
     "What are the BGE embedding models?",
     "What are the IBM or granite embedding models?",
     "What are the intfloat embedding models?",
     "What are the NovaSearch or Nova Search embedding models?",
-    "What are the sentence transformer or sentence-t5 embedding models?",
+    "What are the sentence transformer or 'sentence-t5' embedding models?",
     "What are the arctic or snowflake embedding models?",
     "What is the sentence transformer static-retrieval embedding model?",
     "What are vision models and which ones does this program offer?",
@@ -2867,20 +2718,19 @@ master_questions = [
     "What is the mistral or mistral small chat model?",
     "What are the IBM or granite chat models?",
     "What is the InternLM chat model?",
-    "What is the manage databaes tab?",
+    "What is the manage databases Tab?",
     "How can I create a vector database?",
     "What is the Query Database Tab",
     "What is the Tools Tab?",
+    "How can I test the various vision models?",
     "What is the Create Database Tab?",
-    "What is the manage databases tab?",
+    "What is the manage databases Tab?",
     "What is the Settings Tab?",
     "What is the Models Tab?",
-    "What is the max tokens setting?",
-    "What are the prefix and suffix settings?",
     "What does precision mean?"
 ]
 
-jeeves_system_message = "You are a helpful British butler who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address a question you answer based on what the contexts say and then briefly summarize the parts of the question that the contexts didn't provide an answer to.  Also, you should be very respectful to the person asking the question and frequently offer traditional butler services like various fancy drinks, snacks, various butler services like shining of shoes, pressing of suites, and stuff like that. Also, if you can't answer the question at all based on the provided contexts, you should apologize profusely and beg to keep your job.  Lastly, it is essential that if there are no contexts actually provided it means that a user's question wasn't relevant and you should state that you can't answer based off of the contexts because there are none.  And it goes without saying you should refuse to answer any questions that are not directly answerable by the provided contexts.  Moreover, some of the contexts might not have relevant information and you should simply ignore them and focus on only answering a user's question.  I cannot emphasize enough that you must gear your answer towards using this program and based your response off of the contexts you receive."
+jeeves_system_message = "You are a helpful British butler who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address a question you answer based on what the contexts say and then briefly summarize the parts of the question that the contexts didn't provide an answer to.  Also, you should be very respectful to the person asking the question and frequently offer traditional butler services like various fancy drinks, snacks, various butler services like shining of shoes, pressing of suites, and stuff like that. Also, if you can't answer the question at all based on the provided contexts, you should apologize profusely and beg to keep your job.  Lastly, it is essential that if there are no contexts actually provided it means that a user's question wasn't relevant and you should state that you can't answer based off of the contexts because there are none.  And it goes without saying you should refuse to answer any questions that are not directly answerable by the provided contexts.  Moreover, some of the contexts might not have relevant information and you should simply ignore them and focus on only answering a user's question.  I cannot emphasize enough that you must gear your answer towards using this program and based your response off of the contexts you receive.  Lastly, in addition to offering to perform stereotypical butler services in the midst of your response, you must always always always end your response with some kind of offering of butler services even they don't want it."
 system_message = "You are a helpful person who clearly and directly answers questions in a succinct fashion based on contexts provided to you. If you cannot find the answer within the contexts simply tell me that the contexts do not provide an answer. However, if the contexts partially address my question I still want you to answer based on what the contexts say and then briefly summarize the parts of my question that the contexts didn't provide an answer."
 rag_string = "Here are the contexts to base your answer on.  However, I need to reiterate that I only want you to base your response on these contexts and do not use outside knowledge that you may have been trained with."
 
@@ -2935,8 +2785,8 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 +-------------------+------------+--------------+----------+-----------+----------+--------+
 * 12.1.105 and 12.1.3.1 come from CUDA 12.1.1
 * 12.4.127 and 12.4.5.8 come from CUDA 12.4.1
-* 12.6.77 come from CUDA 12.6.2
-* 12.6.4.1 come from CUDA 12.6.3
+* 12.6.77 comes from CUDA 12.6.2
+* 12.6.4.1 comes from CUDA 12.6.3
 * See .json files here for more info: https://developer.download.nvidia.com/compute/cuda/redist/
 * Thus, torch is not 100% compatible with CUDA 12.1.0 or 12.4.0, for example, or any other version.
 * See pytorch/.github/scripts/generate_binary_build_matrix.py
@@ -2968,6 +2818,7 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 | v0.0.25.post1    | 2.2.2 |               |                |
 +------------------+-------+---------------+----------------+
 * PyTorch builds the Windows wheels after 2.4.0 - e.g. https://download.pytorch.org/whl/cu124/xformers/
+* Beginning with 0.0.29.post2 pypi has the Windows wheels again.
 * Torch support determined by xformers/.github/workflows/wheels.yml
 * FA2 support determined by by xformers/xformers/ops/fmha/flash.py
 * CUDA support determined by xformers/.girhub/actions/setup-build-cuda/action.yml
@@ -3019,9 +2870,11 @@ rag_string = "Here are the contexts to base your answer on.  However, I need to 
 ***************
 
 # per https://github.com/bdashore3/flash-attention/releases/
+-- renamed to https://github.com/kingbri1/flash-attention
 +--------------+---------------------+----------------+
 | FA2 Version  | Torch Versions      | CUDA Versions |
 +--------------+---------------------+---------------+
+| v2.7.4.post1 | 2.2.2, 2.3.1, 2.4.0, 2.5.1, 2.6.0   | 12.4.1         |
 | v2.7.1.post1 | 2.3.1, 2.4.0, 2.5.1 | 12.4.1        |
 | v2.7.0.post2 | 2.3.1, 2.4.0, 2.5.1 | 12.4.1        |
 | v2.6.3       | 2.2.2, 2.3.1, 2.4.0 | 12.3.2        |

@@ -20,7 +20,7 @@ import random
 
 import numpy as np
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInstructEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.docstore.document import Document
 from langchain_community.vectorstores import TileDB
 
@@ -57,40 +57,6 @@ class BaseEmbeddingModel:
             model_kwargs=prepared_kwargs,
             encode_kwargs=prepared_encode_kwargs
         )
-
-
-class InstructorEmbedding(BaseEmbeddingModel):
-    def create(self):
-        logging.debug("Starting creation of InstructorEmbedding model.")
-        
-        instruction = (
-            "Represent the question for retrieving supporting documents:"
-            if self.is_query else
-            "Represent the document for retrieval:"
-        )
-        logging.debug("Selected embed instruction: %s", instruction)
-        
-        encode_kwargs = self.prepare_encode_kwargs()
-        logging.debug("Prepared encode_kwargs: %s", encode_kwargs)
-        
-        model = HuggingFaceInstructEmbeddings(
-            model_name=self.model_name,
-            model_kwargs=self.model_kwargs,
-            encode_kwargs=encode_kwargs,
-            show_progress=not self.is_query,
-            embed_instruction=instruction
-        )
-        logging.debug("Created HuggingFaceInstructEmbeddings model with model_name: %s", self.model_name)
-        
-        if "torch_dtype" in self.model_kwargs.get("model_kwargs", {}):
-            torch_dtype = self.model_kwargs["model_kwargs"]["torch_dtype"]
-            logging.debug("Found torch_dtype in model_kwargs: %s", torch_dtype)
-            if torch_dtype is not None:
-                logging.debug("Converting model.client[0].auto_model to torch_dtype: %s", torch_dtype)
-                model.client[0].auto_model = model.client[0].auto_model.to(torch_dtype)
-        
-        logging.debug("InstructorEmbedding model creation complete.")
-        return model
 
 
 class SnowflakeEmbedding(BaseEmbeddingModel):
@@ -182,16 +148,6 @@ class AlibabaEmbedding(BaseEmbeddingModel):
         logging.debug("Starting AlibabaEmbedding prepare_kwargs.")
         ali_kwargs = deepcopy(self.model_kwargs)
         logging.debug(f"Original model_kwargs: {self.model_kwargs}")
-        
-        # Update tokenizer_kwargs in model_kwargs
-        ali_kwargs["model_kwargs"].update({
-            "tokenizer_kwargs": {
-                "max_length": 8192,
-                "padding": True,
-                "truncation": True
-            }
-        })
-        logging.debug("Updated 'tokenizer_kwargs' in model_kwargs with max_length=8192, padding=True, and truncation=True.")
 
         compute_device = self.model_kwargs.get("device", "").lower()
         is_cuda = compute_device == "cuda"
@@ -199,14 +155,20 @@ class AlibabaEmbedding(BaseEmbeddingModel):
         logging.debug(f"Device: {compute_device}")
         logging.debug(f"is_cuda: {is_cuda}")
         logging.debug(f"use_xformers: {use_xformers}")
-        
+
+        ali_kwargs["tokenizer_kwargs"] = {
+            "max_length": 8192,
+            "padding": True,
+            "truncation": True
+        }
+
         ali_kwargs["config_kwargs"] = {
             "use_memory_efficient_attention": use_xformers,
             "unpad_inputs": use_xformers,
             "attn_implementation": "eager" if use_xformers else "sdpa"
         }
         logging.debug(f"Set 'config_kwargs': {ali_kwargs['config_kwargs']}")
-        
+
         logging.debug(f"Final ali_kwargs: {ali_kwargs}")
         return ali_kwargs
 
@@ -219,7 +181,7 @@ def process_chunks_only_query(database_name, query, result_queue):
     try:
         query_db = QueryVectorDB(database_name)
         contexts, metadata_list = query_db.search(query)
-        
+
         formatted_contexts = []
         for index, (context, metadata) in enumerate(zip(contexts, metadata_list), start=1):
             file_name = metadata.get('file_name', 'Unknown')
@@ -232,7 +194,7 @@ def process_chunks_only_query(database_name, query, result_queue):
                 f"{cleaned_context}\n"
             )
             formatted_contexts.append(formatted_context)
-            
+
         result_queue.put("\n".join(formatted_contexts))
     except Exception as e:
         result_queue.put(f"Error querying database: {str(e)}")
@@ -274,12 +236,10 @@ class CreateVectorDB:
             batch_size_mapping = {
                 't5-xxl': 2,
                 't5-xl': 2,
-                'instructor-xl': 2,
                 'stella_en_1.5B': 2,
                 'gte-large': 4,
                 't5-large': 4,
                 'bge-large': 4,
-                'instructor-large': 4,
                 'e5-large': 4,
                 'arctic-embed-l': 4,
                 'stella_en_400M': 6,
@@ -300,10 +260,7 @@ class CreateVectorDB:
                         encode_kwargs['batch_size'] = value
                         break
 
-        if "instructor" in embedding_model_name.lower():
-            logger.debug("Matched Instructor condition")
-            model = InstructorEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
-        elif "snowflake" in embedding_model_name.lower():
+        if "snowflake" in embedding_model_name.lower():
             logger.debug("Matched Snowflake condition")
             model = SnowflakeEmbedding(embedding_model_name, model_kwargs, encode_kwargs).create()
         elif "alibaba" in embedding_model_name.lower():
@@ -329,7 +286,7 @@ class CreateVectorDB:
     def create_database(self, texts, embeddings):
         my_cprint("\nComputing vectors...", "yellow")
         start_time = time.time()
-        
+
         hash_id_mappings = []
         MAX_UINT64 = 18446744073709551615
 
@@ -340,7 +297,6 @@ class CreateVectorDB:
             logging.warning(f"Directory already exists: {self.PERSIST_DIRECTORY}")
 
         try:
-            # Initialize collections for all chunks
             all_texts = []
             all_metadatas = []
             all_ids = []
@@ -468,10 +424,10 @@ class CreateVectorDB:
     def run(self):
         config_data = self.load_config(self.ROOT_DIRECTORY)
         EMBEDDING_MODEL_NAME = config_data.get("EMBEDDING_MODEL_NAME")
-        
+
         # list to hold "document objects"        
         documents = []
-        
+
         # load text document objects
         text_documents = load_documents(self.SOURCE_DIRECTORY)
         if isinstance(text_documents, list) and text_documents:
@@ -480,14 +436,14 @@ class CreateVectorDB:
         # separate lists for pdf and non-pdf document objects
         text_documents_pdf = [doc for doc in documents if doc.metadata.get("file_type") == ".pdf"]
         documents = [doc for doc in documents if doc.metadata.get("file_type") != ".pdf"]
-        
+
         # load image descriptions
         print("Loading any images...")
         image_documents = choose_image_loader()
         if isinstance(image_documents, list) and image_documents:
             if len(image_documents) > 0:
                 documents.extend(image_documents)
-        
+
         # load audio transcriptions
         print("Loading any audio transcripts...")
         audio_documents = self.load_audio_documents()
@@ -578,10 +534,7 @@ class QueryVectorDB:
         }
         encode_kwargs = {'normalize_embeddings': True}
 
-        if "instructor" in model_path.lower():
-            logger.debug("Matched Instructor condition")
-            embeddings = InstructorEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
-        elif "snowflake" in model_path.lower():
+        if "snowflake" in model_path.lower():
             logger.debug("Matched Snowflake condition")
             embeddings = SnowflakeEmbedding(model_path, model_kwargs, encode_kwargs, is_query=True).create()
         elif "alibaba" in model_path.lower():
@@ -604,7 +557,7 @@ class QueryVectorDB:
 
     def initialize_database(self):
         persist_directory = Path(__file__).resolve().parent / "Vector_DB" / self.selected_database
-        
+
         return TileDB.load(index_uri=str(persist_directory), embedding=self.embeddings, allow_dangerous_deserialization=True)
 
     def is_special_prefix_model(self):
@@ -652,7 +605,7 @@ class QueryVectorDB:
 
     def cleanup(self):
         logging.info(f"Cleaning up QueryVectorDB instance {self._debug_id} for database {self.selected_database}")
-        
+
         if self.embeddings:
             logging.debug(f"Unloading embedding model for database {self.selected_database}")
             del self.embeddings

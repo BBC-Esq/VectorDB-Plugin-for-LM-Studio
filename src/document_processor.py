@@ -172,10 +172,7 @@ def load_document_batch(filepaths, threads_per_process):
     return (data_list, filepaths)
 
 def load_documents(source_dir: Path) -> list:
-    # Pre-compute valid extensions set
     valid_extensions = {ext.lower() for ext in DOCUMENT_LOADERS.keys()}
-    
-    # Use the pre-computed set for filtering
     doc_paths = [f for f in source_dir.iterdir() if f.suffix.lower() in valid_extensions]
     
     docs = []
@@ -211,7 +208,7 @@ def split_documents(documents=None, text_documents_pdf=None):
 
         texts = []
 
-        # debugging
+        # debug
         # print(f"Documents list before splitting: {[doc.metadata.get('file_type') for doc in documents]}")
         # print(f"PDF Documents list before splitting: {[doc.metadata.get('file_type') for doc in text_documents_pdf]}")
 
@@ -224,7 +221,6 @@ def split_documents(documents=None, text_documents_pdf=None):
 
             texts = text_splitter.split_documents(documents)
 
-        # split PDF document objects
         """
         I customized langchain's pymupdfparser to add custom page markers as follows:
         
@@ -252,7 +248,7 @@ def split_documents(documents=None, text_documents_pdf=None):
             raise
 
 """
-Select notes regarding changes to PyMuPDF loading and parsing in langchain-community 0.3.15+
+The PyMUPDF parser was modified in langchain-community 0.3.15+
 
 - Adds "producer" and "creator" metadata fields
 - Adds thread safety features
@@ -288,9 +284,9 @@ Select notes regarding changes to PyMuPDF loading and parsing in langchain-commu
 | (Parser only)       | extraction settings        |               |           |
 +----------------------+---------------------------+---------------+-----------+
 
-This table is ONLY RELEVANT if I do not use custom sub-classes, but good for possible future reference
+This table is ONLY RELEVANT if I do not use custom sub-classes.  Keep for possible future reference
 
-Regarding the additional metadata fields, this won't interfere with your extract_metadata.py because it:
+Regarding the additional metadata fields, this won't interfere with extract_metadata.py because it:
 
 1) Applies after the document is loaded; and
 2) Uses document.metadata.update(metadata), which means that it will either:

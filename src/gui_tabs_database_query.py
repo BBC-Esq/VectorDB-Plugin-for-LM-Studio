@@ -35,19 +35,19 @@ class ChunksOnlyThread(QThread):
     def run(self):
         try:
             result_queue = multiprocessing.Queue()
-            
+
             self.process = multiprocessing.Process(
                 target=process_chunks_only_query,
                 args=(self.database_name, self.query, result_queue)
             )
             self.process.start()
-            
+
             result = result_queue.get()
             self.chunks_ready.emit(result)
-            
+
             self.process.join()
             self.process = None
-            
+
         except Exception as e:
             logging.exception(f"Error in chunks only thread: {e}")
             self.chunks_ready.emit(f"Error querying database: {str(e)}")
@@ -205,7 +205,7 @@ class DatabaseQueryTab(QWidget):
         self.bark_button.setToolTip(TOOLTIPS["SPEAK_RESPONSE"])
         self.bark_button.clicked.connect(self.on_bark_button_clicked)
         hbox2_layout.addWidget(self.bark_button)
-        
+
         self.chunks_only_checkbox = QCheckBox("Chunks Only")
         self.chunks_only_checkbox.setToolTip(TOOLTIPS["CHUNKS_ONLY"])
         hbox2_layout.addWidget(self.chunks_only_checkbox)
@@ -214,7 +214,7 @@ class DatabaseQueryTab(QWidget):
         self.record_button.setToolTip(TOOLTIPS["VOICE_RECORDER"])
         self.record_button.clicked.connect(self.toggle_recording)
         hbox2_layout.addWidget(self.record_button)
-        
+
         self.submit_button = QPushButton("Submit Question")
         self.submit_button.clicked.connect(self.on_submit_button_clicked)
         hbox2_layout.addWidget(self.submit_button)
@@ -239,10 +239,10 @@ class DatabaseQueryTab(QWidget):
     def on_model_source_changed(self, text):
         if text == "Local Model":
             self.model_combo_box.setEnabled(torch.cuda.is_available())
-            self.eject_button.setEnabled(self.local_model_chat.is_model_loaded())
         else:  # "LM Studio", "ChatGPT", "Kobold"
             self.model_combo_box.setEnabled(False)
-            self.eject_button.setEnabled(False)
+
+        self.eject_button.setEnabled(self.local_model_chat.is_model_loaded())
 
     def load_created_databases(self):
         if self.config_path.exists():
@@ -264,7 +264,7 @@ class DatabaseQueryTab(QWidget):
 
         self.response_widget.clear()
         self.token_count_label.clear()
-        
+
         self.response_widget.clear()
         self.response_widget.setPlainText("")
         self.response_widget.setHtml("")
@@ -272,12 +272,12 @@ class DatabaseQueryTab(QWidget):
         cursor = self.response_widget.textCursor()
         cursor.clearSelection()
         self.response_widget.setTextCursor(cursor)
-        
+
         self.cumulative_response = ""
         self.submit_button.setDisabled(True)
         user_question = self.text_input.toPlainText()
         chunks_only = self.chunks_only_checkbox.isChecked()
-        
+
         selected_database = self.database_pulldown.currentText()
         if chunks_only:  # only get chunks
             self.database_query_thread = ChunksOnlyThread(user_question, selected_database)
@@ -300,7 +300,7 @@ class DatabaseQueryTab(QWidget):
                 self.chatgpt_thread.chatgpt_chat.signals.finished_signal.connect(self.on_submission_finished)
                 self.chatgpt_thread.chatgpt_chat.signals.citation_signal.connect(self.display_citations_in_widget)
                 self.chatgpt_thread.start()
-            elif model_source == "Kobold":  # Add this section
+            elif model_source == "Kobold":
                 self.kobold_thread = KoboldThread(user_question, selected_database)
                 self.kobold_thread.kobold_chat.signals.response_signal.connect(self.update_response_lm_studio)
                 self.kobold_thread.kobold_chat.signals.error_signal.connect(self.show_error_message)
@@ -345,7 +345,6 @@ class DatabaseQueryTab(QWidget):
     def on_model_unloaded(self):
         self.eject_button.setEnabled(False)
         self.eject_button.setText("Eject Local Model")
-
 
     def display_citations_in_widget(self, citations):
         if citations:
@@ -440,6 +439,6 @@ class DatabaseQueryTab(QWidget):
         if self.chatgpt_thread and self.chatgpt_thread.isRunning():
             self.chatgpt_thread.wait()
         if self.kobold_thread and self.kobold_thread.isRunning():
-            self.kobold_thread.stop()  # Call our new stop method
-            self.kobold_thread.wait(timeout=5000)  # Add timeout
+            self.kobold_thread.stop()
+            self.kobold_thread.wait(timeout=5000)
         print("Cleanup completed")

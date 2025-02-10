@@ -66,7 +66,7 @@ class KoboldChat:
         
         if self.query_vector_db:
             self.query_vector_db.cleanup()
-            print("Embedding model removed from memory.")
+            # print("Embedding model removed from memory.")
 
         if torch.cuda.empty_cache():
             torch.cuda.empty_cache()

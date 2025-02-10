@@ -15,11 +15,13 @@ model_downloaded_signal = ModelDownloadedSignal()
 MODEL_DIRECTORIES = {
     "vector": "vector",
     "chat": "chat", 
-    "tts": "tts"
+    "tts": "tts",
+    "jeeves": "jeeves"
 }
 
-class ModelDownloader:
+class ModelDownloader(QObject):
     def __init__(self, model_info, model_type):
+        super().__init__()
         self.model_info = model_info
         self.model_type = model_type
         self._model_directory = None
@@ -131,12 +133,12 @@ class ModelDownloader:
                    continue
 
                should_include = True
-               
+
                if allow_patterns is not None:
                    should_include = any(fnmatch.fnmatch(file.path, pattern) for pattern in allow_patterns)
                elif final_ignore_patterns is not None:
                    should_include = not any(fnmatch.fnmatch(file.path, pattern) for pattern in final_ignore_patterns)
-               
+
                if should_include:
                    total_size += file.size
                    included_files.append(file.path)
@@ -157,7 +159,7 @@ class ModelDownloader:
                ignore_patterns=final_ignore_patterns,
                allow_patterns=allow_patterns
            )
-           
+
            print("\033[92mModel downloaded and ready to use.\033[0m")
            atexit.unregister(self.cleanup_incomplete_download)
            model_downloaded_signal.downloaded.emit(self.get_model_directory_name(), self.model_type)
@@ -167,3 +169,39 @@ class ModelDownloader:
            if local_dir.exists():
                import shutil
                shutil.rmtree(local_dir)
+
+"""
+Needs to be doublechecked...
+
++----------------+------------------+------------------------+---------------+
+| Source         | Parameters       | Behavior             | Repo Structure? |
++----------------+------------------+------------------------+---------------+
+| "huggingface"  | (default)        | ~/.cache/huggingface | No              |
+| "huggingface"  | cache_dir="path" | Downloads to path    | No              |
+| "huggingface"  | local_dir="path" | Downloads to path    | Yes             |
++----------------+------------------+----------------------+-----------------+
+| "local"        | (default)        | Current directory    | No              |
+| "local"        | cache_dir="path" | Downloads to path    | No              |
+| "local"        | local_dir="path" | Downloads to path    | Yes             |
++----------------+------------------+----------------------+-----------------+
+| "custom"       | custom_path      | Uses existing files  | n/a             |
+| "custom"       | +cache_dir       | cache_dir ignored    | n/a             |
+| "custom"       | +local_dir       | local_dir ignored    | n/a             |
++----------------+------------------+----------------------+-----------------+
+
+1. `local_dir` takes precedence over everything else:
+```python
+chat.load(source="huggingface", local_dir="path/to/dir", cache_dir="path/to/cache")  # local_dir wins
+```
+
+2. If `local_dir` is not specified but `cache_dir` is, cache_dir is used:
+```python
+chat.load(source="huggingface", cache_dir="path/to/cache")  # cache_dir used
+```
+
+3. If neither is specified, the default location is used:
+```python
+chat.load(source="huggingface")  # Uses ~/.cache/huggingface
+chat.load(source="local")        # Uses current directory
+```
+"""

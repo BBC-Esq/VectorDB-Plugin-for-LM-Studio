@@ -85,10 +85,6 @@ class DependencyUpdater:
             print(f"| {row.ljust(table_width - 4)} |")
         print(border)
 
-def replace_instructor_file():
-    updater = DependencyUpdater()
-    updater.update_file_in_dependency("Assets", "instructor.py", ["InstructorEmbedding"])
-
 def replace_sentence_transformer_file():
     updater = DependencyUpdater()
     updater.update_file_in_dependency("Assets", "SentenceTransformer.py", ["sentence_transformers"])
@@ -223,7 +219,6 @@ def check_embedding_model_dimensions():
 
 if __name__ == "__main__":
     DependencyUpdater.print_ascii_table("DEPENDENCY UPDATER", [
-        "Replace Instructor File",
         "Replace Sentence Transformer File",
         "Replace ChatTTS File",
         "Add CUDA Files",
@@ -231,7 +226,6 @@ if __name__ == "__main__":
         "Check Config EMBEDDING_MODEL_DIMENSIONS"
     ])
 
-    replace_instructor_file()
     replace_sentence_transformer_file()
     replace_chattts_file()
     add_cuda_files()
